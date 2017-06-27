@@ -13,7 +13,7 @@ Please file bugs using the [MariaDB ColumnStore Jira](https://jira.mariadb.org/b
 
 ## Building
 
-###Ubuntu
+### Ubuntu
 
 For the main build you need:
 
