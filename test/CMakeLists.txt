@@ -1,0 +1,23 @@
+FIND_PACKAGE(MySQL REQUIRED)
+if (NOT MYSQL_FOUND)
+    MESSAGE(FATAL_ERROR "Could not find a usable libmysqlclient for the test suite!")
+endif()
+include_directories(${MYSQL_INCLUDE_DIR})
+find_package(Threads)
+
+add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure)
+
+ENABLE_TESTING()
+macro(compile_test arg)
+  add_executable(${arg} ${arg}.cpp)
+  target_link_libraries(${arg} mcsapi ${LIBUV_LIBRARY} ${LIBXML2_LIBRARIES} ${GTEST_BOTH_LIBRARIES} ${MYSQL_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
+  add_test(${arg} ${arg})
+endmacro(compile_test)
+
+compile_test(version)
+compile_test(commit)
+compile_test(million-row)
+compile_test(chained)
+compile_test(dataconvert-int)
+compile_test(dataconvert-double)
+compile_test(dataconvert-string)

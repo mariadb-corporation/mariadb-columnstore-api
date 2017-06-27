@@ -1,0 +1,34 @@
+include_directories(${LIBXML2_INCLUDE_DIR})
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__FILENAME__='\"$(subst ${CMAKE_SOURCE_DIR}/,,$(abspath $<))\"'")
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBUILDING_MCSAPI")
+
+set(SOURCE_FILES
+    mcsapi_driver.cpp
+    mcsapi_types.cpp
+    mcsapi_bulk.cpp
+    util_dataconvert.cpp
+    util_messaging.cpp
+    util_network.cpp
+    util_commands.cpp
+    util_structures.cpp
+)
+
+add_library(mcsapi SHARED ${SOURCE_FILES})
+add_library(mcsapi_static STATIC ${SOURCE_FILES})
+set_target_properties(mcsapi PROPERTIES CXX_VISIBILITY_PRESET hidden
+    VERSION ${MCSAPI_VERSION_STRING}
+    SOVERSION ${MCSAPI_VERSION_MAJOR}
+)
+set_target_properties(mcsapi_static PROPERTIES OUTPUT_NAME mcsapi)
+target_link_libraries(mcsapi ${SNAPPY_LIBRARIES})
+target_link_libraries(mcsapi_static ${SNAPPY_LIBRARIES})
+
+IF(RUN_CPPCHECK)
+  add_cppcheck(mcsapi FORCE)
+ENDIF(RUN_CPPCHECK)
+
+
+INSTALL(TARGETS mcsapi DESTINATION ${CMAKE_INSTALL_LIBDIR})
+INSTALL(TARGETS mcsapi_static DESTINATION ${CMAKE_INSTALL_LIBDIR})

@@ -1,0 +1,11 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_BINDIR@
+libdir=@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@
+includedir=@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_INCLUDEDIR@
+
+Name: @CMAKE_PROJECT_NAME@
+Version: @VERSION@
+Description: A C++ library to connect to MariaDB ColumnStore
+
+Libs: -L${libdir} -luv -lxml2 -lsnappy -lmcsapi
+Cflags: -I${includedir}

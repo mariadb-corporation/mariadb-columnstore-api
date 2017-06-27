@@ -1,32 +1,37 @@
-# Prerequisites
-*.d
-
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+libcolumnstore1/CMakeFiles/
+libcolumnstore1/Makefile
+libcolumnstore1/cmake_install.cmake
+src/CMakeFiles/
+src/Makefile
+src/cmake_install.cmake
+avro-prefix/
+third-party/
+src/libmcsapi.a
+*.swp
+example/bulk_insert
+install_manifest.txt
+src/libmcsapi.so*
+CTestTestfile.cmake
+DartConfiguration.tcl
+Testing/
+test/CTestTestfile.cmake
+test/version
+test/commit
+test/chained
+test/million-row
+test/dataconvert-int
+test/dataconvert-double
+test/dataconvert-string
+version.h
+docs/_build/conf.py
+docs/_build/sources.cmake
+docs/_doctrees/
+docs/_sources/
+docs/html/
+docs/pdf/
+libmcsapi.pc
+cmake_uninstall.cmake
