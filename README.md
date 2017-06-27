@@ -14,19 +14,20 @@ Please file bugs using the [MariaDB ColumnStore Jira](https://jira.mariadb.org/b
 ## Building
 
 ###Ubuntu
+
 For the main build you need:
 
-```console
+```shell
 sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev
 ```
 For the documentation:
-```console
+```shell
 sudo apt-get install python-sphinx texlive-latex-recommended texlive-latex-extra
 ```
 
 For test test suite:
 
-```console
+```shell
 sudo apt-get install libgtest-dev cppcheck
 cd /usr/src/gtest
 sudo cmake . -DCMAKE_BUILD_TYPE=RELEASE
@@ -37,18 +38,18 @@ sudo mv libg* /usr/lib/
 
 For the main build you need
 
-```console
+```shell
 sudo yum install cmake gcc-c++ libuv-devel libxml2-devel snappy-devel
 ```
 
 For the documentation:
 
-```console
+```shell
 sudo yum install python-sphinx texlive-scheme-full
 ```
 
 For the test suite:
-```console
+```shell
 sudo yum install gtest-devel cppcheck
 ```
 
@@ -57,7 +58,7 @@ sudo yum install gtest-devel cppcheck
 Several options are available when execution CMake by using the following
 command line:
 
-```console
+```shell
 cmake -D<Variable>=<Value>
 ```
 
