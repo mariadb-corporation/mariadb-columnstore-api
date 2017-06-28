@@ -19,8 +19,61 @@
 #include "common.h"
 #include "mcsapi_types_impl.h"
 
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+
 namespace mcsapi
 {
+ColumnStoreDateTime::ColumnStoreDateTime()
+{
+    mImpl = new ColumnStoreDateTimeImpl();
+}
+
+ColumnStoreDateTime::ColumnStoreDateTime(tm& time)
+{
+    mImpl = new ColumnStoreDateTimeImpl();
+    set(time);
+}
+
+ColumnStoreDateTime::ColumnStoreDateTime(std::string& dateTime, std::string& format)
+{
+    mImpl = new ColumnStoreDateTimeImpl();
+    set(dateTime, format);
+}
+
+ColumnStoreDateTime::~ColumnStoreDateTime()
+{
+    delete mImpl;
+}
+
+bool ColumnStoreDateTime::set(tm& time)
+{
+    mImpl->year = time.tm_year;
+    if ((mImpl->year < 1000) && (mImpl->year != 0))
+        mImpl->year+= 1900;
+    mImpl->month = time.tm_mon + 1;
+    mImpl->day = time.tm_mday;
+    mImpl->hour = time.tm_hour;
+    mImpl->minute = time.tm_min;
+    mImpl->second = time.tm_sec;
+
+    return mImpl->validateDate();
+}
+
+bool ColumnStoreDateTime::set(std::string& dateTime, std::string& format)
+{
+    tm time = {};
+    std::istringstream ss(dateTime);
+    ss >> std::get_time(&time, format.c_str());
+    if (ss.fail())
+    {
+        return false;
+    }
+
+    return set(time);
+}
+
 uint32_t ColumnStoreDateTimeImpl::getDateInt()
 {
     uint32_t ret = 0;
@@ -44,6 +97,14 @@ uint64_t ColumnStoreDateTimeImpl::getDateTimeInt()
     ret |= microsecond & 0xFFFFF;
 
     return ret;
+}
+
+void ColumnStoreDateTimeImpl::getDateTimeStr(std::string& sDateTime)
+{
+    char dateTime[20];
+
+    snprintf(dateTime, 20, "%.4" PRIu16 "-%.2" PRIu8 "-%.2" PRIu8 " %.2" PRIu8 ":%.2" PRIu8 ":%.2" PRIu8, year, month, day, hour, minute, second);
+    sDateTime = dateTime;
 }
 
 columnstore_data_convert_status_t ColumnStoreDateTimeImpl::setFromString(std::string& dateStr)

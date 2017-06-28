@@ -1375,10 +1375,161 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
 
 columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSystemCatalogColumn* toMeta, ColumnStoreDataContainer* cont, ColumnStoreDateTime& fromValue)
 {
-    (void) toMeta;
-    (void) cont;
-    (void) fromValue;
-    return CONVERT_STATUS_NONE;
+    columnstore_data_convert_status_t status = CONVERT_STATUS_NONE;
+    int8_t val8;
+    int16_t val16;
+    int32_t val32;
+    int64_t val64;
+    uint8_t uval8;
+    uint16_t uval16;
+    uint32_t uval32;
+    uint64_t uval64;
+    std::string valS;
+    switch(toMeta->type)
+    {
+        case DATA_TYPE_BIT:
+        {
+            status = CONVERT_STATUS_INVALID;
+            val8 = 0;
+            cont->setData(val8);
+            break;
+        }
+        case DATA_TYPE_TINYINT:
+        {
+            status = CONVERT_STATUS_INVALID;
+            val8 = 0;
+            cont->setData(val8);
+            break;
+        }
+
+        case DATA_TYPE_SMALLINT:
+        {
+            status = CONVERT_STATUS_INVALID;
+            val16 = 0;
+            cont->setData(val16);
+            break;
+        }
+
+        case DATA_TYPE_UDECIMAL:
+        case DATA_TYPE_DECIMAL:
+        {
+            status = CONVERT_STATUS_INVALID;
+            val64 = 0;
+            cont->setData(val64);
+            break;
+        }
+
+        case DATA_TYPE_MEDINT:
+        {
+            status = CONVERT_STATUS_INVALID;
+            val32 = 0;
+            cont->setData(val32);
+            break;
+        }
+
+        case DATA_TYPE_INT:
+        {
+            status = CONVERT_STATUS_INVALID;
+            val32 = 0;
+            cont->setData(val32);
+            break;
+        }
+        case DATA_TYPE_UFLOAT:
+        case DATA_TYPE_FLOAT:
+        {
+            status = CONVERT_STATUS_INVALID;
+            val32 = 0;
+            cont->setData(val32);
+            break;
+        }
+
+        case DATA_TYPE_DATE:
+        {
+            uval32 = fromValue.mImpl->getDateInt();
+            cont->setData(uval32);
+            break;
+        }
+
+        case DATA_TYPE_BIGINT:
+        {
+            status = CONVERT_STATUS_INVALID;
+            val64 = 0;
+            cont->setData(val64);
+            break;
+        }
+
+        case DATA_TYPE_DOUBLE:
+        case DATA_TYPE_UDOUBLE:
+        {
+            status = CONVERT_STATUS_INVALID;
+            val64 = 0;
+            cont->setData(val64);
+            break;
+        }
+
+        case DATA_TYPE_DATETIME:
+        {
+            uval64 = fromValue.mImpl->getDateTimeInt();
+            cont->setData(uval64);
+            break;
+        }
+
+        case DATA_TYPE_VARCHAR:
+        case DATA_TYPE_CHAR:
+        case DATA_TYPE_TEXT:
+        case DATA_TYPE_VARBINARY:
+        case DATA_TYPE_CLOB:
+        case DATA_TYPE_BLOB:
+        {
+            fromValue.mImpl->getDateTimeStr(valS);
+            if (valS.length() > toMeta->width)
+            {
+                status = CONVERT_STATUS_TRUNCATED;
+                valS.resize(toMeta->width);
+            }
+            cont->setData(valS);
+            break;
+        }
+
+        case DATA_TYPE_UTINYINT:
+        {
+            status = CONVERT_STATUS_INVALID;
+            uval8 = 0;
+            cont->setData(uval8);
+            break;
+        }
+        case DATA_TYPE_USMALLINT:
+        {
+            status = CONVERT_STATUS_INVALID;
+            uval16 = 0;
+            cont->setData(uval16);
+            break;
+        }
+        case DATA_TYPE_UMEDINT:
+        {
+            status = CONVERT_STATUS_INVALID;
+            uval32 = 0;
+            cont->setData(uval32);
+            break;
+        }
+        case DATA_TYPE_UINT:
+        {
+            status = CONVERT_STATUS_INVALID;
+            uval32 = 0;
+            cont->setData(uval32);
+            break;
+        }
+
+        case DATA_TYPE_UBIGINT:
+        {
+            status = CONVERT_STATUS_INVALID;
+            uval64 = 0;
+            cont->setData(uval64);
+            break;
+        }
+    }
+
+    return status;
 }
 
 columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSystemCatalogColumn* toMeta, ColumnStoreDataContainer* cont, ColumnStoreDecimal& fromValue)

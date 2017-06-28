@@ -22,7 +22,7 @@ namespace mcsapi
 {
 class ColumnStoreDateTimeImpl
 {
-private:
+public:
     uint16_t year;
     uint8_t month;
     uint8_t day;
@@ -30,7 +30,6 @@ private:
     uint8_t minute;
     uint8_t second;
     uint32_t microsecond; // Unused, for a later date
-public:
     ColumnStoreDateTimeImpl() :
         year(0),
         month(0),
@@ -42,6 +41,7 @@ public:
     { }
     uint32_t getDateInt();
     uint64_t getDateTimeInt();
+    void getDateTimeStr(std::string& sDateTime);
     columnstore_data_convert_status_t setFromString(std::string& dateStr);
     bool validateDate();
 };

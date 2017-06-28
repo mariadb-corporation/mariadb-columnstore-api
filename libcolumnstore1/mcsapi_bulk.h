@@ -71,8 +71,8 @@ public:
     }
 
     ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, double value, columnstore_data_convert_status_t* status = nullptr);
-    ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, const ColumnStoreDateTime& value, columnstore_data_convert_status_t* status = nullptr);
-    ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, const ColumnStoreDecimal& value, columnstore_data_convert_status_t* status = nullptr);
+    ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, ColumnStoreDateTime& value, columnstore_data_convert_status_t* status = nullptr);
+    ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, ColumnStoreDecimal& value, columnstore_data_convert_status_t* status = nullptr);
     ColumnStoreBulkInsert* setNull(uint16_t columnNumber);
     ColumnStoreBulkInsert* writeRow();
     void commit();

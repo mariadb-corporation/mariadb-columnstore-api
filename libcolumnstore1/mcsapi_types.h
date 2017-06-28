@@ -25,15 +25,18 @@ namespace mcsapi
 class ColumnStoreDateTimeImpl;
 class ColumnStoreDecimalImpl;
 class ColumnStoreSummaryImpl;
+class ColumnStoreDataConvert;
 class MCS_API ColumnStoreDateTime
 {
+    friend class ColumnStoreDataConvert;
 public:
     ColumnStoreDateTime();
     ColumnStoreDateTime(tm& time);
-    ColumnStoreDateTime(const std::string& dateTime, const std::string& format);
+    ColumnStoreDateTime(std::string& dateTime, std::string& format);
 
-    void set(tm& time);
-    void set(std::string& dateTime, std::string& format);
+    ~ColumnStoreDateTime();
+    bool set(tm& time);
+    bool set(std::string& dateTime, std::string& format);
 private:
     ColumnStoreDateTimeImpl* mImpl;
 };

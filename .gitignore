@@ -26,6 +26,7 @@ test/million-row
 test/dataconvert-int
 test/dataconvert-double
 test/dataconvert-string
+test/dataconvert-datetime
 version.h
 docs/_build/conf.py
 docs/_build/sources.cmake
@@ -35,3 +36,10 @@ docs/html/
 docs/pdf/
 libmcsapi.pc
 cmake_uninstall.cmake
+# QtCreator files
+*.config
+*.creator
+*.files
+*.includes
+# Ignore diffs
+*.diff

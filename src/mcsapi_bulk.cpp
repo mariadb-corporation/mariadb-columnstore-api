@@ -107,15 +107,21 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, d
     return this;
 }
 
-ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, const ColumnStoreDateTime& value, columnstore_data_convert_status_t* status)
+ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, ColumnStoreDateTime& value, columnstore_data_convert_status_t* status)
 {
-    (void) columnNumber;
-    (void) value;
-    (void) status;
+    columnstore_data_convert_status_t convert_status;
+    ColumnStoreSystemCatalogColumn* column = mImpl->tbl->columns[columnNumber];
+    ColumnStoreDataContainer* cont = &(*mImpl->row)[columnNumber];
+    convert_status = ColumnStoreDataConvert::convert(column, cont, value);
+    if (status)
+    {
+        *status = convert_status;
+    }
+
     return this;
 }
 
-ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, const ColumnStoreDecimal& value, columnstore_data_convert_status_t* status)
+ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, ColumnStoreDecimal& value, columnstore_data_convert_status_t* status)
 {
     (void) columnNumber;
     (void) value;
