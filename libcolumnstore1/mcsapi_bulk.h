@@ -73,7 +73,7 @@ public:
     ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, double value, columnstore_data_convert_status_t* status = nullptr);
     ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, ColumnStoreDateTime& value, columnstore_data_convert_status_t* status = nullptr);
     ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, ColumnStoreDecimal& value, columnstore_data_convert_status_t* status = nullptr);
-    ColumnStoreBulkInsert* setNull(uint16_t columnNumber);
+    ColumnStoreBulkInsert* setNull(uint16_t columnNumber, columnstore_data_convert_status_t* status = nullptr);
     ColumnStoreBulkInsert* writeRow();
     void commit();
     void rollback();

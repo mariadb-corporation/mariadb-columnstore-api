@@ -135,10 +135,16 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, C
     return this;
 }
 
-ColumnStoreBulkInsert* ColumnStoreBulkInsert::setNull(uint16_t columnNumber)
+ColumnStoreBulkInsert* ColumnStoreBulkInsert::setNull(uint16_t columnNumber, columnstore_data_convert_status_t* status)
 {
-    // TODO
-    (void) columnNumber;
+    columnstore_data_convert_status_t convert_status;
+    ColumnStoreSystemCatalogColumn* column = mImpl->tbl->columns[columnNumber];
+    ColumnStoreDataContainer* cont = &(*mImpl->row)[columnNumber];
+    convert_status = ColumnStoreDataConvert::getNull(column, cont);
+    if (status)
+    {
+        *status = convert_status;
+    }
     return this;
 }
 

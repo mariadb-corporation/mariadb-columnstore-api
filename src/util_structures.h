@@ -210,7 +210,7 @@ public:
     uint8_t autoincrement;
     uint32_t precision;
     uint32_t scale;
-    uint8_t not_null;
+    uint8_t null;
     uint8_t compression;
 };
 

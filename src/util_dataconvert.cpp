@@ -1824,4 +1824,229 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
     return status;
 }
 
+columnstore_data_convert_status_t ColumnStoreDataConvert::getNull(ColumnStoreSystemCatalogColumn* toMeta, ColumnStoreDataContainer* cont)
+{
+    columnstore_data_convert_status_t status = CONVERT_STATUS_NONE;
+    uint8_t uval8;
+    uint16_t uval16;
+    uint32_t uval32;
+    uint64_t uval64;
+    std::string valStr;
+
+    // Don't set null for not-null, but autoinc is OK
+    if (!toMeta->null && !toMeta->autoincrement)
+    {
+        status = CONVERT_STATUS_INVALID;
+        switch(toMeta->type)
+        {
+            case DATA_TYPE_BIT:
+            {
+                uval8 = 0;
+                cont->setData(uval8);
+                break;
+            }
+            case DATA_TYPE_TINYINT:
+            {
+                uval8 = 0;
+                cont->setData(uval8);
+                break;
+            }
+
+            case DATA_TYPE_SMALLINT:
+            {
+                uval16 = 0;
+                cont->setData(uval16);
+                break;
+            }
+
+            case DATA_TYPE_BIGINT:
+            case DATA_TYPE_DECIMAL:
+            {
+                uval64 = 0;
+                cont->setData(uval64);
+                break;
+            }
+
+            case DATA_TYPE_UBIGINT:
+            case DATA_TYPE_UDECIMAL:
+            {
+                uval64 = 0;
+                cont->setData(uval64);
+                break;
+            }
+
+            case DATA_TYPE_INT:
+            case DATA_TYPE_MEDINT:
+            {
+                uval32 = 0;
+                cont->setData(uval32);
+                break;
+            }
+            case DATA_TYPE_UFLOAT:
+            case DATA_TYPE_FLOAT:
+            {
+                uval32 = 0;
+                cont->setData(uval32);
+                break;
+            }
+
+            case DATA_TYPE_UINT:
+            case DATA_TYPE_UMEDINT:
+            case DATA_TYPE_DATE:
+            {
+                uval32 = 0;
+                cont->setData(uval32);
+                break;
+            }
+
+            case DATA_TYPE_DOUBLE:
+            case DATA_TYPE_UDOUBLE:
+            {
+                uval64 = 0;
+                cont->setData(uval64);
+                break;
+            }
+
+            case DATA_TYPE_DATETIME:
+                uval64 = 0;
+                cont->setData(uval64);
+                break;
+
+            case DATA_TYPE_VARCHAR:
+            case DATA_TYPE_CHAR:
+            case DATA_TYPE_TEXT:
+            case DATA_TYPE_VARBINARY:
+            case DATA_TYPE_CLOB:
+            case DATA_TYPE_BLOB:
+            {
+                valStr = "";
+                cont->setData(valStr);
+                break;
+            }
+
+            case DATA_TYPE_UTINYINT:
+            {
+                uval8 = 0;
+                cont->setData(uval8);
+                break;
+            }
+            case DATA_TYPE_USMALLINT:
+            {
+                uval16 = 0;
+                cont->setData(uval16);
+                break;
+            }
+        }
+
+    }
+    else
+    {
+        // This flag doesn't work yet
+        cont->isNull = true;
+
+        switch(toMeta->type)
+        {
+            case DATA_TYPE_BIT:
+            {
+                uval8 = 0xFE;
+                cont->setData(uval8);
+                break;
+            }
+            case DATA_TYPE_TINYINT:
+            {
+                uval8 = 0x80;
+                cont->setData(uval8);
+                break;
+            }
+
+            case DATA_TYPE_SMALLINT:
+            {
+                uval16 = 0x8000;
+                cont->setData(uval16);
+                break;
+            }
+
+            case DATA_TYPE_BIGINT:
+            case DATA_TYPE_DECIMAL:
+            {
+                uval64 = 0x8000000000000000ULL;
+                cont->setData(uval64);
+                break;
+            }
+
+            case DATA_TYPE_UBIGINT:
+            case DATA_TYPE_UDECIMAL:
+            {
+                uval64 = 0xFFFFFFFFFFFFFFFEULL;
+                cont->setData(uval64);
+                break;
+            }
+
+            case DATA_TYPE_INT:
+            case DATA_TYPE_MEDINT:
+            {
+                uval32 = 0x80000000;
+                cont->setData(uval32);
+                break;
+            }
+            case DATA_TYPE_UFLOAT:
+            case DATA_TYPE_FLOAT:
+            {
+                uval32 = 0xFFAAAAAA;
+                cont->setData(uval32);
+                break;
+            }
+
+            case DATA_TYPE_UINT:
+            case DATA_TYPE_UMEDINT:
+            case DATA_TYPE_DATE:
+            {
+                uval32 = 0xFFFFFFFE;
+                cont->setData(uval32);
+                break;
+            }
+
+            case DATA_TYPE_DOUBLE:
+            case DATA_TYPE_UDOUBLE:
+            {
+                uval64 = 0xFFFAAAAAAAAAAAAAULL;
+                cont->setData(uval64);
+                break;
+            }
+
+            case DATA_TYPE_DATETIME:
+                uval64 = 0xFFFFFFFFFFFFFFFEULL;
+                cont->setData(uval64);
+                break;
+
+            case DATA_TYPE_VARCHAR:
+            case DATA_TYPE_CHAR:
+            case DATA_TYPE_TEXT:
+            case DATA_TYPE_VARBINARY:
+            case DATA_TYPE_CLOB:
+            case DATA_TYPE_BLOB:
+            {
+                // Note: this will need fixing when we support char NULL properly
+                valStr = "";
+                cont->setData(valStr);
+                break;
+            }
+
+            case DATA_TYPE_UTINYINT:
+            {
+                uval8 = 0xFE;
+                cont->setData(uval8);
+                break;
+            }
+            case DATA_TYPE_USMALLINT:
+            {
+                uval16 = 0xFFFE;
+                cont->setData(uval16);
+                break;
+            }
+        }
+    }
+    return status;
+}
+
 }

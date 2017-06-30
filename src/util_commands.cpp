@@ -168,11 +168,11 @@ ColumnStoreSystemCatalog* ColumnStoreCommands::brmGetSystemCatalog()
             *messageOut >> column->autoincrement;
             *messageOut >> column->precision;
             *messageOut >> column->scale;
-            *messageOut >> column->not_null;
+            *messageOut >> column->null;
             *messageOut >> column->compression;
             mcsdebug("Column: OID: %u, Name: %s, Dict: %u, Type: %u, Width: %u, Position: %u, Default: %s, Autoinc: %u, Precision: %u, Scale: %u, Not NULL: %u, Compression: %u",
                 column->oid, column->column.c_str(), column->dict_oid, column_type, column->width, column->position, column->default_val.c_str(), column->autoincrement,
-                column->precision, column->scale, column->not_null, column->compression);
+                column->precision, column->scale, column->null, column->compression);
             table->columns.push_back(column);
         }
         systemCatalog->tables.push_back(table);
