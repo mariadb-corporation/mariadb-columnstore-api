@@ -43,17 +43,19 @@ private:
 
 class MCS_API ColumnStoreDecimal
 {
+    friend class ColumnStoreDataConvert;
 public:
     ColumnStoreDecimal();
     ColumnStoreDecimal(int64_t value);
     ColumnStoreDecimal(std::string& value);
     ColumnStoreDecimal(double value);
-    ColumnStoreDecimal(int64_t integer, uint64_t fraction);
+    ColumnStoreDecimal(int64_t number, uint8_t scale);
 
-    void set(int64_t value);
-    void set(std::string& value);
-    void set(double value);
-    void set(int64_t integer, uint64_t fraction);
+    ~ColumnStoreDecimal();
+    bool set(int64_t value);
+    bool set(std::string& value);
+    bool set(double value);
+    bool set(int64_t number, uint8_t scale);
 private:
     ColumnStoreDecimalImpl* mImpl;
 };

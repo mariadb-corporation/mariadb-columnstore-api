@@ -26,6 +26,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <inttypes.h>
+#include <cmath>
 
 #include <uv.h>
 #include <snappy.h>

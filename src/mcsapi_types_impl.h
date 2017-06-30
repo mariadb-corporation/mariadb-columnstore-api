@@ -45,4 +45,20 @@ public:
     columnstore_data_convert_status_t setFromString(std::string& dateStr);
     bool validateDate();
 };
+
+class ColumnStoreDecimalImpl
+{
+public:
+    int64_t decimalNumber;
+    uint8_t decimalScale;
+    ColumnStoreDecimalImpl() :
+        decimalNumber(0),
+        decimalScale(0)
+    { }
+
+    uint64_t getDecimalInt(uint32_t scale);
+    int64_t getInt();
+    double getDouble();
+    void getDecimalStr(std::string& sDecimal);
+};
 }

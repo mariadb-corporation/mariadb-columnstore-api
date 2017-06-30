@@ -203,4 +203,141 @@ bool ColumnStoreDateTimeImpl::validateDate()
 
     return true;
 }
+
+ColumnStoreDecimal::ColumnStoreDecimal()
+{
+    mImpl = new ColumnStoreDecimalImpl();
+}
+
+ColumnStoreDecimal::ColumnStoreDecimal(int64_t value)
+{
+    mImpl = new ColumnStoreDecimalImpl();
+    set(value);
+}
+
+ColumnStoreDecimal::ColumnStoreDecimal(std::string& value)
+{
+    mImpl = new ColumnStoreDecimalImpl();
+    set(value);
+}
+
+ColumnStoreDecimal::ColumnStoreDecimal(double value)
+{
+    mImpl = new ColumnStoreDecimalImpl();
+    set(value);
+}
+
+ColumnStoreDecimal::ColumnStoreDecimal(int64_t number, uint8_t scale)
+{
+    mImpl = new ColumnStoreDecimalImpl();
+    set(number, scale);
+}
+
+ColumnStoreDecimal::~ColumnStoreDecimal()
+{
+    delete mImpl;
+}
+
+
+bool ColumnStoreDecimal::set(int64_t value)
+{
+    mImpl->decimalNumber = value;
+    mImpl->decimalScale = 0;
+    return true;
+}
+
+bool ColumnStoreDecimal::set(std::string& value)
+{
+    char seps[] = ".";
+    char *token;
+
+    token = strtok(&value[0], seps);
+    // No decimal point
+    if (!token)
+    {
+        try
+        {
+            mImpl->decimalNumber = stoll(value);
+            mImpl->decimalScale = 0;
+            return true;
+        }
+        catch (...)
+        {
+            // Invalid number
+            return false;
+        }
+    }
+    mImpl->decimalNumber = atoll(token);
+    token = strtok(NULL, seps);
+
+    // Whatever is after the dot isn't a number
+    if (!token)
+    {
+        return false;
+    }
+    int64_t decimals = atoll(token);
+    mImpl->decimalScale = strlen(token);
+    mImpl->decimalNumber *= pow((double) 10, mImpl->decimalScale);
+    mImpl->decimalNumber += decimals;
+
+    token = strtok(NULL, seps);
+    // Something bad happened
+    if (token)
+    {
+        return false;
+    }
+    return true;
+}
+
+bool ColumnStoreDecimal::set(double value)
+{
+    std::string strVal = std::to_string(value);
+    return set(strVal);
+}
+
+bool ColumnStoreDecimal::set(int64_t number, uint8_t scale)
+{
+    mImpl->decimalNumber = number;
+    mImpl->decimalScale = scale;
+    return true;
+}
+
+uint64_t ColumnStoreDecimalImpl::getDecimalInt(uint32_t scale)
+{
+    int64_t result = decimalNumber;
+
+    if (scale > decimalScale)
+    {
+        result = decimalNumber * pow((double)10, scale - decimalScale);
+    }
+    else if (scale < decimalScale)
+    {
+        result = decimalNumber / pow((double)10, decimalScale - scale);
+    }
+
+    return result;
+}
+
+int64_t ColumnStoreDecimalImpl::getInt()
+{
+    int64_t result = decimalNumber / pow((double)10, decimalScale);
+    return result;
+}
+
+double ColumnStoreDecimalImpl::getDouble()
+{
+    double result =  (double)decimalNumber / pow((double)10, decimalScale);
+    return result;
+}
+
+void ColumnStoreDecimalImpl::getDecimalStr(std::string& sDecimal)
+{
+    sDecimal = std::to_string(decimalNumber);
+    if (decimalScale)
+    {
+        size_t pos = sDecimal.length() - decimalScale;
+        sDecimal.insert(pos, 1, '.');
+    }
+}
+
 }

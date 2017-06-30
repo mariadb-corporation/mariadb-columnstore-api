@@ -1,0 +1,143 @@
+/* Copyright (c) 2017, MariaDB Corporation. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
+ */
+
+#include <libcolumnstore1/mcsapi.h>
+#include <iostream>
+#include <gtest/gtest.h>
+#include <mysql.h>
+
+MYSQL* my_con;
+
+class TestEnvironment : public ::testing::Environment {
+ public:
+  virtual ~TestEnvironment() {}
+  // Override this to define how to set up the environment.
+  virtual void SetUp()
+  {
+    my_con = mysql_init(NULL);
+    if (!my_con)
+        FAIL() << "Could not init MariaDB connection";
+    if (!mysql_real_connect(my_con, "127.0.0.1", "root", "", NULL, 3306, NULL, 0))
+        FAIL() << "Could not connect to MariaDB: " << mysql_error(my_con);
+    if (mysql_query(my_con, "CREATE DATABASE IF NOT EXISTS mcsapi"))
+        FAIL() << "Error creating database: " << mysql_error(my_con);
+    if (mysql_select_db(my_con, "mcsapi"))
+        FAIL() << "Could not select DB: " << mysql_error(my_con);
+    if (mysql_query(my_con, "DROP TABLE IF EXISTS dataconvertdecimal"))
+        FAIL() << "Could not drop existing table: " << mysql_error(my_con);
+    if (mysql_query(my_con, "CREATE TABLE IF NOT EXISTS dataconvertdecimal (a int, b varchar(50), c decimal(10,4), d double) engine=columnstore"))
+        FAIL() << "Could not create table: " << mysql_error(my_con);
+  }
+  // Override this to define how to tear down the environment.
+  virtual void TearDown()
+  {
+    if (my_con)
+    {
+        mysql_close(my_con);
+    }
+  }
+};
+
+
+/* Test that dataconvert from decimal works */
+TEST(DataConvertDecimal, DataConvertDecimal)
+{
+    std::string table("dataconvertdecimal");
+    std::string db("mcsapi");
+    mcsapi::ColumnStoreDriver* driver;
+    mcsapi::ColumnStoreBulkInsert* bulk;
+    try {
+        driver = new mcsapi::ColumnStoreDriver();
+        bulk = driver->createBulkInsert(db, table, 0, 0);
+        mcsapi::ColumnStoreDecimal dData;
+        dData.set((int64_t)1000);
+        bulk->setColumn(0, dData);
+        bulk->setColumn(1, dData);
+        bulk->setColumn(2, dData);
+        bulk->setColumn(3, dData);
+        bulk->writeRow();
+        dData.set(11234567, 2);
+        bulk->setColumn(0, dData);
+        bulk->setColumn(1, dData);
+        bulk->setColumn(2, dData);
+        bulk->setColumn(3, dData);
+        bulk->writeRow();
+        dData.set((double)3.141593);
+        bulk->setColumn(0, dData);
+        bulk->setColumn(1, dData);
+        bulk->setColumn(2, dData);
+        bulk->setColumn(3, dData);
+        bulk->writeRow();
+        mcsapi::ColumnStoreDecimal dDataz;
+        bulk->setColumn(0, dDataz);
+        bulk->setColumn(1, dDataz);
+        bulk->setColumn(2, dDataz);
+        bulk->setColumn(3, dDataz);
+        bulk->writeRow();
+        bulk->commit();
+    } catch (mcsapi::ColumnStoreException &e) {
+        FAIL() << "Error caught: " << e.what() << std::endl;
+    }
+    if (mysql_query(my_con, "SELECT * FROM dataconvertdecimal"))
+        FAIL() << "Could not run test query: " << mysql_error(my_con);
+    MYSQL_RES* result = mysql_store_result(my_con);
+    if (!result)
+        FAIL() << "Could not get result data: " << mysql_error(my_con);
+    ASSERT_EQ(mysql_num_rows(result), 4);
+    MYSQL_ROW row = mysql_fetch_row(result);
+    double dblval;
+    std::string strval;
+    ASSERT_STREQ(row[0], "1000");
+    ASSERT_STREQ(row[1], "1000");
+    ASSERT_STREQ(row[2], "1000.0000");
+    strval = row[3];
+    dblval = std::stod(strval);
+    ASSERT_DOUBLE_EQ(dblval, 1000);
+    row = mysql_fetch_row(result);
+    ASSERT_STREQ(row[0], "112345");
+    ASSERT_STREQ(row[1], "112345.67");
+    ASSERT_STREQ(row[2], "112345.6700");
+    strval = row[3];
+    dblval = std::stod(strval);
+    ASSERT_DOUBLE_EQ(dblval, 112345.67);
+    row = mysql_fetch_row(result);
+    ASSERT_STREQ(row[0], "3");
+    ASSERT_STREQ(row[1], "3.141593");
+    ASSERT_STREQ(row[2], "3.1415");
+    strval = row[3];
+    dblval = std::stod(strval);
+    ASSERT_DOUBLE_EQ(dblval, 3.141593);
+    row = mysql_fetch_row(result);
+    ASSERT_STREQ(row[0], "0");
+    ASSERT_STREQ(row[1], "0");
+    ASSERT_STREQ(row[2], "0.0000");
+    strval = row[3];
+    dblval = std::stod(strval);
+    ASSERT_DOUBLE_EQ(dblval, 0);
+    mysql_free_result(result);
+    if (mysql_query(my_con, "DROP TABLE dataconvertdecimal"))
+        FAIL() << "Could not drop table: " << mysql_error(my_con);
+    delete bulk;
+    delete driver;
+}
+
+int main(int argc, char** argv) {
+  ::testing::InitGoogleTest(&argc, argv);
+  ::testing::AddGlobalTestEnvironment(new TestEnvironment);
+  return RUN_ALL_TESTS();
+}

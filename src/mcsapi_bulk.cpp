@@ -123,15 +123,21 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, C
 
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, ColumnStoreDecimal& value, columnstore_data_convert_status_t* status)
 {
-    (void) columnNumber;
-    (void) value;
-    (void) status;
-    return this;
+    columnstore_data_convert_status_t convert_status;
+    ColumnStoreSystemCatalogColumn* column = mImpl->tbl->columns[columnNumber];
+    ColumnStoreDataContainer* cont = &(*mImpl->row)[columnNumber];
+    convert_status = ColumnStoreDataConvert::convert(column, cont, value);
+    if (status)
+    {
+        *status = convert_status;
+    }
 
+    return this;
 }
 
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::setNull(uint16_t columnNumber)
 {
+    // TODO
     (void) columnNumber;
     return this;
 }

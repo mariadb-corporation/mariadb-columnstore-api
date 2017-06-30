@@ -18,7 +18,6 @@
 
 #include "common.h"
 #include "mcsapi_types_impl.h"
-#include <cmath>
 
 namespace mcsapi
 {
@@ -1534,10 +1533,295 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
 
 columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSystemCatalogColumn* toMeta, ColumnStoreDataContainer* cont, ColumnStoreDecimal& fromValue)
 {
-    (void) toMeta;
-    (void) cont;
-    (void) fromValue;
-    return CONVERT_STATUS_NONE;
+    columnstore_data_convert_status_t status = CONVERT_STATUS_NONE;
+    int8_t val8;
+    int16_t val16;
+    int32_t val32;
+    int64_t val64;
+    uint8_t uval8;
+    uint16_t uval16;
+    uint32_t uval32;
+    uint64_t uval64;
+    float valF;
+    double valD;
+    std::string valS;
+    switch(toMeta->type)
+    {
+        case DATA_TYPE_BIT:
+        {
+            val64 = fromValue.mImpl->getInt();
+            if (val64 > 1)
+            {
+                status = CONVERT_STATUS_SATURATED;
+                val8 = 1;
+            }
+            else if (val64 < 0)
+            {
+                status = CONVERT_STATUS_SATURATED;
+                val8 = 0;
+            }
+            else
+            {
+                val8 = val64;
+            }
+            cont->setData(val8);
+            break;
+        }
+        case DATA_TYPE_TINYINT:
+        {
+            val64 = fromValue.mImpl->getInt();
+            if (val64 > INT8_MAX)
+            {
+                status = CONVERT_STATUS_SATURATED;
+                val8 = INT8_MAX;
+            }
+            else if (val64 < INT8_MIN + 2)
+            {
+                status = CONVERT_STATUS_SATURATED;
+                val8 = INT8_MIN + 2;
+            }
+            else
+            {
+                val8 = val64;
+            }
+            cont->setData(val8);
+            break;
+        }
+
+        case DATA_TYPE_SMALLINT:
+        {
+            val64 = fromValue.mImpl->getInt();
+            if (val64 > INT16_MAX)
+            {
+                status = CONVERT_STATUS_SATURATED;
+                val16 = INT16_MAX;
+            }
+            else if (val64 < INT16_MIN + 2)
+            {
+                status = CONVERT_STATUS_SATURATED;
+                val16 = INT16_MIN + 2;
+            }
+            else
+            {
+                val16 = val64;
+            }
+            cont->setData(val16);
+            break;
+        }
+
+        case DATA_TYPE_UDECIMAL:
+        case DATA_TYPE_DECIMAL:
+        {
+            uval64 = fromValue.mImpl->getDecimalInt(toMeta->scale);
+            cont->setData(uval64);
+            break;
+        }
+
+        case DATA_TYPE_MEDINT:
+        {
+            val64 = fromValue.mImpl->getInt();
+
+            // 2^23-1 is signed int max which is five Fs
+            if (val64 > (uint32_t)0xFFFFF)
+            {
+                status = CONVERT_STATUS_SATURATED;
+                val32 = 0xFFFFF;
+            }
+            else if (val64 < (uint32_t)0xFFFFFF - 2)
+            {
+                status = CONVERT_STATUS_SATURATED;
+                val32 = 0xFFFFFF - 2;
+            }
+            else
+            {
+                val32 = val64;
+            }
+            cont->setData(val32);
+            break;
+        }
+
+        case DATA_TYPE_INT:
+        {
+            val64 = fromValue.mImpl->getInt();
+
+            if (val64 > INT32_MAX)
+            {
+                status = CONVERT_STATUS_SATURATED;
+                val32 = INT32_MAX;
+            }
+            else if (val64 < INT32_MIN + 2)
+            {
+                status = CONVERT_STATUS_SATURATED;
+                val32 = INT32_MIN + 2;
+            }
+            else
+            {
+                val32 = val64;
+            }
+            cont->setData(val32);
+            break;
+        }
+        case DATA_TYPE_UFLOAT:
+        case DATA_TYPE_FLOAT:
+        {
+            valF = (float)fromValue.mImpl->getDouble();
+            memcpy(&val32, &valF, 4);
+            cont->setData(val32);
+            break;
+        }
+
+        case DATA_TYPE_DATE:
+            val32 = 0;
+            status = CONVERT_STATUS_INVALID;
+            cont->setData(val32);
+            break;
+
+        case DATA_TYPE_BIGINT:
+        {
+            val64 = fromValue.mImpl->getInt();
+
+            if (val64 < INT64_MIN + 2)
+            {
+                status = CONVERT_STATUS_SATURATED;
+                val64 = INT64_MIN + 2;
+            }
+            cont->setData(val64);
+            break;
+        }
+
+        case DATA_TYPE_DOUBLE:
+        case DATA_TYPE_UDOUBLE:
+        {
+            valD = fromValue.mImpl->getDouble();
+            memcpy(&val64, &valD, 8);
+            cont->setData(val64);
+            break;
+        }
+
+        case DATA_TYPE_DATETIME:
+            val64 = 0;
+            status = CONVERT_STATUS_INVALID;
+            cont->setData(val64);
+            break;
+
+        case DATA_TYPE_VARCHAR:
+        case DATA_TYPE_CHAR:
+        case DATA_TYPE_TEXT:
+        case DATA_TYPE_VARBINARY:
+        case DATA_TYPE_CLOB:
+        case DATA_TYPE_BLOB:
+        {
+            fromValue.mImpl->getDecimalStr(valS);
+            if (valS.length() > toMeta->width)
+            {
+                status = CONVERT_STATUS_TRUNCATED;
+                valS.resize(toMeta->width);
+            }
+            cont->setData(valS);
+            break;
+        }
+
+        case DATA_TYPE_UTINYINT:
+        {
+            val64 = fromValue.mImpl->getInt();
+            // ColumnStore max 2 reserved
+            if (val64 > UINT8_MAX - 2)
+            {
+                status = CONVERT_STATUS_SATURATED;
+                uval8 = UINT8_MAX - 2;
+            }
+            else if (val64 < 0)
+            {
+                status = CONVERT_STATUS_SATURATED;
+                uval8 = 0;
+            }
+            else
+            {
+                val8 = val64;
+            }
+            cont->setData(uval8);
+            break;
+        }
+        case DATA_TYPE_USMALLINT:
+        {
+            val64 = fromValue.mImpl->getInt();
+            // ColumnStore max 2 reserved
+            if (val64 > UINT16_MAX - 2)
+            {
+                status = CONVERT_STATUS_SATURATED;
+                uval16 = UINT16_MAX;
+            }
+            else if (val64 < 0)
+            {
+                status = CONVERT_STATUS_SATURATED;
+                uval16 = 0;
+            }
+            else
+            {
+                uval16 = val64;
+            }
+            cont->setData(uval16);
+            break;
+        }
+        case DATA_TYPE_UMEDINT:
+        {
+            val64 = fromValue.mImpl->getInt();
+            // 2^24-1 is unsigned int max which is six Fs
+            if (val64 > (uint32_t)0xFFFFFF - 2)
+            {
+                status = CONVERT_STATUS_SATURATED;
+                uval32 = 0xFFFFF - 2;
+            }
+            else if (val64 < 0)
+            {
+                status = CONVERT_STATUS_SATURATED;
+                uval32 = 0;
+            }
+            else
+            {
+                uval32 = val64;
+            }
+            cont->setData(uval32);
+            break;
+        }
+        case DATA_TYPE_UINT:
+        {
+            val64 = fromValue.mImpl->getInt();
+            // ColumnStore max 2 reserved
+            if (val64 > UINT32_MAX - 2)
+            {
+                status = CONVERT_STATUS_SATURATED;
+                uval32 = UINT32_MAX;
+            }
+            else if (val64 < 0)
+            {
+                status = CONVERT_STATUS_SATURATED;
+                uval32 = 0;
+            }
+            else
+            {
+                uval32 = val64;
+            }
+            cont->setData(uval32);
+            break;
+        }
+
+        case DATA_TYPE_UBIGINT:
+            val64 = fromValue.mImpl->getInt();
+            if (val64 < 0)
+            {
+                status = CONVERT_STATUS_SATURATED;
+                uval64 = 0;
+            }
+            else
+            {
+                uval64 = val64;
+            }
+            cont->setData(uval64);
+            break;
+    }
+
+    return status;
 }
 
 }
