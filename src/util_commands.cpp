@@ -334,9 +334,10 @@ void ColumnStoreCommands::weBulkRollback(uint32_t pm, uint64_t uniqueId, uint64_
         *messageOut >> errmsg;
         // TODO: throw the errmsg
     }
+    delete messageOut;
 }
 
-std::vector<ColumnStoreHWM>* ColumnStoreCommands::weBulkCommit(uint32_t pm, uint64_t uniqueId, uint32_t sessionId, uint32_t txnId, uint32_t tableOid)
+void ColumnStoreCommands::weBulkCommit(uint32_t pm, uint64_t uniqueId, uint32_t sessionId, uint32_t txnId, uint32_t tableOid, std::vector<ColumnStoreHWM>& hwms)
 {
     ColumnStoreMessaging messageIn;
     ColumnStoreMessaging* messageOut;
@@ -366,7 +367,6 @@ std::vector<ColumnStoreHWM>* ColumnStoreCommands::weBulkCommit(uint32_t pm, uint
         // TODO: throw the errmsg
     }
     uint64_t bulk_hwm_count;
-    std::vector<ColumnStoreHWM>* hwms = new std::vector<ColumnStoreHWM>;
     *messageOut >> bulk_hwm_count;
     uint32_t oid;
     uint32_t partNum;
@@ -378,9 +378,9 @@ std::vector<ColumnStoreHWM>* ColumnStoreCommands::weBulkCommit(uint32_t pm, uint
         *messageOut >> partNum;
         *messageOut >> segNum;
         *messageOut >> hwm;
-        hwms->push_back(ColumnStoreHWM(oid, partNum, segNum, hwm));
+        hwms.push_back(ColumnStoreHWM(oid, partNum, segNum, hwm));
     }
-    return hwms;
+    delete messageOut;
 }
 
 void ColumnStoreCommands::weGetWrittenLbids(uint32_t pm, uint64_t uniqueId, uint32_t txnId, std::vector<uint64_t>& lbids)
@@ -418,6 +418,7 @@ void ColumnStoreCommands::weGetWrittenLbids(uint32_t pm, uint64_t uniqueId, uint
         *messageOut >> lbid;
         lbids.push_back(lbid);
     }
+    delete messageOut;
 }
 
 void ColumnStoreCommands::weKeepAlive(uint32_t pm)
@@ -449,6 +450,7 @@ void ColumnStoreCommands::weKeepAlive(uint32_t pm)
     {
         // TODO: error
     }
+    delete messageOut;
 }
 
 void ColumnStoreCommands::weClose(uint32_t pm)
@@ -582,6 +584,7 @@ void ColumnStoreCommands::weBulkInsertEnd(uint32_t pm, uint64_t uniqueId, uint32
         *messageOut >> errmsg;
         // TODO: throw the errmsg
     }
+    delete messageOut;
 }
 
 void ColumnStoreCommands::weRemoveMeta(uint32_t pm, uint64_t uniqueId, uint32_t tableOid)
@@ -613,7 +616,7 @@ void ColumnStoreCommands::weRemoveMeta(uint32_t pm, uint64_t uniqueId, uint32_t 
         *messageOut >> errmsg;
         // TODO: throw the errmsg
     }
-
+    delete messageOut;
 }
 
 uint64_t ColumnStoreCommands::brmGetUniqueId()
@@ -732,7 +735,7 @@ void ColumnStoreCommands::brmGetUncommittedLbids(uint32_t txnId, std::vector<uin
 
 }
 
-void ColumnStoreCommands::brmSetHWMAndCP(std::vector<ColumnStoreHWM>* hwms, std::vector<uint64_t>& lbids, uint32_t txnId)
+void ColumnStoreCommands::brmSetHWMAndCP(std::vector<ColumnStoreHWM>& hwms, std::vector<uint64_t>& lbids, uint32_t txnId)
 {
     ColumnStoreMessaging messageIn;
     ColumnStoreMessaging* messageOut;
@@ -743,8 +746,8 @@ void ColumnStoreCommands::brmSetHWMAndCP(std::vector<ColumnStoreHWM>* hwms, std:
 
     messageIn << command;
     uint64_t tmp64 = 0;
-    messageIn << (uint64_t) hwms->size();
-    for (auto& it : *hwms)
+    messageIn << (uint64_t) hwms.size();
+    for (auto& it : hwms)
     {
         messageIn << it.oid;
         messageIn << it.partNum;

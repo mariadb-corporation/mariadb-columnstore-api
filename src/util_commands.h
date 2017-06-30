@@ -64,14 +64,14 @@ public:
     uint32_t brmGetTxnID(uint32_t sessionId);
     uint64_t brmGetTableLock(uint32_t tableOID, uint32_t sessionId, uint32_t txnId, std::vector<uint32_t>& dbRoots);
     uint64_t brmGetUniqueId();
-    void brmSetHWMAndCP(std::vector<ColumnStoreHWM>* hwms, std::vector<uint64_t>& lbids, uint32_t txnId);
+    void brmSetHWMAndCP(std::vector<ColumnStoreHWM>& hwms, std::vector<uint64_t>& lbids, uint32_t txnId);
     void brmVBCommit(uint32_t txnId);
     void brmCommitted(uint32_t txnId);
     void brmReleaseTableLock(uint64_t lockId);
     void brmGetUncommittedLbids(uint32_t txnId, std::vector<uint64_t>& lbids);
     void brmTakeSnapshot();
     void brmChangeState(uint64_t lockId);
-    std::vector<ColumnStoreHWM>* weBulkCommit(uint32_t pm, uint64_t uniqueId, uint32_t sessionId, uint32_t txnId, uint32_t tableOid);
+    void weBulkCommit(uint32_t pm, uint64_t uniqueId, uint32_t sessionId, uint32_t txnId, uint32_t tableOid, std::vector<ColumnStoreHWM>& hwms);
     void weBulkRollback(uint32_t pm, uint64_t uniqueId, uint64_t tableLockID, uint32_t tableOid);
     void weBulkInsert(uint32_t pm, uint64_t uniqueId, uint32_t sessionId, uint32_t txnId, ColumnStoreTableData* table);
     void weBulkInsertEnd(uint32_t pm, uint64_t uniqueId, uint32_t txnId, uint32_t tableOid, uint8_t errCode);

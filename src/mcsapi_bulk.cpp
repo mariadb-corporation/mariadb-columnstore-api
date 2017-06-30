@@ -172,13 +172,14 @@ void ColumnStoreBulkInsert::commit()
 
     mImpl->commands->weBulkInsertEnd(1, mImpl->uniqueId, mImpl->txnId, mImpl->tbl->oid, 0);
     std::vector<uint64_t> lbids;
+    std::vector<ColumnStoreHWM> hwms;
 //    mImpl->commands->brmGetUncommittedLbids(mImpl->txnId, lbids);
     mImpl->commands->weGetWrittenLbids(1, mImpl->uniqueId, mImpl->txnId, lbids);
     mImpl->commands->weClose(1);
 
     mImpl->uniqueId = mImpl->commands->brmGetUniqueId();
     mImpl->commands->weKeepAlive(1);
-    std::vector<ColumnStoreHWM>* hwms = mImpl->commands->weBulkCommit(1, mImpl->uniqueId, mImpl->sessionId, mImpl->txnId, mImpl->tbl->oid);
+    mImpl->commands->weBulkCommit(1, mImpl->uniqueId, mImpl->sessionId, mImpl->txnId, mImpl->tbl->oid, hwms);
     mImpl->commands->brmSetHWMAndCP(hwms, lbids, mImpl->txnId);
     mImpl->commands->brmCommitted(mImpl->txnId);
     mImpl->commands->brmTakeSnapshot();

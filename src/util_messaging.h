@@ -28,7 +28,7 @@ public:
         position(0),
         current_size(0)
     {
-        networkData.reserve(65535);
+        networkData.reserve(65536);
     }
     ~ColumnStoreMessaging();
     ColumnStoreMessaging& operator <<(const uint8_t data);
