@@ -137,9 +137,11 @@ ColumnStoreSystemCatalog* ColumnStoreCommands::brmGetSystemCatalog()
 
     uint8_t response;
     *messageOut >> response;
-    if (response != RESPONSE_OK)
+    if (response != 0)
     {
-        // TODO error
+        std::string errmsg("Error getting system catalog");
+        delete messageOut;
+        throw ColumnStoreException(errmsg);
     }
     uint32_t table_count;
     *messageOut >> table_count;
@@ -205,9 +207,11 @@ uint32_t ColumnStoreCommands::brmGetTxnID(uint32_t sessionId)
 
     uint8_t response;
     *messageOut >> response;
-    if (response != RESPONSE_OK)
+    if (response != 0)
     {
-        // TODO error
+        std::string errmsg("Error getting transaction ID");
+        delete messageOut;
+        throw ColumnStoreException(errmsg);
     }
     uint8_t isValid;
     *messageOut >> txnId.id;
@@ -255,9 +259,11 @@ uint64_t ColumnStoreCommands::brmGetTableLock(uint32_t tableOID, uint32_t sessio
 
     uint8_t response;
     *messageOut >> response;
-    if (response != RESPONSE_OK)
+    if (response != 0)
     {
-        // TODO error
+        std::string errmsg("Error getting table lock");
+        delete messageOut;
+        throw ColumnStoreException(errmsg);
     }
     uint64_t ret;
     *messageOut >> ret;
@@ -328,11 +334,12 @@ void ColumnStoreCommands::weBulkRollback(uint32_t pm, uint64_t uniqueId, uint64_
 
     uint8_t response;
     *messageOut >> response;
-    if (response != 0)
+    if (response != RESPONSE_OK)
     {
         std::string errmsg;
         *messageOut >> errmsg;
-        // TODO: throw the errmsg
+        delete messageOut;
+        throw ColumnStoreException(errmsg);
     }
     delete messageOut;
 }
@@ -364,7 +371,8 @@ void ColumnStoreCommands::weBulkCommit(uint32_t pm, uint64_t uniqueId, uint32_t 
     *messageOut >> errmsg;
     if (response != 0)
     {
-        // TODO: throw the errmsg
+        delete messageOut;
+        throw ColumnStoreException(errmsg);
     }
     uint64_t bulk_hwm_count;
     *messageOut >> bulk_hwm_count;
@@ -408,7 +416,8 @@ void ColumnStoreCommands::weGetWrittenLbids(uint32_t pm, uint64_t uniqueId, uint
     *messageOut >> errmsg;
     if (response != 0)
     {
-        // TODO: throw the errmsg
+        delete messageOut;
+        throw ColumnStoreException(errmsg);
     }
     uint64_t lbid_count;
     *messageOut >> lbid_count;
@@ -446,9 +455,11 @@ void ColumnStoreCommands::weKeepAlive(uint32_t pm)
     *messageOut >> response;
     *messageOut >> junk1;
     *messageOut >> junk2;
-    if (response != 0)
+    if (response != RESPONSE_OK)
     {
-        // TODO: error
+        std::string errmsg("Error attempting to set KeepAlive");
+        delete messageOut;
+        throw ColumnStoreException(errmsg);
     }
     delete messageOut;
 }
@@ -545,7 +556,8 @@ void ColumnStoreCommands::weBulkInsert(uint32_t pm, uint64_t uniqueId, uint32_t 
     {
         std::string errmsg;
         *messageOut >> errmsg;
-        // TODO: throw the errmsg
+        delete messageOut;
+        throw ColumnStoreException(errmsg);
     }
 
     delete messageOut;
@@ -582,7 +594,8 @@ void ColumnStoreCommands::weBulkInsertEnd(uint32_t pm, uint64_t uniqueId, uint32
     {
         std::string errmsg;
         *messageOut >> errmsg;
-        // TODO: throw the errmsg
+        delete messageOut;
+        throw ColumnStoreException(errmsg);
     }
     delete messageOut;
 }
@@ -614,7 +627,8 @@ void ColumnStoreCommands::weRemoveMeta(uint32_t pm, uint64_t uniqueId, uint32_t 
     {
         std::string errmsg;
         *messageOut >> errmsg;
-        // TODO: throw the errmsg
+        delete messageOut;
+        throw ColumnStoreException(errmsg);
     }
     delete messageOut;
 }
@@ -637,9 +651,11 @@ uint64_t ColumnStoreCommands::brmGetUniqueId()
 
     uint8_t response;
     *messageOut >> response;
-    if (response != RESPONSE_OK)
+    if (response != 0)
     {
-        // TODO error
+        std::string errmsg("Error getting a unique ID");
+        delete messageOut;
+        throw ColumnStoreException(errmsg);
     }
     uint64_t uniqueId;
     *messageOut >> uniqueId;
@@ -718,7 +734,9 @@ void ColumnStoreCommands::brmGetUncommittedLbids(uint32_t txnId, std::vector<uin
     *messageOut >> response;
     if (response != 0)
     {
-        // TODO error
+        std::string errmsg("Error getting uncommitted LBIDs");
+        delete messageOut;
+        throw ColumnStoreException(errmsg);
     }
 
     uint64_t lbidCount;
@@ -779,7 +797,9 @@ void ColumnStoreCommands::brmSetHWMAndCP(std::vector<ColumnStoreHWM>& hwms, std:
     *messageOut >> response;
     if (response != 0)
     {
-        // TODO error
+        std::string errmsg("Error setting HWM");
+        delete messageOut;
+        throw ColumnStoreException(errmsg);
     }
 
     delete messageOut;
@@ -808,7 +828,9 @@ void ColumnStoreCommands::brmVBCommit(uint32_t txnId)
     *messageOut >> response;
     if (response != 0)
     {
-        // TODO error
+        std::string errmsg("Error committing version buffer");
+        delete messageOut;
+        throw ColumnStoreException(errmsg);
     }
 
     delete messageOut;
@@ -838,7 +860,9 @@ void ColumnStoreCommands::brmCommitted(uint32_t txnId)
     *messageOut >> response;
     if (response != 0)
     {
-        // TODO error
+        std::string errmsg("Error committing BRM");
+        delete messageOut;
+        throw ColumnStoreException(errmsg);
     }
 
     delete messageOut;
@@ -865,7 +889,9 @@ void ColumnStoreCommands::brmTakeSnapshot()
     *messageOut >> response;
     if (response != 0)
     {
-        // TODO error
+        std::string errmsg("Error taking BRM snapshot");
+        delete messageOut;
+        throw ColumnStoreException(errmsg);
     }
 
     delete messageOut;
@@ -894,18 +920,13 @@ void ColumnStoreCommands::brmChangeState(uint64_t lockId)
     *messageOut >> response;
     if (response != 0)
     {
-        // TODO error
+        std::string errmsg("Error changing BRM lock state");
+        delete messageOut;
+        throw ColumnStoreException(errmsg);
     }
 
     delete messageOut;
 }
-
-/*
-void ColumnStoreCommands::brmSetExtentsMaxMin(std::vector<uint64_t>* lbids)
-{
-    // Needed?
-}
-*/
 
 void ColumnStoreCommands::brmReleaseTableLock(uint64_t lockId)
 {
@@ -929,7 +950,9 @@ void ColumnStoreCommands::brmReleaseTableLock(uint64_t lockId)
     *messageOut >> response;
     if (response != 0)
     {
-        // TODO error
+        std::string errmsg("Error releasing table lock");
+        delete messageOut;
+        throw ColumnStoreException(errmsg);
     }
     // Unknown ignored byte
     uint8_t unknown;
