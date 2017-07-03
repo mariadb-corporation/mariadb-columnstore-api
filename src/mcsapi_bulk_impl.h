@@ -38,7 +38,8 @@ public:
         sessionId(65535), // Maybe change this later?
         row(nullptr),
         batchSize(10000),
-        autoRollback(true)
+        autoRollback(true),
+        transactionClosed(false)
     {
         summary = new ColumnStoreSummary();
     }
@@ -61,8 +62,10 @@ public:
     uint32_t batchSize;
     ColumnStoreSummary* summary;
     bool autoRollback;
+    bool transactionClosed;
 
     void connect();
     static void onCloseWalk(uv_handle_t* handle, void *arg);
+    void runChecks(uint16_t columnNumber);
 };
 }

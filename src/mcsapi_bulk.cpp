@@ -54,14 +54,24 @@ void ColumnStoreBulkInsert::setBatchSize(uint32_t batchSize)
     mImpl->batchSize = batchSize;
 }
 
-ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, std::string& value, columnstore_data_convert_status_t* status)
+void ColumnStoreBulkInsertImpl::runChecks(uint16_t columnNumber)
 {
-    if (columnNumber > mImpl->tbl->columns.size())
+    if (transactionClosed)
+    {
+        std::string errmsg = "Bulk insert has been committed or rolled back and cannot be reused";
+        throw ColumnStoreException(errmsg);
+    }
+    if (columnNumber > tbl->columns.size())
     {
         std::string errmsg = "Column number " + std::to_string(columnNumber) + " not valid";
         throw ColumnStoreException(errmsg);
     }
 
+}
+
+ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, std::string& value, columnstore_data_convert_status_t* status)
+{
+    mImpl->runChecks(columnNumber);
     columnstore_data_convert_status_t convert_status;
     ColumnStoreSystemCatalogColumn* column = mImpl->tbl->columns[columnNumber];
     ColumnStoreDataContainer* cont = &(*mImpl->row)[columnNumber];
@@ -78,12 +88,7 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, s
 
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, uint64_t value, columnstore_data_convert_status_t* status)
 {
-    if (columnNumber > mImpl->tbl->columns.size())
-    {
-        std::string errmsg = "Column number " + std::to_string(columnNumber) + " not valid";
-        throw ColumnStoreException(errmsg);
-    }
-
+    mImpl->runChecks(columnNumber);
     columnstore_data_convert_status_t convert_status;
     ColumnStoreSystemCatalogColumn* column = mImpl->tbl->columns[columnNumber];
     ColumnStoreDataContainer* cont = &(*mImpl->row)[columnNumber];
@@ -100,12 +105,7 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, u
 
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, int64_t value, columnstore_data_convert_status_t* status)
 {
-    if (columnNumber > mImpl->tbl->columns.size())
-    {
-        std::string errmsg = "Column number " + std::to_string(columnNumber) + " not valid";
-        throw ColumnStoreException(errmsg);
-    }
-
+    mImpl->runChecks(columnNumber);
     columnstore_data_convert_status_t convert_status;
     ColumnStoreSystemCatalogColumn* column = mImpl->tbl->columns[columnNumber];
     ColumnStoreDataContainer* cont = &(*mImpl->row)[columnNumber];
@@ -122,12 +122,7 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, i
 
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, double value, columnstore_data_convert_status_t* status)
 {
-    if (columnNumber > mImpl->tbl->columns.size())
-    {
-        std::string errmsg = "Column number " + std::to_string(columnNumber) + " not valid";
-        throw ColumnStoreException(errmsg);
-    }
-
+    mImpl->runChecks(columnNumber);
     columnstore_data_convert_status_t convert_status;
     ColumnStoreSystemCatalogColumn* column = mImpl->tbl->columns[columnNumber];
     ColumnStoreDataContainer* cont = &(*mImpl->row)[columnNumber];
@@ -144,12 +139,7 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, d
 
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, ColumnStoreDateTime& value, columnstore_data_convert_status_t* status)
 {
-    if (columnNumber > mImpl->tbl->columns.size())
-    {
-        std::string errmsg = "Column number " + std::to_string(columnNumber) + " not valid";
-        throw ColumnStoreException(errmsg);
-    }
-
+    mImpl->runChecks(columnNumber);
     columnstore_data_convert_status_t convert_status;
     ColumnStoreSystemCatalogColumn* column = mImpl->tbl->columns[columnNumber];
     ColumnStoreDataContainer* cont = &(*mImpl->row)[columnNumber];
@@ -166,12 +156,7 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, C
 
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, ColumnStoreDecimal& value, columnstore_data_convert_status_t* status)
 {
-    if (columnNumber > mImpl->tbl->columns.size())
-    {
-        std::string errmsg = "Column number " + std::to_string(columnNumber) + " not valid";
-        throw ColumnStoreException(errmsg);
-    }
-
+    mImpl->runChecks(columnNumber);
     columnstore_data_convert_status_t convert_status;
     ColumnStoreSystemCatalogColumn* column = mImpl->tbl->columns[columnNumber];
     ColumnStoreDataContainer* cont = &(*mImpl->row)[columnNumber];
@@ -188,12 +173,7 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, C
 
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::setNull(uint16_t columnNumber, columnstore_data_convert_status_t* status)
 {
-    if (columnNumber > mImpl->tbl->columns.size())
-    {
-        std::string errmsg = "Column number " + std::to_string(columnNumber) + " not valid";
-        throw ColumnStoreException(errmsg);
-    }
-
+    mImpl->runChecks(columnNumber);
     columnstore_data_convert_status_t convert_status;
     ColumnStoreSystemCatalogColumn* column = mImpl->tbl->columns[columnNumber];
     ColumnStoreDataContainer* cont = &(*mImpl->row)[columnNumber];
@@ -210,6 +190,12 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setNull(uint16_t columnNumber, col
 
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::writeRow()
 {
+    if (mImpl->transactionClosed)
+    {
+        std::string errmsg = "Bulk insert has been committed or rolled back and cannot be reused";
+        throw ColumnStoreException(errmsg);
+    }
+
     if (mImpl->row->size() != mImpl->tbl->columns.size())
     {
         std::string errmsg = "Not all the columns for this row have been filled";
@@ -257,6 +243,7 @@ void ColumnStoreBulkInsert::commit()
     mImpl->commands->weClose(1);
     mImpl->commands->brmReleaseTableLock(mImpl->tblLock);
     mImpl->autoRollback = false;
+    mImpl->transactionClosed = true;
 }
 
 void ColumnStoreBulkInsert::rollback()
@@ -273,6 +260,7 @@ void ColumnStoreBulkInsert::rollback()
     mImpl->commands->weClose(1);
     mImpl->commands->brmReleaseTableLock(mImpl->tblLock);
     mImpl->autoRollback = false;
+    mImpl->transactionClosed = true;
 }
 
 ColumnStoreSummary* ColumnStoreBulkInsert::getSummary()

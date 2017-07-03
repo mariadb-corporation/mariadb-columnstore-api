@@ -29,6 +29,7 @@ test/dataconvert-string
 test/dataconvert-datetime
 test/dataconvert-decimal
 test/dataconvert-null
+test/bad-usage
 version.h
 docs/_build/conf.py
 docs/_build/sources.cmake
