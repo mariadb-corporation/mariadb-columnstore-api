@@ -83,6 +83,12 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, s
     ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
     summaryImpl->setStatus(convert_status);
 
+    if (mImpl->truncateIsError && convert_status == CONVERT_STATUS_TRUNCATED)
+    {
+        std::string errmsg = "Column " + std::to_string(columnNumber) + " truncated";
+        throw ColumnStoreException(errmsg);
+    }
+
     return this;
 }
 
@@ -99,6 +105,12 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, u
     }
     ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
     summaryImpl->setStatus(convert_status);
+
+    if (mImpl->truncateIsError && convert_status == CONVERT_STATUS_TRUNCATED)
+    {
+        std::string errmsg = "Column " + std::to_string(columnNumber) + " truncated";
+        throw ColumnStoreException(errmsg);
+    }
 
     return this;
 }
@@ -117,6 +129,12 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, i
     ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
     summaryImpl->setStatus(convert_status);
 
+    if (mImpl->truncateIsError && convert_status == CONVERT_STATUS_TRUNCATED)
+    {
+        std::string errmsg = "Column " + std::to_string(columnNumber) + " truncated";
+        throw ColumnStoreException(errmsg);
+    }
+
     return this;
 }
 
@@ -133,6 +151,12 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, d
     }
     ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
     summaryImpl->setStatus(convert_status);
+
+    if (mImpl->truncateIsError && convert_status == CONVERT_STATUS_TRUNCATED)
+    {
+        std::string errmsg = "Column " + std::to_string(columnNumber) + " truncated";
+        throw ColumnStoreException(errmsg);
+    }
 
     return this;
 }
@@ -151,6 +175,12 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, C
     ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
     summaryImpl->setStatus(convert_status);
 
+    if (mImpl->truncateIsError && convert_status == CONVERT_STATUS_TRUNCATED)
+    {
+        std::string errmsg = "Column " + std::to_string(columnNumber) + " truncated";
+        throw ColumnStoreException(errmsg);
+    }
+
     return this;
 }
 
@@ -167,6 +197,12 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, C
     }
     ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
     summaryImpl->setStatus(convert_status);
+
+    if (mImpl->truncateIsError && convert_status == CONVERT_STATUS_TRUNCATED)
+    {
+        std::string errmsg = "Column " + std::to_string(columnNumber) + " truncated";
+        throw ColumnStoreException(errmsg);
+    }
 
     return this;
 }
@@ -270,8 +306,7 @@ ColumnStoreSummary* ColumnStoreBulkInsert::getSummary()
 
 void ColumnStoreBulkInsert::setTruncateIsError(bool set)
 {
-    //TODO
-    (void) set;
+    mImpl->truncateIsError = set;
 }
 
 /* Private parts of API below here */

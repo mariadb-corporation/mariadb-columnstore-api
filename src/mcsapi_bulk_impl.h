@@ -39,7 +39,8 @@ public:
         row(nullptr),
         batchSize(10000),
         autoRollback(true),
-        transactionClosed(false)
+        transactionClosed(false),
+        truncateIsError(false)
     {
         summary = new ColumnStoreSummary();
     }
@@ -63,6 +64,7 @@ public:
     ColumnStoreSummary* summary;
     bool autoRollback;
     bool transactionClosed;
+    bool truncateIsError;
 
     void connect();
     static void onCloseWalk(uv_handle_t* handle, void *arg);
