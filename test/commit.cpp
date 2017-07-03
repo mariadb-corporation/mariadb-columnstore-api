@@ -120,6 +120,70 @@ TEST(Commit, Rollback)
     delete driver;
 }
 
+/* Test that auto rollback works */
+TEST(Commit, AutoRollback)
+{
+    std::string table("commit");
+    std::string db("mcsapi");
+    mcsapi::ColumnStoreDriver* driver;
+    mcsapi::ColumnStoreBulkInsert* bulk;
+    try {
+        driver = new mcsapi::ColumnStoreDriver();
+        bulk = driver->createBulkInsert(db, table, 0, 0);
+        for (int i = 0; i < 1000; i++)
+        {
+            bulk->setColumn(0, (uint32_t)i);
+            bulk->setColumn(1, (uint32_t)1000 - i);
+            bulk->writeRow();
+        }
+        delete bulk;
+    } catch (mcsapi::ColumnStoreException &e) {
+        FAIL() << "Error caught: " << e.what() << std::endl;
+    }
+    if (mysql_query(my_con, "SELECT COUNT(*) FROM commit"))
+        FAIL() << "Could not run test query: " << mysql_error(my_con);
+    MYSQL_RES* result = mysql_store_result(my_con);
+    if (!result)
+        FAIL() << "Could not get result data: " << mysql_error(my_con);
+    MYSQL_ROW row = mysql_fetch_row(result);
+    ASSERT_STREQ(row[0], "1000");
+    mysql_free_result(result);
+    delete driver;
+}
+
+/* Test that second commit works */
+TEST(Commit, SecondCommit)
+{
+    std::string table("commit");
+    std::string db("mcsapi");
+    mcsapi::ColumnStoreDriver* driver;
+    mcsapi::ColumnStoreBulkInsert* bulk;
+    try {
+        driver = new mcsapi::ColumnStoreDriver();
+        bulk = driver->createBulkInsert(db, table, 0, 0);
+        for (int i = 0; i < 1000; i++)
+        {
+            bulk->setColumn(0, (uint32_t)i);
+            bulk->setColumn(1, (uint32_t)1000 - i);
+            bulk->writeRow();
+        }
+        bulk->commit();
+    } catch (mcsapi::ColumnStoreException &e) {
+        FAIL() << "Error caught: " << e.what() << std::endl;
+    }
+    if (mysql_query(my_con, "SELECT COUNT(*) FROM commit"))
+        FAIL() << "Could not run test query: " << mysql_error(my_con);
+    MYSQL_RES* result = mysql_store_result(my_con);
+    if (!result)
+        FAIL() << "Could not get result data: " << mysql_error(my_con);
+    MYSQL_ROW row = mysql_fetch_row(result);
+    ASSERT_STREQ(row[0], "2000");
+    mysql_free_result(result);
+    delete bulk;
+    delete driver;
+}
+
+
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   ::testing::AddGlobalTestEnvironment(new TestEnvironment);

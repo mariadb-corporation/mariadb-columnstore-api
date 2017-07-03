@@ -37,7 +37,8 @@ public:
         txnId(0),
         sessionId(65535), // Maybe change this later?
         row(nullptr),
-        batchSize(10000)
+        batchSize(10000),
+        autoRollback(true)
     {
         summary = new ColumnStoreSummary();
     }
@@ -59,6 +60,7 @@ public:
     ColumnStoreRowData* row;
     uint32_t batchSize;
     ColumnStoreSummary* summary;
+    bool autoRollback;
 
     void connect();
     static void onCloseWalk(uv_handle_t* handle, void *arg);

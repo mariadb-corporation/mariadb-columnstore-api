@@ -39,6 +39,8 @@ ColumnStoreBulkInsert::ColumnStoreBulkInsert(ColumnStoreDriverImpl* driverInstan
 
 ColumnStoreBulkInsert::~ColumnStoreBulkInsert()
 {
+    if (mImpl->autoRollback)
+        rollback();
     delete mImpl;
 }
 
@@ -254,6 +256,7 @@ void ColumnStoreBulkInsert::commit()
     mImpl->commands->weRemoveMeta(1, mImpl->uniqueId, mImpl->tbl->oid);
     mImpl->commands->weClose(1);
     mImpl->commands->brmReleaseTableLock(mImpl->tblLock);
+    mImpl->autoRollback = false;
 }
 
 void ColumnStoreBulkInsert::rollback()
@@ -269,7 +272,7 @@ void ColumnStoreBulkInsert::rollback()
     mImpl->commands->weRemoveMeta(1, mImpl->uniqueId, mImpl->tbl->oid);
     mImpl->commands->weClose(1);
     mImpl->commands->brmReleaseTableLock(mImpl->tblLock);
-
+    mImpl->autoRollback = false;
 }
 
 ColumnStoreSummary* ColumnStoreBulkInsert::getSummary()

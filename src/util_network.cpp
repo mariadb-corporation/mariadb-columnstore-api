@@ -74,8 +74,6 @@ ColumnStoreNetwork::ColumnStoreNetwork(uv_loop_t* loop,
 
 ColumnStoreNetwork::~ColumnStoreNetwork()
 {
-    // TODO: uv_check_stop
-    // TODO: remove any pending things from loop (walk and remove based on pointers?)
 }
 
 void ColumnStoreNetwork::onResolved(uv_getaddrinfo_t* resolver,
@@ -207,7 +205,6 @@ void ColumnStoreNetwork::onReadData(uv_stream_t* tcp, ssize_t read_size, const u
     This->messageOut->setDataSize(This->dataInBuffer);
     if (This->messageOut->isCompletePacket())
     {
-        // TODO: delete TCP?
         // TODO: move to readDataStop?
         uv_read_stop(tcp);
         This->con_status = CON_STATUS_IDLE;
