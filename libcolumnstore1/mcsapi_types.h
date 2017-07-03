@@ -62,12 +62,15 @@ private:
 
 class MCS_API ColumnStoreSummary
 {
+    friend class ColumnStoreBulkInsert;
 public:
-    tm& getExecutionTime();
+    ColumnStoreSummary();
+    ~ColumnStoreSummary();
+    double getExecutionTime();
     uint64_t getRowsInsertedCount();
     uint64_t getTruncationCount();
     uint64_t getSaturatedCount();
-    std::vector<std::string>& getWarnings();
+    uint64_t getInvalidCount();
 private:
     ColumnStoreSummaryImpl* mImpl;
 };

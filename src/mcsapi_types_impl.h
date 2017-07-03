@@ -61,4 +61,37 @@ public:
     double getDouble();
     void getDecimalStr(std::string& sDecimal);
 };
+
+class ColumnStoreSummaryImpl
+{
+public:
+    uint64_t invalidCount;
+    uint64_t truncatedCount;
+    uint64_t insertedCount;
+    uint64_t saturatedCount;
+    std::clock_t start;
+    std::clock_t end;
+    ColumnStoreSummaryImpl() :
+        invalidCount(0),
+        insertedCount(0),
+        saturatedCount(0)
+    { }
+
+    void startTimer()
+    {
+        start = std::clock();
+    }
+
+    void stopTimer()
+    {
+        end = std::clock();
+    }
+
+    double getExecTime()
+    {
+        return (end - start) / (double)CLOCKS_PER_SEC;
+    }
+
+    void setStatus(columnstore_data_convert_status_t status);
+};
 }

@@ -38,7 +38,9 @@ public:
         sessionId(65535), // Maybe change this later?
         row(nullptr),
         batchSize(10000)
-    { }
+    {
+        summary = new ColumnStoreSummary();
+    }
     ~ColumnStoreBulkInsertImpl();
 
     ColumnStoreDriverImpl* driver;
@@ -56,6 +58,7 @@ public:
     uint32_t sessionId;
     ColumnStoreRowData* row;
     uint32_t batchSize;
+    ColumnStoreSummary* summary;
 
     void connect();
     static void onCloseWalk(uv_handle_t* handle, void *arg);

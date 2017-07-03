@@ -24,6 +24,7 @@ namespace mcsapi
 enum columnstore_commands_t
 {
     COMMAND_PROCMON_GET_SOFTWARE_INFO = 0x0E,
+    COMMAND_DBRM_ROLLBACK_VB = 0x07,
     COMMAND_DBRM_COMMIT_VB = 0x08,
     COMMAND_DBRM_SET_EXTENTS_MIN_MAX = 0x1A,
     COMMAND_DBRM_TAKE_SNAPSHOT = 0x1F,
@@ -37,6 +38,7 @@ enum columnstore_commands_t
     COMMAND_DBRM_GET_UNCOMMITTED_LBIDS = 0x3A,
     COMMAND_DBRM_GET_SYSTEM_CATALOG = 0x65,
     COMMAND_WRITEENGINE_KEEPALIVE = 0x02,
+    COMMAND_WRITEENGINE_ROLLBACK_BLOCKS = 0x08,
     COMMAND_WRITEENGINE_BATCH_INSERT = 0x1B,
     COMMAND_WRITEENGINE_BATCH_INSERT_BINARY = 0x37,
     COMMAND_WRITEENGINE_BATCH_INSERT_END = 0x1C,
@@ -71,14 +73,17 @@ public:
     void brmGetUncommittedLbids(uint32_t txnId, std::vector<uint64_t>& lbids);
     void brmTakeSnapshot();
     void brmChangeState(uint64_t lockId);
+    void brmRollback(std::vector<uint64_t>& lbids, uint32_t txnId);
+    void brmSetExtentsMaxMin(std::vector<uint64_t>& lbids);
     void weBulkCommit(uint32_t pm, uint64_t uniqueId, uint32_t sessionId, uint32_t txnId, uint32_t tableOid, std::vector<ColumnStoreHWM>& hwms);
-    void weBulkRollback(uint32_t pm, uint64_t uniqueId, uint64_t tableLockID, uint32_t tableOid);
+    void weBulkRollback(uint32_t pm, uint64_t uniqueId, uint32_t sessionId, uint64_t tableLockID, uint32_t tableOid);
     void weBulkInsert(uint32_t pm, uint64_t uniqueId, uint32_t sessionId, uint32_t txnId, ColumnStoreTableData* table);
     void weBulkInsertEnd(uint32_t pm, uint64_t uniqueId, uint32_t txnId, uint32_t tableOid, uint8_t errCode);
     void weKeepAlive(uint32_t pm);
     void weClose(uint32_t pm);
     void weRemoveMeta(uint32_t pm, uint64_t uniqueId, uint32_t tableOid);
     void weGetWrittenLbids(uint32_t pm, uint64_t uniqueId, uint32_t txnId, std::vector<uint64_t>& lbids);
+    void weRollbackBlocks(uint32_t pm, uint64_t uniqueId, uint32_t sessionId, uint32_t txnId);
 
     static void onCloseWalk(uv_handle_t* handle, void *arg);
 private:

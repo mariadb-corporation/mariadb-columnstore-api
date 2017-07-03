@@ -22,6 +22,7 @@
 
 #include "mcsapi_driver_impl.h"
 #include "mcsapi_bulk_impl.h"
+#include "mcsapi_types_impl.h"
 
 namespace mcsapi
 {
@@ -32,6 +33,8 @@ ColumnStoreBulkInsert::ColumnStoreBulkInsert(ColumnStoreDriverImpl* driverInstan
     mImpl = new ColumnStoreBulkInsertImpl(db, table, mode, pm);
     mImpl->driver = driverInstance;
     mImpl->connect();
+    ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
+    summaryImpl->startTimer();
 }
 
 ColumnStoreBulkInsert::~ColumnStoreBulkInsert()
@@ -51,6 +54,12 @@ void ColumnStoreBulkInsert::setBatchSize(uint32_t batchSize)
 
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, std::string& value, columnstore_data_convert_status_t* status)
 {
+    if (columnNumber > mImpl->tbl->columns.size())
+    {
+        std::string errmsg = "Column number " + std::to_string(columnNumber) + " not valid";
+        throw ColumnStoreException(errmsg);
+    }
+
     columnstore_data_convert_status_t convert_status;
     ColumnStoreSystemCatalogColumn* column = mImpl->tbl->columns[columnNumber];
     ColumnStoreDataContainer* cont = &(*mImpl->row)[columnNumber];
@@ -59,12 +68,19 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, s
     {
         *status = convert_status;
     }
+    ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
+    summaryImpl->setStatus(convert_status);
+
     return this;
 }
 
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, uint64_t value, columnstore_data_convert_status_t* status)
 {
-    // TODO: check columnNumber not > column count
+    if (columnNumber > mImpl->tbl->columns.size())
+    {
+        std::string errmsg = "Column number " + std::to_string(columnNumber) + " not valid";
+        throw ColumnStoreException(errmsg);
+    }
 
     columnstore_data_convert_status_t convert_status;
     ColumnStoreSystemCatalogColumn* column = mImpl->tbl->columns[columnNumber];
@@ -74,13 +90,20 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, u
     {
         *status = convert_status;
     }
-    // TODO: apply convert_status to counters
+    ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
+    summaryImpl->setStatus(convert_status);
 
     return this;
 }
 
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, int64_t value, columnstore_data_convert_status_t* status)
 {
+    if (columnNumber > mImpl->tbl->columns.size())
+    {
+        std::string errmsg = "Column number " + std::to_string(columnNumber) + " not valid";
+        throw ColumnStoreException(errmsg);
+    }
+
     columnstore_data_convert_status_t convert_status;
     ColumnStoreSystemCatalogColumn* column = mImpl->tbl->columns[columnNumber];
     ColumnStoreDataContainer* cont = &(*mImpl->row)[columnNumber];
@@ -89,12 +112,20 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, i
     {
         *status = convert_status;
     }
+    ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
+    summaryImpl->setStatus(convert_status);
 
     return this;
 }
 
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, double value, columnstore_data_convert_status_t* status)
 {
+    if (columnNumber > mImpl->tbl->columns.size())
+    {
+        std::string errmsg = "Column number " + std::to_string(columnNumber) + " not valid";
+        throw ColumnStoreException(errmsg);
+    }
+
     columnstore_data_convert_status_t convert_status;
     ColumnStoreSystemCatalogColumn* column = mImpl->tbl->columns[columnNumber];
     ColumnStoreDataContainer* cont = &(*mImpl->row)[columnNumber];
@@ -103,12 +134,20 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, d
     {
         *status = convert_status;
     }
+    ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
+    summaryImpl->setStatus(convert_status);
 
     return this;
 }
 
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, ColumnStoreDateTime& value, columnstore_data_convert_status_t* status)
 {
+    if (columnNumber > mImpl->tbl->columns.size())
+    {
+        std::string errmsg = "Column number " + std::to_string(columnNumber) + " not valid";
+        throw ColumnStoreException(errmsg);
+    }
+
     columnstore_data_convert_status_t convert_status;
     ColumnStoreSystemCatalogColumn* column = mImpl->tbl->columns[columnNumber];
     ColumnStoreDataContainer* cont = &(*mImpl->row)[columnNumber];
@@ -117,12 +156,20 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, C
     {
         *status = convert_status;
     }
+    ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
+    summaryImpl->setStatus(convert_status);
 
     return this;
 }
 
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, ColumnStoreDecimal& value, columnstore_data_convert_status_t* status)
 {
+    if (columnNumber > mImpl->tbl->columns.size())
+    {
+        std::string errmsg = "Column number " + std::to_string(columnNumber) + " not valid";
+        throw ColumnStoreException(errmsg);
+    }
+
     columnstore_data_convert_status_t convert_status;
     ColumnStoreSystemCatalogColumn* column = mImpl->tbl->columns[columnNumber];
     ColumnStoreDataContainer* cont = &(*mImpl->row)[columnNumber];
@@ -131,12 +178,20 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, C
     {
         *status = convert_status;
     }
+    ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
+    summaryImpl->setStatus(convert_status);
 
     return this;
 }
 
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::setNull(uint16_t columnNumber, columnstore_data_convert_status_t* status)
 {
+    if (columnNumber > mImpl->tbl->columns.size())
+    {
+        std::string errmsg = "Column number " + std::to_string(columnNumber) + " not valid";
+        throw ColumnStoreException(errmsg);
+    }
+
     columnstore_data_convert_status_t convert_status;
     ColumnStoreSystemCatalogColumn* column = mImpl->tbl->columns[columnNumber];
     ColumnStoreDataContainer* cont = &(*mImpl->row)[columnNumber];
@@ -145,13 +200,23 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setNull(uint16_t columnNumber, col
     {
         *status = convert_status;
     }
+    ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
+    summaryImpl->setStatus(convert_status);
+
     return this;
 }
 
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::writeRow()
 {
-    // TODO: check size of row matches column count for table
+    if (mImpl->row->size() != mImpl->tbl->columns.size())
+    {
+        std::string errmsg = "Not all the columns for this row have been filled";
+        throw ColumnStoreException(errmsg);
+    }
     mImpl->tableData.nextRow();
+
+    ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
+    summaryImpl->insertedCount++;
 
     if (mImpl->tableData.row_number >= 100000)
     {
@@ -165,6 +230,9 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::writeRow()
 
 void ColumnStoreBulkInsert::commit()
 {
+    ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
+    summaryImpl->stopTimer();
+
     if (mImpl->tableData.row_number > 0)
     {
         mImpl->commands->weBulkInsert(1, mImpl->uniqueId, mImpl->sessionId, mImpl->txnId, &mImpl->tableData);
@@ -173,7 +241,6 @@ void ColumnStoreBulkInsert::commit()
     mImpl->commands->weBulkInsertEnd(1, mImpl->uniqueId, mImpl->txnId, mImpl->tbl->oid, 0);
     std::vector<uint64_t> lbids;
     std::vector<ColumnStoreHWM> hwms;
-//    mImpl->commands->brmGetUncommittedLbids(mImpl->txnId, lbids);
     mImpl->commands->weGetWrittenLbids(1, mImpl->uniqueId, mImpl->txnId, lbids);
     mImpl->commands->weClose(1);
 
@@ -191,15 +258,28 @@ void ColumnStoreBulkInsert::commit()
 
 void ColumnStoreBulkInsert::rollback()
 {
+    ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
+    summaryImpl->stopTimer();
+    std::vector<uint64_t> lbids;
+    mImpl->commands->weGetWrittenLbids(1, mImpl->uniqueId, mImpl->txnId, lbids);
+    mImpl->commands->weRollbackBlocks(1, mImpl->uniqueId, mImpl->sessionId, mImpl->txnId);
+    mImpl->commands->brmRollback(lbids, mImpl->txnId);
+    mImpl->commands->weBulkRollback(1, mImpl->uniqueId, mImpl->sessionId, mImpl->tblLock, mImpl->tbl->oid);
+    mImpl->commands->brmChangeState(mImpl->tblLock);
+    mImpl->commands->weRemoveMeta(1, mImpl->uniqueId, mImpl->tbl->oid);
+    mImpl->commands->weClose(1);
+    mImpl->commands->brmReleaseTableLock(mImpl->tblLock);
+
 }
 
 ColumnStoreSummary* ColumnStoreBulkInsert::getSummary()
 {
-    return NULL;
+    return mImpl->summary;
 }
 
 void ColumnStoreBulkInsert::setTruncateIsError(bool set)
 {
+    //TODO
     (void) set;
 }
 
@@ -209,6 +289,7 @@ ColumnStoreBulkInsertImpl::~ColumnStoreBulkInsertImpl()
 {
     delete systemCatalog;
     delete commands;
+    delete summary;
 }
 
 void ColumnStoreBulkInsertImpl::connect()

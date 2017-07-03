@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <inttypes.h>
 #include <cmath>
+#include <ctime>
 
 #include <uv.h>
 #include <snappy.h>

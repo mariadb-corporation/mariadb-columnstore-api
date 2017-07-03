@@ -48,6 +48,8 @@ class TestEnvironment : public ::testing::Environment {
   {
     if (my_con)
     {
+        if (mysql_query(my_con, "DROP TABLE commit"))
+            FAIL() << "Could not drop table: " << mysql_error(my_con);
         mysql_close(my_con);
     }
   }
@@ -82,8 +84,38 @@ TEST(Commit, Commit)
     MYSQL_ROW row = mysql_fetch_row(result);
     ASSERT_STREQ(row[0], "1000");
     mysql_free_result(result);
-    if (mysql_query(my_con, "DROP TABLE commit"))
-        FAIL() << "Could not drop table: " << mysql_error(my_con);
+    delete bulk;
+    delete driver;
+}
+
+/* Test that rollback works */
+TEST(Commit, Rollback)
+{
+    std::string table("commit");
+    std::string db("mcsapi");
+    mcsapi::ColumnStoreDriver* driver;
+    mcsapi::ColumnStoreBulkInsert* bulk;
+    try {
+        driver = new mcsapi::ColumnStoreDriver();
+        bulk = driver->createBulkInsert(db, table, 0, 0);
+        for (int i = 0; i < 1000; i++)
+        {
+            bulk->setColumn(0, (uint32_t)i);
+            bulk->setColumn(1, (uint32_t)1000 - i);
+            bulk->writeRow();
+        }
+        bulk->rollback();
+    } catch (mcsapi::ColumnStoreException &e) {
+        FAIL() << "Error caught: " << e.what() << std::endl;
+    }
+    if (mysql_query(my_con, "SELECT COUNT(*) FROM commit"))
+        FAIL() << "Could not run test query: " << mysql_error(my_con);
+    MYSQL_RES* result = mysql_store_result(my_con);
+    if (!result)
+        FAIL() << "Could not get result data: " << mysql_error(my_con);
+    MYSQL_ROW row = mysql_fetch_row(result);
+    ASSERT_STREQ(row[0], "1000");
+    mysql_free_result(result);
     delete bulk;
     delete driver;
 }

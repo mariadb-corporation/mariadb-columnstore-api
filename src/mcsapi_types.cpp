@@ -340,4 +340,59 @@ void ColumnStoreDecimalImpl::getDecimalStr(std::string& sDecimal)
     }
 }
 
+ColumnStoreSummary::ColumnStoreSummary()
+{
+    mImpl = new ColumnStoreSummaryImpl();
+}
+
+ColumnStoreSummary::~ColumnStoreSummary()
+{
+    delete mImpl;
+}
+
+double ColumnStoreSummary::getExecutionTime()
+{
+    return mImpl->getExecTime();
+}
+
+uint64_t ColumnStoreSummary::getRowsInsertedCount()
+{
+    return mImpl->insertedCount;
+}
+
+uint64_t ColumnStoreSummary::getTruncationCount()
+{
+    return mImpl->truncatedCount;
+}
+
+uint64_t ColumnStoreSummary::getInvalidCount()
+{
+    return mImpl->invalidCount;
+}
+
+uint64_t ColumnStoreSummary::getSaturatedCount()
+{
+    return mImpl->saturatedCount;
+}
+
+void ColumnStoreSummaryImpl::setStatus(columnstore_data_convert_status_t status)
+{
+    switch (status)
+    {
+        case CONVERT_STATUS_NONE:
+            break;
+        case CONVERT_STATUS_INVALID:
+            invalidCount++;
+            break;
+        case CONVERT_STATUS_SATURATED:
+            saturatedCount++;
+            break;
+        case CONVERT_STATUS_TRUNCATED:
+            truncatedCount++;
+            break;
+        default:
+            break;
+    }
+}
+
 }

@@ -313,7 +313,7 @@ ColumnStoreNetwork* ColumnStoreCommands::getWeConnection(uint32_t pm)
     return connection;
 }
 
-void ColumnStoreCommands::weBulkRollback(uint32_t pm, uint64_t uniqueId, uint64_t tableLockID, uint32_t tableOid)
+void ColumnStoreCommands::weBulkRollback(uint32_t pm, uint64_t uniqueId, uint32_t sessionId, uint64_t tableLockID, uint32_t tableOid)
 {
     ColumnStoreMessaging messageIn;
     ColumnStoreMessaging* messageOut;
@@ -323,6 +323,7 @@ void ColumnStoreCommands::weBulkRollback(uint32_t pm, uint64_t uniqueId, uint64_
     uint8_t command = COMMAND_WRITEENGINE_BATCH_ROLLBACK;
     messageIn << command;
     messageIn << uniqueId;
+    messageIn << sessionId;
     messageIn << tableLockID;
     messageIn << tableOid;
     connection->sendData(messageIn);
@@ -333,8 +334,9 @@ void ColumnStoreCommands::weBulkRollback(uint32_t pm, uint64_t uniqueId, uint64_
     runLoop();
 
     uint8_t response;
+    *messageOut >> uniqueId;
     *messageOut >> response;
-    if (response != RESPONSE_OK)
+    if (response != 0)
     {
         std::string errmsg;
         *messageOut >> errmsg;
@@ -600,6 +602,40 @@ void ColumnStoreCommands::weBulkInsertEnd(uint32_t pm, uint64_t uniqueId, uint32
     delete messageOut;
 }
 
+void ColumnStoreCommands::weRollbackBlocks(uint32_t pm, uint64_t uniqueId, uint32_t sessionId, uint32_t txnId)
+{
+    ColumnStoreMessaging messageIn;
+    ColumnStoreMessaging* messageOut;
+    ColumnStoreNetwork *connection = getWeConnection(pm);
+    runLoop();
+
+    uint8_t command = COMMAND_WRITEENGINE_ROLLBACK_BLOCKS;
+    messageIn << command;
+    messageIn << uniqueId;
+    messageIn << sessionId;
+    messageIn << txnId;
+    connection->sendData(messageIn);
+    runLoop();
+
+    connection->readDataStart();
+    messageOut = connection->getReadMessage();
+    runLoop();
+
+    *messageOut >> uniqueId;
+    uint8_t response;
+    std::string errMsg;
+    *messageOut >> response;
+    *messageOut >> errMsg;
+    if (response != 0)
+    {
+        std::string errmsg;
+        *messageOut >> errmsg;
+        delete messageOut;
+        throw ColumnStoreException(errmsg);
+    }
+    delete messageOut;
+}
+
 void ColumnStoreCommands::weRemoveMeta(uint32_t pm, uint64_t uniqueId, uint32_t tableOid)
 {
     ColumnStoreMessaging messageIn;
@@ -798,6 +834,83 @@ void ColumnStoreCommands::brmSetHWMAndCP(std::vector<ColumnStoreHWM>& hwms, std:
     if (response != 0)
     {
         std::string errmsg("Error setting HWM");
+        delete messageOut;
+        throw ColumnStoreException(errmsg);
+    }
+
+    delete messageOut;
+}
+
+void ColumnStoreCommands::brmSetExtentsMaxMin(std::vector<uint64_t>& lbids)
+{
+    ColumnStoreMessaging messageIn;
+    ColumnStoreMessaging* messageOut;
+    ColumnStoreNetwork *connection = getBrmConnection();
+    runSoloLoop(connection);
+
+    uint8_t command = COMMAND_DBRM_SET_EXTENTS_MIN_MAX;
+
+    messageIn << command;
+    messageIn << lbids.size();
+    for (auto& it : lbids)
+    {
+        messageIn << it;
+        // min int64
+        messageIn << (uint64_t) 0x8000000000000000;
+        messageIn << (uint64_t) std::numeric_limits<int64_t>::max();
+        // int32_t -1 with 4 byte struct padding which is the same as uint64_t
+        // max for our purposes;
+        messageIn << std::numeric_limits<uint64_t>::max();
+    }
+
+    connection->sendData(messageIn);
+    runSoloLoop(connection);
+
+    connection->readDataStart();
+    messageOut = connection->getReadMessage();
+    runSoloLoop(connection);
+
+    uint8_t response;
+    *messageOut >> response;
+    if (response != 0)
+    {
+        std::string errmsg("Error setting Extents Max/Min");
+        delete messageOut;
+        throw ColumnStoreException(errmsg);
+    }
+
+    delete messageOut;
+}
+
+void ColumnStoreCommands::brmRollback(std::vector<uint64_t>& lbids, uint32_t txnId)
+{
+    ColumnStoreMessaging messageIn;
+    ColumnStoreMessaging* messageOut;
+    ColumnStoreNetwork *connection = getBrmConnection();
+    runSoloLoop(connection);
+
+    uint8_t command = COMMAND_DBRM_ROLLBACK_VB;
+
+    messageIn << command;
+    messageIn << txnId;
+    messageIn << lbids.size();
+    for (auto& it : lbids)
+    {
+        messageIn << it;
+    }
+
+    connection->sendData(messageIn);
+    runSoloLoop(connection);
+
+    connection->readDataStart();
+    messageOut = connection->getReadMessage();
+    runSoloLoop(connection);
+
+    uint8_t response;
+    *messageOut >> response;
+    if (response != 0)
+    {
+        std::string errmsg("Error in VB rollback");
         delete messageOut;
         throw ColumnStoreException(errmsg);
     }
