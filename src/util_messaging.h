@@ -60,7 +60,7 @@ public:
 private:
     // Header bytes used by ByteStream
     const uint32_t HEADER            = 0x14FBC137;
-    const uint32_t COMPRESSED_HEADER = 0x14DBC138;
+    const uint32_t COMPRESSED_HEADER = 0x14FBC138;
     const uint8_t HEADER_LENGTH = 4;
 
     // Lengths used for write, position used for read

@@ -238,9 +238,8 @@ void ColumnStoreNetwork::uncompressData(size_t result_length)
     compressedMessageOut = messageOut;
     messageOut = new ColumnStoreMessaging();
     compressed =  reinterpret_cast<char*>(compressedMessageOut->getDataPtr()->data());
-    uncompressed = reinterpret_cast<char*>(messageOut->getDataPtr()->data());
-    messageOut->allocateDataSize(result_length);
-    // TODO: setDataSize
+    messageOut->allocateDataSize(result_length+8);
+    uncompressed = reinterpret_cast<char*>(messageOut->getDataPtr()->data()+8);
     if (!snappy::RawUncompress(compressed, dataInBuffer, uncompressed))
     {
         mcsdebug("Class %p fail decompressing data", (void*)this);
@@ -248,13 +247,12 @@ void ColumnStoreNetwork::uncompressData(size_t result_length)
         std::string err("Compressed data corruption");
         throw ColumnStoreException(err);
     }
-    if (!this->messageOut->isUncompressedHeader())
-    {
-        mcsdebug ("Class %p bad packet from server", (void*)this);
-        std::string err("Bad packet from server");
-        con_status = CON_STATUS_NET_ERROR;
-        throw ColumnStoreException(err);
-    }
+    char* uncompressedHeader = reinterpret_cast<char*>(messageOut->getDataPtr()->data());
+    // Add fake decompressed header since we don't get one
+    uint32_t headerData = messageOut->getHeader();
+    memcpy(uncompressedHeader, &headerData, 4);
+    memcpy(uncompressedHeader+4, &result_length, 4);
+    messageOut->setDataSize(result_length+8);
 }
 
 void ColumnStoreNetwork::onWriteData(uv_write_t* req, int status)
@@ -344,14 +342,16 @@ void ColumnStoreNetwork::sendCompressedData(ColumnStoreMessaging& message)
 {
     std::vector<unsigned char>* packet_data = message.getDataPtr();
     buf = new uv_buf_t[1];
-    compressedBuffer = new char[snappy::MaxCompressedLength(packet_data->size())];
+    compressedBuffer = new char[snappy::MaxCompressedLength(packet_data->size()) + 8];
     size_t compressed_length;
     char* data = reinterpret_cast<char*>(packet_data->data());
-    uint32_t dataLength = packet_data->size() - 8;
-    // Set size part of header
-    memcpy(data+4, (char*)&dataLength, 4);
 
-    snappy::RawCompress(data, packet_data->size(), compressedBuffer, &compressed_length);
+    uint32_t header = message.getCompressedHeader();
+    memcpy(compressedBuffer, &header, 4);
+
+    char* compressedDataStart = compressedBuffer + 8;
+    // Shift 8 bytes as we don't send the uncompressed header
+    snappy::RawCompress(data+8, packet_data->size()-8, compressedDataStart, &compressed_length);
     mcsdebug("Class %p sending %zu bytes compressed to %zu bytes", this, packet_data->size(), compressed_length);
     if (packet_data->size() == 0)
     {
@@ -359,8 +359,10 @@ void ColumnStoreNetwork::sendCompressedData(ColumnStoreMessaging& message)
     }
 
     this->con_status = CON_STATUS_BUSY;
+
+    memcpy(compressedBuffer+4, &compressed_length, 4);
     buf[0].base = compressedBuffer;
-    buf[0].len = compressed_length;
+    buf[0].len = compressed_length + 8;
     mcsdebug_hex(data, packet_data->size());
     mcsdebug_hex(compressedBuffer, compressed_length);
 
