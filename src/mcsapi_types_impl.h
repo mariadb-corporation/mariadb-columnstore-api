@@ -73,6 +73,7 @@ public:
     std::clock_t end;
     ColumnStoreSummaryImpl() :
         invalidCount(0),
+        truncatedCount(0),
         insertedCount(0),
         saturatedCount(0)
     { }
