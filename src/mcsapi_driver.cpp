@@ -32,6 +32,22 @@ ColumnStoreDriver::ColumnStoreDriver(const std::string& path)
     mImpl->loadXML();
 }
 
+ColumnStoreDriver::ColumnStoreDriver()
+{
+    std::string path(DEFAULT_PATH);
+    char* envpath = std::getenv("COLUMNSTORE_INSTALL_DIR");
+    if (envpath)
+    {
+        path = envpath;
+        path.append("/etc/Columnstore.xml");
+    }
+
+
+    mImpl = new ColumnStoreDriverImpl();
+    mImpl->path = path;
+    mImpl->loadXML();
+}
+
 ColumnStoreDriver::~ColumnStoreDriver()
 {
 

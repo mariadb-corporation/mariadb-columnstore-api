@@ -30,8 +30,7 @@ class MCS_API ColumnStoreDriver
 {
 public:
     ColumnStoreDriver(const std::string& path);
-    // TODO: use non-root env variable then default path
-    ColumnStoreDriver() : ColumnStoreDriver(DEFAULT_PATH) { };
+    ColumnStoreDriver();
     ~ColumnStoreDriver();
 
     const char* getVersion();
