@@ -99,4 +99,36 @@ const char* ColumnStoreDriverImpl::getXMLNode(const char* parent, const char* no
     }
     return NULL;
 }
-};
+
+uint32_t ColumnStoreDriverImpl::getPMCount()
+{
+    const char* pmStringCount = getXMLNode("PrimitiveServers", "Count");
+    uint32_t pmCount = strtoul(pmStringCount, NULL, 10);
+
+    return pmCount;
+}
+
+uint32_t ColumnStoreDriverImpl::getDBRootCount()
+{
+    const char* dbRootStringCount = getXMLNode("SystemConfig", "DBRootCount");
+    uint32_t dbRootCount = strtoul(dbRootStringCount, NULL, 10);
+
+    return dbRootCount;
+}
+
+void ColumnStoreDriverImpl::getDBRootsForPM(uint32_t pm, std::vector<uint32_t>& dbRoots)
+{
+    char dbRootXMLName[32];
+    snprintf(dbRootXMLName, 32, "ModuleDBRootCount%" PRIu32 "-3", pm);
+    const char* dbRootStringCount = getXMLNode("SystemModuleConfig", dbRootXMLName);
+    uint32_t dbRootCount = strtoul(dbRootStringCount, NULL, 10);
+    for (uint32_t dbRC = 1; dbRC <= dbRootCount; dbRC++)
+    {
+        snprintf(dbRootXMLName, 32, "ModuleDBRootID%" PRIu32 "-%" PRIu32 "-3", pm, dbRC);
+        const char* dbRootStringID = getXMLNode("SystemModuleConfig", dbRootXMLName);
+        uint32_t dbRootID = strtoul(dbRootStringID, NULL, 10);
+        dbRoots.push_back(dbRootID);
+    }
+}
+
+}

@@ -244,8 +244,17 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::writeRow()
 
     if (mImpl->tableData.row_number >= 100000)
     {
-        mImpl->commands->weBulkInsert(1, mImpl->uniqueId, mImpl->sessionId, mImpl->txnId, &mImpl->tableData);
+        uint16_t pm = mImpl->pmList[mImpl->currentPm];
+        mImpl->commands->weBulkInsert(pm, mImpl->uniqueId, mImpl->sessionId, mImpl->txnId, &mImpl->tableData);
         mImpl->tableData.row_number = 0;
+        if (mImpl->currentPm+1 >= mImpl->pmList.size())
+        {
+            mImpl->currentPm = 0;
+        }
+        else
+        {
+            mImpl->currentPm++;
+        }
     }
     mImpl->row = mImpl->tableData.getRow();
 
@@ -259,24 +268,30 @@ void ColumnStoreBulkInsert::commit()
 
     if (mImpl->tableData.row_number > 0)
     {
-        mImpl->commands->weBulkInsert(1, mImpl->uniqueId, mImpl->sessionId, mImpl->txnId, &mImpl->tableData);
+        uint16_t pm = mImpl->pmList[mImpl->currentPm];
+        mImpl->commands->weBulkInsert(pm, mImpl->uniqueId, mImpl->sessionId, mImpl->txnId, &mImpl->tableData);
     }
 
-    mImpl->commands->weBulkInsertEnd(1, mImpl->uniqueId, mImpl->txnId, mImpl->tbl->oid, 0);
-    std::vector<uint64_t> lbids;
-    std::vector<ColumnStoreHWM> hwms;
-    mImpl->commands->weGetWrittenLbids(1, mImpl->uniqueId, mImpl->txnId, lbids);
-    mImpl->commands->weClose(1);
-
     mImpl->uniqueId = mImpl->commands->brmGetUniqueId();
-    mImpl->commands->weKeepAlive(1);
-    mImpl->commands->weBulkCommit(1, mImpl->uniqueId, mImpl->sessionId, mImpl->txnId, mImpl->tbl->oid, hwms);
-    mImpl->commands->brmSetHWMAndCP(hwms, lbids, mImpl->txnId);
+    for (auto& pmit: mImpl->pmList)
+    {
+        mImpl->commands->weBulkInsertEnd(pmit, mImpl->uniqueId, mImpl->txnId, mImpl->tbl->oid, 0);
+        std::vector<uint64_t> lbids;
+        std::vector<ColumnStoreHWM> hwms;
+        mImpl->commands->weGetWrittenLbids(pmit, mImpl->uniqueId, mImpl->txnId, lbids);
+        mImpl->commands->weClose(pmit);
+        mImpl->commands->weKeepAlive(pmit);
+        mImpl->commands->weBulkCommit(pmit, mImpl->uniqueId, mImpl->sessionId, mImpl->txnId, mImpl->tbl->oid, hwms);
+        mImpl->commands->brmSetHWMAndCP(hwms, lbids, mImpl->txnId);
+    }
     mImpl->commands->brmCommitted(mImpl->txnId);
     mImpl->commands->brmTakeSnapshot();
     mImpl->commands->brmChangeState(mImpl->tblLock);
-    mImpl->commands->weRemoveMeta(1, mImpl->uniqueId, mImpl->tbl->oid);
-    mImpl->commands->weClose(1);
+    for (auto& pmit: mImpl->pmList)
+    {
+        mImpl->commands->weRemoveMeta(pmit, mImpl->uniqueId, mImpl->tbl->oid);
+        mImpl->commands->weClose(pmit);
+    }
     mImpl->commands->brmReleaseTableLock(mImpl->tblLock);
     mImpl->autoRollback = false;
     mImpl->transactionClosed = true;
@@ -286,14 +301,20 @@ void ColumnStoreBulkInsert::rollback()
 {
     ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
     summaryImpl->stopTimer();
-    std::vector<uint64_t> lbids;
-    mImpl->commands->weGetWrittenLbids(1, mImpl->uniqueId, mImpl->txnId, lbids);
-    mImpl->commands->weRollbackBlocks(1, mImpl->uniqueId, mImpl->sessionId, mImpl->txnId);
-    mImpl->commands->brmRollback(lbids, mImpl->txnId);
-    mImpl->commands->weBulkRollback(1, mImpl->uniqueId, mImpl->sessionId, mImpl->tblLock, mImpl->tbl->oid);
+    for (auto& pmit: mImpl->pmList)
+    {
+        std::vector<uint64_t> lbids;
+        mImpl->commands->weGetWrittenLbids(pmit, mImpl->uniqueId, mImpl->txnId, lbids);
+        mImpl->commands->weRollbackBlocks(pmit, mImpl->uniqueId, mImpl->sessionId, mImpl->txnId);
+        mImpl->commands->brmRollback(lbids, mImpl->txnId);
+        mImpl->commands->weBulkRollback(pmit, mImpl->uniqueId, mImpl->sessionId, mImpl->tblLock, mImpl->tbl->oid);
+    }
     mImpl->commands->brmChangeState(mImpl->tblLock);
-    mImpl->commands->weRemoveMeta(1, mImpl->uniqueId, mImpl->tbl->oid);
-    mImpl->commands->weClose(1);
+    for (auto& pmit: mImpl->pmList)
+    {
+        mImpl->commands->weRemoveMeta(pmit, mImpl->uniqueId, mImpl->tbl->oid);
+        mImpl->commands->weClose(pmit);
+    }
     mImpl->commands->brmReleaseTableLock(mImpl->tblLock);
     mImpl->autoRollback = false;
     mImpl->transactionClosed = true;
@@ -311,6 +332,33 @@ void ColumnStoreBulkInsert::setTruncateIsError(bool set)
 
 /* Private parts of API below here */
 
+ColumnStoreBulkInsertImpl::ColumnStoreBulkInsertImpl(std::string& iDb, std::string& iTable, uint8_t iMode, uint16_t iPm):
+    driver(nullptr),
+    systemCatalog(nullptr),
+    tbl(nullptr),
+    commands(nullptr),
+    db(iDb),
+    table(iTable),
+    mode(iMode),
+    pm(iPm),
+    uniqueId(0),
+    tblLock(0),
+    txnId(0),
+    sessionId(65535), // Maybe change this later?
+    row(nullptr),
+    batchSize(10000),
+    autoRollback(true),
+    transactionClosed(false),
+    truncateIsError(false),
+    currentPm(0)
+{
+    summary = new ColumnStoreSummary();
+    if (iMode == 1)
+    {
+        pmList.push_back(iPm);
+    }
+}
+
 ColumnStoreBulkInsertImpl::~ColumnStoreBulkInsertImpl()
 {
     delete systemCatalog;
@@ -321,9 +369,27 @@ ColumnStoreBulkInsertImpl::~ColumnStoreBulkInsertImpl()
 void ColumnStoreBulkInsertImpl::connect()
 {
     commands = new ColumnStoreCommands(driver);
-    // TODO: support more dbRoots
     std::vector<uint32_t> dbRoots;
-    dbRoots.push_back(1);
+    if (pmList.size() == 0)
+    {
+        uint32_t pmCount = driver->getPMCount();
+        for (uint32_t pmit = 1; pmit <= pmCount; pmit++)
+        {
+            pmList.push_back(pmit);
+            driver->getDBRootsForPM(pmit, dbRoots);
+        }
+    }
+
+    if (pmList.size() == 0)
+    {
+        std::string err("No PMs found in configuration");
+        throw ColumnStoreException(err);
+    }
+    if (dbRoots.size() == 0)
+    {
+        std::string err("No DBRoots found in configuration");
+        throw ColumnStoreException(err);
+    }
 
     if (!commands->procMonCheckVersion())
     {
@@ -356,7 +422,10 @@ void ColumnStoreBulkInsertImpl::connect()
     txnId = commands->brmGetTxnID(sessionId);
     uniqueId = commands->brmGetUniqueId();
     tblLock = commands->brmGetTableLock(tbl->oid, sessionId, txnId, dbRoots);
-    commands->weKeepAlive(1);
+    for (auto& pmit: pmList)
+    {
+        commands->weKeepAlive(pmit);
+    }
     row = tableData.getRow();;
 }
 

@@ -23,27 +23,8 @@ namespace mcsapi
 class ColumnStoreBulkInsertImpl
 {
 public:
-    ColumnStoreBulkInsertImpl(std::string& iDb, std::string& iTable, uint8_t iMode, uint16_t iPm):
-        driver(nullptr),
-        systemCatalog(nullptr),
-        tbl(nullptr),
-        commands(nullptr),
-        db(iDb),
-        table(iTable),
-        mode(iMode),
-        pm(iPm),
-        uniqueId(0),
-        tblLock(0),
-        txnId(0),
-        sessionId(65535), // Maybe change this later?
-        row(nullptr),
-        batchSize(10000),
-        autoRollback(true),
-        transactionClosed(false),
-        truncateIsError(false)
-    {
-        summary = new ColumnStoreSummary();
-    }
+    ColumnStoreBulkInsertImpl(std::string& iDb, std::string& iTable, uint8_t iMode, uint16_t iPm);
+
     ~ColumnStoreBulkInsertImpl();
 
     ColumnStoreDriverImpl* driver;
@@ -65,6 +46,8 @@ public:
     bool autoRollback;
     bool transactionClosed;
     bool truncateIsError;
+    std::vector<uint16_t> pmList;
+    uint32_t currentPm;
 
     void connect();
     static void onCloseWalk(uv_handle_t* handle, void *arg);

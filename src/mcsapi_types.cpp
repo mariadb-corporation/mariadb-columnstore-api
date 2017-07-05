@@ -63,7 +63,7 @@ bool ColumnStoreDateTime::set(tm& time)
 
 bool ColumnStoreDateTime::set(std::string& dateTime, std::string& format)
 {
-    tm time = {};
+    tm time = tm();
     std::istringstream ss(dateTime);
     ss >> std::get_time(&time, format.c_str());
     if (ss.fail())

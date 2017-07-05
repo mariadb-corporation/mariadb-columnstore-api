@@ -18,6 +18,8 @@
 
 #pragma once
 
+#define __STDC_FORMAT_MACROS 1
+
 #include <string>
 #include <limits>
 #include <map>
