@@ -12,9 +12,9 @@ endif(NOT SPHINX_FOUND)
 
 if(GENERATE_DOC)
   # documentation tools
-  set(SOURCE_BUILD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/_build")
+  set(SOURCE_BUILD_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
   # configured documentation tools and intermediate build results
-  set(BINARY_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/_build")
+  set(BINARY_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}")
   # static ReST documentation sources
   set(SOURCES_DIR "${CMAKE_CURRENT_BINARY_DIR}/_sources")
   # generated ReST documentation sources

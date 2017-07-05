@@ -1,8 +1,6 @@
 ColumnStoreBulkInsert Class
 ===========================
 
-.. cpp:namespace:: mcsapi
-
 .. cpp:class:: ColumnStoreBulkInsert
 
    The bulk insert class is designed to rapidly insert data into a ColumnStore installation.

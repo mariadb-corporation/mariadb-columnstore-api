@@ -1,8 +1,6 @@
 columnstore_data_convert_status_t Type
 ======================================
 
-.. cpp:namespace:: mcsapi
-
 .. cpp:enum:: columnstore_data_convert_status_t
 
    The status value used in :cpp:func:`ColumnStoreBulkInsert::setColumn` and :cpp:func:`ColumnStoreBulkInsert::setNull` to signify the status of any data conversion that occurred during setting.
@@ -25,8 +23,6 @@ columnstore_data_convert_status_t Type
 
 ColumnStoreDateTime Class
 =========================
-
-.. cpp:namespace:: mcsapi
 
 .. cpp:class:: ColumnStoreDateTime
 
@@ -57,14 +53,14 @@ ColumnStoreDateTime()
 set()
 -----
 
-.. cpp:function:: ColumnStoreDateTime::bool set(tm& time)
+.. cpp:function:: bool ColumnStoreDateTime::set(tm& time)
 
    Sets the date/time using the value of the :cpp:type:`tm` struct.
 
    :param time: The date/time to set
    :returns: ``true`` if the date/time is valid, ``false`` if it is not
 
-.. cpp:function:: ColumnStoreDateTime::bool set(std::string& dateTime, std::string& format)
+.. cpp:function:: bool ColumnStoreDateTime::set(std::string& dateTime, std::string& format)
 
    Sets the date/time based on a given string and format.
 
@@ -74,8 +70,6 @@ set()
 
 ColumnStoreDecimal Class
 ========================
-
-.. cpp:namespace:: mcsapi
 
 .. cpp:class:: ColumnStoreDecimal
 
@@ -119,21 +113,21 @@ ColumnStoreDecimal()
 set()
 -----
 
-.. cpp:function:: ColumnStoreDecimal::bool set(int64_t value)
+.. cpp:function:: bool ColumnStoreDecimal::set(int64_t value)
 
    Sets the decimal to an supplied integer value.
 
    :param value: The value to set
    :returns: Always returns ``true``
 
-.. cpp:function:: ColumnStoreDecimal::bool set(std::string& value)
+.. cpp:function:: bool ColumnStoreDecimal::set(std::string& value)
 
    Sets the decimal to the contents of a supplied :cpp:type:`std::string` value (such as ``"3.14159"``).
 
    :param value: The value to set
    :returns: ``true`` if the conversion was successful or ``false`` if it failed
 
-.. cpp:function:: ColumnStoreDecimal::bool set(double value)
+.. cpp:function:: bool ColumnStoreDecimal::set(double value)
 
    Sets the decimal to the contents of a supplied :cpp:type:`std::string` value (such as ``"3.14159"``).
 
@@ -143,7 +137,7 @@ set()
    :param value: The value to set
    :returns: ``true`` if the conversion was successful or ``false`` if it failed
 
-.. cpp:function:: ColumnStoreDecimal::bool set(int64_t number, uint8_t scale)
+.. cpp:function:: bool ColumnStoreDecimal::set(int64_t number, uint8_t scale)
 
    Sets the decimal to a given number and scale. For example for the value 3.14159 you would set the number to ``314159`` and the scale to ``5``.
 

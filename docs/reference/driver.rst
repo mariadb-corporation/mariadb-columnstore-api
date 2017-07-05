@@ -3,9 +3,7 @@ ColumnStoreDriver Class
 
 .. envvar:: COLUMNSTORE_INSTALL_DIR
 
-   The path to the ColumnStore installation. Used by :cpp:class:`ColumnStoreDriver`
-
-.. cpp:namespace:: mcsapi
+   The optional environment variable containing the path to the ColumnStore installation. Used by :cpp:class:`ColumnStoreDriver`
 
 .. cpp:class:: ColumnStoreDriver
 
@@ -108,7 +106,7 @@ Example
 getVersion()
 ------------
 
-.. cpp:function:: const char* getVersion()
+.. cpp:function:: const char* ColumnStoreDriver::getVersion()
 
    Returns the version of the library in the format ``1.0.0-0393456-dirty`` where ``1.0.0`` is the version number, ``0393456`` is the short git tag and ``dirty`` signifies there is uncommitted code making up this build.
 

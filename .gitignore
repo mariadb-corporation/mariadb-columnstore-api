@@ -33,8 +33,8 @@ test/bad-usage
 test/truncation
 test/summary
 version.h
-docs/_build/conf.py
-docs/_build/sources.cmake
+docs/conf.py
+docs/sources.cmake
 docs/_doctrees/
 docs/_sources/
 docs/html/

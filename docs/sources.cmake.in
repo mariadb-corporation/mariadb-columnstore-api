@@ -8,6 +8,7 @@ file(GLOB SOURCES
   "@CMAKE_CURRENT_SOURCE_DIR@/*.rst"
   "@CMAKE_CURRENT_SOURCE_DIR@/reference/*.rst"
   "@CMAKE_CURRENT_SOURCE_DIR@/usage/*.rst"
+  "@CMAKE_CURRENT_SOURCE_DIR@/_static/*.png"
 )
 foreach(source ${SOURCES})
   configure_file(

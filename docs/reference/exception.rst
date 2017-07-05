@@ -1,8 +1,6 @@
 ColumnStoreException Class
 ==========================
 
-.. cpp:namespace:: mcsapi
-
 .. cpp:class:: ColumnStoreException : public std::runtime_error
 
    A general execption for the mcsapi classes. It should be used just as the :cpp:class:`std::runtime_error` exception is used.
