@@ -19,42 +19,48 @@ For the main build you need:
 
 .. code-block:: console
 
-   $ sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev
+   sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev
 
 For the documentation:
 
 .. code-block:: console
 
-   $ sudo apt-get install python-sphinx texlive-latex-recommended texlive-latex-extra
+   sudo apt-get install python-sphinx texlive-latex-recommended texlive-latex-extra
 
 For test test suite:
 
 .. code-block:: console
 
-   $ sudo apt-get install libgtest-dev cppcheck
-   $ cd /usr/src/gtest
-   $ sudo cmake . -DCMAKE_BUILD_TYPE=RELEASE
-   $ sudo make
-   $ sudo mv libg* /usr/lib/
+   sudo apt-get install libgtest-dev cppcheck
+   cd /usr/src/gtest
+   sudo cmake . -DCMAKE_BUILD_TYPE=RELEASE
+   sudo make
+   sudo mv libg* /usr/lib/
 
 CentOS 7
 ^^^^^^^^
 
-For the main build you need
+For the main build you need the following, the devtoolset is because GCC5 minimum is required for full C++11 support:
 
 .. code-block:: console
 
-   $ sudo yum install cmake gcc-c++ libuv-devel libxml2-devel snappy-devel
+   sudo yum install cmake libuv-devel libxml2-devel snappy-devel
+   sudo yum install centos-release-scl
+   sudo yum install devtoolset-4-gcc*
+   scl enable devtoolset-4 bash
+
 
 For the documentation:
 
 .. code-block:: console
 
-   $ sudo yum install python-sphinx texlive-scheme-full
+   sudo yum install python-sphinx texlive-scheme-full
 
 For the test suite:
 
-   $ sudo yum install gtest-devel cppcheck
+.. code-block:: console
+
+   sudo yum install gtest-devel cppcheck
 
 CMake Options
 -------------
@@ -89,8 +95,7 @@ Linux / Unix
 
 Requirements
 ^^^^^^^^^^^^
-To compile on POSIX based operating systems you need a functioning C++ compiler
- and cmake.  To compile the documentation you will also need python-sphinx version 1.0 or higher.
+To compile on POSIX based operating systems you need a functioning C++11 compiler (for GCC version 5.0 minimum) and cmake.  To compile the documentation you will also need python-sphinx version 1.0 or higher.
 
 Compiling
 ^^^^^^^^^

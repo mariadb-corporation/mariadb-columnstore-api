@@ -21,7 +21,6 @@
 namespace mcsapi
 {
 class ColumnStoreBulkInsert;
-class ColumnStoreAvroInsert;
 
 static std::string DEFAULT_PATH = "/usr/local/mariadb/columnstore/etc/Columnstore.xml";
 
@@ -36,9 +35,6 @@ public:
     const char* getVersion();
     ColumnStoreBulkInsert* createBulkInsert(std::string& db,
             std::string& table, uint8_t mode, uint16_t pm);
-
-    ColumnStoreAvroInsert* createAvroInsert(std::string& db, std::string& table,
-            std::string& schemaFile);
 
 private:
     ColumnStoreDriverImpl* mImpl;

@@ -33,13 +33,22 @@ ColumnStoreDateTime::ColumnStoreDateTime()
 ColumnStoreDateTime::ColumnStoreDateTime(tm& time)
 {
     mImpl = new ColumnStoreDateTimeImpl();
-    set(time);
+    if (!set(time))
+    {
+        std::string errmsg("Invalid date/time provided in the time struct");
+        throw ColumnStoreException(errmsg);
+    }
 }
 
 ColumnStoreDateTime::ColumnStoreDateTime(std::string& dateTime, std::string& format)
 {
     mImpl = new ColumnStoreDateTimeImpl();
-    set(dateTime, format);
+    if (!set(dateTime, format))
+    {
+        std::string errmsg("A valid date/time could not be extracted from the following string with the supplied format: ");
+        errmsg.append(dateTime);
+        throw ColumnStoreException(errmsg);
+    }
 }
 
 ColumnStoreDateTime::~ColumnStoreDateTime()
