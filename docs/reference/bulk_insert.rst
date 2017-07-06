@@ -23,6 +23,22 @@ getColumnCount()
 
    :returns: A count of the number of columns
 
+Example
+^^^^^^^
+
+This example can be used inside the try...catch blocks in the :cpp:class:`ColumnStoreDriver` examples.
+
+.. code-block:: cpp
+   :linenos:
+
+   ...
+   driver = new mcsapi::ColumnStoreDriver();
+   bulkInsert = driver->createBulkInsert(db, table, 0, 0);
+   // columnCount will now contain the number of columns in the table
+   uint16_t columnCount = bulkInsert->getColumnCount();
+   ...
+
+
 setColumn()
 -----------
 
@@ -47,6 +63,68 @@ setColumn()
    :returns: A pointer to the :cpp:class:`ColumnStoreBulkInsert` class so that calls can be chained
    :raises ColumnStoreException: If there is an error setting the column, such as truncation error when :cpp:func:`ColumnStoreBulkInsert::setTruncateIsError` is used or an invalid column number is supplied
 
+Example
+^^^^^^^
+
+This example can be used inside the try...catch blocks in the :cpp:class:`ColumnStoreDriver` examples.
+
+.. code-block:: cpp
+   :linenos:
+
+   ...
+   driver = new mcsapi::ColumnStoreDriver();
+   bulkInsert = driver->createBulkInsert(db, table, 0, 0);
+
+   // Create a decimal value
+   ColumnStoreDecimal decimalVal;
+   decimalVal.set("3.14159");
+
+   // And an int value
+   uint32_t intVal = 123456;
+
+   // And a string value
+   std::string strVal("Hello World");
+
+   // Finally a date/time values
+   ColumnStoreDateTime dateTime;
+   std::string newTime("1999-01-01 23:23:23");
+   std::string tFormat("%Y-%m-%d %H:%M:%S");
+   dateTime.set(newTime, tFormat);
+
+   // A status variable so we can check all is good
+   mcsapi::columnstore_data_convert_status_t status;
+
+   bulkInsert->setColumn(0, intVal, &status);
+   // Check conversion status
+   if (status != CONVERT_STATUS_NONE)
+   	return 1;
+   bulkInsert->setColumn(1, decimalVal, &status);
+   // Check conversion status
+   if (status != CONVERT_STATUS_NONE)
+   	return 1;
+   bulkInsert->setColumn(2, strVal, &status);
+   // Check conversion status
+   if (status != CONVERT_STATUS_NONE)
+   	return 1;
+   bulkInsert->setColumn(3, dateTime, &status);
+   // Check conversion status
+   if (status != CONVERT_STATUS_NONE)
+   	return 1;
+
+   // Write this row ready to start another
+   bulkInsert->writeRow();
+
+   decimalVal.set("1.41421");
+   intVal = 654321;
+   strVal = "dlroW olleH";
+   newTime = "2017-07-05 22:00:43";
+   dateTime.set(newTime, tFormat);
+
+   // A chained example
+   bulkInsert->setColumn(0, intVal)->setColumn(1, decimalVal)->setColumn(2, strVal)->setColumn(3, dateTime)->writeRow();
+   ...
+
+
 setNull()
 ---------
 
@@ -58,6 +136,22 @@ setNull()
    :param status: An optional pointer to a user supplied :cpp:type:`columnstore_data_convert_status_t` type. If supplied this will be set to the resulting status of any data conversion required.
    :returns: A pointer to the :cpp:class:`ColumnStoreBulkInsert` class so that calls can be chained
    :raises ColumnStoreException: If there is an error setting the column, such as an invalid column number is supplied
+
+Example
+^^^^^^^
+
+This example can be used inside the try...catch blocks in the :cpp:class:`ColumnStoreDriver` examples.
+
+.. code-block:: cpp
+   :linenos:
+
+   ...
+   driver = new mcsapi::ColumnStoreDriver();
+   bulkInsert = driver->createBulkInsert(db, table, 0, 0);
+
+   // Set an whole row of NULLs
+   bulkInsert->setNull(0)->setNull(1)->setNull(2)->setNull(3)->writeRow();
+   ...
 
 writeRow()
 ----------
@@ -71,6 +165,27 @@ writeRow()
 
    :raises ColumnStoreException: If there has been an error during the write
 
+Example
+^^^^^^^
+
+This example can be used inside the try...catch blocks in the :cpp:class:`ColumnStoreDriver` examples.
+
+.. code-block:: cpp
+   :linenos:
+
+   ...
+   driver = new mcsapi::ColumnStoreDriver();
+   bulkInsert = driver->createBulkInsert(db, table, 0, 0);
+
+   // Set values for a 2 int column table
+   bulkInsert->setValue(0, (uint32_t) 123456);
+   bulkInsert->setValue(1, (uint32_t) 654321);
+
+   // Write the row
+   bulkInsert->writeRow();
+   ...
+
+
 commit()
 --------
 
@@ -82,6 +197,33 @@ commit()
       After making this call the transaction is completed and the class should not be used for anything but :cpp:func:`ColumnStoreBulkInsert::getSummary`. Attempts to use it again will trigger an exception.
 
    :raises ColumnStoreException: If there has been an error during the commit
+
+Example
+^^^^^^^
+
+This example can be used inside the try...catch blocks in the :cpp:class:`ColumnStoreDriver` examples.
+
+.. code-block:: cpp
+   :linenos:
+
+   ...
+   driver = new mcsapi::ColumnStoreDriver();
+   bulkInsert = driver->createBulkInsert(db, table, 0, 0);
+
+   // Set values for a 2 int column table
+   bulkInsert->setValue(0, (uint32_t) 123456);
+   bulkInsert->setValue(1, (uint32_t) 654321);
+
+   // Write the row
+   bulkInsert->writeRow();
+
+   // Commit the transaction
+   bulkInsert->commit();
+
+   // This WILL throw an exception if uncommented
+   // bulkInsert->setValue(0, (uint32_t) 99999);
+   ...
+
 
 rollback()
 ----------
@@ -95,6 +237,33 @@ rollback()
 
    :raises ColumnStoreException: If there has been an error during the rollback
 
+Example
+^^^^^^^
+
+This example can be used inside the try...catch blocks in the :cpp:class:`ColumnStoreDriver` examples.
+
+.. code-block:: cpp
+   :linenos:
+
+   ...
+   driver = new mcsapi::ColumnStoreDriver();
+   bulkInsert = driver->createBulkInsert(db, table, 0, 0);
+
+   // Set values for a 2 int column table
+   bulkInsert->setValue(0, (uint32_t) 123456);
+   bulkInsert->setValue(1, (uint32_t) 654321);
+
+   // Write the row
+   bulkInsert->writeRow();
+
+   // Rollback the transaction
+   bulkInsert->rollback();
+
+   // This WILL throw an exception if uncommented
+   // bulkInsert->setValue(0, (uint32_t) 99999);
+   ...
+
+
 getSummary()
 ------------
 
@@ -107,6 +276,36 @@ getSummary()
 
    :returns: A pointer the the summary information
 
+Example
+^^^^^^^
+
+This example can be used inside the try...catch blocks in the :cpp:class:`ColumnStoreDriver` examples.
+
+.. code-block:: cpp
+   :linenos:
+
+   ...
+   driver = new mcsapi::ColumnStoreDriver();
+   bulkInsert = driver->createBulkInsert(db, table, 0, 0);
+
+   // Set values for a 2 int column table
+   bulkInsert->setValue(0, (uint32_t) 123456);
+   bulkInsert->setValue(1, (uint32_t) 654321);
+
+   // Write the row
+   bulkInsert->writeRow();
+
+   // Rollback the transaction
+   bulkInsert->rollback();
+
+   // Get the summary, note that we don't free this
+   ColumnStoreSummary* summary = bulkInsert->getSummary();
+
+   // Get the number of inserted rows before they were rolled back
+   uint64_t rows = summary->getRowsInsertedCount();
+   ...
+
+
 setTruncateIsError()
 --------------------
 
@@ -115,6 +314,29 @@ setTruncateIsError()
    Sets whether or not a truncation of CHAR/VARCHAR data is an error. It is disabled by default.
 
    :param set: true to enable, false to disable
+
+Example
+^^^^^^^
+
+This example can be used inside the try...catch blocks in the :cpp:class:`ColumnStoreDriver` examples.
+
+.. code-block:: cpp
+   :linenos:
+
+   ...
+   driver = new mcsapi::ColumnStoreDriver();
+   bulkInsert = driver->createBulkInsert(db, table, 0, 0);
+
+   bulkInsert->setTruncateIsError(true);
+   std::string strVal("Short string");
+
+   // A short string that will insert fine
+   bulkInsert->setValue(0, strVal);
+
+   // This long string will truncate on my VARCHAR(20) and throw an exception
+   strVal = "This is a long string test to demonstrate setTruncateIsError()";
+   bulkInsert->setValue(1, strVal);
+   ...
 
 setBatchSize()
 --------------

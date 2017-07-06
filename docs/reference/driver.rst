@@ -124,9 +124,10 @@ Example
    {
        try {
            mcsapi::ColumnStoreDriver* driver = new mcsapi::ColumnStoreDriver();
-           ASSERT_STREQ(GIT_VERSION, driver->getVersion());
+           const char* version = driver->getVersion();
+           std::cout << version << std::endl;
        } catch (mcsapi::ColumnStoreException &e) {
-           FAIL() << "Error caught: " << e.what() << std::endl;
+           std::cout << "Error caught: " << e.what() << std::endl;
        }
        return 0;
    }
