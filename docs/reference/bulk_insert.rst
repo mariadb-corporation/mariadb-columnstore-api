@@ -267,14 +267,11 @@ This example can be used inside the try...catch blocks in the :cpp:class:`Column
 getSummary()
 ------------
 
-.. cpp:function:: ColumnStoreSummary* ColumnStoreBulkInsert::getSummary()
+.. cpp:function:: ColumnStoreSummary& ColumnStoreBulkInsert::getSummary()
 
-   Gets a pointer to the summary information for this bulk write transaction.
+   Gets the summary information for this bulk write transaction.
 
-   .. note::
-      This is a pointer to an internal structure and should **not** be freed by the user application.
-
-   :returns: A pointer the the summary information
+   :returns: The summary object
 
 Example
 ^^^^^^^
@@ -298,11 +295,11 @@ This example can be used inside the try...catch blocks in the :cpp:class:`Column
    // Rollback the transaction
    bulkInsert->rollback();
 
-   // Get the summary, note that we don't free this
-   ColumnStoreSummary* summary = bulkInsert->getSummary();
+   // Get the summary
+   ColumnStoreSummary summary = bulkInsert->getSummary();
 
    // Get the number of inserted rows before they were rolled back
-   uint64_t rows = summary->getRowsInsertedCount();
+   uint64_t rows = summary.getRowsInsertedCount();
    ...
 
 

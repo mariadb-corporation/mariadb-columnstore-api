@@ -36,11 +36,11 @@ This example can be used inside the try...catch blocks in the :cpp:class:`Column
    // Rollback the transaction
    bulkInsert->rollback();
 
-   // Get the summary, note that we don't free this
-   ColumnStoreSummary* summary = bulkInsert->getSummary();
+   // Get the summary
+   ColumnStoreSummary summary = bulkInsert->getSummary();
 
    // Get the execution time for the transaction
-   double execTime = summary->getExecutionTime();
+   double execTime = summary.getExecutionTime();
    ...
 
 getRowsInsertedCount()
@@ -74,11 +74,11 @@ This example can be used inside the try...catch blocks in the :cpp:class:`Column
    // Rollback the transaction
    bulkInsert->rollback();
 
-   // Get the summary, note that we don't free this
-   ColumnStoreSummary* summary = bulkInsert->getSummary();
+   // Get the summary
+   ColumnStoreSummary summary = bulkInsert->getSummary();
 
    // Get the number of inserted rows before they were rolled back
-   uint64_t rows = summary->getRowsInsertedCount();
+   uint64_t rows = summary.getRowsInsertedCount();
    ...
 
 getTruncationCount()
@@ -111,8 +111,11 @@ This example can be used inside the try...catch blocks in the :cpp:class:`Column
    strVal = "This is a long string test to demonstrate a truncation";
    bulkInsert->setValue(1, strVal);
 
+   // Get the summary
+   ColumnStoreSummary summary = bulkInsert->getSummary();
+
    // Get the number of truncated values before they were rolled back
-   uint64_t truncateCount = summary->getTruncationCount();
+   uint64_t truncateCount = summary.getTruncationCount();
    ...
 
 getSaturatedCount()
@@ -147,11 +150,11 @@ This example can be used inside the try...catch blocks in the :cpp:class:`Column
    // Rollback the transaction
    bulkInsert->rollback();
 
-   // Get the summary, note that we don't free this
-   ColumnStoreSummary* summary = bulkInsert->getSummary();
+   // Get the summary
+   ColumnStoreSummary summary = bulkInsert->getSummary();
 
    // Get the number of saturated values before they were rolled back
-   uint64_t saturatedCount = summary->getSaturatedCount();
+   uint64_t saturatedCount = summary.getSaturatedCount();
    ...
 
 
@@ -192,9 +195,9 @@ This example can be used inside the try...catch blocks in the :cpp:class:`Column
    // Rollback the transaction
    bulkInsert->rollback();
 
-   // Get the summary, note that we don't free this
-   ColumnStoreSummary* summary = bulkInsert->getSummary();
+   // Get the summary
+   ColumnStoreSummary summary = bulkInsert->getSummary();
 
    // Get the number of invalid values before they were rolled back
-   uint64_t invalidCount = summary->getInvalidCount();
+   uint64_t invalidCount = summary.getInvalidCount();
    ...

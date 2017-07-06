@@ -34,17 +34,19 @@ ColumnStoreDriver::ColumnStoreDriver(const std::string& path)
 
 ColumnStoreDriver::ColumnStoreDriver()
 {
-    std::string path(DEFAULT_PATH);
+    mImpl = new ColumnStoreDriverImpl();
     char* envpath = std::getenv("COLUMNSTORE_INSTALL_DIR");
     if (envpath)
     {
-        path = envpath;
-        path.append("/etc/Columnstore.xml");
+        mImpl->path = envpath;
+        mImpl->path.append("/etc/Columnstore.xml");
+    }
+    else
+    {
+        // Enforce a deep copy
+        mImpl->path =  "/usr/local/mariadb/columnstore/etc/Columnstore.xml";
     }
 
-
-    mImpl = new ColumnStoreDriverImpl();
-    mImpl->path = path;
     mImpl->loadXML();
 }
 

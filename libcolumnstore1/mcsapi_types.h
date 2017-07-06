@@ -65,7 +65,9 @@ class MCS_API ColumnStoreSummary
     friend class ColumnStoreBulkInsert;
 public:
     ColumnStoreSummary();
+    ColumnStoreSummary(const ColumnStoreSummary& summary);
     ~ColumnStoreSummary();
+    ColumnStoreSummary& operator=(const ColumnStoreSummary& summary);
     double getExecutionTime();
     uint64_t getRowsInsertedCount();
     uint64_t getTruncationCount();

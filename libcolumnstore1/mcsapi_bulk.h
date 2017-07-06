@@ -77,7 +77,7 @@ public:
     ColumnStoreBulkInsert* writeRow();
     void commit();
     void rollback();
-    ColumnStoreSummary* getSummary();
+    ColumnStoreSummary& getSummary();
     void setTruncateIsError(bool set);
     void setBatchSize(uint32_t batchSize);
 

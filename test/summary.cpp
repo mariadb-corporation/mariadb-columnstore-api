@@ -63,7 +63,6 @@ TEST(Summary, RowsInserted)
     std::string db("mcsapi");
     mcsapi::ColumnStoreDriver* driver;
     mcsapi::ColumnStoreBulkInsert* bulk;
-    mcsapi::ColumnStoreSummary* summary;
     mcsapi::columnstore_data_convert_status_t status;
     try {
         driver = new mcsapi::ColumnStoreDriver();
@@ -81,8 +80,9 @@ TEST(Summary, RowsInserted)
     } catch (mcsapi::ColumnStoreException &e) {
         FAIL() << "Error caught: " << e.what() << std::endl;
     }
+    mcsapi::ColumnStoreSummary summary;
     summary = bulk->getSummary();
-    ASSERT_EQ(summary->getRowsInsertedCount(), 1000);
+    ASSERT_EQ(summary.getRowsInsertedCount(), 1000);
     if (mysql_query(my_con, "SELECT COUNT(*) FROM summary"))
         FAIL() << "Could not run test query: " << mysql_error(my_con);
     MYSQL_RES* result = mysql_store_result(my_con);
@@ -102,7 +102,6 @@ TEST(Summary, Saturated)
     std::string db("mcsapi");
     mcsapi::ColumnStoreDriver* driver;
     mcsapi::ColumnStoreBulkInsert* bulk;
-    mcsapi::ColumnStoreSummary* summary;
     mcsapi::columnstore_data_convert_status_t status;
     try {
         driver = new mcsapi::ColumnStoreDriver();
@@ -117,8 +116,9 @@ TEST(Summary, Saturated)
     } catch (mcsapi::ColumnStoreException &e) {
         FAIL() << "Error caught: " << e.what() << std::endl;
     }
+    mcsapi::ColumnStoreSummary summary;
     summary = bulk->getSummary();
-    ASSERT_EQ(summary->getSaturatedCount(), 1);
+    ASSERT_EQ(summary.getSaturatedCount(), 1);
     if (mysql_query(my_con, "SELECT COUNT(*) FROM summary"))
         FAIL() << "Could not run test query: " << mysql_error(my_con);
     MYSQL_RES* result = mysql_store_result(my_con);
@@ -138,7 +138,6 @@ TEST(Summary, Invalid)
     std::string db("mcsapi");
     mcsapi::ColumnStoreDriver* driver;
     mcsapi::ColumnStoreBulkInsert* bulk;
-    mcsapi::ColumnStoreSummary* summary;
     mcsapi::columnstore_data_convert_status_t status;
     try {
         driver = new mcsapi::ColumnStoreDriver();
@@ -164,8 +163,9 @@ TEST(Summary, Invalid)
     } catch (mcsapi::ColumnStoreException &e) {
         FAIL() << "Error caught: " << e.what() << std::endl;
     }
+    mcsapi::ColumnStoreSummary summary;
     summary = bulk->getSummary();
-    ASSERT_EQ(summary->getInvalidCount(), 1);
+    ASSERT_EQ(summary.getInvalidCount(), 1);
     if (mysql_query(my_con, "SELECT COUNT(*) FROM summary"))
         FAIL() << "Could not run test query: " << mysql_error(my_con);
     MYSQL_RES* result = mysql_store_result(my_con);
@@ -184,7 +184,6 @@ TEST(Summary, Truncated)
     std::string db("mcsapi");
     mcsapi::ColumnStoreDriver* driver;
     mcsapi::ColumnStoreBulkInsert* bulk;
-    mcsapi::ColumnStoreSummary* summary;
     mcsapi::columnstore_data_convert_status_t status;
     std::string sData("This is a longer string to trigger a truncation warning");
     try {
@@ -199,8 +198,9 @@ TEST(Summary, Truncated)
     } catch (mcsapi::ColumnStoreException &e) {
         FAIL() << "Error caught: " << e.what() << std::endl;
     }
+    mcsapi::ColumnStoreSummary summary;
     summary = bulk->getSummary();
-    ASSERT_EQ(summary->getTruncationCount(), 1);
+    ASSERT_EQ(summary.getTruncationCount(), 1);
     if (mysql_query(my_con, "SELECT COUNT(*) FROM summary"))
         FAIL() << "Could not run test query: " << mysql_error(my_con);
     MYSQL_RES* result = mysql_store_result(my_con);

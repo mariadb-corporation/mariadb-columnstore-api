@@ -354,6 +354,18 @@ ColumnStoreSummary::ColumnStoreSummary()
     mImpl = new ColumnStoreSummaryImpl();
 }
 
+ColumnStoreSummary::ColumnStoreSummary(const ColumnStoreSummary& summary)
+{
+    mImpl = new ColumnStoreSummaryImpl();
+    *mImpl = *summary.mImpl;
+}
+
+ColumnStoreSummary& ColumnStoreSummary::operator=(const ColumnStoreSummary& summary)
+{
+    *mImpl = *summary.mImpl;
+    return *this;
+}
+
 ColumnStoreSummary::~ColumnStoreSummary()
 {
     delete mImpl;

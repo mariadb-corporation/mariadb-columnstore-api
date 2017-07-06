@@ -320,9 +320,9 @@ void ColumnStoreBulkInsert::rollback()
     mImpl->transactionClosed = true;
 }
 
-ColumnStoreSummary* ColumnStoreBulkInsert::getSummary()
+ColumnStoreSummary& ColumnStoreBulkInsert::getSummary()
 {
-    return mImpl->summary;
+    return *mImpl->summary;
 }
 
 void ColumnStoreBulkInsert::setTruncateIsError(bool set)
