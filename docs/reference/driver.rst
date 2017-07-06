@@ -68,7 +68,7 @@ Example
 createBulkInsert()
 ------------------
 
-.. cpp:function:: ColumnStoreBulkInsert* ColumnStoreDriver::createBulkInsert(std::string& db, std::string& table, uint8_t mode, uint16_t pm)
+.. cpp:function:: ColumnStoreBulkInsert* ColumnStoreDriver::createBulkInsert(const std::string& db, const std::string& table, uint8_t mode, uint16_t pm)
 
    Allocates and configures an instance of :cpp:class:`ColumnStoreBulkInsert` to be used for bulk inserts with the ColumnStore installation reference by the driver. The resulting object should be freed by the application using the library.
 

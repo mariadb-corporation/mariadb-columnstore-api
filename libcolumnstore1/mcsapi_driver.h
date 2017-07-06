@@ -31,8 +31,8 @@ public:
     ~ColumnStoreDriver();
 
     const char* getVersion();
-    ColumnStoreBulkInsert* createBulkInsert(std::string& db,
-            std::string& table, uint8_t mode, uint16_t pm);
+    ColumnStoreBulkInsert* createBulkInsert(const std::string& db,
+            const std::string& table, uint8_t mode, uint16_t pm);
 
 private:
     ColumnStoreDriverImpl* mImpl;

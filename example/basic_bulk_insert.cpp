@@ -21,13 +21,11 @@
 
 int main(void)
 {
-    std::string table("t1");
-    std::string db("test");
     mcsapi::ColumnStoreDriver* driver;
     mcsapi::ColumnStoreBulkInsert* bulk;
     try {
         driver = new mcsapi::ColumnStoreDriver();
-        bulk = driver->createBulkInsert(db, table, 0, 0);
+        bulk = driver->createBulkInsert("test", "t1", 0, 0);
         for (int i = 0; i < 1000; i++)
         {
         	bulk->setColumn(0, (uint32_t)i);

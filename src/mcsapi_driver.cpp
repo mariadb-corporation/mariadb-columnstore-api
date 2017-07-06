@@ -61,8 +61,8 @@ const char* ColumnStoreDriver::getVersion()
     return version;
 }
 
-ColumnStoreBulkInsert* ColumnStoreDriver::createBulkInsert(std::string& db,
-    std::string& table, uint8_t mode, uint16_t pm)
+ColumnStoreBulkInsert* ColumnStoreDriver::createBulkInsert(const std::string& db,
+    const std::string& table, uint8_t mode, uint16_t pm)
 {
     return new ColumnStoreBulkInsert(this->mImpl, db, table, mode, pm);
 }

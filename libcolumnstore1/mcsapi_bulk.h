@@ -82,8 +82,9 @@ public:
     void setBatchSize(uint32_t batchSize);
 
 private:
-    ColumnStoreBulkInsert(ColumnStoreDriverImpl* driverInstance, std::string& db,
-    	std::string& table, uint8_t mode, uint16_t pm);
+    ColumnStoreBulkInsert(ColumnStoreDriverImpl* driverInstance,
+                          const std::string& db, const std::string& table,
+                          uint8_t mode, uint16_t pm);
     ColumnStoreBulkInsertImpl* mImpl;
 };
 

@@ -1,15 +1,15 @@
-set(BULK_INSERT_FILES
-    bulk_insert.cpp
+set(BASIC_BULK_INSERT_FILES
+    basic_bulk_insert.cpp
 )
 
-add_executable(bulk_insert ${BULK_INSERT_FILES})
+add_executable(basic_bulk_insert ${BASIC_BULK_INSERT_FILES})
 
-target_link_libraries(bulk_insert mcsapi ${LIBUV_LIBRARY} ${LIBXML2_LIBRARIES})
+target_link_libraries(basic_bulk_insert mcsapi ${LIBUV_LIBRARY} ${LIBXML2_LIBRARIES})
 
-INSTALL(TARGETS bulk_insert
+INSTALL(TARGETS basic_bulk_insert
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
 IF(RUN_CPPCHECK)
-  add_cppcheck(bulk_insert FORCE)
+  add_cppcheck(basic_bulk_insert FORCE)
 ENDIF(RUN_CPPCHECK)

@@ -23,7 +23,7 @@ namespace mcsapi
 class ColumnStoreBulkInsertImpl
 {
 public:
-    ColumnStoreBulkInsertImpl(std::string& iDb, std::string& iTable, uint8_t iMode, uint16_t iPm);
+    ColumnStoreBulkInsertImpl(const std::string& iDb, const std::string& iTable, uint8_t iMode, uint16_t iPm);
 
     ~ColumnStoreBulkInsertImpl();
 

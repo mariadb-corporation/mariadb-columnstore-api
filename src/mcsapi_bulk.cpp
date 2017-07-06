@@ -28,7 +28,7 @@ namespace mcsapi
 {
 
 ColumnStoreBulkInsert::ColumnStoreBulkInsert(ColumnStoreDriverImpl* driverInstance,
-    std::string& db, std::string& table, uint8_t mode, uint16_t pm)
+    const std::string& db, const std::string& table, uint8_t mode, uint16_t pm)
 {
     mImpl = new ColumnStoreBulkInsertImpl(db, table, mode, pm);
     mImpl->driver = driverInstance;
@@ -332,7 +332,7 @@ void ColumnStoreBulkInsert::setTruncateIsError(bool set)
 
 /* Private parts of API below here */
 
-ColumnStoreBulkInsertImpl::ColumnStoreBulkInsertImpl(std::string& iDb, std::string& iTable, uint8_t iMode, uint16_t iPm):
+ColumnStoreBulkInsertImpl::ColumnStoreBulkInsertImpl(const std::string& iDb, const std::string& iTable, uint8_t iMode, uint16_t iPm):
     driver(nullptr),
     systemCatalog(nullptr),
     tbl(nullptr),
