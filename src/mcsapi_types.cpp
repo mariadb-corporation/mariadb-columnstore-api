@@ -221,25 +221,46 @@ ColumnStoreDecimal::ColumnStoreDecimal()
 ColumnStoreDecimal::ColumnStoreDecimal(int64_t value)
 {
     mImpl = new ColumnStoreDecimalImpl();
-    set(value);
+    if (!set(value))
+    {
+        std::string errmsg("Error converting value to Decimal: ");
+        errmsg += std::to_string(value);
+        throw ColumnStoreException(errmsg);
+    }
 }
 
 ColumnStoreDecimal::ColumnStoreDecimal(std::string& value)
 {
     mImpl = new ColumnStoreDecimalImpl();
-    set(value);
+    if (!set(value))
+    {
+        std::string errmsg("Error converting value to Decimal: ");
+        errmsg += value;
+        throw ColumnStoreException(errmsg);
+    }
 }
 
 ColumnStoreDecimal::ColumnStoreDecimal(double value)
 {
     mImpl = new ColumnStoreDecimalImpl();
-    set(value);
+    if (!set(value))
+    {
+        std::string errmsg("Error converting value to Decimal: ");
+        errmsg += std::to_string(value);
+        throw ColumnStoreException(errmsg);
+    }
 }
 
 ColumnStoreDecimal::ColumnStoreDecimal(int64_t number, uint8_t scale)
 {
     mImpl = new ColumnStoreDecimalImpl();
-    set(number, scale);
+    if (!set(number, scale))
+    {
+        std::string errmsg("Error converting value to Decimal: ");
+        errmsg += std::to_string(number) + ", scale: " + std::to_string(scale);
+        throw ColumnStoreException(errmsg);
+    }
+
 }
 
 ColumnStoreDecimal::~ColumnStoreDecimal()

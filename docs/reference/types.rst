@@ -87,12 +87,14 @@ ColumnStoreDecimal()
    Sets the decimal to an supplied integer value.
 
    :param value: The value to set
+   :raises ColumnStoreException: When an invalid value is supplied
 
 .. cpp:function:: ColumnStoreDecimal::ColumnStoreDecimal(std::string& value)
 
    Sets the decimal to the contents of a supplied :cpp:type:`std::string` value (such as ``"3.14159"``).
 
    :param value: The value to set
+   :raises ColumnStoreException: When an invalid value is supplied
 
 .. cpp:function:: ColumnStoreDecimal::ColumnStoreDecimal(double value)
 
@@ -102,6 +104,7 @@ ColumnStoreDecimal()
       The internally this uses the :cpp:type:`std::string` method so the performance may be lower than expected.
 
    :param value: The value to set
+   :raises ColumnStoreException: When an invalid value is supplied
 
 .. cpp:function:: ColumnStoreDecimal::ColumnStoreDecimal(int64_t number, uint8_t scale)
 
@@ -109,6 +112,7 @@ ColumnStoreDecimal()
 
    :param number: The number to set
    :param scale: The scale for the number
+   :raises ColumnStoreException: When an invalid number/scale is supplied
 
 set()
 -----
