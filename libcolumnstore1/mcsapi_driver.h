@@ -22,8 +22,6 @@ namespace mcsapi
 {
 class ColumnStoreBulkInsert;
 
-static std::string DEFAULT_PATH = "/usr/local/mariadb/columnstore/etc/Columnstore.xml";
-
 class ColumnStoreDriverImpl;
 class MCS_API ColumnStoreDriver
 {

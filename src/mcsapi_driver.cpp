@@ -43,8 +43,7 @@ ColumnStoreDriver::ColumnStoreDriver()
     }
     else
     {
-        // Enforce a deep copy
-        mImpl->path =  "/usr/local/mariadb/columnstore/etc/Columnstore.xml";
+        mImpl->path = "/usr/local/mariadb/columnstore/etc/Columnstore.xml";
     }
 
     mImpl->loadXML();
