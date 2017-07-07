@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <chrono>
+
 namespace mcsapi
 {
 class ColumnStoreDateTimeImpl
@@ -69,8 +71,9 @@ public:
     uint64_t truncatedCount;
     uint64_t insertedCount;
     uint64_t saturatedCount;
-    std::clock_t start;
-    std::clock_t end;
+
+    std::chrono::high_resolution_clock::time_point start;
+    std::chrono::high_resolution_clock::time_point end;
     ColumnStoreSummaryImpl() :
         invalidCount(0),
         truncatedCount(0),
@@ -80,17 +83,17 @@ public:
 
     void startTimer()
     {
-        start = std::clock();
+        start = std::chrono::high_resolution_clock::now();
     }
 
     void stopTimer()
     {
-        end = std::clock();
+        end = std::chrono::high_resolution_clock::now();
     }
 
     double getExecTime()
     {
-        return (end - start) / (double)CLOCKS_PER_SEC;
+        return std::chrono::duration<double>(end-start).count();
     }
 
     void setStatus(columnstore_data_convert_status_t status);

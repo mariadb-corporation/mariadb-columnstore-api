@@ -264,7 +264,6 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::writeRow()
 void ColumnStoreBulkInsert::commit()
 {
     ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
-    summaryImpl->stopTimer();
 
     if (mImpl->tableData.row_number > 0)
     {
@@ -295,12 +294,13 @@ void ColumnStoreBulkInsert::commit()
     mImpl->commands->brmReleaseTableLock(mImpl->tblLock);
     mImpl->autoRollback = false;
     mImpl->transactionClosed = true;
+    summaryImpl->stopTimer();
 }
 
 void ColumnStoreBulkInsert::rollback()
 {
     ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
-    summaryImpl->stopTimer();
+
     for (auto& pmit: mImpl->pmList)
     {
         std::vector<uint64_t> lbids;
@@ -318,6 +318,7 @@ void ColumnStoreBulkInsert::rollback()
     mImpl->commands->brmReleaseTableLock(mImpl->tblLock);
     mImpl->autoRollback = false;
     mImpl->transactionClosed = true;
+    summaryImpl->stopTimer();
 }
 
 ColumnStoreSummary& ColumnStoreBulkInsert::getSummary()
