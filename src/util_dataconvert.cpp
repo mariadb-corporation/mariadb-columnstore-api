@@ -81,7 +81,48 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         case DATA_TYPE_UDECIMAL:
         case DATA_TYPE_DECIMAL:
             val64 = (uint64_t)(fromValue * pow((double)10, toMeta->scale));
-            cont->setData(val64);
+            switch (toMeta->width)
+            {
+                case 1:
+                    if (val64 > UINT8_MAX)
+                    {
+                        val8 = UINT8_MAX;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else
+                    {
+                        val8 = (uint8_t) val64;
+                    }
+                    cont->setData(val8);
+                    break;
+                case 2:
+                    if (val64 > UINT16_MAX)
+                    {
+                        val16 = UINT16_MAX;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else
+                    {
+                        val16 = (uint16_t) val64;
+                    }
+                    cont->setData(val16);
+                    break;
+                case 4:
+                    if (val64 > UINT32_MAX)
+                    {
+                        val32 = UINT32_MAX;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else
+                    {
+                        val32 = (uint32_t) val64;
+                    }
+                    cont->setData(val32);
+                    break;
+                default:
+                    cont->setData(val64);
+                    break;
+            }
             break;
 
         case DATA_TYPE_MEDINT:
@@ -325,7 +366,63 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         case DATA_TYPE_UDECIMAL:
         case DATA_TYPE_DECIMAL:
             val64 = (int64_t)(fromValue * pow((double)10, toMeta->scale));
-            cont->setData(val64);
+            switch (toMeta->width)
+            {
+                case 1:
+                    if (val64 > INT8_MAX)
+                    {
+                        val8 = INT8_MAX;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else if (val64 < INT8_MIN)
+                    {
+                        val8 = INT8_MIN;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else
+                    {
+                        val8 = (int8_t) val64;
+                    }
+                    cont->setData(val8);
+                    break;
+                case 2:
+                    if (val64 > INT16_MAX)
+                    {
+                        val16 = INT16_MAX;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else if (val64 < INT16_MIN)
+                    {
+                        val16 = INT16_MIN;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else
+                    {
+                        val16 = (int16_t) val64;
+                    }
+                    cont->setData(val16);
+                    break;
+                case 4:
+                    if (val64 > INT32_MAX)
+                    {
+                        val32 = INT32_MAX;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else if (val64 < INT32_MIN)
+                    {
+                        val32 = INT32_MIN;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else
+                    {
+                        val32 = (int32_t) val64;
+                    }
+                    cont->setData(val32);
+                    break;
+                default:
+                    cont->setData(val64);
+                    break;
+            }
             break;
 
         case DATA_TYPE_MEDINT:
@@ -611,12 +708,109 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
 
         case DATA_TYPE_UDECIMAL:
             uval64 = (uint64_t)(fromValue * pow((double)10, toMeta->scale));
-            cont->setData(uval64);
+            switch (toMeta->width)
+            {
+                case 1:
+                    if (uval64 > UINT8_MAX)
+                    {
+                        uval8 = UINT8_MAX;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else
+                    {
+                        uval8 = (uint8_t) uval64;
+                    }
+                    cont->setData(uval8);
+                    break;
+                case 2:
+                    if (uval64 > UINT16_MAX)
+                    {
+                        uval16 = UINT16_MAX;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else
+                    {
+                        uval16 = (uint16_t) uval64;
+                    }
+                    cont->setData(uval16);
+                    break;
+                case 4:
+                    if (uval64 > UINT32_MAX)
+                    {
+                        uval32 = UINT32_MAX;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else
+                    {
+                        uval32 = (uint32_t) uval64;
+                    }
+                    cont->setData(uval32);
+                    break;
+                default:
+                    cont->setData(uval64);
+                    break;
+            }
             break;
 
         case DATA_TYPE_DECIMAL:
             val64 = (int64_t)(fromValue * pow((double)10, toMeta->scale));
-            cont->setData(val64);
+            switch (toMeta->width)
+            {
+                case 1:
+                    if (val64 > INT8_MAX)
+                    {
+                        val8 = INT8_MAX;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else if (val64 < INT8_MIN)
+                    {
+                        val8 = INT8_MIN;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else
+                    {
+                        val8 = (int8_t) val64;
+                    }
+                    cont->setData(val8);
+                    break;
+                case 2:
+                    if (val64 > INT16_MAX)
+                    {
+                        val16 = INT16_MAX;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else if (val64 < INT16_MIN)
+                    {
+                        val16 = INT16_MIN;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else
+                    {
+                        val16 = (int16_t) val64;
+                    }
+                    cont->setData(val16);
+                    break;
+                case 4:
+                    if (val64 > INT32_MAX)
+                    {
+                        val32 = INT32_MAX;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else if (val64 < INT32_MIN)
+                    {
+                        val32 = INT32_MIN;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else
+                    {
+                        val32 = (int32_t) val64;
+                    }
+                    cont->setData(val32);
+                    break;
+                default:
+                    cont->setData(val64);
+                    break;
+            }
             break;
 
         case DATA_TYPE_MEDINT:
@@ -992,7 +1186,64 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
                 break;
             }
             val64 = (uint64_t)(valD * pow((double)10, toMeta->scale));
-            cont->setData(val64);
+            switch (toMeta->width)
+            {
+                case 1:
+                    if (val64 > INT8_MAX)
+                    {
+                        val8 = INT8_MAX;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else if (val64 < INT8_MIN)
+                    {
+                        val8 = INT8_MIN;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else
+                    {
+                        val8 = (int8_t) val64;
+                    }
+                    cont->setData(val8);
+                    break;
+                case 2:
+                    if (val64 > INT16_MAX)
+                    {
+                        val16 = INT16_MAX;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else if (val64 < INT16_MIN)
+                    {
+                        val16 = INT16_MIN;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else
+                    {
+                        val16 = (int16_t) val64;
+                    }
+                    cont->setData(val16);
+                    break;
+                case 4:
+                    if (val64 > INT32_MAX)
+                    {
+                        val32 = INT32_MAX;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else if (val64 < INT32_MIN)
+                    {
+                        val32 = INT32_MIN;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else
+                    {
+                        val32 = (int32_t) val64;
+                    }
+                    cont->setData(val32);
+                    break;
+                default:
+                    cont->setData(val64);
+                    break;
+            }
+
             break;
         }
 
@@ -1615,12 +1866,115 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         }
 
         case DATA_TYPE_UDECIMAL:
-        case DATA_TYPE_DECIMAL:
         {
             uval64 = fromValue.mImpl->getDecimalInt(toMeta->scale);
-            cont->setData(uval64);
+            switch (toMeta->width)
+            {
+                case 1:
+                    if (uval64 > UINT8_MAX)
+                    {
+                        uval8 = UINT8_MAX;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else
+                    {
+                        val8 = (uint8_t) val64;
+                    }
+                    cont->setData(val8);
+                    break;
+                case 2:
+                    if (val64 > UINT16_MAX)
+                    {
+                        val16 = UINT16_MAX;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else
+                    {
+                        val16 = (uint16_t) val64;
+                    }
+                    cont->setData(val16);
+                    break;
+                case 4:
+                    if (val64 > UINT32_MAX)
+                    {
+                        val32 = UINT32_MAX;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else
+                    {
+                        val32 = (uint32_t) val64;
+                    }
+                    cont->setData(val32);
+                    break;
+                default:
+                    cont->setData(val64);
+                    break;
+            }
             break;
         }
+        case DATA_TYPE_DECIMAL:
+        {
+            val64 = fromValue.mImpl->getDecimalInt(toMeta->scale);
+            switch (toMeta->width)
+            {
+                case 1:
+                    if (val64 > INT8_MAX)
+                    {
+                        val8 = INT8_MAX;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else if (val64 < INT8_MIN)
+                    {
+                        val8 = INT8_MIN;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else
+                    {
+                        val8 = (int8_t) val64;
+                    }
+                    cont->setData(val8);
+                    break;
+                case 2:
+                    if (val64 > INT16_MAX)
+                    {
+                        val16 = INT16_MAX;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else if (val64 < INT16_MIN)
+                    {
+                        val16 = INT16_MIN;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else
+                    {
+                        val16 = (int16_t) val64;
+                    }
+                    cont->setData(val16);
+                    break;
+                case 4:
+                    if (val64 > INT32_MAX)
+                    {
+                        val32 = INT32_MAX;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else if (val64 < INT32_MIN)
+                    {
+                        val32 = INT32_MIN;
+                        status = CONVERT_STATUS_SATURATED;
+                    }
+                    else
+                    {
+                        val32 = (int32_t) val64;
+                    }
+                    cont->setData(val32);
+                    break;
+                default:
+                    cont->setData(val64);
+                    break;
+            }
+            break;
+        }
+
 
         case DATA_TYPE_MEDINT:
         {
