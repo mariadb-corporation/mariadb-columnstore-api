@@ -109,7 +109,7 @@ html_theme = 'default'
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-html_logo = '../_static/MariaDB_Logo_under.png'
+html_logo = '_static/MariaDB_Logo_under.png'
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
@@ -169,7 +169,7 @@ htmlhelp_basename = 'libmcsapidoc'
 # -- Options for LaTeX output --------------------------------------------------
 
 # The paper size ('letter' or 'a4').
-latex_paper_size = 'a4'
+#latex_paper_size = 'a4'
 
 # The font size ('10pt', '11pt' or '12pt').
 #latex_font_size = '10pt'
@@ -183,7 +183,7 @@ latex_documents = [ ('latex_building', 'libmcsapi_building.tex', "MariaDB Column
 # the title page.
 latex_logo = '_static/mariadb.png'
 
-latex_elements = {'extraclassoptions': 'openany'}
+latex_elements = {'extraclassoptions': 'openany', 'papersize': 'a4'}
 
 latex_additional_files = ['cc-symbol.png']
 

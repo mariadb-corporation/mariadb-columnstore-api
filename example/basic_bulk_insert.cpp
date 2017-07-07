@@ -16,6 +16,12 @@
  * MA 02110-1301  USA
  */
 
+// Bulk insert example from docs, requires the table in
+// basic_bulk_insert.cpp to be created in the test database
+//
+// NOTE: if you edit this file please update the line numbers in
+// basic_bulk_insert.rst
+
 #include <libcolumnstore1/mcsapi.h>
 #include <iostream>
 

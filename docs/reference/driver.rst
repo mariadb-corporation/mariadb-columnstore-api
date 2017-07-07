@@ -38,7 +38,7 @@ Example
        return 0;
    }
 
-.. cpp:function:: ColumnStoreDriver(std::string& path)
+.. cpp:function:: ColumnStoreDriver(const std::string& path)
 
    Creates an instance of :cpp:class:`ColumnStoreDriver` using the specified path to the Columnstore.xml file (including filename).
 

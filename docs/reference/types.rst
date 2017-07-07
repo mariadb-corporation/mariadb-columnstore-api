@@ -98,7 +98,7 @@ ColumnStoreDecimal()
 
 .. cpp:function:: ColumnStoreDecimal::ColumnStoreDecimal(double value)
 
-   Sets the decimal to the contents of a supplied :cpp:type:`double` value.
+   Sets the decimal to the contents of a supplied :c:type:`double` value.
 
    .. note::
       The internally this uses the :cpp:type:`std::string` method so the performance may be lower than expected.

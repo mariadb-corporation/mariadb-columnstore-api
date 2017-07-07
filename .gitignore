@@ -37,6 +37,7 @@ docs/conf.py
 docs/sources.cmake
 docs/_doctrees/
 docs/_sources/
+docs/_pdfsources/
 docs/html/
 docs/pdf/
 libmcsapi.pc

@@ -17,6 +17,8 @@ if(GENERATE_DOC)
   set(BINARY_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}")
   # static ReST documentation sources
   set(SOURCES_DIR "${CMAKE_CURRENT_BINARY_DIR}/_sources")
+  set(PDF_SOURCES_DIR "${CMAKE_CURRENT_BINARY_DIR}/_pdfsources")
+
   # generated ReST documentation sources
   set(REF_SOURCES_DIR "${SOURCES_DIR}/reference")
   # master document with modules index
@@ -50,6 +52,7 @@ if(GENERATE_DOC)
   )
   list(APPEND CLEAN_FILES
     "${SOURCES_DIR}"
+    "${PDF_SOURCES_DIR}"
   )
 
   # note the trailing slash to exclude directory name
@@ -65,7 +68,7 @@ if(GENERATE_DOC)
   # This target builds HTML documentation using Sphinx.
   add_custom_target(doc_html ALL
     ${SPHINX_EXECUTABLE}
-      -Q -b html
+      -b html
       -c "${BINARY_BUILD_DIR}"
       -d "${SPHINX_CACHE_DIR}"
       "${SOURCES_DIR}"
@@ -93,7 +96,7 @@ if(GENERATE_DOC)
 	-Q -b latex
 	-c "${BINARY_BUILD_DIR}"
 	-d "${SPHINX_CACHE_DIR}"
-	"${SOURCES_DIR}"
+    "${PDF_SOURCES_DIR}"
 	"${SPHINX_PDF_DIR}"
       COMMENT "Building PDF documentation with Sphinx"
     )

@@ -5,7 +5,12 @@
 
 file(GLOB SOURCES
   RELATIVE "@CMAKE_CURRENT_SOURCE_DIR@"
-  "@CMAKE_CURRENT_SOURCE_DIR@/*.rst"
+  "@CMAKE_CURRENT_SOURCE_DIR@/index.rst"
+  "@CMAKE_CURRENT_SOURCE_DIR@/license.rst"
+  "@CMAKE_CURRENT_SOURCE_DIR@/index.rst"
+  "@CMAKE_CURRENT_SOURCE_DIR@/building.rst"
+  "@CMAKE_CURRENT_SOURCE_DIR@/changelog.rst"
+  "@CMAKE_CURRENT_SOURCE_DIR@/compiling.rst"
   "@CMAKE_CURRENT_SOURCE_DIR@/reference/*.rst"
   "@CMAKE_CURRENT_SOURCE_DIR@/usage/*.rst"
   "@CMAKE_CURRENT_SOURCE_DIR@/_static/*.png"
@@ -14,6 +19,21 @@ foreach(source ${SOURCES})
   configure_file(
     "@CMAKE_CURRENT_SOURCE_DIR@/${source}"
     "@SOURCES_DIR@/${source}"
+    COPYONLY
+    )
+endforeach(source)
+
+file(GLOB PDF_SOURCES
+  RELATIVE "@CMAKE_CURRENT_SOURCE_DIR@"
+  "@CMAKE_CURRENT_SOURCE_DIR@/*.rst"
+  "@CMAKE_CURRENT_SOURCE_DIR@/reference/*.rst"
+  "@CMAKE_CURRENT_SOURCE_DIR@/usage/*.rst"
+  "@CMAKE_CURRENT_SOURCE_DIR@/_static/*.png"
+)
+foreach(source ${PDF_SOURCES})
+  configure_file(
+    "@CMAKE_CURRENT_SOURCE_DIR@/${source}"
+    "@PDF_SOURCES_DIR@/${source}"
     COPYONLY
     )
 endforeach(source)
