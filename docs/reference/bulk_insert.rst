@@ -42,7 +42,7 @@ This example can be used inside the try...catch blocks in the :cpp:class:`Column
 setColumn()
 -----------
 
-.. cpp:function:: ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, std::string& value, columnstore_data_convert_status_t* status = nullptr)
+.. cpp:function:: ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, const std::string& value, columnstore_data_convert_status_t* status = nullptr)
 .. cpp:function:: ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, uint64_t value, columnstore_data_convert_status_t* status = nullptr)
 .. cpp:function:: ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, int64_t value, columnstore_data_convert_status_t* status = nullptr)
 .. cpp:function:: ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, uint32_t value, columnstore_data_convert_status_t* status = nullptr)

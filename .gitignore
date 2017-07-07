@@ -13,6 +13,7 @@ third-party/
 src/libmcsapi.a
 *.swp
 example/basic_bulk_insert
+example/advanced_bulk_insert
 install_manifest.txt
 src/libmcsapi.so*
 CTestTestfile.cmake

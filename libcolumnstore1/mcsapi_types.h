@@ -32,11 +32,11 @@ class MCS_API ColumnStoreDateTime
 public:
     ColumnStoreDateTime();
     ColumnStoreDateTime(tm& time);
-    ColumnStoreDateTime(std::string& dateTime, std::string& format);
+    ColumnStoreDateTime(const std::string& dateTime, const std::string& format);
 
     ~ColumnStoreDateTime();
     bool set(tm& time);
-    bool set(std::string& dateTime, std::string& format);
+    bool set(const std::string& dateTime, const std::string& format);
 private:
     ColumnStoreDateTimeImpl* mImpl;
 };
@@ -47,13 +47,13 @@ class MCS_API ColumnStoreDecimal
 public:
     ColumnStoreDecimal();
     ColumnStoreDecimal(int64_t value);
-    ColumnStoreDecimal(std::string& value);
+    ColumnStoreDecimal(const std::string& value);
     ColumnStoreDecimal(double value);
     ColumnStoreDecimal(int64_t number, uint8_t scale);
 
     ~ColumnStoreDecimal();
     bool set(int64_t value);
-    bool set(std::string& value);
+    bool set(const std::string& value);
     bool set(double value);
     bool set(int64_t number, uint8_t scale);
 private:

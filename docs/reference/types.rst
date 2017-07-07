@@ -42,7 +42,7 @@ ColumnStoreDateTime()
    :param time: The date/time to set
    :raises ColumnStoreException: When an invalid date or time is supplied
 
-.. cpp:function:: ColumnStoreDateTime::ColumnStoreDateTime(std::string& dateTime, std::string& format)
+.. cpp:function:: ColumnStoreDateTime::ColumnStoreDateTime(const std::string& dateTime, const std::string& format)
 
    Sets the date/time based on a given string and format.
 
@@ -60,7 +60,7 @@ set()
    :param time: The date/time to set
    :returns: ``true`` if the date/time is valid, ``false`` if it is not
 
-.. cpp:function:: bool ColumnStoreDateTime::set(std::string& dateTime, std::string& format)
+.. cpp:function:: bool ColumnStoreDateTime::set(const std::string& dateTime, const std::string& format)
 
    Sets the date/time based on a given string and format.
 
@@ -89,7 +89,7 @@ ColumnStoreDecimal()
    :param value: The value to set
    :raises ColumnStoreException: When an invalid value is supplied
 
-.. cpp:function:: ColumnStoreDecimal::ColumnStoreDecimal(std::string& value)
+.. cpp:function:: ColumnStoreDecimal::ColumnStoreDecimal(const std::string& value)
 
    Sets the decimal to the contents of a supplied :cpp:type:`std::string` value (such as ``"3.14159"``).
 
@@ -124,7 +124,7 @@ set()
    :param value: The value to set
    :returns: Always returns ``true``
 
-.. cpp:function:: bool ColumnStoreDecimal::set(std::string& value)
+.. cpp:function:: bool ColumnStoreDecimal::set(const std::string& value)
 
    Sets the decimal to the contents of a supplied :cpp:type:`std::string` value (such as ``"3.14159"``).
 

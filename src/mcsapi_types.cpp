@@ -40,7 +40,7 @@ ColumnStoreDateTime::ColumnStoreDateTime(tm& time)
     }
 }
 
-ColumnStoreDateTime::ColumnStoreDateTime(std::string& dateTime, std::string& format)
+ColumnStoreDateTime::ColumnStoreDateTime(const std::string& dateTime, const std::string& format)
 {
     mImpl = new ColumnStoreDateTimeImpl();
     if (!set(dateTime, format))
@@ -70,7 +70,7 @@ bool ColumnStoreDateTime::set(tm& time)
     return mImpl->validateDate();
 }
 
-bool ColumnStoreDateTime::set(std::string& dateTime, std::string& format)
+bool ColumnStoreDateTime::set(const std::string& dateTime, const std::string& format)
 {
     tm time = tm();
     std::istringstream ss(dateTime);
@@ -116,7 +116,7 @@ void ColumnStoreDateTimeImpl::getDateTimeStr(std::string& sDateTime)
     sDateTime = dateTime;
 }
 
-columnstore_data_convert_status_t ColumnStoreDateTimeImpl::setFromString(std::string& dateStr)
+columnstore_data_convert_status_t ColumnStoreDateTimeImpl::setFromString(const std::string& dateStr)
 {
     int resLen;
 
@@ -229,7 +229,7 @@ ColumnStoreDecimal::ColumnStoreDecimal(int64_t value)
     }
 }
 
-ColumnStoreDecimal::ColumnStoreDecimal(std::string& value)
+ColumnStoreDecimal::ColumnStoreDecimal(const std::string& value)
 {
     mImpl = new ColumnStoreDecimalImpl();
     if (!set(value))
@@ -276,18 +276,20 @@ bool ColumnStoreDecimal::set(int64_t value)
     return true;
 }
 
-bool ColumnStoreDecimal::set(std::string& value)
+bool ColumnStoreDecimal::set(const std::string& value)
 {
     char seps[] = ".";
     char *token;
+    // Copy so as not to destroy original
+    std::string valCopy = value;
 
-    token = strtok(&value[0], seps);
+    token = strtok(&valCopy[0], seps);
     // No decimal point
     if (!token)
     {
         try
         {
-            mImpl->decimalNumber = stoll(value);
+            mImpl->decimalNumber = stoll(valCopy);
             mImpl->decimalScale = 0;
             return true;
         }

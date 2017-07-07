@@ -7,6 +7,7 @@ You will need the following table in the test database to execute this:
 
 .. literalinclude:: ../../../example/basic_bulk_insert.sql
    :linenos:
+   :language: mysql
    :caption: example/basic_bulk_insert.sql
 
 .. literalinclude:: ../../../example/basic_bulk_insert.cpp

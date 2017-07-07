@@ -42,7 +42,7 @@ public:
     uint32_t getDateInt();
     uint64_t getDateTimeInt();
     void getDateTimeStr(std::string& sDateTime);
-    columnstore_data_convert_status_t setFromString(std::string& dateStr);
+    columnstore_data_convert_status_t setFromString(const std::string& dateStr);
     bool validateDate();
 };
 

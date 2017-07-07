@@ -99,7 +99,7 @@ public:
         datatype = OCTBYTE;
         isNull = false;
     }
-    void setData(std::string& val)
+    void setData(const std::string& val)
     {
         varbyte = val;
         datatype = VARBYTE;

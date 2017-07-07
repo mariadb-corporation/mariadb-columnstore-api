@@ -842,7 +842,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
     return status;
 }
 
-columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSystemCatalogColumn* toMeta, ColumnStoreDataContainer* cont, std::string& fromValue)
+columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSystemCatalogColumn* toMeta, ColumnStoreDataContainer* cont, const std::string& fromValue)
 {
     columnstore_data_convert_status_t status = CONVERT_STATUS_NONE;
     int8_t val8;
@@ -856,6 +856,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
     float valF;
     double valD;
     ColumnStoreDateTimeImpl dTime;
+    std::string valStr;
     switch(toMeta->type)
     {
         case DATA_TYPE_BIT:
@@ -1195,9 +1196,13 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
             if (fromValue.length() > toMeta->width)
             {
                 status = CONVERT_STATUS_TRUNCATED;
-                fromValue.resize(toMeta->width);
+                valStr = fromValue.substr(0, toMeta->width);
+                cont->setData(valStr);
             }
-            cont->setData(fromValue);
+            else
+            {
+                cont->setData(fromValue);
+            }
             break;
         }
 
