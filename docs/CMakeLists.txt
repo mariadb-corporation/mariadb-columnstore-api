@@ -66,28 +66,28 @@ if(GENERATE_DOC)
   set(SPHINX_HTML_DIR "${CMAKE_CURRENT_BINARY_DIR}/html")
 
   # This target builds HTML documentation using Sphinx.
-  add_custom_target(doc_html ALL
-    ${SPHINX_EXECUTABLE}
-      -b html
-      -c "${BINARY_BUILD_DIR}"
-      -d "${SPHINX_CACHE_DIR}"
-      "${SOURCES_DIR}"
-      "${SPHINX_HTML_DIR}"
-    COMMENT "Building HTML documentation with Sphinx"
-  )
+  #  add_custom_target(doc_html ALL
+  #  ${SPHINX_EXECUTABLE}
+  #    -b html
+  #    -c "${BINARY_BUILD_DIR}"
+  #    -d "${SPHINX_CACHE_DIR}"
+  #    "${SOURCES_DIR}"
+  #    "${SPHINX_HTML_DIR}"
+  #  COMMENT "Building HTML documentation with Sphinx"
+  #)
   list(APPEND CLEAN_FILES
     "${SPHINX_CACHE_DIR}"
     "${SPHINX_HTML_DIR}"
   )
-  add_dependencies(doc_html
-    doc_sources
-  )
-  install(DIRECTORY "${SPHINX_HTML_DIR}"
-    DESTINATION "share/doc/libmcsapi"
-  )
+#  add_dependencies(doc_html
+#    doc_sources
+#  )
+  #install(DIRECTORY "${SPHINX_HTML_DIR}"
+  #  DESTINATION "share/doc/libmcsapi"
+  #)
 
   # This target builds PDF documentation using Sphinx and LaTeX.
-  if(PDFLATEX_COMPILER)
+  #if(PDFLATEX_COMPILER)
     # PDF output directory
     set(SPHINX_PDF_DIR "${CMAKE_CURRENT_BINARY_DIR}/pdf")
 
@@ -111,14 +111,14 @@ if(GENERATE_DOC)
       doc_sources
     )
     # serialize Sphinx targets to avoid cache conflicts in parallel builds
-    add_dependencies(doc_pdf
-      doc_html
-    )
+    #    add_dependencies(doc_pdf
+    #  doc_html
+    #)
     install(FILES "${SPHINX_PDF_DIR}/libmcsapi_building.pdf"
       "${SPHINX_PDF_DIR}/libmcsapi_usage.pdf"
       DESTINATION "${CMAKE_INSTALL_DOCDIR}/libmcsapi"
     )
-  endif(PDFLATEX_COMPILER)
+#endif(PDFLATEX_COMPILER)
 
   # Add output directories to clean target.
   set_directory_properties(PROPERTIES
