@@ -43,6 +43,12 @@ docs/html/
 docs/pdf/
 libmcsapi.pc
 cmake_uninstall.cmake
+CPackConfig.cmake
+CPackSourceConfig.cmake
+_CPack_Packages/
+mcsapi-*.rpm
+
+
 # QtCreator files
 *.config
 *.creator

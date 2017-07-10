@@ -48,7 +48,8 @@ if (NOT LOWERCASE_CMAKE_BUILD_TYPE STREQUAL "debug")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_FORTIFY_SOURCE=2")
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wformat -Wformat-security -fstack-protector-all -fstack-check")
+# Disable format-truncation since this triggers in mcsapi_types for something that isn't a problem
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wformat -Wformat-security -fstack-protector-all -fstack-check -Wno-format-truncation")
 
 INCLUDE (FindLibXml2)
 if (NOT LIBXML2_FOUND)
@@ -101,7 +102,19 @@ if (NOT PKG_CONFIG_FOUND)
 endif()
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/libmcsapi.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/libmcsapi.pc" @ONLY)
 install(FILES       "${CMAKE_CURRENT_BINARY_DIR}/libmcsapi.pc"
-        DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+
+install(FILES "README.md"
+    "LICENSE"
+    DESTINATION "${CMAKE_INSTALL_DOCDIR}/libmcsapi"
+)
+
+include(CPack)
+
+SET(CPACK_PACKAGE_VERSION "1.0.0")
+SET(CPACK_PACKAGE_VERSION_MAJOR "1")
+SET(CPACK_PACKAGE_VERSION_MINOR "0")
+SET(CPACK_PACKAGE_VERSION_PATCH "0")
 
 # uninstall target
 configure_file(

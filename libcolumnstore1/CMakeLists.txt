@@ -1,6 +1,5 @@
 SET(HEADERS
     mcsapi.h
-    mcsapi_avro.h
     mcsapi_bulk.h
     mcsapi_driver.h
     mcsapi_types.h

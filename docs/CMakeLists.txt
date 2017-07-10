@@ -56,9 +56,9 @@ if(GENERATE_DOC)
   )
 
   # note the trailing slash to exclude directory name
-  install(DIRECTORY "${SOURCES_DIR}/"
-      DESTINATION "${CMAKE_INSTALL_DOCDIR}/libmcsapi"
-  )
+  #install(DIRECTORY "${SOURCES_DIR}/"
+  #    DESTINATION "${CMAKE_INSTALL_DOCDIR}/libmcsapi"
+  #)
 
   # Sphinx cache with pickled ReST documents
   set(SPHINX_CACHE_DIR "${CMAKE_CURRENT_BINARY_DIR}/_doctrees")
@@ -116,7 +116,7 @@ if(GENERATE_DOC)
     #)
     install(FILES "${SPHINX_PDF_DIR}/libmcsapi_building.pdf"
       "${SPHINX_PDF_DIR}/libmcsapi_usage.pdf"
-      DESTINATION "${CMAKE_INSTALL_DOCDIR}/libmcsapi"
+      DESTINATION "${CMAKE_INSTALL_DOCDIR}"
     )
 #endif(PDFLATEX_COMPILER)
 
