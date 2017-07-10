@@ -106,7 +106,7 @@ install(FILES       "${CMAKE_CURRENT_BINARY_DIR}/libmcsapi.pc"
 
 install(FILES "README.md"
     "LICENSE"
-    DESTINATION "${CMAKE_INSTALL_DOCDIR}/libmcsapi"
+    DESTINATION "${CMAKE_INSTALL_DOCDIR}"
 )
 
 option(RPM "Build an RPM" OFF)
