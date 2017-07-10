@@ -72,6 +72,9 @@ OPTION(RUN_CPPCHECK "Run cppcheck" OFF)
 
 IF(RUN_CPPCHECK)
   include(CppcheckTargets)
+  if (NOT CPPCHECK_FOUND)
+      MESSAGE(FATAL_ERROR "Could not find cppcheck!")
+  endif()
 ENDIF(RUN_CPPCHECK)
 
 include(ExternalProject)

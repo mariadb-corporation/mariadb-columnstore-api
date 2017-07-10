@@ -59,6 +59,10 @@ enum columnstore_lock_types_t
 class ColumnStoreTxnID
 {
 public:
+    ColumnStoreTxnID() :
+        id(0),
+        isValid(false)
+    { }
     uint32_t id;
     bool isValid;
 };
@@ -200,6 +204,20 @@ public:
 class ColumnStoreSystemCatalogColumn
 {
 public:
+    ColumnStoreSystemCatalogColumn() :
+        oid(0),
+        column(""),
+        dict_oid(0),
+        type(DATA_TYPE_BIT),
+        width(0),
+        position(0),
+        default_val(""),
+        autoincrement(0),
+        precision(0),
+        scale(0),
+        null(0),
+        compression(0)
+    {}
     uint32_t oid;
     std::string column;
     uint32_t dict_oid;
