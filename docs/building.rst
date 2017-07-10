@@ -70,7 +70,7 @@ command line:
 
 .. code-block:: console
 
-   $ cmake -D<Variable>=<Value>
+   cmake -D<Variable>=<Value>
 
 Alternatively you can use one of the CMake GUIs to set the options.
 
@@ -84,8 +84,9 @@ Option                   Default              Definition
 ``CMAKE_INSTALL_PREFIX`` (Platform dependent) Where to install libmcsapi
 ``CMAKE_BUILD_TYPE``     ``RELWITHDEBINFO``   The type of build (``Debug``, ``Release`` or ``RelWithDebInfo``)
 ``TEST_RUNNER``          ``OFF``              Build the test suite
-``BUILD_DOCS``           ``OFF``              Build the HTML documentation
-``PDFLATEX_COMPILER``    ``OFF``              Build the PDF documentation (requires ``BUILD_DOCS=ON``)
+``BUILD_DOCS``           ``OFF``              Build the PDF documentation
+``RPM``                  ``OFF``              Build a RPM (and the OS name for the package)
+``DEB``                  ``OFF``              Build a DEB (and the OS name for the package)
 ``RUN_CPPCHECK``         ``OFF``              Run cppcheck during ``make test`` or ``make all_cppcheck``
 ======================== ==================== =========================================================================================
 
@@ -101,3 +102,24 @@ Compiling
 ^^^^^^^^^
 After running CMake as described above you simple need to run ``make`` and then ``sudo make install``.
 To run the test suite you can run ``make check``.
+
+Building a Package
+------------------
+
+To build an RPM or DEB package you first need to specify the OS you want to build for, for example:
+
+.. code-block:: console
+
+   cmake . -DRPM=centos7
+
+or
+
+.. code-block:: console
+
+   cmake . -DDEB=xenial
+
+You should of course add options as above to this as required. The you can build the package using:
+
+.. code-block:: console
+
+   make package

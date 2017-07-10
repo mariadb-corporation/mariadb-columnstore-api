@@ -20,7 +20,9 @@ For the main build you need:
 ```shell
 sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev
 ```
+
 For the documentation:
+
 ```shell
 sudo apt-get install python-sphinx texlive-latex-recommended texlive-latex-extra
 ```
@@ -34,6 +36,7 @@ sudo cmake . -DCMAKE_BUILD_TYPE=RELEASE
 sudo make
 sudo mv libg* /usr/lib/
 ```
+
 ### CentOS 7
 
 For the main build you need the following, the devtoolset is because GCC5 minimum is required for full C++11 support:
@@ -52,6 +55,7 @@ sudo yum install python-sphinx texlive-scheme-full
 ```
 
 For the test suite:
+
 ```shell
 sudo yum install gtest-devel cppcheck
 ```
@@ -74,10 +78,30 @@ The options are as follows:
 | ``CMAKE_INSTALL_PREFIX`` | (Platform dependent) | Where to install libmcsapi |
 | ``CMAKE_BUILD_TYPE`` | ``RELWITHDEBINFO`` | The type of build (``Debug``, ``Release`` or ``RelWithDebInfo``) |
 | ``TEST_RUNNER`` | ``OFF`` | Build the test suite |
-| ``BUILD_DOCS`` | ``OFF`` | Build the HTML documentation |
-| ``PDFLATEX_COMPILER`` | ``OFF`` | Build the PDF documentation (requires ``BUILD_DOCS=ON``) |
+| ``BUILD_DOCS`` | ``OFF`` | Build the PDF documentation |
+| ``RPM`` | ``OFF`` | Build a RPM (and the OS name for the package) |
+| ``DEB`` | ``OFF`` | Build a DEB (and the OS name for the package) |
 | ``RUN_CPPCHECK`` | ``OFF`` | Run cppcheck during ``make test`` or ``make all_cppcheck``|
 
 ### Compiling
+
 After running CMake as described above you simple need to run ``make`` and then ``sudo make install``.
 To run the test suite you can run ``make check``.
+
+## Building a Package
+
+To build an RPM or DEB package you first need to specify the OS you want to build for, for example:
+
+```shell
+cmake . -DRPM=centos7
+```
+
+```shell
+cmake . -DDEB=xenial
+```
+
+You should of course add options as above to this as required. The you can build the package using:
+
+```shell
+make package
+```
