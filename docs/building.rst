@@ -118,7 +118,7 @@ or
 
    cmake . -DDEB=xenial
 
-You should of course add options as above to this as required. The you can build the package using:
+You should of course add options as above to this as required. Then you can build the package using:
 
 .. code-block:: console
 

@@ -100,7 +100,7 @@ cmake . -DRPM=centos7
 cmake . -DDEB=xenial
 ```
 
-You should of course add options as above to this as required. The you can build the package using:
+You should of course add options as above to this as required. Then you can build the package using:
 
 ```shell
 make package
