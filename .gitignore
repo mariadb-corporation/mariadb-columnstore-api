@@ -2,9 +2,9 @@ CMakeCache.txt
 CMakeFiles/
 Makefile
 cmake_install.cmake
-libcolumnstore1/CMakeFiles/
-libcolumnstore1/Makefile
-libcolumnstore1/cmake_install.cmake
+libmcsapi/CMakeFiles/
+libmcsapi/Makefile
+libmcsapi/cmake_install.cmake
 src/CMakeFiles/
 src/Makefile
 src/cmake_install.cmake

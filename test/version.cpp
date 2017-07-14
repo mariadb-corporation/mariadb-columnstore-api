@@ -16,7 +16,7 @@
  * MA 02110-1301  USA
  */
 
-#include <libcolumnstore1/mcsapi.h>
+#include <libmcsapi/mcsapi.h>
 #include <iostream>
 #include <gtest/gtest.h>
 #include "version.h"

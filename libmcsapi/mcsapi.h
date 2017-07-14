@@ -24,8 +24,8 @@
 #include <streambuf>
 #include <ostream>
 
-#include <libcolumnstore1/visibility.h>
-#include <libcolumnstore1/mcsapi_types.h>
-#include <libcolumnstore1/mcsapi_exception.h>
-#include <libcolumnstore1/mcsapi_driver.h>
-#include <libcolumnstore1/mcsapi_bulk.h>
+#include <libmcsapi/visibility.h>
+#include <libmcsapi/mcsapi_types.h>
+#include <libmcsapi/mcsapi_exception.h>
+#include <libmcsapi/mcsapi_driver.h>
+#include <libmcsapi/mcsapi_bulk.h>

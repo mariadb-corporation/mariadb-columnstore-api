@@ -24,7 +24,7 @@ Example
    :linenos:
 
    #include <iostream>
-   #include <libcolumnstore1/mcsapi.h>
+   #include <libmcsapi/mcsapi.h>
 
    int main(void)
    {
@@ -51,7 +51,7 @@ Example
    :linenos:
 
    #include <iostream>
-   #include <libcolumnstore1/mcsapi.h>
+   #include <libmcsapi/mcsapi.h>
 
    int main(void)
    {
@@ -84,7 +84,7 @@ Example
    :linenos:
 
    #include <iostream>
-   #include <libcolumnstore1/mcsapi.h>
+   #include <libmcsapi/mcsapi.h>
 
    int main(void)
    {
@@ -118,7 +118,7 @@ Example
    :linenos:
 
    #include <iostream>
-   #include <libcolumnstore1/mcsapi.h>
+   #include <libmcsapi/mcsapi.h>
 
    int main(void)
    {

@@ -34,7 +34,7 @@
 #include <uv.h>
 #include <snappy.h>
 
-#include <libcolumnstore1/mcsapi.h>
+#include <libmcsapi/mcsapi.h>
 
 #include "util_debug.h"
 #include "util_structures.h"

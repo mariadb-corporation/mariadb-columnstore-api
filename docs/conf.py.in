@@ -185,7 +185,7 @@ latex_logo = '_static/mariadb.png'
 
 latex_elements = {'extraclassoptions': 'openany', 'papersize': 'a4'}
 
-latex_additional_files = ['cc-symbol.png']
+#latex_additional_files = ['cc-symbol.png']
 
 # For "manual" documents, if this is true, then toplevel headings are parts,
 # not chapters.

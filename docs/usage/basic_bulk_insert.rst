@@ -16,7 +16,7 @@ You will need the following table in the test database to execute this:
    :lineno-start: 25
    :caption: example/basic_bulk_insert.cpp
 
-We need to include ``libcolumnstore1/mcsapi.h`` which is the main include file for mcsapi. This will pull in all the required includes to use mcsapi.
+We need to include ``libmcsapi/mcsapi.h`` which is the main include file for mcsapi. This will pull in all the required includes to use mcsapi.
 
 .. literalinclude:: ../../../example/basic_bulk_insert.cpp
    :linenos:

@@ -80,7 +80,7 @@ ENDIF(RUN_CPPCHECK)
 include(ExternalProject)
 set(ext_dir "${CMAKE_BINARY_DIR}/third-party")
 set(libuv_dir "${ext_dir}/libuv")
-add_subdirectory(libcolumnstore1)
+add_subdirectory(libmcsapi)
 add_subdirectory(src)
 add_subdirectory(example)
 
