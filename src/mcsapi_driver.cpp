@@ -36,7 +36,7 @@ ColumnStoreDriver::ColumnStoreDriver()
 {
     mImpl = new ColumnStoreDriverImpl();
     char* envpath = std::getenv("COLUMNSTORE_INSTALL_DIR");
-    if (envpath)
+    if (envpath && (strlen(envpath) > 0))
     {
         mImpl->path = envpath;
         mImpl->path.append("/etc/Columnstore.xml");
