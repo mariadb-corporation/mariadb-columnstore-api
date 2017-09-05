@@ -64,14 +64,14 @@ TEST(Truncation, Truncation)
         driver = new mcsapi::ColumnStoreDriver();
         bulk = driver->createBulkInsert(db, table, 0, 0);
         bulk->setTruncateIsError(true);
-    } catch (mcsapi::ColumnStoreException &e) {
+    } catch (mcsapi::ColumnStoreError &e) {
         FAIL() << "Error caught: " << e.what() << std::endl;
     }
     std::string strTest("A long string test to see if truncation will trigger");
-    ASSERT_THROW(bulk->setColumn(0, strTest), mcsapi::ColumnStoreException);
+    ASSERT_THROW(bulk->setColumn(0, strTest), mcsapi::ColumnStoreDataError);
     try {
         bulk->commit();
-    } catch (mcsapi::ColumnStoreException &e) {
+    } catch (mcsapi::ColumnStoreError &e) {
         FAIL() << "Error caught: " << e.what() << std::endl;
     }
     if (mysql_query(my_con, "SELECT COUNT(*) FROM truncation"))

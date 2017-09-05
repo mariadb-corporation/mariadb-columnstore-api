@@ -36,7 +36,7 @@ ColumnStoreDateTime::ColumnStoreDateTime(tm& time)
     if (!set(time))
     {
         std::string errmsg("Invalid date/time provided in the time struct");
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreDataError(errmsg);
     }
 }
 
@@ -47,7 +47,7 @@ ColumnStoreDateTime::ColumnStoreDateTime(const std::string& dateTime, const std:
     {
         std::string errmsg("A valid date/time could not be extracted from the following string with the supplied format: ");
         errmsg.append(dateTime);
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreDataError(errmsg);
     }
 }
 
@@ -225,7 +225,7 @@ ColumnStoreDecimal::ColumnStoreDecimal(int64_t value)
     {
         std::string errmsg("Error converting value to Decimal: ");
         errmsg += std::to_string(value);
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreDataError(errmsg);
     }
 }
 
@@ -236,7 +236,7 @@ ColumnStoreDecimal::ColumnStoreDecimal(const std::string& value)
     {
         std::string errmsg("Error converting value to Decimal: ");
         errmsg += value;
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreDataError(errmsg);
     }
 }
 
@@ -247,7 +247,7 @@ ColumnStoreDecimal::ColumnStoreDecimal(double value)
     {
         std::string errmsg("Error converting value to Decimal: ");
         errmsg += std::to_string(value);
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreDataError(errmsg);
     }
 }
 
@@ -258,7 +258,7 @@ ColumnStoreDecimal::ColumnStoreDecimal(int64_t number, uint8_t scale)
     {
         std::string errmsg("Error converting value to Decimal: ");
         errmsg += std::to_string(number) + ", scale: " + std::to_string(scale);
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreDataError(errmsg);
     }
 
 }

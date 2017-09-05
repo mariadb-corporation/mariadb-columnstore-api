@@ -40,7 +40,7 @@ ColumnStoreDateTime()
    Sets the date/time the value of the :cpp:type`tm` struct.
 
    :param time: The date/time to set
-   :raises ColumnStoreException: When an invalid date or time is supplied
+   :raises ColumnStoreDataError: When an invalid date or time is supplied
 
 .. cpp:function:: ColumnStoreDateTime::ColumnStoreDateTime(const std::string& dateTime, const std::string& format)
 
@@ -48,7 +48,7 @@ ColumnStoreDateTime()
 
    :param dateTime: A string containing the date/time to set
    :param format: The format specifier for the date/time string. This uses the `strptime format <http://pubs.opengroup.org/onlinepubs/9699919799/functions/strptime.html>`_.
-   :raises ColumnStoreException: When an invalid date or time is supplied
+   :raises ColumnStoreDataError: When an invalid date or time is supplied
 
 set()
 -----
@@ -87,14 +87,14 @@ ColumnStoreDecimal()
    Sets the decimal to an supplied integer value.
 
    :param value: The value to set
-   :raises ColumnStoreException: When an invalid value is supplied
+   :raises ColumnStoreDataError: When an invalid value is supplied
 
 .. cpp:function:: ColumnStoreDecimal::ColumnStoreDecimal(const std::string& value)
 
    Sets the decimal to the contents of a supplied :cpp:type:`std::string` value (such as ``"3.14159"``).
 
    :param value: The value to set
-   :raises ColumnStoreException: When an invalid value is supplied
+   :raises ColumnStoreDataError: When an invalid value is supplied
 
 .. cpp:function:: ColumnStoreDecimal::ColumnStoreDecimal(double value)
 
@@ -104,7 +104,7 @@ ColumnStoreDecimal()
       The internally this uses the :cpp:type:`std::string` method so the performance may be lower than expected.
 
    :param value: The value to set
-   :raises ColumnStoreException: When an invalid value is supplied
+   :raises ColumnStoreDataError: When an invalid value is supplied
 
 .. cpp:function:: ColumnStoreDecimal::ColumnStoreDecimal(int64_t number, uint8_t scale)
 
@@ -112,7 +112,7 @@ ColumnStoreDecimal()
 
    :param number: The number to set
    :param scale: The scale for the number
-   :raises ColumnStoreException: When an invalid number/scale is supplied
+   :raises ColumnStoreDataError: When an invalid number/scale is supplied
 
 set()
 -----

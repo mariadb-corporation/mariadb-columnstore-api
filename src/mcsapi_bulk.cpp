@@ -59,12 +59,12 @@ void ColumnStoreBulkInsertImpl::runChecks(uint16_t columnNumber)
     if (transactionClosed)
     {
         std::string errmsg = "Bulk insert has been committed or rolled back and cannot be reused";
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreUsageError(errmsg);
     }
     if (columnNumber > tbl->columns.size())
     {
         std::string errmsg = "Column number " + std::to_string(columnNumber) + " not valid";
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreUsageError(errmsg);
     }
 
 }
@@ -86,7 +86,7 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, c
     if (mImpl->truncateIsError && convert_status == CONVERT_STATUS_TRUNCATED)
     {
         std::string errmsg = "Column " + std::to_string(columnNumber) + " truncated";
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreDataError(errmsg);
     }
 
     return this;
@@ -109,7 +109,7 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, u
     if (mImpl->truncateIsError && convert_status == CONVERT_STATUS_TRUNCATED)
     {
         std::string errmsg = "Column " + std::to_string(columnNumber) + " truncated";
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreDataError(errmsg);
     }
 
     return this;
@@ -132,7 +132,7 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, i
     if (mImpl->truncateIsError && convert_status == CONVERT_STATUS_TRUNCATED)
     {
         std::string errmsg = "Column " + std::to_string(columnNumber) + " truncated";
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreDataError(errmsg);
     }
 
     return this;
@@ -155,7 +155,7 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, d
     if (mImpl->truncateIsError && convert_status == CONVERT_STATUS_TRUNCATED)
     {
         std::string errmsg = "Column " + std::to_string(columnNumber) + " truncated";
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreDataError(errmsg);
     }
 
     return this;
@@ -178,7 +178,7 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, C
     if (mImpl->truncateIsError && convert_status == CONVERT_STATUS_TRUNCATED)
     {
         std::string errmsg = "Column " + std::to_string(columnNumber) + " truncated";
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreDataError(errmsg);
     }
 
     return this;
@@ -201,7 +201,7 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, C
     if (mImpl->truncateIsError && convert_status == CONVERT_STATUS_TRUNCATED)
     {
         std::string errmsg = "Column " + std::to_string(columnNumber) + " truncated";
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreDataError(errmsg);
     }
 
     return this;
@@ -229,13 +229,13 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::writeRow()
     if (mImpl->transactionClosed)
     {
         std::string errmsg = "Bulk insert has been committed or rolled back and cannot be reused";
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreUsageError(errmsg);
     }
 
     if (mImpl->row->size() != mImpl->tbl->columns.size())
     {
         std::string errmsg = "Not all the columns for this row have been filled";
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreUsageError(errmsg);
     }
     mImpl->tableData.nextRow();
 
@@ -384,18 +384,18 @@ void ColumnStoreBulkInsertImpl::connect()
     if (pmList.size() == 0)
     {
         std::string err("No PMs found in configuration");
-        throw ColumnStoreException(err);
+        throw ColumnStoreConfigError(err);
     }
     if (dbRoots.size() == 0)
     {
         std::string err("No DBRoots found in configuration");
-        throw ColumnStoreException(err);
+        throw ColumnStoreConfigError(err);
     }
 
     if (!commands->procMonCheckVersion())
     {
         std::string err("Incompatible ColumnStore version found");
-        throw ColumnStoreException(err);
+        throw ColumnStoreVersionError(err);
     }
     systemCatalog = commands->brmGetSystemCatalog();
     for (auto& itTable : systemCatalog->tables)
@@ -412,7 +412,7 @@ void ColumnStoreBulkInsertImpl::connect()
         err.append(db);
         err.append(".");
         err.append(table);
-        throw ColumnStoreException(err);
+        throw ColumnStoreUsageError(err);
     }
     tableData.tableName = tbl->table;
     tableData.tableSchema = tbl->schema;

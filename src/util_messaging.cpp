@@ -94,7 +94,7 @@ ColumnStoreMessaging& ColumnStoreMessaging::operator >>(uint8_t& data)
     else
     {
         std::string err("Message buffer read past end");
-        throw ColumnStoreException(err);
+        throw ColumnStoreBufferError(err);
     }
 
     return *this;
@@ -114,7 +114,7 @@ ColumnStoreMessaging& ColumnStoreMessaging::operator >>(uint16_t& data)
     else
     {
         std::string err("Message buffer read past end");
-        throw ColumnStoreException(err);
+        throw ColumnStoreBufferError(err);
     }
 
     return *this;
@@ -134,7 +134,7 @@ ColumnStoreMessaging& ColumnStoreMessaging::operator >>(uint32_t& data)
     else
     {
         std::string err("Message buffer read past end");
-        throw ColumnStoreException(err);
+        throw ColumnStoreBufferError(err);
     }
 
     return *this;
@@ -154,7 +154,7 @@ ColumnStoreMessaging& ColumnStoreMessaging::operator >>(uint64_t& data)
     else
     {
         std::string err("Message buffer read past end");
-        throw ColumnStoreException(err);
+        throw ColumnStoreBufferError(err);
     }
 
     return *this;
@@ -176,7 +176,7 @@ ColumnStoreMessaging& ColumnStoreMessaging::operator >>(std::string& data)
     else
     {
         std::string err("Message buffer read past end");
-        throw ColumnStoreException(err);
+        throw ColumnStoreBufferError(err);
     }
 
     if (position+length <= current_size)
@@ -187,7 +187,7 @@ ColumnStoreMessaging& ColumnStoreMessaging::operator >>(std::string& data)
     else
     {
         std::string err("Message buffer read past end");
-        throw ColumnStoreException(err);
+        throw ColumnStoreBufferError(err);
     }
 
     return *this;

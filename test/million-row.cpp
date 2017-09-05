@@ -71,7 +71,7 @@ TEST(MillionRow, MillionRow)
         	bulk->writeRow();
         }
         bulk->commit();
-    } catch (mcsapi::ColumnStoreException &e) {
+    } catch (mcsapi::ColumnStoreError &e) {
         FAIL() << "Error caught: " << e.what() << std::endl;
     }
     if (mysql_query(my_con, "SELECT COUNT(*) FROM millionrow"))

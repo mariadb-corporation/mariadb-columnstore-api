@@ -62,7 +62,7 @@ ColumnStoreNetwork::ColumnStoreNetwork(uv_loop_t* loop,
         con_status = CON_STATUS_CONNECT_ERROR;
         std::string err("Could not resolve host ");
         err.append(uv_err_name(ret));
-        throw ColumnStoreException(err);
+        throw ColumnStoreNetworkError(err);
     }
     if (host == "127.0.0.1")
     {
@@ -88,7 +88,7 @@ void ColumnStoreNetwork::onResolved(uv_getaddrinfo_t* resolver,
         This->con_status = CON_STATUS_CONNECT_ERROR;
         std::string err("Could not resolve host: ");
         err.append(uv_err_name(status));
-        throw ColumnStoreException(err);
+        throw ColumnStoreNetworkError(err);
     }
     char addr[17] = {'\0'};
 
@@ -115,7 +115,7 @@ void ColumnStoreNetwork::onConnect(uv_connect_t* req, int status)
         This->con_status = CON_STATUS_CONNECT_ERROR;
         std::string err("Connection failure: ");
         err.append(uv_err_name(status));
-        throw ColumnStoreException(err);
+        throw ColumnStoreNetworkError(err);
     }
     mcsdebug("Class %p connection succeeded", (void*)This);
     This->con_status = CON_STATUS_CONNECTED;
@@ -130,7 +130,7 @@ void ColumnStoreNetwork::onConnect(uv_connect_t* req, int status)
         This->con_status = CON_STATUS_CONNECT_ERROR;
         std::string err("Could not read data: ");
         err.append(uv_err_name(ret));
-        throw ColumnStoreException(err);
+        throw ColumnStoreNetworkError(err);
     }
 
     // "Check" is something that runs once per loop so we can see if there if
@@ -152,7 +152,7 @@ void ColumnStoreNetwork::onConnectReadData(uv_stream_t* tcp, ssize_t read_size, 
         This->con_status = CON_STATUS_CONNECT_ERROR;
         std::string err("Could not read data: ");
         err.append(uv_err_name(read_size));
-        throw ColumnStoreException(err);
+        throw ColumnStoreNetworkError(err);
     }
 
     if ((read_size != 1) || (buf->base[0] != 'A'))
@@ -160,7 +160,7 @@ void ColumnStoreNetwork::onConnectReadData(uv_stream_t* tcp, ssize_t read_size, 
         delete[] buf->base;
         This->con_status = CON_STATUS_CONNECT_ERROR;
         std::string err("Incorrect read data during handshake");
-        throw ColumnStoreException(err);
+        throw ColumnStoreNetworkError(err);
     }
     This->con_status = CON_STATUS_IDLE;
     delete[] buf->base;
@@ -168,8 +168,11 @@ void ColumnStoreNetwork::onConnectReadData(uv_stream_t* tcp, ssize_t read_size, 
 
 void ColumnStoreNetwork::onConnectAlloc(uv_handle_t *client, size_t suggested_size, uv_buf_t *buf)
 {
+    // Avoid unused variable warning
+#if DEBUG
     ColumnStoreNetwork* This = (ColumnStoreNetwork*)client->data;
     mcsdebug("Class %p increasing read connect buffer to %zu bytes", (void*)This, suggested_size);
+#endif
     char* buffer = new char[suggested_size];
     buf->base = buffer;
     buf->len = suggested_size;
@@ -197,7 +200,7 @@ void ColumnStoreNetwork::onReadData(uv_stream_t* tcp, ssize_t read_size, const u
         This->con_status = CON_STATUS_NET_ERROR;
         std::string err("Could not read data: ");
         err.append(uv_err_name(read_size));
-        throw ColumnStoreException(err);
+        throw ColumnStoreNetworkError(err);
     }
     mcsdebug_hex(buf->base, (size_t)read_size);
     This->dataInBuffer += read_size;
@@ -222,7 +225,7 @@ void ColumnStoreNetwork::onReadData(uv_stream_t* tcp, ssize_t read_size, const u
             mcsdebug ("Class %p bad packet from server", (void*)This);
             std::string err("Bad packet from server");
             This->con_status = CON_STATUS_NET_ERROR;
-            throw ColumnStoreException(err);
+            throw ColumnStoreNetworkError(err);
         }
     }
 }
@@ -245,7 +248,7 @@ void ColumnStoreNetwork::uncompressData(size_t result_length)
         mcsdebug("Class %p fail decompressing data", (void*)this);
         con_status = CON_STATUS_NET_ERROR;
         std::string err("Compressed data corruption");
-        throw ColumnStoreException(err);
+        throw ColumnStoreNetworkError(err);
     }
     char* uncompressedHeader = reinterpret_cast<char*>(messageOut->getDataPtr()->data());
     // Add fake decompressed header since we don't get one
@@ -271,7 +274,7 @@ void ColumnStoreNetwork::onWriteData(uv_write_t* req, int status)
         This->con_status = CON_STATUS_NET_ERROR;
         std::string err("Write failure: ");
         err.append(uv_err_name(status));
-        throw ColumnStoreException(err);
+        throw ColumnStoreNetworkError(err);
     }
     This->con_status = CON_STATUS_IDLE;
 }
@@ -334,7 +337,7 @@ void ColumnStoreNetwork::writeData(size_t buffer_count)
         con_status = CON_STATUS_NET_ERROR;
         std::string err("Could not send data: ");
         err.append(uv_err_name(ret));
-        throw ColumnStoreException(err);
+        throw ColumnStoreNetworkError(err);
     }
 }
 
@@ -385,7 +388,7 @@ void ColumnStoreNetwork::readDataStart()
         con_status = CON_STATUS_NET_ERROR;
         std::string err("Could not read data: ");
         err.append(uv_err_name(ret));
-        throw ColumnStoreException(err);
+        throw ColumnStoreNetworkError(err);
     }
 }
 

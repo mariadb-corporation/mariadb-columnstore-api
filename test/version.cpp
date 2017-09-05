@@ -26,7 +26,7 @@ TEST(Version, Version)
     try {
         mcsapi::ColumnStoreDriver* driver = new mcsapi::ColumnStoreDriver();
         ASSERT_STREQ(GIT_VERSION, driver->getVersion());
-    } catch (mcsapi::ColumnStoreException &e) {
+    } catch (mcsapi::ColumnStoreError &e) {
         FAIL() << "Error caught: " << e.what() << std::endl;
     }
 }

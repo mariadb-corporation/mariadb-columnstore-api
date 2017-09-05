@@ -79,16 +79,16 @@ void ColumnStoreDriverImpl::loadXML()
     mXmlDoc = xmlParseFile(path.c_str());
     if (!mXmlDoc)
     {
-        throw ColumnStoreDriverException("Error parsing Columnstore XML file " + path);
+        throw ColumnStoreConfigError("Error parsing Columnstore XML file " + path);
     }
     mXmlRootNode = xmlDocGetRootElement(mXmlDoc);
     if (!mXmlRootNode)
     {
-        throw ColumnStoreDriverException("Could not find the root node of the XML file " + path);
+        throw ColumnStoreConfigError("Could not find the root node of the XML file " + path);
     }
     if (xmlStrcmp(mXmlRootNode->name, (const xmlChar *)"Columnstore"))
     {
-        throw ColumnStoreDriverException("The provided XML file is not a Columnstore configuration file " + path);
+        throw ColumnStoreConfigError("The provided XML file is not a Columnstore configuration file " + path);
     }
 }
 
