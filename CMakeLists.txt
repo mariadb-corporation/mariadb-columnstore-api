@@ -70,19 +70,9 @@ include_directories(${CMAKE_SOURCE_DIR})
 
 OPTION(RUN_CPPCHECK "Run cppcheck" OFF)
 
-IF(RUN_CPPCHECK)
-  include(CppcheckTargets)
-  if (NOT CPPCHECK_FOUND)
-      MESSAGE(FATAL_ERROR "Could not find cppcheck!")
-  endif()
-ENDIF(RUN_CPPCHECK)
-
 include(ExternalProject)
 set(ext_dir "${CMAKE_BINARY_DIR}/third-party")
 set(libuv_dir "${ext_dir}/libuv")
-add_subdirectory(libmcsapi)
-add_subdirectory(src)
-add_subdirectory(example)
 
 option(TEST_RUNNER "Build the test suite" OFF)
 
@@ -91,6 +81,17 @@ if (TEST_RUNNER)
   find_package(GTest REQUIRED)
   add_subdirectory(test)
 endif (TEST_RUNNER)
+
+IF(RUN_CPPCHECK)
+  include(CppcheckTargets)
+  if (NOT CPPCHECK_FOUND)
+      MESSAGE(FATAL_ERROR "Could not find cppcheck!")
+  endif()
+ENDIF(RUN_CPPCHECK)
+
+add_subdirectory(libmcsapi)
+add_subdirectory(src)
+add_subdirectory(example)
 
 option(BUILD_DOCS "Build the documentation" OFF)
 #option(PDFLATEX_COMPILER "Build the pdf documentation (requires latex)" OFF)
