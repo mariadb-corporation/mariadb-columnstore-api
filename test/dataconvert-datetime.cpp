@@ -94,7 +94,7 @@ TEST(DataConvertDateTime, DataConvertDateTime)
         bulk->setColumn(3, tDataz);
         bulk->writeRow();
         bulk->commit();
-    } catch (mcsapi::ColumnStoreException &e) {
+    } catch (mcsapi::ColumnStoreError &e) {
         FAIL() << "Error caught: " << e.what() << std::endl;
     }
     if (mysql_query(my_con, "SELECT * FROM dataconvertdatetime"))

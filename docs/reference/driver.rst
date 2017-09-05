@@ -16,7 +16,7 @@ ColumnStoreDriver()
 
    Creates an instance of the ColumnStoreDriver. This will search for the environment variable :envvar:`COLUMNSTORE_INSTALL_DIR`, if this isn't found then the default path of ``/usr/local/mariadb/columnstore/`` is used.
 
-   :raises ColumnStoreDriverException: When the Columnstore.xml file cannot be found or cannot be parsed
+   :raises ColumnStoreConfigError: When the Columnstore.xml file cannot be found or cannot be parsed
 
 Example
 ^^^^^^^
@@ -31,7 +31,7 @@ Example
        ColumnStoreDriver* driver = nullptr;
        try {
            driver = new mcsapi::ColumnStoreDriver();
-       } catch (mcsapi::ColumnStoreException &e) {
+       } catch (mcsapi::ColumnStoreError &e) {
            std::cout << "Error caught " << e.what() << std::endl;
        }
        delete driver;
@@ -43,7 +43,7 @@ Example
    Creates an instance of :cpp:class:`ColumnStoreDriver` using the specified path to the Columnstore.xml file (including filename).
 
    :param path: The path to the Columnstore.xml (including filename)
-   :raises ColumnStoreDriverException: When the Columnstore.xml file cannot be found or cannot be parsed
+   :raises ColumnStoreConfigError: When the Columnstore.xml file cannot be found or cannot be parsed
 
 Example
 ^^^^^^^
@@ -58,7 +58,7 @@ Example
        ColumnStoreDriver* driver = nullptr;
        try {
            driver = new mcsapi::ColumnStoreDriver("/usr/local/mariadb/columnstore/etc/Columnstore.xml");
-       } catch (mcsapi::ColumnStoreException &e) {
+       } catch (mcsapi::ColumnStoreError &e) {
            std::cout << "Error caught " << e.what() << std::endl;
        }
        delete driver;
@@ -95,7 +95,7 @@ Example
        try {
            driver = new mcsapi::ColumnStoreDriver();
            bulkInsert = driver->createBulkInsert(db, table, 0, 0);
-       } catch (mcsapi::ColumnStoreException &e) {
+       } catch (mcsapi::ColumnStoreError &e) {
            std::cout << "Error caught " << e.what() << std::endl;
        }
        delete bulkInsert;
@@ -126,7 +126,7 @@ Example
            mcsapi::ColumnStoreDriver* driver = new mcsapi::ColumnStoreDriver();
            const char* version = driver->getVersion();
            std::cout << version << std::endl;
-       } catch (mcsapi::ColumnStoreException &e) {
+       } catch (mcsapi::ColumnStoreError &e) {
            std::cout << "Error caught: " << e.what() << std::endl;
        }
        return 0;

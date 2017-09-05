@@ -1516,7 +1516,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
             if (uval64 > UINT16_MAX - 2)
             {
                 status = CONVERT_STATUS_SATURATED;
-                uval64 = UINT16_MAX;
+                uval16 = UINT16_MAX;
             }
             else
             {
@@ -1878,36 +1878,36 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
                     }
                     else
                     {
-                        val8 = (uint8_t) val64;
+                        uval8 = (uint8_t) uval64;
                     }
-                    cont->setData(val8);
+                    cont->setData(uval8);
                     break;
                 case 2:
-                    if (val64 > UINT16_MAX)
+                    if (uval64 > UINT16_MAX)
                     {
-                        val16 = UINT16_MAX;
+                        uval16 = UINT16_MAX;
                         status = CONVERT_STATUS_SATURATED;
                     }
                     else
                     {
-                        val16 = (uint16_t) val64;
+                        uval16 = (uint16_t) uval64;
                     }
-                    cont->setData(val16);
+                    cont->setData(uval16);
                     break;
                 case 4:
-                    if (val64 > UINT32_MAX)
+                    if (uval64 > UINT32_MAX)
                     {
-                        val32 = UINT32_MAX;
+                        uval32 = UINT32_MAX;
                         status = CONVERT_STATUS_SATURATED;
                     }
                     else
                     {
-                        val32 = (uint32_t) val64;
+                        uval32 = (uint32_t) uval64;
                     }
-                    cont->setData(val32);
+                    cont->setData(uval32);
                     break;
                 default:
-                    cont->setData(val64);
+                    cont->setData(uval64);
                     break;
             }
             break;
@@ -2096,7 +2096,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
             }
             else
             {
-                val8 = val64;
+                uval8 = val64;
             }
             cont->setData(uval8);
             break;
