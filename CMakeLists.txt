@@ -49,7 +49,7 @@ if (NOT LOWERCASE_CMAKE_BUILD_TYPE STREQUAL "debug")
 endif()
 
 # Disable format-truncation since this triggers in mcsapi_types for something that isn't a problem
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wformat -Wformat-security -fstack-protector-all -fstack-check -Wno-format-truncation -pie -fPIC")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wformat -Wformat-security -fstack-protector-all -fstack-check -Wno-format-truncation -Wno-unused-command-line-argument -Wno-unknown-warning-option -pie -fPIC")
 
 INCLUDE (FindLibXml2)
 if (NOT LIBXML2_FOUND)

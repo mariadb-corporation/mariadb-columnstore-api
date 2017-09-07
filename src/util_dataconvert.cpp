@@ -301,7 +301,9 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
 {
     columnstore_data_convert_status_t status = CONVERT_STATUS_NONE;
     int8_t val8;
+    uint8_t uval8;
     int16_t val16;
+    uint16_t uval16;
     int32_t val32;
     int64_t val64;
     float valF;
@@ -538,17 +540,17 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
             if (fromValue > UINT8_MAX - 2)
             {
                 status = CONVERT_STATUS_SATURATED;
-                val8 = UINT8_MAX - 2;
+                uval8 = UINT8_MAX - 2;
             }
             else if (fromValue < 0)
             {
                 status = CONVERT_STATUS_SATURATED;
-                val8 = 0;
+                uval8 = 0;
             }
             {
-                val8 = fromValue;
+                uval8 = fromValue;
             }
-            cont->setData(val8);
+            cont->setData(uval8);
             break;
         }
         case DATA_TYPE_USMALLINT:
@@ -557,18 +559,18 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
             if (fromValue > UINT16_MAX - 2)
             {
                 status = CONVERT_STATUS_SATURATED;
-                val16 = UINT16_MAX;
+                uval16 = UINT16_MAX;
             }
             else if (fromValue < 0)
             {
                 status = CONVERT_STATUS_SATURATED;
-                val16 = 0;
+                uval16 = 0;
             }
             else
             {
-                val16 = fromValue;
+                uval16 = fromValue;
             }
-            cont->setData(val16);
+            cont->setData(uval16);
             break;
         }
         case DATA_TYPE_UMEDINT:

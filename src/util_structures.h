@@ -187,11 +187,11 @@ public:
     uint32_t hwm;
 };
 
-class ColumnStoreCPInfo
+/*class ColumnStoreCPInfo
 {
     uint64_t lbid;
     uint64_t max;
     uint64_t min;
     uint64_t seq; // 32bit data but 64bit for alignment
-};
+};*/
 }

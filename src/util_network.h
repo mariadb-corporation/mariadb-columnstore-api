@@ -63,7 +63,7 @@ private:
     uv_stream_t* uv_stream;
     uv_buf_t* buf;
     uv_connect_t uv_connection;
-    uv_check_t uv_check;
+    //uv_check_t uv_check;
     uv_getaddrinfo_t uv_resolver;
     struct addrinfo hints;
 
