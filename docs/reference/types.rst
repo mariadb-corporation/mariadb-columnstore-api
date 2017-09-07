@@ -21,6 +21,114 @@ columnstore_data_convert_status_t Type
 
    The value was truncated.
 
+columnstore_data_types_t Type
+=============================
+
+.. cpp:enum:: columnstore_data_types_t
+
+   The data type as returned by :cpp:func:`ColumnStoreSystemCatalogColumn::getType`.
+
+.. cpp:enumerator:: DATA_TYPE_BIT
+
+   BIT data type
+
+.. cpp:enumerator:: DATA_TYPE_TINYINT
+
+   TINYINT data type
+
+.. cpp:enumerator:: DATA_TYPE_CHAR
+
+   CHAR data type
+
+.. cpp:enumerator:: DATA_TYPE_SMALLINT
+
+   SMALLINT data type
+
+.. cpp:enumerator:: DATA_TYPE_DECIMAL
+
+   DECIMAL data type
+
+.. cpp:enumerator:: DATA_TYPE_MEDINT
+
+   MEDIUMINT data type
+
+.. cpp:enumerator:: DATA_TYPE_INT
+
+   INT data type
+
+.. cpp:enumerator:: DATA_TYPE_FLOAT
+
+   FLOAT data type
+
+.. cpp:enumerator:: DATA_TYPE_DATE
+
+   DATE data type
+
+.. cpp:enumerator:: DATA_TYPE_BIGINT
+
+   BIGINT data type
+
+.. cpp:enumerator:: DATA_TYPE_DOUBLE
+
+   DOUBLE data type
+
+.. cpp:enumerator:: DATA_TYPE_DATETIME
+
+   DATETIME data type
+
+.. cpp:enumerator:: DATA_TYPE_VARCHAR
+
+   VARCHAR data type
+
+.. cpp:enumerator:: DATA_TYPE_VARBINARY
+
+   VARBINARY data type
+
+.. cpp:enumerator:: DATA_TYPE_CLOB
+
+   Unused
+
+.. cpp:enumerator:: DATA_TYPE_BLOB
+
+   BLOB data type
+
+.. cpp:enumerator:: DATA_TYPE_UTINYINT
+
+   UNSIGNED TINYINT data type
+
+.. cpp:enumerator:: DATA_TYPE_USMALLINT
+
+   UNSIGNED SMALLINT data type
+
+.. cpp:enumerator:: DATA_TYPE_UDECIMAL
+
+   UNSIGNED DECIMAL data type
+
+.. cpp:enumerator:: DATA_TYPE_UMEDINT
+
+   UNSIGNED MEDIUMINT data type
+
+.. cpp:enumerator:: DATA_TYPE_UINT
+
+   UNSIGNED INT data type
+
+.. cpp:enumerator:: DATA_TYPE_UFLOAT
+
+   UNSIGNED FLOAT data type
+
+.. cpp:enumerator:: DATA_TYPE_UBIGINT
+
+   UNSIGNED BIGINT data type
+
+.. cpp:enumerator:: DATA_TYPE_UDOUBLE
+
+   UNSIGNED DOUBLE data type
+
+.. cpp:enumerator:: DATA_TYPE_TEXT
+
+   TEXT data type
+
+
 ColumnStoreDateTime Class
 =========================
 
@@ -148,3 +256,200 @@ set()
    :param number: The number to set
    :param scale: The scale for the number
    :returns: ``true`` if the conversion was successful or ``false`` if it failed
+
+ColumnStoreSystemCatalog Class
+==============================
+
+.. cpp:class:: ColumnStoreSystemCatalog
+
+   A class which contains the ColumnStore system catalog of tables and columns. It should be instantiated using :cpp:func:`ColumnStoreDriver::getSystemCatalog`.
+
+getTable()
+----------
+
+.. cpp:function:: ColumnStoreSystemCatalogTable& ColumnStoreSystemCatalog::getTable(const std::string& schemaName, const std::string& tableName)
+
+   Gets the table information for a specific table.
+
+   :param schemaName: The schema the table is in
+   :param tableName: The name of the table
+   :returns: The table information
+   :raises ColumnStoreNotFound: If the table is not found in the system catalog
+
+ColumnStoreSystemCatalogTable Class
+===================================
+
+.. cpp:class:: ColumnStoreSystemCatalogTable
+
+   A class which contains the system catalog information for a specific table. It should be instantiated using :cpp:func:`ColumnStoreSystemCatalog::getTable`.
+
+getSchemaName()
+---------------
+
+.. cpp:function:: std::string& ColumnStoreSystemCatalogTable::getSchemaName()
+
+   Retrieves the database schema name for the table
+
+   :returns: The schema name
+
+getTableName()
+--------------
+
+.. cpp:function:: std::string& ColumnStoreSystemCatalogTable::getTableName()
+
+   Retrieves the table name for the table
+
+   :returns: The table name
+
+getOID()
+--------
+
+.. cpp:function:: uint32_t ColumnStoreSystemCatalogTable::getOID()
+
+   Retrieves the ColumnStore object ID for the table.
+
+   :returns: The object ID for the table
+
+getColumnCount()
+----------------
+
+.. cpp:function:: uint16_t ColumnStoreSystemCatalogTable::getColumnCount()
+
+   Retrieves the number of columns in the table
+
+   :returns: The number of columns in the table
+
+getColumn()
+-----------
+
+.. cpp:function:: ColumnStoreSystemCatalogColumn& ColumnStoreSystemCatalogTable::getColumn(const std::string& columnName)
+
+   Retrieves the column information for a specified column by name
+
+   :param columnName: The name of the column to retrieve
+   :returns: The column information
+   :raises ColumnStoreNotFound: If the column is not found
+
+.. cpp:function:: ColumnStoreSystemCatalogColumn& ColumnStoreSystemCatalogTable::getColumn(uint16_t columnNumber)
+
+   Retrieves the column information for a specified column by number starting at zero
+
+   :param columnNumber: The number of the column to retrieve starting at ``0``
+   :returns: The column information
+   :raises ColumnStoreNotFound: If the column is not found
+
+
+ColumnStoreSystemCatalogColumn Class
+====================================
+
+.. cpp:class:: ColumnStoreSystemCatalogColumn
+
+   A class containing information about a specific column in the system catalog. Should be instantiated using :cpp:func:`ColumnStoreSystemCatalogTable::getColumn`.
+
+getOID()
+--------
+
+.. cpp:function:: uint32_t ColumnStoreSystemCatalogColumn::getOID()
+
+   Retrieves the ColumnStore object ID for the column
+
+   :returns: The column object ID
+
+getColumnName()
+---------------
+
+.. cpp:function:: std::string& ColumnStoreSystemCatalogColumn::getColumnName()
+
+   Retrieves the name of the column
+
+   :returns: The column name
+
+getDictionaryOID()
+------------------
+
+.. cpp:function:: uint32_t ColumnStoreSystemCatalogColumn::getDictionaryOID()
+
+   Retrieves the dictionary object ID for the column (or ``0`` if there is no dictionary)
+
+   :returns: The dictionary object ID or ``0`` for no dictionary
+
+getType()
+---------
+
+.. cpp:function:: columnstore_data_types_t ColumnStoreSystemCatalogColumn::getType()
+
+   Retrieves the data type for the column
+
+   :returns: The data type for the column
+
+getWidth()
+----------
+
+.. cpp:function:: uint32_t ColumnStoreSystemCatalogColumn::getWidth()
+
+   Retrieves the width in bytes for the column
+
+   :returns: The width in bytes
+
+getPosition()
+-------------
+
+.. cpp:function:: uint32_t ColumnStoreSystemCatalogColumn::getPosition()
+
+   Retrieves the column's position in the table. The sequence of columns in the table is sorted on object ID, columns may be out-of-order if an ALTER TABLE has inserted one in the middle of the table.
+
+   :returns: The column's position in the table
+
+getDefaultValue()
+-----------------
+
+.. cpp:function:: std::string& ColumnStoreSystemCatalogColumn::getDefaultValue()
+
+   Retrieves the default value for the column in text. The value is empty for no default.
+
+   :returns: The column's default value
+
+getAutoincrement()
+------------------
+
+.. cpp:function:: uint8_t ColumnStoreSystemCatalogColumn::getAutoincrement()
+
+   Retrieves whether or not this column is an autoincrement column.
+
+   :returns: Whether or not the column is autoincrement
+
+getPrecision()
+--------------
+
+.. cpp:function:: uint32_t ColumnStoreSystemCatalogColumn::getPrecision()
+
+   Retrieves the decimal precision for the column.
+
+   :returns: The decimal precision
+
+getScale()
+----------
+
+.. cpp:function:: uint32_t ColumnStoreSystemCatalogColumn::getScale()
+
+   Retrieves the decimal scale for the column.
+
+   :returns: The decimal scale
+
+isNullable()
+------------
+
+.. cpp:function:: uint8_t ColumnStoreSystemCatalogColumn::isNullable()
+
+   Retrieves whether or not the column can be set to ``NULL``
+
+   :returns: ``true`` if the column can be ``NULL`` or ``false`` if it can not
+
+compressionType()
+-----------------
+
+.. cpp:function:: uint8_t ColumnStoreSystemCatalogColumn::compressionType()
+
+   Retrieves the compression type for the column. ``0`` means no compression and ``2`` means Snappy compression
+
+   :returns: The compression type for the column

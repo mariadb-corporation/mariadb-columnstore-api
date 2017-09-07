@@ -70,10 +70,6 @@ include_directories(${CMAKE_SOURCE_DIR})
 
 OPTION(RUN_CPPCHECK "Run cppcheck" OFF)
 
-include(ExternalProject)
-set(ext_dir "${CMAKE_BINARY_DIR}/third-party")
-set(libuv_dir "${ext_dir}/libuv")
-
 option(TEST_RUNNER "Build the test suite" OFF)
 
 if (TEST_RUNNER)

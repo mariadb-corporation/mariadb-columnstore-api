@@ -37,3 +37,6 @@ ColumnStoreException Class
 
    An execption class for an incompatible ColumnStore version number
 
+.. cpp:class:: ColumnStoreNotFound : public ColumnStoreError
+
+   An execption class to signify a table or column was not found

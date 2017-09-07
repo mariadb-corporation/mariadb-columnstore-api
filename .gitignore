@@ -33,6 +33,7 @@ test/dataconvert-null
 test/bad-usage
 test/truncation
 test/summary
+test/system-catalog
 version.h
 docs/conf.py
 docs/sources.cmake
@@ -52,6 +53,7 @@ mcsapi-*.rpm
 # QtCreator files
 *.config
 *.creator
+*.creator.user
 *.files
 *.includes
 # Ignore diffs

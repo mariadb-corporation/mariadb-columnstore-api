@@ -32,7 +32,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
     float valF;
     double valD;
     std::string valS;
-    switch(toMeta->type)
+    switch(toMeta->getType())
     {
         case DATA_TYPE_BIT:
         {
@@ -80,8 +80,8 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
 
         case DATA_TYPE_UDECIMAL:
         case DATA_TYPE_DECIMAL:
-            val64 = (uint64_t)(fromValue * pow((double)10, toMeta->scale));
-            switch (toMeta->width)
+            val64 = (uint64_t)(fromValue * pow((double)10, toMeta->getScale()));
+            switch (toMeta->getWidth())
             {
                 case 1:
                     if (val64 > UINT8_MAX)
@@ -208,10 +208,10 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         case DATA_TYPE_BLOB:
         {
             valS = std::to_string(fromValue);
-            if (valS.length() > toMeta->width)
+            if (valS.length() > toMeta->getWidth())
             {
                 status = CONVERT_STATUS_TRUNCATED;
-                valS.resize(toMeta->width);
+                valS.resize(toMeta->getWidth());
             }
             cont->setData(valS);
             break;
@@ -307,7 +307,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
     float valF;
     double valD;
     std::string valS;
-    switch(toMeta->type)
+    switch(toMeta->getType())
     {
         case DATA_TYPE_BIT:
         {
@@ -365,8 +365,8 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
 
         case DATA_TYPE_UDECIMAL:
         case DATA_TYPE_DECIMAL:
-            val64 = (int64_t)(fromValue * pow((double)10, toMeta->scale));
-            switch (toMeta->width)
+            val64 = (int64_t)(fromValue * pow((double)10, toMeta->getScale()));
+            switch (toMeta->getWidth())
             {
                 case 1:
                     if (val64 > INT8_MAX)
@@ -523,10 +523,10 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         case DATA_TYPE_BLOB:
         {
             valS = std::to_string(fromValue);
-            if (valS.length() > toMeta->width)
+            if (valS.length() > toMeta->getWidth())
             {
                 status = CONVERT_STATUS_TRUNCATED;
-                valS.resize(toMeta->width);
+                valS.resize(toMeta->getWidth());
             }
             cont->setData(valS);
             break;
@@ -651,7 +651,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
     float valF;
     double valD;
     std::string valS;
-    switch(toMeta->type)
+    switch(toMeta->getType())
     {
         case DATA_TYPE_BIT:
         {
@@ -707,8 +707,8 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         }
 
         case DATA_TYPE_UDECIMAL:
-            uval64 = (uint64_t)(fromValue * pow((double)10, toMeta->scale));
-            switch (toMeta->width)
+            uval64 = (uint64_t)(fromValue * pow((double)10, toMeta->getScale()));
+            switch (toMeta->getWidth())
             {
                 case 1:
                     if (uval64 > UINT8_MAX)
@@ -753,8 +753,8 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
             break;
 
         case DATA_TYPE_DECIMAL:
-            val64 = (int64_t)(fromValue * pow((double)10, toMeta->scale));
-            switch (toMeta->width)
+            val64 = (int64_t)(fromValue * pow((double)10, toMeta->getScale()));
+            switch (toMeta->getWidth())
             {
                 case 1:
                     if (val64 > INT8_MAX)
@@ -933,10 +933,10 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         case DATA_TYPE_BLOB:
         {
             valS = std::to_string(fromValue);
-            if (valS.length() > toMeta->width)
+            if (valS.length() > toMeta->getWidth())
             {
                 status = CONVERT_STATUS_TRUNCATED;
-                valS.resize(toMeta->width);
+                valS.resize(toMeta->getWidth());
             }
             cont->setData(valS);
             break;
@@ -1051,7 +1051,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
     double valD;
     ColumnStoreDateTimeImpl dTime;
     std::string valStr;
-    switch(toMeta->type)
+    switch(toMeta->getType())
     {
         case DATA_TYPE_BIT:
         {
@@ -1185,8 +1185,8 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
                 cont->setData(val64);
                 break;
             }
-            val64 = (uint64_t)(valD * pow((double)10, toMeta->scale));
-            switch (toMeta->width)
+            val64 = (uint64_t)(valD * pow((double)10, toMeta->getScale()));
+            switch (toMeta->getWidth())
             {
                 case 1:
                     if (val64 > INT8_MAX)
@@ -1444,10 +1444,10 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         case DATA_TYPE_CLOB:
         case DATA_TYPE_BLOB:
         {
-            if (fromValue.length() > toMeta->width)
+            if (fromValue.length() > toMeta->getWidth())
             {
                 status = CONVERT_STATUS_TRUNCATED;
-                valStr = fromValue.substr(0, toMeta->width);
+                valStr = fromValue.substr(0, toMeta->getWidth());
                 cont->setData(valStr);
             }
             else
@@ -1640,7 +1640,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
     uint32_t uval32;
     uint64_t uval64;
     std::string valS;
-    switch(toMeta->type)
+    switch(toMeta->getType())
     {
         case DATA_TYPE_BIT:
         {
@@ -1737,10 +1737,10 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         case DATA_TYPE_BLOB:
         {
             fromValue.mImpl->getDateTimeStr(valS);
-            if (valS.length() > toMeta->width)
+            if (valS.length() > toMeta->getWidth())
             {
                 status = CONVERT_STATUS_TRUNCATED;
-                valS.resize(toMeta->width);
+                valS.resize(toMeta->getWidth());
             }
             cont->setData(valS);
             break;
@@ -1801,7 +1801,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
     float valF;
     double valD;
     std::string valS;
-    switch(toMeta->type)
+    switch(toMeta->getType())
     {
         case DATA_TYPE_BIT:
         {
@@ -1867,8 +1867,8 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
 
         case DATA_TYPE_UDECIMAL:
         {
-            uval64 = fromValue.mImpl->getDecimalInt(toMeta->scale);
-            switch (toMeta->width)
+            uval64 = fromValue.mImpl->getDecimalInt(toMeta->getScale());
+            switch (toMeta->getWidth())
             {
                 case 1:
                     if (uval64 > UINT8_MAX)
@@ -1914,8 +1914,8 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         }
         case DATA_TYPE_DECIMAL:
         {
-            val64 = fromValue.mImpl->getDecimalInt(toMeta->scale);
-            switch (toMeta->width)
+            val64 = fromValue.mImpl->getDecimalInt(toMeta->getScale());
+            switch (toMeta->getWidth())
             {
                 case 1:
                     if (val64 > INT8_MAX)
@@ -2071,10 +2071,10 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         case DATA_TYPE_BLOB:
         {
             fromValue.mImpl->getDecimalStr(valS);
-            if (valS.length() > toMeta->width)
+            if (valS.length() > toMeta->getWidth())
             {
                 status = CONVERT_STATUS_TRUNCATED;
-                valS.resize(toMeta->width);
+                valS.resize(toMeta->getWidth());
             }
             cont->setData(valS);
             break;
@@ -2193,10 +2193,10 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::getNull(ColumnStoreSys
     std::string valStr;
 
     // Don't set null for not-null, but autoinc is OK
-    if (!toMeta->null && !toMeta->autoincrement)
+    if (!toMeta->isNullable() && !toMeta->getAutoincrement())
     {
         status = CONVERT_STATUS_INVALID;
-        switch(toMeta->type)
+        switch(toMeta->getType())
         {
             case DATA_TYPE_BIT:
             {
@@ -2303,7 +2303,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::getNull(ColumnStoreSys
         // This flag doesn't work yet
         cont->isNull = true;
 
-        switch(toMeta->type)
+        switch(toMeta->getType())
         {
             case DATA_TYPE_BIT:
             {

@@ -61,7 +61,7 @@ void ColumnStoreBulkInsertImpl::runChecks(uint16_t columnNumber)
         std::string errmsg = "Bulk insert has been committed or rolled back and cannot be reused";
         throw ColumnStoreUsageError(errmsg);
     }
-    if (columnNumber > tbl->columns.size())
+    if (columnNumber > tbl->getColumnCount())
     {
         std::string errmsg = "Column number " + std::to_string(columnNumber) + " not valid";
         throw ColumnStoreUsageError(errmsg);
@@ -73,9 +73,9 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, c
 {
     mImpl->runChecks(columnNumber);
     columnstore_data_convert_status_t convert_status;
-    ColumnStoreSystemCatalogColumn* column = mImpl->tbl->columns[columnNumber];
+    ColumnStoreSystemCatalogColumn column = mImpl->tbl->getColumn(columnNumber);
     ColumnStoreDataContainer* cont = &(*mImpl->row)[columnNumber];
-    convert_status = ColumnStoreDataConvert::convert(column, cont, value);
+    convert_status = ColumnStoreDataConvert::convert(&column, cont, value);
     if (status)
     {
         *status = convert_status;
@@ -96,9 +96,9 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, u
 {
     mImpl->runChecks(columnNumber);
     columnstore_data_convert_status_t convert_status;
-    ColumnStoreSystemCatalogColumn* column = mImpl->tbl->columns[columnNumber];
+    ColumnStoreSystemCatalogColumn column = mImpl->tbl->getColumn(columnNumber);
     ColumnStoreDataContainer* cont = &(*mImpl->row)[columnNumber];
-    convert_status = ColumnStoreDataConvert::convert(column, cont, value);
+    convert_status = ColumnStoreDataConvert::convert(&column, cont, value);
     if (status)
     {
         *status = convert_status;
@@ -119,9 +119,9 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, i
 {
     mImpl->runChecks(columnNumber);
     columnstore_data_convert_status_t convert_status;
-    ColumnStoreSystemCatalogColumn* column = mImpl->tbl->columns[columnNumber];
+    ColumnStoreSystemCatalogColumn column = mImpl->tbl->getColumn(columnNumber);
     ColumnStoreDataContainer* cont = &(*mImpl->row)[columnNumber];
-    convert_status = ColumnStoreDataConvert::convert(column, cont, value);
+    convert_status = ColumnStoreDataConvert::convert(&column, cont, value);
     if (status)
     {
         *status = convert_status;
@@ -142,9 +142,9 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, d
 {
     mImpl->runChecks(columnNumber);
     columnstore_data_convert_status_t convert_status;
-    ColumnStoreSystemCatalogColumn* column = mImpl->tbl->columns[columnNumber];
+    ColumnStoreSystemCatalogColumn column = mImpl->tbl->getColumn(columnNumber);
     ColumnStoreDataContainer* cont = &(*mImpl->row)[columnNumber];
-    convert_status = ColumnStoreDataConvert::convert(column, cont, value);
+    convert_status = ColumnStoreDataConvert::convert(&column, cont, value);
     if (status)
     {
         *status = convert_status;
@@ -165,9 +165,9 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, C
 {
     mImpl->runChecks(columnNumber);
     columnstore_data_convert_status_t convert_status;
-    ColumnStoreSystemCatalogColumn* column = mImpl->tbl->columns[columnNumber];
+    ColumnStoreSystemCatalogColumn column = mImpl->tbl->getColumn(columnNumber);
     ColumnStoreDataContainer* cont = &(*mImpl->row)[columnNumber];
-    convert_status = ColumnStoreDataConvert::convert(column, cont, value);
+    convert_status = ColumnStoreDataConvert::convert(&column, cont, value);
     if (status)
     {
         *status = convert_status;
@@ -188,9 +188,9 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, C
 {
     mImpl->runChecks(columnNumber);
     columnstore_data_convert_status_t convert_status;
-    ColumnStoreSystemCatalogColumn* column = mImpl->tbl->columns[columnNumber];
+    ColumnStoreSystemCatalogColumn column = mImpl->tbl->getColumn(columnNumber);
     ColumnStoreDataContainer* cont = &(*mImpl->row)[columnNumber];
-    convert_status = ColumnStoreDataConvert::convert(column, cont, value);
+    convert_status = ColumnStoreDataConvert::convert(&column, cont, value);
     if (status)
     {
         *status = convert_status;
@@ -211,9 +211,9 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setNull(uint16_t columnNumber, col
 {
     mImpl->runChecks(columnNumber);
     columnstore_data_convert_status_t convert_status;
-    ColumnStoreSystemCatalogColumn* column = mImpl->tbl->columns[columnNumber];
+    ColumnStoreSystemCatalogColumn column = mImpl->tbl->getColumn(columnNumber);
     ColumnStoreDataContainer* cont = &(*mImpl->row)[columnNumber];
-    convert_status = ColumnStoreDataConvert::getNull(column, cont);
+    convert_status = ColumnStoreDataConvert::getNull(&column, cont);
     if (status)
     {
         *status = convert_status;
@@ -232,7 +232,7 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::writeRow()
         throw ColumnStoreUsageError(errmsg);
     }
 
-    if (mImpl->row->size() != mImpl->tbl->columns.size())
+    if (mImpl->row->size() != mImpl->tbl->getColumnCount())
     {
         std::string errmsg = "Not all the columns for this row have been filled";
         throw ColumnStoreUsageError(errmsg);
@@ -274,13 +274,13 @@ void ColumnStoreBulkInsert::commit()
     mImpl->uniqueId = mImpl->commands->brmGetUniqueId();
     for (auto& pmit: mImpl->pmList)
     {
-        mImpl->commands->weBulkInsertEnd(pmit, mImpl->uniqueId, mImpl->txnId, mImpl->tbl->oid, 0);
+        mImpl->commands->weBulkInsertEnd(pmit, mImpl->uniqueId, mImpl->txnId, mImpl->tbl->getOID(), 0);
         std::vector<uint64_t> lbids;
         std::vector<ColumnStoreHWM> hwms;
         mImpl->commands->weGetWrittenLbids(pmit, mImpl->uniqueId, mImpl->txnId, lbids);
         mImpl->commands->weClose(pmit);
         mImpl->commands->weKeepAlive(pmit);
-        mImpl->commands->weBulkCommit(pmit, mImpl->uniqueId, mImpl->sessionId, mImpl->txnId, mImpl->tbl->oid, hwms);
+        mImpl->commands->weBulkCommit(pmit, mImpl->uniqueId, mImpl->sessionId, mImpl->txnId, mImpl->tbl->getOID(), hwms);
         mImpl->commands->brmSetHWMAndCP(hwms, lbids, mImpl->txnId);
     }
     mImpl->commands->brmCommitted(mImpl->txnId);
@@ -288,7 +288,7 @@ void ColumnStoreBulkInsert::commit()
     mImpl->commands->brmChangeState(mImpl->tblLock);
     for (auto& pmit: mImpl->pmList)
     {
-        mImpl->commands->weRemoveMeta(pmit, mImpl->uniqueId, mImpl->tbl->oid);
+        mImpl->commands->weRemoveMeta(pmit, mImpl->uniqueId, mImpl->tbl->getOID());
         mImpl->commands->weClose(pmit);
     }
     mImpl->commands->brmReleaseTableLock(mImpl->tblLock);
@@ -307,12 +307,12 @@ void ColumnStoreBulkInsert::rollback()
         mImpl->commands->weGetWrittenLbids(pmit, mImpl->uniqueId, mImpl->txnId, lbids);
         mImpl->commands->weRollbackBlocks(pmit, mImpl->uniqueId, mImpl->sessionId, mImpl->txnId);
         mImpl->commands->brmRollback(lbids, mImpl->txnId);
-        mImpl->commands->weBulkRollback(pmit, mImpl->uniqueId, mImpl->sessionId, mImpl->tblLock, mImpl->tbl->oid);
+        mImpl->commands->weBulkRollback(pmit, mImpl->uniqueId, mImpl->sessionId, mImpl->tblLock, mImpl->tbl->getOID());
     }
     mImpl->commands->brmChangeState(mImpl->tblLock);
     for (auto& pmit: mImpl->pmList)
     {
-        mImpl->commands->weRemoveMeta(pmit, mImpl->uniqueId, mImpl->tbl->oid);
+        mImpl->commands->weRemoveMeta(pmit, mImpl->uniqueId, mImpl->tbl->getOID());
         mImpl->commands->weClose(pmit);
     }
     mImpl->commands->brmReleaseTableLock(mImpl->tblLock);
@@ -335,7 +335,6 @@ void ColumnStoreBulkInsert::setTruncateIsError(bool set)
 
 ColumnStoreBulkInsertImpl::ColumnStoreBulkInsertImpl(const std::string& iDb, const std::string& iTable, uint8_t iMode, uint16_t iPm):
     driver(nullptr),
-    systemCatalog(nullptr),
     tbl(nullptr),
     commands(nullptr),
     db(iDb),
@@ -362,7 +361,6 @@ ColumnStoreBulkInsertImpl::ColumnStoreBulkInsertImpl(const std::string& iDb, con
 
 ColumnStoreBulkInsertImpl::~ColumnStoreBulkInsertImpl()
 {
-    delete systemCatalog;
     delete commands;
     delete summary;
 }
@@ -397,37 +395,23 @@ void ColumnStoreBulkInsertImpl::connect()
         std::string err("Incompatible ColumnStore version found");
         throw ColumnStoreVersionError(err);
     }
-    systemCatalog = commands->brmGetSystemCatalog();
-    for (auto& itTable : systemCatalog->tables)
+
+    tbl = &driver->getSystemCatalog()->getTable(db, table);
+    tableData.tableName = tbl->getTableName();
+    tableData.tableSchema = tbl->getSchemaName();
+    for (uint16_t columnNo = 0; columnNo < tbl->getColumnCount(); columnNo++)
     {
-        if ((db == itTable->schema) && (table == itTable->table))
-        {
-            tbl = itTable;
-            break;
-        }
-    }
-    if (!tbl)
-    {
-        std::string err("Table not found: ");
-        err.append(db);
-        err.append(".");
-        err.append(table);
-        throw ColumnStoreUsageError(err);
-    }
-    tableData.tableName = tbl->table;
-    tableData.tableSchema = tbl->schema;
-    for (auto& itColumn : tbl->columns)
-    {
-        tableData.columns.push_back(ColumnStoreColumnData(itColumn->oid, itColumn->column));
+        ColumnStoreSystemCatalogColumn column = tbl->getColumn(columnNo);
+        tableData.columns.push_back(ColumnStoreColumnData(column.getOID(), column.getColumnName()));
     }
     txnId = commands->brmGetTxnID(sessionId);
     uniqueId = commands->brmGetUniqueId();
-    tblLock = commands->brmGetTableLock(tbl->oid, sessionId, txnId, dbRoots);
+    tblLock = commands->brmGetTableLock(tbl->getOID(), sessionId, txnId, dbRoots);
     for (auto& pmit: pmList)
     {
         commands->weKeepAlive(pmit);
     }
-    row = tableData.getRow();;
+    row = tableData.getRow();
 }
 
 }

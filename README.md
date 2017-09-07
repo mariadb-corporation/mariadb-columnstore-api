@@ -32,7 +32,7 @@ For test test suite:
 ```shell
 sudo apt-get install libgtest-dev cppcheck
 cd /usr/src/gtest
-sudo cmake . -DCMAKE_BUILD_TYPE=RELEASE
+sudo cmake . -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_SHARED_LIBS=ON
 sudo make
 sudo mv libg* /usr/lib/
 ```
@@ -51,7 +51,7 @@ scl enable devtoolset-4 bash
 For the documentation:
 
 ```shell
-sudo yum install python-sphinx texlive-scheme-full
+sudo yum install python-sphinx texlive-scheme-full latexmk
 ```
 
 For the test suite:

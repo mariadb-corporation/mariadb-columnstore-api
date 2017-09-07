@@ -439,4 +439,221 @@ void ColumnStoreSummaryImpl::setStatus(columnstore_data_convert_status_t status)
     }
 }
 
+ColumnStoreSystemCatalog::ColumnStoreSystemCatalog()
+{
+    mImpl = new ColumnStoreSystemCatalogImpl();
+}
+
+ColumnStoreSystemCatalog::ColumnStoreSystemCatalog(const ColumnStoreSystemCatalog& obj)
+{
+    mImpl = new ColumnStoreSystemCatalogImpl();
+    if (obj.mImpl)
+    {
+        mImpl->tables = obj.mImpl->tables;
+    }
+}
+
+ColumnStoreSystemCatalog::~ColumnStoreSystemCatalog()
+{
+    delete mImpl;
+}
+
+ColumnStoreSystemCatalogColumn::ColumnStoreSystemCatalogColumn()
+{
+    mImpl = new ColumnStoreSystemCatalogColumnImpl();
+}
+
+ColumnStoreSystemCatalogColumn::ColumnStoreSystemCatalogColumn(const ColumnStoreSystemCatalogColumn& obj)
+{
+    mImpl = new ColumnStoreSystemCatalogColumnImpl();
+    if (obj.mImpl)
+    {
+        mImpl->autoincrement = obj.mImpl->autoincrement;
+        mImpl->column = obj.mImpl->column;
+        mImpl->compression = obj.mImpl->compression;
+        mImpl->default_val = obj.mImpl->default_val;
+        mImpl->dict_oid = obj.mImpl->dict_oid;
+        mImpl->null = obj.mImpl->null;
+        mImpl->oid = obj.mImpl->oid;
+        mImpl->position = obj.mImpl->position;
+        mImpl->precision = obj.mImpl->precision;
+        mImpl->scale = obj.mImpl->scale;
+        mImpl->type = obj.mImpl->type;
+        mImpl->width = obj.mImpl->width;
+    }
+}
+
+ColumnStoreSystemCatalogColumn::~ColumnStoreSystemCatalogColumn()
+{
+    delete mImpl;
+}
+
+ColumnStoreSystemCatalogTable::ColumnStoreSystemCatalogTable()
+{
+    mImpl = new ColumnStoreSystemCatalogTableImpl();
+}
+
+ColumnStoreSystemCatalogTable::ColumnStoreSystemCatalogTable(const ColumnStoreSystemCatalogTable& obj)
+{
+    mImpl = new ColumnStoreSystemCatalogTableImpl();
+    if (obj.mImpl)
+    {
+        mImpl->columns = obj.mImpl->columns;
+        mImpl->oid = obj.mImpl->oid;
+        mImpl->schema = obj.mImpl->schema;
+        mImpl->table = obj.mImpl->table;
+    }
+}
+
+
+ColumnStoreSystemCatalogTable::~ColumnStoreSystemCatalogTable()
+{
+    delete mImpl;
+}
+
+uint32_t ColumnStoreSystemCatalogColumn::getOID()
+{
+    return mImpl->oid;
+}
+
+std::string& ColumnStoreSystemCatalogColumn::getColumnName()
+{
+    return mImpl->column;
+}
+
+uint32_t ColumnStoreSystemCatalogColumn::getDictionaryOID()
+{
+    return mImpl->dict_oid;
+}
+
+columnstore_data_types_t ColumnStoreSystemCatalogColumn::getType()
+{
+    return mImpl->type;
+}
+
+uint32_t ColumnStoreSystemCatalogColumn::getWidth()
+{
+    return mImpl->width;
+}
+
+uint32_t ColumnStoreSystemCatalogColumn::getPosition()
+{
+    return mImpl->position;
+}
+
+std::string& ColumnStoreSystemCatalogColumn::getDefaultValue()
+{
+    return mImpl->default_val;
+}
+
+uint8_t ColumnStoreSystemCatalogColumn::getAutoincrement()
+{
+    return mImpl->autoincrement;
+}
+
+uint32_t ColumnStoreSystemCatalogColumn::getPrecision()
+{
+    return mImpl->precision;
+}
+
+uint32_t ColumnStoreSystemCatalogColumn::getScale()
+{
+    return mImpl->scale;
+}
+
+uint8_t ColumnStoreSystemCatalogColumn::isNullable()
+{
+    return mImpl->null;
+}
+
+uint8_t ColumnStoreSystemCatalogColumn::compressionType()
+{
+    return mImpl->compression;
+}
+
+std::string& ColumnStoreSystemCatalogTable::getSchemaName()
+{
+    return mImpl->schema;
+}
+
+std::string& ColumnStoreSystemCatalogTable::getTableName()
+{
+    return mImpl->table;
+}
+
+uint32_t ColumnStoreSystemCatalogTable::getOID()
+{
+    return mImpl->oid;
+}
+
+uint16_t ColumnStoreSystemCatalogTable::getColumnCount()
+{
+    return mImpl->columns.size();
+}
+
+ColumnStoreSystemCatalogColumn& ColumnStoreSystemCatalogTable::getColumn(const std::string& columnName)
+{
+    ColumnStoreSystemCatalogColumn* col = nullptr;
+    for (auto& itColumn : mImpl->columns)
+    {
+        if (columnName == itColumn->getColumnName())
+        {
+            col = itColumn;
+            break;
+        }
+    }
+    if (col)
+    {
+        return *col;
+    }
+    std::string err = getSchemaName() + "." + getTableName() + "." + columnName + " not found";
+    throw ColumnStoreNotFound(err);
+}
+
+ColumnStoreSystemCatalogColumn& ColumnStoreSystemCatalogTable::getColumn(uint16_t columnNumber)
+{
+    if (columnNumber > mImpl->columns.size())
+    {
+        std::string errmsg = "Column number " + std::to_string(columnNumber) + " not found";
+        throw ColumnStoreNotFound(errmsg);
+    }
+    return *mImpl->columns[columnNumber];
+}
+
+
+ColumnStoreSystemCatalogTable& ColumnStoreSystemCatalog::getTable(const std::string& schemaName, const std::string& tableName)
+{
+    ColumnStoreSystemCatalogTable* tbl = nullptr;
+    for (auto& itTable : mImpl->tables)
+    {
+        if ((schemaName == itTable->getSchemaName()) && (tableName == itTable->getTableName()))
+        {
+            tbl = itTable;
+            break;
+        }
+    }
+    if (tbl)
+    {
+        return *tbl;
+    }
+    std::string err = schemaName + "." + tableName + " not found";
+    throw ColumnStoreNotFound(err);
+}
+
+void ColumnStoreSystemCatalogTableImpl::clear()
+{
+    for (std::vector<ColumnStoreSystemCatalogColumn*>::iterator it = columns.begin() ; it != columns.end(); ++it)
+    {
+        delete *it;
+    }
+}
+
+void ColumnStoreSystemCatalogImpl::clear()
+{
+    for (std::vector<ColumnStoreSystemCatalogTable*>::iterator it = tables.begin() ; it != tables.end(); ++it)
+    {
+        delete *it;
+    }
+}
+
 }
