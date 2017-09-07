@@ -92,4 +92,12 @@ public:
     { }
 };
 
+class MCS_API ColumnStoreNotFound: public ColumnStoreError
+{
+public:
+    ColumnStoreNotFound(const std::string& msg) :
+        ColumnStoreError(msg)
+    { }
+};
+
 }

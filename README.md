@@ -32,7 +32,7 @@ For test test suite:
 ```shell
 sudo apt-get install libgtest-dev cppcheck
 cd /usr/src/gtest
-sudo cmake . -DCMAKE_BUILD_TYPE=RELEASE
+sudo cmake . -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_SHARED_LIBS=ON
 sudo make
 sudo mv libg* /usr/lib/
 ```

@@ -20,19 +20,4 @@
 
 namespace mcsapi
 {
-ColumnStoreSystemCatalogTable::~ColumnStoreSystemCatalogTable()
-{
-    for (std::vector<ColumnStoreSystemCatalogColumn*>::iterator it = columns.begin() ; it != columns.end(); ++it)
-    {
-        delete *it;
-    }
-}
-
-ColumnStoreSystemCatalog::~ColumnStoreSystemCatalog()
-{
-    for (std::vector<ColumnStoreSystemCatalogTable*>::iterator it = tables.begin() ; it != tables.end(); ++it)
-    {
-        delete *it;
-    }
-}
 }

@@ -57,7 +57,7 @@ if(GENERATE_DOC)
 
   # note the trailing slash to exclude directory name
   #install(DIRECTORY "${SOURCES_DIR}/"
-  #    DESTINATION "${CMAKE_INSTALL_DOCDIR}/libmcsapi"
+  #    DESTINATION "${CMAKE_INSTALL_DOCDIR}/html"
   #)
 
   # Sphinx cache with pickled ReST documents
@@ -66,25 +66,25 @@ if(GENERATE_DOC)
   set(SPHINX_HTML_DIR "${CMAKE_CURRENT_BINARY_DIR}/html")
 
   # This target builds HTML documentation using Sphinx.
-  #  add_custom_target(doc_html ALL
-  #  ${SPHINX_EXECUTABLE}
-  #    -b html
-  #    -c "${BINARY_BUILD_DIR}"
-  #    -d "${SPHINX_CACHE_DIR}"
-  #    "${SOURCES_DIR}"
-  #    "${SPHINX_HTML_DIR}"
-  #  COMMENT "Building HTML documentation with Sphinx"
-  #)
+    add_custom_target(doc_html ALL
+    ${SPHINX_EXECUTABLE}
+      -b html
+      -c "${BINARY_BUILD_DIR}"
+      -d "${SPHINX_CACHE_DIR}"
+      "${SOURCES_DIR}"
+      "${SPHINX_HTML_DIR}"
+    COMMENT "Building HTML documentation with Sphinx"
+  )
   list(APPEND CLEAN_FILES
     "${SPHINX_CACHE_DIR}"
     "${SPHINX_HTML_DIR}"
   )
-#  add_dependencies(doc_html
-#    doc_sources
-#  )
-  #install(DIRECTORY "${SPHINX_HTML_DIR}"
-  #  DESTINATION "share/doc/libmcsapi"
-  #)
+  add_dependencies(doc_html
+    doc_sources
+  )
+  install(DIRECTORY "${SPHINX_HTML_DIR}"
+    DESTINATION "${CMAKE_INSTALL_DOCDIR}/html"
+  )
 
   # This target builds PDF documentation using Sphinx and LaTeX.
   #if(PDFLATEX_COMPILER)

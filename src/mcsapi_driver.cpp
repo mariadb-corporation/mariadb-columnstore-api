@@ -22,6 +22,7 @@
 #include <libxml/parser.h>
 
 #include "mcsapi_driver_impl.h"
+#include "mcsapi_types_impl.h"
 
 namespace mcsapi
 {
@@ -66,10 +67,38 @@ ColumnStoreBulkInsert* ColumnStoreDriver::createBulkInsert(const std::string& db
 {
     return new ColumnStoreBulkInsert(this->mImpl, db, table, mode, pm);
 }
+
+ColumnStoreSystemCatalog& ColumnStoreDriver::getSystemCatalog()
+{
+    return *mImpl->getSystemCatalog();
+}
+
 /* Private parts of API below here */
+
+ColumnStoreSystemCatalog* ColumnStoreDriverImpl::getSystemCatalog()
+{
+    if (systemCatalog)
+    {
+        return systemCatalog;
+    }
+    ColumnStoreCommands* commands = new ColumnStoreCommands(this);
+    systemCatalog = commands->brmGetSystemCatalog();
+    if (!systemCatalog)
+    {
+        std::string err("Empty system catalog retrieved");
+        throw ColumnStoreServerError(err);
+    }
+    delete commands;
+    return systemCatalog;
+}
 
 ColumnStoreDriverImpl::~ColumnStoreDriverImpl()
 {
+    if (systemCatalog && systemCatalog->mImpl)
+    {
+        systemCatalog->mImpl->clear();
+    }
+    delete systemCatalog;
     if (mXmlDoc)
         xmlFreeDoc(mXmlDoc);
 }

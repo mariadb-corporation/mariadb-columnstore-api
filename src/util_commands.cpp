@@ -22,6 +22,7 @@
 #include <libxml/parser.h>
 
 #include "mcsapi_driver_impl.h"
+#include "mcsapi_types_impl.h"
 
 namespace mcsapi
 {
@@ -150,34 +151,34 @@ ColumnStoreSystemCatalog* ColumnStoreCommands::brmGetSystemCatalog()
     {
         ColumnStoreSystemCatalogTable* table = new ColumnStoreSystemCatalogTable();
         uint32_t column_count;
-        *messageOut >> table->oid;
-        *messageOut >> table->schema;
-        *messageOut >> table->table;
+        *messageOut >> table->mImpl->oid;
+        *messageOut >> table->mImpl->schema;
+        *messageOut >> table->mImpl->table;
         *messageOut >> column_count;
-        mcsdebug("Table: OID: %u, Schema: %s, Table name: %s", table->oid, table->schema.c_str(), table->table.c_str());
+        mcsdebug("Table: OID: %u, Schema: %s, Table name: %s", table->getOID(), table->getSchemaName().c_str(), table->getTableName().c_str());
         for (uint32_t j = 0; j < column_count; j++)
         {
             ColumnStoreSystemCatalogColumn* column = new ColumnStoreSystemCatalogColumn();
             uint8_t column_type;
-            *messageOut >> column->oid;
-            *messageOut >> column->column;
-            *messageOut >> column->dict_oid;
+            *messageOut >> column->mImpl->oid;
+            *messageOut >> column->mImpl->column;
+            *messageOut >> column->mImpl->dict_oid;
             *messageOut >> column_type;
-            column->type = (columnstore_data_types_t) column_type;
-            *messageOut >> column->width;
-            *messageOut >> column->position;
-            *messageOut >> column->default_val;
-            *messageOut >> column->autoincrement;
-            *messageOut >> column->precision;
-            *messageOut >> column->scale;
-            *messageOut >> column->null;
-            *messageOut >> column->compression;
+            column->mImpl->type = (columnstore_data_types_t) column_type;
+            *messageOut >> column->mImpl->width;
+            *messageOut >> column->mImpl->position;
+            *messageOut >> column->mImpl->default_val;
+            *messageOut >> column->mImpl->autoincrement;
+            *messageOut >> column->mImpl->precision;
+            *messageOut >> column->mImpl->scale;
+            *messageOut >> column->mImpl->null;
+            *messageOut >> column->mImpl->compression;
             mcsdebug("Column: OID: %u, Name: %s, Dict: %u, Type: %u, Width: %u, Position: %u, Default: %s, Autoinc: %u, Precision: %u, Scale: %u, Not NULL: %u, Compression: %u",
-                column->oid, column->column.c_str(), column->dict_oid, column_type, column->width, column->position, column->default_val.c_str(), column->autoincrement,
-                column->precision, column->scale, column->null, column->compression);
-            table->columns.push_back(column);
+                column->mImpl->oid, column->mImpl->column.c_str(), column->mImpl->dict_oid, column_type, column->mImpl->width, column->mImpl->position,
+                column->mImpl->default_val.c_str(), column->mImpl->autoincrement, column->mImpl->precision, column->mImpl->scale, column->mImpl->null, column->mImpl->compression);
+            table->mImpl->columns.push_back(column);
         }
-        systemCatalog->tables.push_back(table);
+        systemCatalog->mImpl->tables.push_back(table);
     }
     delete messageOut;
     return systemCatalog;
