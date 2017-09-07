@@ -131,3 +131,38 @@ Example
        }
        return 0;
    }
+
+getSystemCatalog()
+------------------
+
+.. cpp:function:: ColumnStoreSystemCatalog& ColumnStoreDriver::getSystemCatalog()
+
+   Returns an instance of the ColumnStore system catalog which contains all of the ColumnStore table and column details
+
+   :returns: The system catalog
+
+Example
+^^^^^^^
+.. code-block:: cpp
+   :linenos:
+
+   #include <iostream>
+   #include <libmcsapi/mcsapi.h>
+
+   int main(void)
+   {
+       try {
+           mcsapi::ColumnStoreDriver* driver = new mcsapi::ColumnStoreDriver();
+           mcsapi::ColumnStoreSystemCatalog sysCat = driver->getSystemCatalog();
+
+           mcsapi::ColumnStoreSystemCatalogTable tbl = sysCat.getTable("test", "t1");
+           std::cout << "t1 has " << tbl.getColumnCount() << " columns" << endl;
+
+           mcsapi::ColumnStoreSystemCatalogColumn col1 = tbl.getColumn(0);         
+           std::cout << "The first column in t1 is " << col1.getColumnName() << endl;
+       } catch (mcsapi::ColumnStoreError &e) {
+           std::cout << "Error caught: " << e.what() << std::endl;
+       }
+       return 0;
+   }
+

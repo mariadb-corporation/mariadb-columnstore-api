@@ -27,7 +27,7 @@ For the documentation:
 
    sudo apt-get install python-sphinx texlive-latex-recommended texlive-latex-extra
 
-For test test suite:
+For the test suite:
 
 .. code-block:: console
 
@@ -54,7 +54,7 @@ For the documentation:
 
 .. code-block:: console
 
-   sudo yum install python-sphinx texlive-scheme-full
+   sudo yum install python-sphinx texlive-scheme-full latexmk
 
 For the test suite:
 

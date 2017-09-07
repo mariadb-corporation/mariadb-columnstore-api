@@ -51,7 +51,7 @@ scl enable devtoolset-4 bash
 For the documentation:
 
 ```shell
-sudo yum install python-sphinx texlive-scheme-full
+sudo yum install python-sphinx texlive-scheme-full latexmk
 ```
 
 For the test suite:
