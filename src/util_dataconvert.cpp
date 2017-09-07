@@ -2193,7 +2193,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::getNull(ColumnStoreSys
     std::string valStr;
 
     // Don't set null for not-null, but autoinc is OK
-    if (!toMeta->isNullable() && !toMeta->getAutoincrement())
+    if (!toMeta->isNullable() && !toMeta->isAutoincrement())
     {
         status = CONVERT_STATUS_INVALID;
         switch(toMeta->getType())

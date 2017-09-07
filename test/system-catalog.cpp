@@ -78,7 +78,7 @@ TEST(SystemCatalog, NormalUsage)
         ASSERT_EQ(4, col1.getWidth());
         ASSERT_EQ(0, col1.getPosition());
         ASSERT_STREQ("", col1.getDefaultValue().c_str());
-        ASSERT_EQ(0, col1.getAutoincrement());
+        ASSERT_EQ(0, col1.isAutoincrement());
         ASSERT_EQ(10, col1.getPrecision());
         ASSERT_EQ(0, col1.getScale());
         ASSERT_EQ(true, col1.isNullable());
@@ -92,7 +92,7 @@ TEST(SystemCatalog, NormalUsage)
         ASSERT_EQ(4, col2.getWidth());
         ASSERT_EQ(1, col2.getPosition());
         ASSERT_STREQ("", col2.getDefaultValue().c_str());
-        ASSERT_EQ(0, col2.getAutoincrement());
+        ASSERT_EQ(0, col2.isAutoincrement());
         ASSERT_EQ(10, col2.getPrecision());
         ASSERT_EQ(0, col2.getScale());
         ASSERT_EQ(true, col2.isNullable());

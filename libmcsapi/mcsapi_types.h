@@ -123,10 +123,10 @@ public:
     uint32_t getWidth();
     uint32_t getPosition();
     std::string& getDefaultValue();
-    uint8_t getAutoincrement();
+    bool isAutoincrement();
     uint32_t getPrecision();
     uint32_t getScale();
-    uint8_t isNullable();
+    bool isNullable();
     uint8_t compressionType();
 
 private:

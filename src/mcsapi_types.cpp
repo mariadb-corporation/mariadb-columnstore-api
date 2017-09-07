@@ -546,7 +546,7 @@ std::string& ColumnStoreSystemCatalogColumn::getDefaultValue()
     return mImpl->default_val;
 }
 
-uint8_t ColumnStoreSystemCatalogColumn::getAutoincrement()
+bool ColumnStoreSystemCatalogColumn::isAutoincrement()
 {
     return mImpl->autoincrement;
 }
@@ -561,7 +561,7 @@ uint32_t ColumnStoreSystemCatalogColumn::getScale()
     return mImpl->scale;
 }
 
-uint8_t ColumnStoreSystemCatalogColumn::isNullable()
+bool ColumnStoreSystemCatalogColumn::isNullable()
 {
     return mImpl->null;
 }

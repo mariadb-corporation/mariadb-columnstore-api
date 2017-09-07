@@ -409,14 +409,14 @@ getDefaultValue()
 
    :returns: The column's default value
 
-getAutoincrement()
-------------------
+isAutoincrement()
+-----------------
 
-.. cpp:function:: uint8_t ColumnStoreSystemCatalogColumn::getAutoincrement()
+.. cpp:function:: bool ColumnStoreSystemCatalogColumn::isAutoincrement()
 
    Retrieves whether or not this column is an autoincrement column.
 
-   :returns: Whether or not the column is autoincrement
+   :returns: ``true`` if this column is autoincrement, ``false`` if it isn't
 
 getPrecision()
 --------------
@@ -439,7 +439,7 @@ getScale()
 isNullable()
 ------------
 
-.. cpp:function:: uint8_t ColumnStoreSystemCatalogColumn::isNullable()
+.. cpp:function:: bool ColumnStoreSystemCatalogColumn::isNullable()
 
    Retrieves whether or not the column can be set to ``NULL``
 
