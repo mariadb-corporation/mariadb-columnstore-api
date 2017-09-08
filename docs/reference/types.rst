@@ -1,130 +1,130 @@
 columnstore_data_convert_status_t Type
 ======================================
 
-.. cpp:enum:: columnstore_data_convert_status_t
+.. cpp:type:: columnstore_data_convert_status_t
 
    The status value used in :cpp:func:`ColumnStoreBulkInsert::setColumn` and :cpp:func:`ColumnStoreBulkInsert::setNull` to signify the status of any data conversion that occurred during setting.
 
-.. cpp:enumerator:: CONVERT_STATUS_NONE
+.. cpp:type:: CONVERT_STATUS_NONE
 
    There was no problems during the conversion or no conversion.
 
-.. cpp:enumerator:: CONVERT_STATUS_SATURATED
+.. cpp:type:: CONVERT_STATUS_SATURATED
 
    The value was saturated during the conversion, the maximum/minimum was used instead.
 
-.. cpp:enumerator:: CONVERT_STATUS_INVALID
+.. cpp:type:: CONVERT_STATUS_INVALID
 
    The value was invalid during the conversion, 0 or empty string was used instead.
 
-.. cpp:enumerator:: CONVERT_STATUS_TRUNCATED
+.. cpp:type:: CONVERT_STATUS_TRUNCATED
 
    The value was truncated.
 
 columnstore_data_types_t Type
 =============================
 
-.. cpp:enum:: columnstore_data_types_t
+.. cpp:type:: columnstore_data_types_t
 
    The data type as returned by :cpp:func:`ColumnStoreSystemCatalogColumn::getType`.
 
-.. cpp:enumerator:: DATA_TYPE_BIT
+.. cpp:type:: DATA_TYPE_BIT
 
    BIT data type
 
-.. cpp:enumerator:: DATA_TYPE_TINYINT
+.. cpp:type:: DATA_TYPE_TINYINT
 
    TINYINT data type
 
-.. cpp:enumerator:: DATA_TYPE_CHAR
+.. cpp:type:: DATA_TYPE_CHAR
 
    CHAR data type
 
-.. cpp:enumerator:: DATA_TYPE_SMALLINT
+.. cpp:type:: DATA_TYPE_SMALLINT
 
    SMALLINT data type
 
-.. cpp:enumerator:: DATA_TYPE_DECIMAL
+.. cpp:type:: DATA_TYPE_DECIMAL
 
    DECIMAL data type
 
-.. cpp:enumerator:: DATA_TYPE_MEDINT
+.. cpp:type:: DATA_TYPE_MEDINT
 
    MEDIUMINT data type
 
-.. cpp:enumerator:: DATA_TYPE_INT
+.. cpp:type:: DATA_TYPE_INT
 
    INT data type
 
-.. cpp:enumerator:: DATA_TYPE_FLOAT
+.. cpp:type:: DATA_TYPE_FLOAT
 
    FLOAT data type
 
-.. cpp:enumerator:: DATA_TYPE_DATE
+.. cpp:type:: DATA_TYPE_DATE
 
    DATE data type
 
-.. cpp:enumerator:: DATA_TYPE_BIGINT
+.. cpp:type:: DATA_TYPE_BIGINT
 
    BIGINT data type
 
-.. cpp:enumerator:: DATA_TYPE_DOUBLE
+.. cpp:type:: DATA_TYPE_DOUBLE
 
    DOUBLE data type
 
-.. cpp:enumerator:: DATA_TYPE_DATETIME
+.. cpp:type:: DATA_TYPE_DATETIME
 
    DATETIME data type
 
-.. cpp:enumerator:: DATA_TYPE_VARCHAR
+.. cpp:type:: DATA_TYPE_VARCHAR
 
    VARCHAR data type
 
-.. cpp:enumerator:: DATA_TYPE_VARBINARY
+.. cpp:type:: DATA_TYPE_VARBINARY
 
    VARBINARY data type
 
-.. cpp:enumerator:: DATA_TYPE_CLOB
+.. cpp:type:: DATA_TYPE_CLOB
 
    Unused
 
-.. cpp:enumerator:: DATA_TYPE_BLOB
+.. cpp:type:: DATA_TYPE_BLOB
 
    BLOB data type
 
-.. cpp:enumerator:: DATA_TYPE_UTINYINT
+.. cpp:type:: DATA_TYPE_UTINYINT
 
    UNSIGNED TINYINT data type
 
-.. cpp:enumerator:: DATA_TYPE_USMALLINT
+.. cpp:type:: DATA_TYPE_USMALLINT
 
    UNSIGNED SMALLINT data type
 
-.. cpp:enumerator:: DATA_TYPE_UDECIMAL
+.. cpp:type:: DATA_TYPE_UDECIMAL
 
    UNSIGNED DECIMAL data type
 
-.. cpp:enumerator:: DATA_TYPE_UMEDINT
+.. cpp:type:: DATA_TYPE_UMEDINT
 
    UNSIGNED MEDIUMINT data type
 
-.. cpp:enumerator:: DATA_TYPE_UINT
+.. cpp:type:: DATA_TYPE_UINT
 
    UNSIGNED INT data type
 
-.. cpp:enumerator:: DATA_TYPE_UFLOAT
+.. cpp:type:: DATA_TYPE_UFLOAT
 
    UNSIGNED FLOAT data type
 
-.. cpp:enumerator:: DATA_TYPE_UBIGINT
+.. cpp:type:: DATA_TYPE_UBIGINT
 
    UNSIGNED BIGINT data type
 
-.. cpp:enumerator:: DATA_TYPE_UDOUBLE
+.. cpp:type:: DATA_TYPE_UDOUBLE
 
    UNSIGNED DOUBLE data type
 
-.. cpp:enumerator:: DATA_TYPE_TEXT
+.. cpp:type:: DATA_TYPE_TEXT
 
    TEXT data type
 

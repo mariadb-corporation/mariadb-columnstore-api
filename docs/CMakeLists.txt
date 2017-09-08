@@ -84,6 +84,7 @@ if(GENERATE_DOC)
   )
   install(DIRECTORY "${SPHINX_HTML_DIR}"
     DESTINATION "${CMAKE_INSTALL_DOCDIR}/html"
+    COMPONENT Libs
   )
 
   # This target builds PDF documentation using Sphinx and LaTeX.
@@ -117,6 +118,7 @@ if(GENERATE_DOC)
     install(FILES "${SPHINX_PDF_DIR}/libmcsapi_building.pdf"
       "${SPHINX_PDF_DIR}/libmcsapi_usage.pdf"
       DESTINATION "${CMAKE_INSTALL_DOCDIR}"
+      COMPONENT Libs
     )
 #endif(PDFLATEX_COMPILER)
 
