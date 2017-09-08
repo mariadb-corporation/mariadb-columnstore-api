@@ -40,7 +40,7 @@ For the test suite:
    sudo make
    sudo mv libg* /usr/lib/
 
-Debian 7 (Jessie)
+Debian 8 (Jessie)
 ^^^^^^^^^^^^^^^^^
 
 Debian Jessie will only compile if the latest CLang is along with LLVM's libc++, it also requires packages that are not in the main repositories. First of all you need Debian's Jessie backports repository enabled, edit the file ``/etc/apt/sources/list`` and add the following line:
@@ -72,15 +72,15 @@ For the documentation:
    sudo apt-get install python-sphinx texlive-latex-recommended texlive-latex-extra latexmk python-pip
    sudo pip install python-sphinx
 
-Make sure you still have the exported environment variables above and then:
+For the test suite make sure you still have the exported environment variables above and then do the following in a directory separate from the API:
 
 .. code-block:: console
 
-   sudo apt-get install libgtest-dev cppcheck
-   cd /usr/src/gtest
-   sudo cmake . -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_SHARED_LIBS=ON
-   sudo make
-   sudo mv libg* /usr/lib/
+   git clone https://github.com/google/googletest
+   cd googletest
+   cmake . -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_SHARED_LIBS=ON
+   make
+   sudo make install
 
 CentOS 7
 ^^^^^^^^
