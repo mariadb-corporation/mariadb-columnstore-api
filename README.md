@@ -41,7 +41,7 @@ sudo mv libg* /usr/lib/
 ```
 ### Debian 7 (Jessie)
 
-Debian Jessie will only compile if the latest CLang is along with LLVM's libc++, it also requires packages that are not in the main repositories. First of all you need Debian's Jessie backports repository enabled, edit the file `/etc/apt/sources/list` and add the following line:
+Debian Jessie will only compile if the latest CLang is along with LLVM's libc++, it also requires packages that are not in the main repositories. First of all you need Debian's Jessie backports repository enabled, edit the file `/etc/apt/sources.list` and add the following line:
 
 ```
 deb http://httpredir.debian.org/debian jessie-backports main contrib non-free
