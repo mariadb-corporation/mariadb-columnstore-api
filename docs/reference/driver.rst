@@ -12,7 +12,7 @@ ColumnStoreDriver Class
 ColumnStoreDriver()
 -------------------
 
-.. cpp:function:: ColumnStoreDriver()
+.. cpp:function:: ColumnStoreDriver::ColumnStoreDriver()
 
    Creates an instance of the ColumnStoreDriver. This will search for the environment variable :envvar:`COLUMNSTORE_INSTALL_DIR`, if this isn't found then the default path of ``/usr/local/mariadb/columnstore/`` is used.
 
@@ -38,9 +38,9 @@ Example
        return 0;
    }
 
-.. cpp:function:: ColumnStoreDriver(const std::string& path)
+.. cpp:function:: ColumnStoreDriver::ColumnStoreDriver(const std::string& path)
 
-   Creates an instance of :cpp:class:`ColumnStoreDriver` using the specified path to the Columnstore.xml file (including filename).
+   Creates an instance of ``ColumnStoreDriver`` using the specified path to the Columnstore.xml file (including filename).
 
    :param path: The path to the Columnstore.xml (including filename)
    :raises ColumnStoreConfigError: When the Columnstore.xml file cannot be found or cannot be parsed
