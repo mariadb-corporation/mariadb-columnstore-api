@@ -163,7 +163,7 @@ writeRow()
    States that a row is ready to be written.
 
    .. note::
-      The row may not be written at this stage. The library will batch an amount of rows together before sending them, by default data is only sent every 100,000 rows or :cpp:func::`commit` is called.
+      The row may not be written at this stage. The library will batch an amount of rows together before sending them, by default data is only sent to the server every 100,000 rows or :cpp:func:`ColumnStoreBulkInsert::commit` is called. Data is not committed with ``writeRow()``, it has to be explicitly committed at the end of the transaction. 
 
    :raises ColumnStoreNetworkError: If there has been an error during the write at the network level
    :raises ColumnStoreServerError: If there has been an error during the write at the remote server level

@@ -145,7 +145,7 @@ ColumnStoreDateTime()
 
 .. cpp:function:: ColumnStoreDateTime::ColumnStoreDateTime(tm& time)
 
-   Sets the date/time the value of the :cpp:type`tm` struct.
+   Sets the date/time the value of the :cpp:type:`tm` struct.
 
    :param time: The date/time to set
    :raises ColumnStoreDataError: When an invalid date or time is supplied
