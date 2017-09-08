@@ -8,13 +8,13 @@ target_link_libraries(basic_bulk_insert mcsapi ${LIBUV_LIBRARY} ${LIBXML2_LIBRAR
 
 INSTALL(TARGETS basic_bulk_insert
     RUNTIME DESTINATION "${CMAKE_INSTALL_DOCDIR}/example"
-    COMPONENT Devel
+    COMPONENT devel
 )
 
 INSTALL(FILES "basic_bulk_insert.cpp"
     "basic_bulk_insert.sql"
     DESTINATION "${CMAKE_INSTALL_DOCDIR}/example"
-    COMPONENT Devel
+    COMPONENT devel
 )
 
 
@@ -28,12 +28,12 @@ target_link_libraries(advanced_bulk_insert mcsapi ${LIBUV_LIBRARY} ${LIBXML2_LIB
 
 INSTALL(TARGETS advanced_bulk_insert
     RUNTIME DESTINATION "${CMAKE_INSTALL_DOCDIR}/example"
-    COMPONENT Devel
+    COMPONENT devel
 )
 INSTALL(FILES "advanced_bulk_insert.cpp"
     "advanced_bulk_insert.sql"
     DESTINATION "${CMAKE_INSTALL_DOCDIR}/example"
-    COMPONENT Devel
+    COMPONENT devel
 )
 
 
