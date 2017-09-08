@@ -18,7 +18,7 @@ Please file bugs using the [MariaDB ColumnStore Jira](https://jira.mariadb.org/b
 For the main build you need:
 
 ```shell
-sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev
+sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config
 ```
 
 For the documentation:
