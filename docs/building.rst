@@ -1,6 +1,9 @@
 Building libmcsapi
 ==================
 
+.. note::
+   CentOS 6 is not currently supported and it is not expected that the API will build on this platform.
+
 libmcsapi uses CMake which is a portable cross-platform build system.
 
 Pre-requisites
@@ -12,22 +15,64 @@ To build the documentation you need **python-sphinx** and **python-sphinx-latex*
 
 The test suite will use **cppcheck** for additional static code analysis checks if it is installed.
 
-Ubuntu
-^^^^^^
+Ubuntu 16.04 (Xenial)
+^^^^^^^^^^^^^^^^^^^^^
 
 For the main build you need:
 
 .. code-block:: console
 
-   sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev
+   sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config
 
 For the documentation:
 
 .. code-block:: console
 
-   sudo apt-get install python-sphinx texlive-latex-recommended texlive-latex-extra
+   sudo apt-get install python-sphinx texlive-latex-recommended texlive-latex-extra latexmk
 
 For the test suite:
+
+.. code-block:: console
+
+   sudo apt-get install libgtest-dev cppcheck
+   cd /usr/src/gtest
+   sudo cmake . -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_SHARED_LIBS=ON
+   sudo make
+   sudo mv libg* /usr/lib/
+
+Debian 7 (Jessie)
+^^^^^^^^^^^^^^^^^
+
+Debian Jessie will only compile if the latest CLang is along with LLVM's libc++, it also requires packages that are not in the main repositories. First of all you need Debian's Jessie backports repository enabled, edit the file ``/etc/apt/sources/list`` and add the following line:
+
+.. code-block:: sourceslist
+
+   deb http://httpredir.debian.org/debian jessie-backports main contrib non-free
+
+
+Then install the following:
+
+.. code-block:: console
+
+   sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config clang-3.8 libc++-dev
+
+
+Now set the following environment variables so that CLang is used to compile:
+
+.. code-block:: console
+
+   export CC=clang-3.8
+   export CXX=clang++-3.8
+   export CXXFLAGS=-stdlib=libc++
+
+For the documentation:
+
+.. code-block:: console
+
+   sudo apt-get install python-sphinx texlive-latex-recommended texlive-latex-extra latexmk python-pip
+   sudo pip install python-sphinx
+
+Make sure you still have the exported environment variables above and then:
 
 .. code-block:: console
 
