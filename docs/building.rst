@@ -89,6 +89,7 @@ For the main build you need the following, the devtoolset is because GCC5 minimu
 
 .. code-block:: console
 
+   sudo yum install epel-release
    sudo yum install cmake libuv-devel libxml2-devel snappy-devel
    sudo yum install centos-release-scl
    sudo yum install devtoolset-4-gcc*
