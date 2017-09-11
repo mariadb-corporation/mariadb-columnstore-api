@@ -101,6 +101,30 @@ For the test suite:
 sudo yum install gtest-devel cppcheck
 ```
 
+### SUSE Enterprise Linux 12
+
+For the main build you need GCC5 minimum. For this example we are using GCC6, you will need the SDK and Toolchain modules enabled in Yast first:
+
+```shell
+sudo zypper install gcc6 gcc6-c++ cmake libxml2-devel snappy-devel
+
+export CC=/usr/bin/gcc-6
+export CXX=/usr/bin/g++-6
+```
+
+Unfortunately it is not possible to build the documentation in SUSE Enterprise Linux 12 due to missing LaTeX dependencies.
+
+For the test suite do the following in a directory separate from the API:
+
+```shell
+sudo zypper ar -f http://download.opensuse.org/repositories/devel:/tools/SLE_12_SP3/devel:tools.repo
+sudo zypper install cppcheck
+git clone https://github.com/google/googletest
+cmake . -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_SHARED_LIBS=ON
+make
+sudo make install
+```
+
 ### CMake Options
 
 Several options are available when execution CMake by using the following
