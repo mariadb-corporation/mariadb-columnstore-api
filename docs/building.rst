@@ -114,10 +114,21 @@ For the main build you need GCC5 minimum. For this example we are using GCC6, yo
 
 .. code-block:: console
 
-sudo zypper install gcc6 gcc6-c++ cmake libxml2-devel snappy-devel
+   sudo zypper install gcc6 gcc6-c++ cmake libxml2-devel snappy-devel
 
-export CC=/usr/bin/gcc-6
-export CXX=/usr/bin/g++-6
+   export CC=/usr/bin/gcc-6
+   export CXX=/usr/bin/g++-6
+
+Then in a directory separate from the API:
+
+.. code-block:: console
+
+   git clone https://github.com/libuv/libuv
+   cd libuv
+   ./autogen.sh
+   ./configure
+   make
+   sudo make install
 
 Unfortunately it is not possible to build the documentation in SUSE Enterprise Linux 12 due to missing LaTeX dependencies.
 
@@ -125,12 +136,12 @@ For the test suite do the following in a directory separate from the API:
 
 .. code-block:: console
 
-sudo zypper ar -f http://download.opensuse.org/repositories/devel:/tools/SLE_12_SP3/devel:tools.repo
-sudo zypper install cppcheck
-git clone https://github.com/google/googletest
-cmake . -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_SHARED_LIBS=ON
-make
-sudo make install
+   sudo zypper ar -f http://download.opensuse.org/repositories/devel:/tools/SLE_12_SP3/devel:tools.repo
+   sudo zypper install cppcheck
+   git clone https://github.com/google/googletest
+   cmake . -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_SHARED_LIBS=ON
+   make
+   sudo make install
 
 CMake Options
 -------------

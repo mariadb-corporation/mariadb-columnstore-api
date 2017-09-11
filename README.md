@@ -11,7 +11,7 @@ This C++ API currently provides access to bulk write to ColumnStore in a similar
 
 Please file bugs using the [MariaDB ColumnStore Jira](https://jira.mariadb.org/browse/MCOL) 
 
-## Building
+## Build Dependencies
 
 **NOTE**
 CentOS 6 is not currently supported and it is not expected that the API will build on this platform.
@@ -106,10 +106,21 @@ sudo yum install gtest-devel cppcheck
 For the main build you need GCC5 minimum. For this example we are using GCC6, you will need the SDK and Toolchain modules enabled in Yast first:
 
 ```shell
-sudo zypper install gcc6 gcc6-c++ cmake libxml2-devel snappy-devel
+sudo zypper install gcc6 gcc6-c++ cmake libxml2-devel snappy-devel git
 
 export CC=/usr/bin/gcc-6
 export CXX=/usr/bin/g++-6
+```
+
+Then in a directory separate from the API:
+
+```shell
+git clone https://github.com/libuv/libuv
+cd libuv
+./autogen.sh
+./configure
+make
+sudo make install
 ```
 
 Unfortunately it is not possible to build the documentation in SUSE Enterprise Linux 12 due to missing LaTeX dependencies.
