@@ -89,6 +89,12 @@ add_subdirectory(libmcsapi)
 add_subdirectory(src)
 add_subdirectory(example)
 
+OPTION(PYTHON "Build Python bindings" OFF)
+
+IF(PYTHON)
+  add_subdirectory(python)
+ENDIF(PYTHON)
+
 option(BUILD_DOCS "Build the documentation" OFF)
 #option(PDFLATEX_COMPILER "Build the pdf documentation (requires latex)" OFF)
 
@@ -148,6 +154,7 @@ MESSAGE(STATUS "CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
 MESSAGE(STATUS "TEST_RUNNER = ${TEST_RUNNER}")
 MESSAGE(STATUS "RUN_CPPCHECK = ${RUN_CPPCHECK}")
 MESSAGE(STATUS "BUILD_DOCS = ${BUILD_DOCS}")
+MESSAGE(STATUS "PYTHON = ${PYTHON}")
 MESSAGE(STATUS "RPM = ${RPM}")
 MESSAGE(STATUS "DEB = ${DEB}")
 #MESSAGE(STATUS "PDFLATEX_COMPILER = ${PDFLATEX_COMPILER}")
