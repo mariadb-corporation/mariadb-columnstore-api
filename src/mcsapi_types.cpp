@@ -40,6 +40,17 @@ ColumnStoreDateTime::ColumnStoreDateTime(tm& time)
     }
 }
 
+ColumnStoreDateTime::ColumnStoreDateTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint32_t microsecond)
+{
+    mImpl = new ColumnStoreDateTimeImpl(year, month, day, hour, minute, second, microsecond);
+    if (!mImpl->validateDate())
+    {
+        std::string errmsg("A valid date/time could not be extracted from the time parameters");
+        throw ColumnStoreDataError(errmsg);
+    }
+    
+}
+
 ColumnStoreDateTime::ColumnStoreDateTime(const std::string& dateTime, const std::string& format)
 {
     mImpl = new ColumnStoreDateTimeImpl();
@@ -190,7 +201,7 @@ bool ColumnStoreDateTimeImpl::validateDate()
             case 2:
                 if ((leap) && (day > 29))
                     return false;
-                else if (day > 28)
+                else if (!leap && day > 28)
                     return false;
                 break;
             default:

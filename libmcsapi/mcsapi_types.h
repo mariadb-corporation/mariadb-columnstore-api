@@ -35,6 +35,7 @@ class MCS_API ColumnStoreDateTime
 public:
     ColumnStoreDateTime();
     ColumnStoreDateTime(tm& time);
+    ColumnStoreDateTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour = 0, uint8_t minute = 0, uint8_t second = 0, uint32_t microsecond = 0);
     ColumnStoreDateTime(const std::string& dateTime, const std::string& format);
 
     ~ColumnStoreDateTime();

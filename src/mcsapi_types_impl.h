@@ -41,6 +41,18 @@ public:
         second(0),
         microsecond(0)
     { }
+
+    ColumnStoreDateTimeImpl(uint16_t p_year, uint8_t p_month, uint8_t p_day, uint8_t p_hour, uint8_t p_minute, uint8_t p_second, uint32_t p_microsecond)
+    {
+        this->year = p_year;
+        this->month = p_month;
+        this->day = p_day;
+        this->hour = p_hour;
+        this->minute = p_minute;
+        this->second = p_second;
+        this->microsecond = p_microsecond;
+    }
+    
     uint32_t getDateInt();
     uint64_t getDateTimeInt();
     void getDateTimeStr(std::string& sDateTime);
