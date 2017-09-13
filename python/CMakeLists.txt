@@ -1,12 +1,13 @@
-IF(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/pybind11/CMakeLists.txt AND GIT_EXECUTABLE)
+IF ((NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/pybind11/CMakeLists.txt"))
+  FIND_PROGRAM(GIT_EXECUTABLE git)
   EXECUTE_PROCESS(COMMAND "${GIT_EXECUTABLE}" submodule init
-                  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+                  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/..")
   EXECUTE_PROCESS(COMMAND "${GIT_EXECUTABLE}" submodule update
-                  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+                  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/..")
 ENDIF()
 
 IF (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/pybind11/CMakeLists.txt")
-  MESSAGE_ONCE(SKIP_ROCKSDB_PLUGIN "Can't build pybind11 engine - missing CMakeLists.txt in pybind11 directory. Try \"git submodule update\".")
+  MESSAGE(STATUS "Can't build pybind11 engine - missing CMakeLists.txt in pybind11 directory. Try \"git submodule init; git submodule update\".")
   RETURN()
 ENDIF()
 
