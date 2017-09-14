@@ -164,7 +164,7 @@ def test_dates():
     
     # generate and load a range of dates
     d = pymcsapi.ColumnStoreDriver()
-    b = d.createBulkInsert('mcsapi', 'pymcsapi_dates', 0, 0)
+    b = d.createBulkInsert(DB_NAME, tablename, 0, 0)
     maxDays = 366  + 365 + 1;
     dt = datetime.datetime(2016, 1, 1, 12, 34, 56)
     try: 
@@ -212,7 +212,7 @@ def i1_common(datatype, ch_len):
         exec_stmt(conn, 'create table pymcsapi_i1(i int, ch varchar(%s)) engine=columnstore' %(ch_len,))        
     
     d = pymcsapi.ColumnStoreDriver()
-    b = d.createBulkInsert('test', 'i1', 0, 0)
+    b = d.createBulkInsert(DB_NAME, tablename, 0, 0)
     try:
         b.setColumn(0,1).setColumn(1, 'ABC').writeRow()
         b.setColumn(0,2).setColumn(1, 'A').writeRow()
@@ -224,7 +224,7 @@ def i1_common(datatype, ch_len):
         
     try:
         cursor = conn.cursor()
-        cursor.execute('select i, ch from i1 order by i')
+        cursor.execute('select i, ch from pymcsapi_i1 order by i')
         for (i, ch) in cursor:
             if (i == 1): assert ch == 'ABC'
             elif (i == 2): assert ch == 'A'
