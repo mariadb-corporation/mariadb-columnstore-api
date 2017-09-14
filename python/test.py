@@ -224,7 +224,7 @@ def i1_common(datatype, ch_len):
         
     try:
         cursor = conn.cursor()
-        cursor.execute('select i, ch from i1 order by i')
+        cursor.execute('select i, ch from pymcsapi_i1 order by i')
         for (i, ch) in cursor:
             if (i == 1): assert ch == 'ABC'
             elif (i == 2): assert ch == 'A'
