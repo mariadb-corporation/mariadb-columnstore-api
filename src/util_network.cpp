@@ -217,6 +217,7 @@ void ColumnStoreNetwork::onReadData(uv_stream_t* tcp, ssize_t read_size, const u
             const char* packet = reinterpret_cast<char*>(This->messageOut->getDataPtr()->data());
             if (snappy::GetUncompressedLength(packet+8, This->dataInBuffer-8, &result_length))
             {
+                mcsdebug("Decompressing %zd bytes into %zd bytes", This->dataInBuffer-8, result_length);
                 This->uncompressData(result_length);
             }
         }
