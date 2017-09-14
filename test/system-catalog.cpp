@@ -40,7 +40,7 @@ class TestEnvironment : public ::testing::Environment {
         FAIL() << "Could not select DB: " << mysql_error(my_con);
     if (mysql_query(my_con, "DROP TABLE IF EXISTS syscat"))
         FAIL() << "Could not drop existing table: " << mysql_error(my_con);
-    if (mysql_query(my_con, "CREATE TABLE IF NOT EXISTS syscat (a int, b int) engine=columnstore"))
+    if (mysql_query(my_con, "CREATE TABLE IF NOT EXISTS syscat (a int, b int) engine=columnstore comment='compression=2'"))
         FAIL() << "Could not create table: " << mysql_error(my_con);
   }
   // Override this to define how to tear down the environment.
