@@ -25,6 +25,17 @@ ColumnStoreMessaging::~ColumnStoreMessaging()
 {
     // TODO: Maybe don't need this now?
 }
+
+ColumnStoreMessaging& ColumnStoreMessaging::operator =(const ColumnStoreMessaging &obj)
+{
+    lengths = obj.lengths;
+    networkData = obj.networkData;
+    position = obj.position;
+    current_size = obj.current_size;
+
+    return *this;
+}
+
 ColumnStoreMessaging& ColumnStoreMessaging::operator <<(const uint8_t data)
 {
     addHeader();

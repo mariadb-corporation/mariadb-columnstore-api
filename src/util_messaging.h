@@ -30,6 +30,7 @@ public:
     {
         networkData.reserve(65536);
     }
+    ColumnStoreMessaging(const ColumnStoreMessaging &obj);
     ~ColumnStoreMessaging();
     ColumnStoreMessaging& operator <<(const uint8_t data);
     ColumnStoreMessaging& operator <<(const uint16_t data);

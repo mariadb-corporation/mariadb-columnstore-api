@@ -215,7 +215,7 @@ void ColumnStoreNetwork::onReadData(uv_stream_t* tcp, ssize_t read_size, const u
         {
             size_t result_length;
             const char* packet = reinterpret_cast<char*>(This->messageOut->getDataPtr()->data());
-            if (snappy::GetUncompressedLength(packet, This->dataInBuffer, &result_length))
+            if (snappy::GetUncompressedLength(packet+8, This->dataInBuffer-8, &result_length))
             {
                 This->uncompressData(result_length);
             }
@@ -243,7 +243,7 @@ void ColumnStoreNetwork::uncompressData(size_t result_length)
     compressed =  reinterpret_cast<char*>(compressedMessageOut->getDataPtr()->data());
     messageOut->allocateDataSize(result_length+8);
     uncompressed = reinterpret_cast<char*>(messageOut->getDataPtr()->data()+8);
-    if (!snappy::RawUncompress(compressed, dataInBuffer, uncompressed))
+    if (!snappy::RawUncompress(compressed+8, dataInBuffer-8, uncompressed))
     {
         mcsdebug("Class %p fail decompressing data", (void*)this);
         con_status = CON_STATUS_NET_ERROR;
@@ -256,6 +256,9 @@ void ColumnStoreNetwork::uncompressData(size_t result_length)
     memcpy(uncompressedHeader, &headerData, 4);
     memcpy(uncompressedHeader+4, &result_length, 4);
     messageOut->setDataSize(result_length+8);
+    // Copy so that the pointers are OK
+    *compressedMessageOut = *messageOut;
+    delete messageOut;
 }
 
 void ColumnStoreNetwork::onWriteData(uv_write_t* req, int status)
