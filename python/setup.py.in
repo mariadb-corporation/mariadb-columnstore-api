@@ -1,0 +1,7 @@
+from distutils.core import setup
+setup(
+    name='pymcsapi',
+    version='${VERSION_SHORT}',
+    packages=['pymcsapi'],
+    package_dir={'pymcsapi': '${CMAKE_CURRENT_SOURCE_DIR}'},
+)
