@@ -16,7 +16,8 @@ example/basic_bulk_insert
 example/advanced_bulk_insert
 install_manifest*.txt
 src/libmcsapi.so*
-python/pymcsapi.so*
+python/pymcsapi*.so*
+python/setup.py
 CTestTestfile.cmake
 DartConfiguration.tcl
 Testing/

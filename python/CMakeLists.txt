@@ -17,6 +17,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__FILENAME__='\"$(subst ${CMAKE_SOURCE
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBUILDING_MYMCSAPI")
 
+set(Python_ADDITIONAL_VERSIONS 3.7 3.6 3.5 3.4)
 find_package(PythonLibs REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIRS})
 
@@ -29,7 +30,22 @@ set_target_properties(pymcsapi PROPERTIES CXX_VISIBILITY_PRESET hidden
 )
 
 IF(RUN_CPPCHECK)
-  add_cppcheck(mcsapi FORCE)
+  add_cppcheck(pymcsapi FORCE)
 ENDIF(RUN_CPPCHECK)
 
-INSTALL(TARGETS pymcsapi DESTINATION ${CMAKE_INSTALL_LIBDIR})
+IF(TEST_RUNNER)
+  find_package(PythonInterp REQUIRED)
+  add_test(NAME python_test
+    COMMAND ${PYTHON_EXECUTABLE}
+    ${CMAKE_CURRENT_BINARY_DIR}/test.py
+    python_test)
+ENDIF(TEST_RUNNER)
+
+set(SETUP_PY_IN "${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in")
+set(SETUP_PY "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
+set(DEPS "")
+set(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/build/timestamp")
+
+configure_file(${SETUP_PY_IN} ${SETUP_PY})
+
+install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SETUP_PY} install)")
