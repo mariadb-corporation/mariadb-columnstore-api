@@ -20,27 +20,83 @@
 
 namespace mcsapi
 {
-class MCS_API ColumnStoreException: public std::runtime_error
+class MCS_API ColumnStoreError: public std::runtime_error
 {
 public:
-    ColumnStoreException(const std::string& msg) :
+    ColumnStoreError(const std::string& msg) :
         std::runtime_error(msg)
     { }
 };
 
-class MCS_API ColumnStoreDriverException: public ColumnStoreException
+class MCS_API ColumnStoreBufferError: public ColumnStoreError
 {
 public:
-    ColumnStoreDriverException(const std::string& msg) :
-        ColumnStoreException(msg)
+    ColumnStoreBufferError(const std::string& msg) :
+        ColumnStoreError(msg)
     { }
 };
 
-class MCS_API ColumnStoreBulkInsertException: public ColumnStoreException
+class MCS_API ColumnStoreServerError: public ColumnStoreError
 {
 public:
-    ColumnStoreBulkInsertException(const std::string& msg) :
-        ColumnStoreException(msg)
+    ColumnStoreServerError(const std::string& msg) :
+        ColumnStoreError(msg)
+    { }
+};
+
+class MCS_API ColumnStoreNetworkError: public ColumnStoreError
+{
+public:
+    ColumnStoreNetworkError(const std::string& msg) :
+        ColumnStoreError(msg)
+    { }
+};
+
+class MCS_API ColumnStoreDataError: public ColumnStoreError
+{
+public:
+    ColumnStoreDataError(const std::string& msg) :
+        ColumnStoreError(msg)
+    { }
+};
+
+class MCS_API ColumnStoreUsageError: public ColumnStoreError
+{
+public:
+    ColumnStoreUsageError(const std::string& msg) :
+        ColumnStoreError(msg)
+    { }
+};
+
+class MCS_API ColumnStoreConfigError: public ColumnStoreError
+{
+public:
+    ColumnStoreConfigError(const std::string& msg) :
+        ColumnStoreError(msg)
+    { }
+};
+
+class MCS_API ColumnStoreVersionError: public ColumnStoreError
+{
+public:
+    ColumnStoreVersionError(const std::string& msg) :
+        ColumnStoreError(msg)
+    { }
+};
+
+class MCS_API ColumnStoreInternalError: public ColumnStoreError
+{
+public:
+    ColumnStoreInternalError(const std::string& msg) :
+        ColumnStoreError(msg)
+    { }
+};
+
+class MCS_API ColumnStoreNotFound: public ColumnStoreError
+{
+public:
+    ColumnStoreNotFound(const std::string& msg) :
+        ColumnStoreError(msg)
     { }
 };
 

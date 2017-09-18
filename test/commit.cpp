@@ -73,7 +73,7 @@ TEST(Commit, Commit)
         	bulk->writeRow();
         }
         bulk->commit();
-    } catch (mcsapi::ColumnStoreException &e) {
+    } catch (mcsapi::ColumnStoreError &e) {
         FAIL() << "Error caught: " << e.what() << std::endl;
     }
     if (mysql_query(my_con, "SELECT COUNT(*) FROM commit"))
@@ -105,7 +105,7 @@ TEST(Commit, Rollback)
             bulk->writeRow();
         }
         bulk->rollback();
-    } catch (mcsapi::ColumnStoreException &e) {
+    } catch (mcsapi::ColumnStoreError &e) {
         FAIL() << "Error caught: " << e.what() << std::endl;
     }
     if (mysql_query(my_con, "SELECT COUNT(*) FROM commit"))
@@ -137,7 +137,7 @@ TEST(Commit, AutoRollback)
             bulk->writeRow();
         }
         delete bulk;
-    } catch (mcsapi::ColumnStoreException &e) {
+    } catch (mcsapi::ColumnStoreError &e) {
         FAIL() << "Error caught: " << e.what() << std::endl;
     }
     if (mysql_query(my_con, "SELECT COUNT(*) FROM commit"))
@@ -168,7 +168,7 @@ TEST(Commit, SecondCommit)
             bulk->writeRow();
         }
         bulk->commit();
-    } catch (mcsapi::ColumnStoreException &e) {
+    } catch (mcsapi::ColumnStoreError &e) {
         FAIL() << "Error caught: " << e.what() << std::endl;
     }
     if (mysql_query(my_con, "SELECT COUNT(*) FROM commit"))

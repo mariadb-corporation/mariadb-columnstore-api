@@ -38,9 +38,9 @@ class TestEnvironment : public ::testing::Environment {
         FAIL() << "Error creating database: " << mysql_error(my_con);
     if (mysql_select_db(my_con, "mcsapi"))
         FAIL() << "Could not select DB: " << mysql_error(my_con);
-    if (mysql_query(my_con, "DROP TABLE IF EXISTS millionrow"))
+    if (mysql_query(my_con, "DROP TABLE IF EXISTS char4"))
         FAIL() << "Could not drop existing table: " << mysql_error(my_con);
-    if (mysql_query(my_con, "CREATE TABLE IF NOT EXISTS millionrow (a int, b int) engine=columnstore"))
+    if (mysql_query(my_con, "CREATE TABLE IF NOT EXISTS char4 (i int, ch char(4)) engine=columnstore"))
         FAIL() << "Could not create table: " << mysql_error(my_con);
   }
   // Override this to define how to tear down the environment.
@@ -54,35 +54,48 @@ class TestEnvironment : public ::testing::Environment {
 };
 
 
-/* Test that we can insert 1,000,000 rows */
-TEST(MillionRow, MillionRow)
+/* Test for char4 corruption */
+TEST(char4, char4)
 {
-    std::string table("millionrow");
+    std::string table("char4");
     std::string db("mcsapi");
     mcsapi::ColumnStoreDriver* driver;
     mcsapi::ColumnStoreBulkInsert* bulk;
     try {
         driver = new mcsapi::ColumnStoreDriver();
         bulk = driver->createBulkInsert(db, table, 0, 0);
-        for (int i = 0; i < 1000000; i++)
-        {
-        	bulk->setColumn(0, (uint32_t)i);
-            bulk->setColumn(1, (uint32_t)1000000 - i);
-        	bulk->writeRow();
-        }
+        
+        bulk->setColumn(0, (uint32_t)1);
+        bulk->setColumn(1, "ABC");
+        bulk->writeRow();
+        bulk->setColumn(0, (uint32_t)2);
+        bulk->setColumn(1, "DEF");
+        bulk->writeRow();
+        bulk->setColumn(0, (uint32_t)3);
+        bulk->setColumn(1, "GHI");
+        bulk->writeRow();        
         bulk->commit();
     } catch (mcsapi::ColumnStoreError &e) {
         FAIL() << "Error caught: " << e.what() << std::endl;
     }
-    if (mysql_query(my_con, "SELECT COUNT(*) FROM millionrow"))
-        FAIL() << "Could not run test query: " << mysql_error(my_con);
+    if (mysql_query(my_con, "SELECT i, ch FROM char4 order by i"))
+        FAIL() << "Could not run test query: " << mysql_error(my_con);    
     MYSQL_RES* result = mysql_store_result(my_con);
     if (!result)
         FAIL() << "Could not get result data: " << mysql_error(my_con);
+    ASSERT_EQ(mysql_num_rows(result), 3);
     MYSQL_ROW row = mysql_fetch_row(result);
-    ASSERT_STREQ(row[0], "1000000");
+    ASSERT_STREQ(row[0], "1");
+    ASSERT_STREQ(row[1], "ABC");
+    row = mysql_fetch_row(result);
+    ASSERT_STREQ(row[0], "2");
+    ASSERT_STREQ(row[1], "DEF");
+    row = mysql_fetch_row(result);
+    ASSERT_STREQ(row[0], "3");
+    ASSERT_STREQ(row[1], "GHI");
     mysql_free_result(result);
-    if (mysql_query(my_con, "DROP TABLE millionrow"))
+    
+    if (mysql_query(my_con, "DROP TABLE char4"))
         FAIL() << "Could not drop table: " << mysql_error(my_con);
     delete bulk;
     delete driver;

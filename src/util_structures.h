@@ -21,35 +21,6 @@
 namespace mcsapi
 {
 
-enum columnstore_data_types_t
-{
-	DATA_TYPE_BIT,
-	DATA_TYPE_TINYINT,
-	DATA_TYPE_CHAR,
-	DATA_TYPE_SMALLINT,
-	DATA_TYPE_DECIMAL,
-	DATA_TYPE_MEDINT,
-	DATA_TYPE_INT,
-	DATA_TYPE_FLOAT,
-	DATA_TYPE_DATE,
-	DATA_TYPE_BIGINT,
-	DATA_TYPE_DOUBLE,
-	DATA_TYPE_DATETIME,
-	DATA_TYPE_VARCHAR,
-	DATA_TYPE_VARBINARY,
-	DATA_TYPE_CLOB,
-	DATA_TYPE_BLOB,
-	DATA_TYPE_UTINYINT,
-	DATA_TYPE_USMALLINT,
-	DATA_TYPE_UDECIMAL,
-	DATA_TYPE_UMEDINT,
-	DATA_TYPE_UINT,
-	DATA_TYPE_UFLOAT,
-	DATA_TYPE_UBIGINT,
-	DATA_TYPE_UDOUBLE,
-    DATA_TYPE_TEXT
-};
-
 enum columnstore_lock_types_t
 {
     LOCK_TYPE_LOADING,
@@ -201,57 +172,6 @@ public:
     }
 };
 
-class ColumnStoreSystemCatalogColumn
-{
-public:
-    ColumnStoreSystemCatalogColumn() :
-        oid(0),
-        column(""),
-        dict_oid(0),
-        type(DATA_TYPE_BIT),
-        width(0),
-        position(0),
-        default_val(""),
-        autoincrement(0),
-        precision(0),
-        scale(0),
-        null(0),
-        compression(0)
-    {}
-    uint32_t oid;
-    std::string column;
-    uint32_t dict_oid;
-    columnstore_data_types_t type;
-    uint32_t width;
-    uint32_t position;
-    std::string default_val;
-    uint8_t autoincrement;
-    uint32_t precision;
-    uint32_t scale;
-    uint8_t null;
-    uint8_t compression;
-};
-
-class ColumnStoreSystemCatalogTable
-{
-public:
-    ColumnStoreSystemCatalogTable() :
-        oid(0)
-    {}
-    ~ColumnStoreSystemCatalogTable();
-    uint32_t oid;
-    std::string schema;
-    std::string table;
-    std::vector<ColumnStoreSystemCatalogColumn*> columns;
-};
-
-class ColumnStoreSystemCatalog
-{
-public:
-    ~ColumnStoreSystemCatalog();
-    std::vector<ColumnStoreSystemCatalogTable*> tables;
-};
-
 class ColumnStoreHWM
 {
 public:
@@ -267,11 +187,11 @@ public:
     uint32_t hwm;
 };
 
-class ColumnStoreCPInfo
+/*class ColumnStoreCPInfo
 {
     uint64_t lbid;
     uint64_t max;
     uint64_t min;
     uint64_t seq; // 32bit data but 64bit for alignment
-};
+};*/
 }

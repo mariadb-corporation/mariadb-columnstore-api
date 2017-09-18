@@ -25,6 +25,17 @@ ColumnStoreMessaging::~ColumnStoreMessaging()
 {
     // TODO: Maybe don't need this now?
 }
+
+ColumnStoreMessaging& ColumnStoreMessaging::operator =(const ColumnStoreMessaging &obj)
+{
+    lengths = obj.lengths;
+    networkData = obj.networkData;
+    position = obj.position;
+    current_size = obj.current_size;
+
+    return *this;
+}
+
 ColumnStoreMessaging& ColumnStoreMessaging::operator <<(const uint8_t data)
 {
     addHeader();
@@ -94,7 +105,7 @@ ColumnStoreMessaging& ColumnStoreMessaging::operator >>(uint8_t& data)
     else
     {
         std::string err("Message buffer read past end");
-        throw ColumnStoreException(err);
+        throw ColumnStoreBufferError(err);
     }
 
     return *this;
@@ -114,7 +125,7 @@ ColumnStoreMessaging& ColumnStoreMessaging::operator >>(uint16_t& data)
     else
     {
         std::string err("Message buffer read past end");
-        throw ColumnStoreException(err);
+        throw ColumnStoreBufferError(err);
     }
 
     return *this;
@@ -134,7 +145,7 @@ ColumnStoreMessaging& ColumnStoreMessaging::operator >>(uint32_t& data)
     else
     {
         std::string err("Message buffer read past end");
-        throw ColumnStoreException(err);
+        throw ColumnStoreBufferError(err);
     }
 
     return *this;
@@ -154,7 +165,7 @@ ColumnStoreMessaging& ColumnStoreMessaging::operator >>(uint64_t& data)
     else
     {
         std::string err("Message buffer read past end");
-        throw ColumnStoreException(err);
+        throw ColumnStoreBufferError(err);
     }
 
     return *this;
@@ -176,7 +187,7 @@ ColumnStoreMessaging& ColumnStoreMessaging::operator >>(std::string& data)
     else
     {
         std::string err("Message buffer read past end");
-        throw ColumnStoreException(err);
+        throw ColumnStoreBufferError(err);
     }
 
     if (position+length <= current_size)
@@ -187,7 +198,7 @@ ColumnStoreMessaging& ColumnStoreMessaging::operator >>(std::string& data)
     else
     {
         std::string err("Message buffer read past end");
-        throw ColumnStoreException(err);
+        throw ColumnStoreBufferError(err);
     }
 
     return *this;

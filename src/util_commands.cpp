@@ -22,6 +22,7 @@
 #include <libxml/parser.h>
 
 #include "mcsapi_driver_impl.h"
+#include "mcsapi_types_impl.h"
 
 namespace mcsapi
 {
@@ -36,7 +37,7 @@ ColumnStoreCommands::ColumnStoreCommands(ColumnStoreDriverImpl* mcsDriver) :
     ret = uv_loop_init(uv_loop);
     if (ret < 0)
     {
-        throw ColumnStoreDriverException("Error setting up internal library");
+        throw ColumnStoreInternalError("Error setting up internal library");
     }
 }
 
@@ -141,7 +142,7 @@ ColumnStoreSystemCatalog* ColumnStoreCommands::brmGetSystemCatalog()
     {
         std::string errmsg("Error getting system catalog");
         delete messageOut;
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreServerError(errmsg);
     }
     uint32_t table_count;
     *messageOut >> table_count;
@@ -150,34 +151,34 @@ ColumnStoreSystemCatalog* ColumnStoreCommands::brmGetSystemCatalog()
     {
         ColumnStoreSystemCatalogTable* table = new ColumnStoreSystemCatalogTable();
         uint32_t column_count;
-        *messageOut >> table->oid;
-        *messageOut >> table->schema;
-        *messageOut >> table->table;
+        *messageOut >> table->mImpl->oid;
+        *messageOut >> table->mImpl->schema;
+        *messageOut >> table->mImpl->table;
         *messageOut >> column_count;
-        mcsdebug("Table: OID: %u, Schema: %s, Table name: %s", table->oid, table->schema.c_str(), table->table.c_str());
+        mcsdebug("Table: OID: %u, Schema: %s, Table name: %s", table->getOID(), table->getSchemaName().c_str(), table->getTableName().c_str());
         for (uint32_t j = 0; j < column_count; j++)
         {
             ColumnStoreSystemCatalogColumn* column = new ColumnStoreSystemCatalogColumn();
             uint8_t column_type;
-            *messageOut >> column->oid;
-            *messageOut >> column->column;
-            *messageOut >> column->dict_oid;
+            *messageOut >> column->mImpl->oid;
+            *messageOut >> column->mImpl->column;
+            *messageOut >> column->mImpl->dict_oid;
             *messageOut >> column_type;
-            column->type = (columnstore_data_types_t) column_type;
-            *messageOut >> column->width;
-            *messageOut >> column->position;
-            *messageOut >> column->default_val;
-            *messageOut >> column->autoincrement;
-            *messageOut >> column->precision;
-            *messageOut >> column->scale;
-            *messageOut >> column->null;
-            *messageOut >> column->compression;
+            column->mImpl->type = (columnstore_data_types_t) column_type;
+            *messageOut >> column->mImpl->width;
+            *messageOut >> column->mImpl->position;
+            *messageOut >> column->mImpl->default_val;
+            *messageOut >> column->mImpl->autoincrement;
+            *messageOut >> column->mImpl->precision;
+            *messageOut >> column->mImpl->scale;
+            *messageOut >> column->mImpl->null;
+            *messageOut >> column->mImpl->compression;
             mcsdebug("Column: OID: %u, Name: %s, Dict: %u, Type: %u, Width: %u, Position: %u, Default: %s, Autoinc: %u, Precision: %u, Scale: %u, Not NULL: %u, Compression: %u",
-                column->oid, column->column.c_str(), column->dict_oid, column_type, column->width, column->position, column->default_val.c_str(), column->autoincrement,
-                column->precision, column->scale, column->null, column->compression);
-            table->columns.push_back(column);
+                column->mImpl->oid, column->mImpl->column.c_str(), column->mImpl->dict_oid, column_type, column->mImpl->width, column->mImpl->position,
+                column->mImpl->default_val.c_str(), column->mImpl->autoincrement, column->mImpl->precision, column->mImpl->scale, column->mImpl->null, column->mImpl->compression);
+            table->mImpl->columns.push_back(column);
         }
-        systemCatalog->tables.push_back(table);
+        systemCatalog->mImpl->tables.push_back(table);
     }
     delete messageOut;
     return systemCatalog;
@@ -211,7 +212,7 @@ uint32_t ColumnStoreCommands::brmGetTxnID(uint32_t sessionId)
     {
         std::string errmsg("Error getting transaction ID");
         delete messageOut;
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreServerError(errmsg);
     }
     uint8_t isValid;
     *messageOut >> txnId.id;
@@ -263,7 +264,7 @@ uint64_t ColumnStoreCommands::brmGetTableLock(uint32_t tableOID, uint32_t sessio
     {
         std::string errmsg("Error getting table lock");
         delete messageOut;
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreServerError(errmsg);
     }
     uint64_t ret;
     *messageOut >> ret;
@@ -341,7 +342,7 @@ void ColumnStoreCommands::weBulkRollback(uint32_t pm, uint64_t uniqueId, uint32_
         std::string errmsg;
         *messageOut >> errmsg;
         delete messageOut;
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreServerError(errmsg);
     }
     delete messageOut;
 }
@@ -374,7 +375,7 @@ void ColumnStoreCommands::weBulkCommit(uint32_t pm, uint64_t uniqueId, uint32_t 
     if (response != 0)
     {
         delete messageOut;
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreServerError(errmsg);
     }
     uint64_t bulk_hwm_count;
     *messageOut >> bulk_hwm_count;
@@ -419,7 +420,7 @@ void ColumnStoreCommands::weGetWrittenLbids(uint32_t pm, uint64_t uniqueId, uint
     if (response != 0)
     {
         delete messageOut;
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreServerError(errmsg);
     }
     uint64_t lbid_count;
     *messageOut >> lbid_count;
@@ -461,7 +462,7 @@ void ColumnStoreCommands::weKeepAlive(uint32_t pm)
     {
         std::string errmsg("Error attempting to set KeepAlive");
         delete messageOut;
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreServerError(errmsg);
     }
     delete messageOut;
 }
@@ -559,7 +560,7 @@ void ColumnStoreCommands::weBulkInsert(uint32_t pm, uint64_t uniqueId, uint32_t 
         std::string errmsg;
         *messageOut >> errmsg;
         delete messageOut;
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreServerError(errmsg);
     }
 
     delete messageOut;
@@ -597,7 +598,7 @@ void ColumnStoreCommands::weBulkInsertEnd(uint32_t pm, uint64_t uniqueId, uint32
         std::string errmsg;
         *messageOut >> errmsg;
         delete messageOut;
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreServerError(errmsg);
     }
     delete messageOut;
 }
@@ -631,7 +632,7 @@ void ColumnStoreCommands::weRollbackBlocks(uint32_t pm, uint64_t uniqueId, uint3
         std::string errmsg;
         *messageOut >> errmsg;
         delete messageOut;
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreServerError(errmsg);
     }
     delete messageOut;
 }
@@ -664,7 +665,7 @@ void ColumnStoreCommands::weRemoveMeta(uint32_t pm, uint64_t uniqueId, uint32_t 
         std::string errmsg;
         *messageOut >> errmsg;
         delete messageOut;
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreServerError(errmsg);
     }
     delete messageOut;
 }
@@ -691,7 +692,7 @@ uint64_t ColumnStoreCommands::brmGetUniqueId()
     {
         std::string errmsg("Error getting a unique ID");
         delete messageOut;
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreServerError(errmsg);
     }
     uint64_t uniqueId;
     *messageOut >> uniqueId;
@@ -772,7 +773,7 @@ void ColumnStoreCommands::brmGetUncommittedLbids(uint32_t txnId, std::vector<uin
     {
         std::string errmsg("Error getting uncommitted LBIDs");
         delete messageOut;
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreServerError(errmsg);
     }
 
     uint64_t lbidCount;
@@ -835,7 +836,7 @@ void ColumnStoreCommands::brmSetHWMAndCP(std::vector<ColumnStoreHWM>& hwms, std:
     {
         std::string errmsg("Error setting HWM");
         delete messageOut;
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreServerError(errmsg);
     }
 
     delete messageOut;
@@ -876,7 +877,7 @@ void ColumnStoreCommands::brmSetExtentsMaxMin(std::vector<uint64_t>& lbids)
     {
         std::string errmsg("Error setting Extents Max/Min");
         delete messageOut;
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreServerError(errmsg);
     }
 
     delete messageOut;
@@ -912,7 +913,7 @@ void ColumnStoreCommands::brmRollback(std::vector<uint64_t>& lbids, uint32_t txn
     {
         std::string errmsg("Error in VB rollback");
         delete messageOut;
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreServerError(errmsg);
     }
 
     delete messageOut;
@@ -943,7 +944,7 @@ void ColumnStoreCommands::brmVBCommit(uint32_t txnId)
     {
         std::string errmsg("Error committing version buffer");
         delete messageOut;
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreServerError(errmsg);
     }
 
     delete messageOut;
@@ -975,7 +976,7 @@ void ColumnStoreCommands::brmCommitted(uint32_t txnId)
     {
         std::string errmsg("Error committing BRM");
         delete messageOut;
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreServerError(errmsg);
     }
 
     delete messageOut;
@@ -1004,7 +1005,7 @@ void ColumnStoreCommands::brmTakeSnapshot()
     {
         std::string errmsg("Error taking BRM snapshot");
         delete messageOut;
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreServerError(errmsg);
     }
 
     delete messageOut;
@@ -1035,7 +1036,7 @@ void ColumnStoreCommands::brmChangeState(uint64_t lockId)
     {
         std::string errmsg("Error changing BRM lock state");
         delete messageOut;
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreServerError(errmsg);
     }
 
     delete messageOut;
@@ -1065,7 +1066,7 @@ void ColumnStoreCommands::brmReleaseTableLock(uint64_t lockId)
     {
         std::string errmsg("Error releasing table lock");
         delete messageOut;
-        throw ColumnStoreException(errmsg);
+        throw ColumnStoreServerError(errmsg);
     }
     // Unknown ignored byte
     uint8_t unknown;

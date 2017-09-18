@@ -27,8 +27,8 @@
 
 int main(void)
 {
-    mcsapi::ColumnStoreDriver* driver;
-    mcsapi::ColumnStoreBulkInsert* bulk;
+    mcsapi::ColumnStoreDriver* driver = nullptr;
+    mcsapi::ColumnStoreBulkInsert* bulk = nullptr;
     try {
         driver = new mcsapi::ColumnStoreDriver();
         bulk = driver->createBulkInsert("test", "t2", 0, 0);
@@ -50,7 +50,7 @@ int main(void)
         mcsapi::ColumnStoreSummary summary = bulk->getSummary();
         std::cout << summary.getRowsInsertedCount() << " inserted in " <<
             summary.getExecutionTime() << " seconds" << std::endl;
-    } catch (mcsapi::ColumnStoreException &e) {
+    } catch (mcsapi::ColumnStoreError &e) {
         std::cout << "Error caught: " << e.what() << std::endl;
     }
     delete bulk;

@@ -25,6 +25,9 @@ namespace mcsapi
 class ColumnStoreDateTimeImpl;
 class ColumnStoreDecimalImpl;
 class ColumnStoreSummaryImpl;
+class ColumnStoreSystemCatalogImpl;
+class ColumnStoreSystemCatalogTableImpl;
+class ColumnStoreSystemCatalogColumnImpl;
 class ColumnStoreDataConvert;
 class MCS_API ColumnStoreDateTime
 {
@@ -32,6 +35,7 @@ class MCS_API ColumnStoreDateTime
 public:
     ColumnStoreDateTime();
     ColumnStoreDateTime(tm& time);
+    ColumnStoreDateTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour = 0, uint8_t minute = 0, uint8_t second = 0, uint32_t microsecond = 0);
     ColumnStoreDateTime(const std::string& dateTime, const std::string& format);
 
     ~ColumnStoreDateTime();
@@ -76,4 +80,88 @@ public:
 private:
     ColumnStoreSummaryImpl* mImpl;
 };
+
+enum MCS_API columnstore_data_types_t
+{
+    DATA_TYPE_BIT,
+    DATA_TYPE_TINYINT,
+    DATA_TYPE_CHAR,
+    DATA_TYPE_SMALLINT,
+    DATA_TYPE_DECIMAL,
+    DATA_TYPE_MEDINT,
+    DATA_TYPE_INT,
+    DATA_TYPE_FLOAT,
+    DATA_TYPE_DATE,
+    DATA_TYPE_BIGINT,
+    DATA_TYPE_DOUBLE,
+    DATA_TYPE_DATETIME,
+    DATA_TYPE_VARCHAR,
+    DATA_TYPE_VARBINARY,
+    DATA_TYPE_CLOB,
+    DATA_TYPE_BLOB,
+    DATA_TYPE_UTINYINT,
+    DATA_TYPE_USMALLINT,
+    DATA_TYPE_UDECIMAL,
+    DATA_TYPE_UMEDINT,
+    DATA_TYPE_UINT,
+    DATA_TYPE_UFLOAT,
+    DATA_TYPE_UBIGINT,
+    DATA_TYPE_UDOUBLE,
+    DATA_TYPE_TEXT
+};
+
+class MCS_API ColumnStoreSystemCatalogColumn
+{
+    friend class ColumnStoreCommands;
+public:
+    ColumnStoreSystemCatalogColumn();
+    ColumnStoreSystemCatalogColumn(const ColumnStoreSystemCatalogColumn& obj);
+    ~ColumnStoreSystemCatalogColumn();
+    uint32_t getOID();
+    std::string& getColumnName();
+    uint32_t getDictionaryOID();
+    columnstore_data_types_t getType();
+    uint32_t getWidth();
+    uint32_t getPosition();
+    std::string& getDefaultValue();
+    bool isAutoincrement();
+    uint32_t getPrecision();
+    uint32_t getScale();
+    bool isNullable();
+    uint8_t compressionType();
+
+private:
+    ColumnStoreSystemCatalogColumnImpl *mImpl;
+};
+
+class MCS_API ColumnStoreSystemCatalogTable
+{
+    friend class ColumnStoreCommands;
+public:
+    ColumnStoreSystemCatalogTable();
+    ColumnStoreSystemCatalogTable(const ColumnStoreSystemCatalogTable& obj);
+    ~ColumnStoreSystemCatalogTable();
+    std::string& getSchemaName();
+    std::string& getTableName();
+    uint32_t getOID();
+    uint16_t getColumnCount();
+    ColumnStoreSystemCatalogColumn& getColumn(const std::string& columnName);
+    ColumnStoreSystemCatalogColumn& getColumn(uint16_t columnNumber);
+private:
+    ColumnStoreSystemCatalogTableImpl* mImpl;
+};
+
+class MCS_API ColumnStoreSystemCatalog
+{
+    friend class ColumnStoreCommands;
+    friend class ColumnStoreDriverImpl;
+public:
+    ColumnStoreSystemCatalog();
+    ColumnStoreSystemCatalog(const ColumnStoreSystemCatalog& obj);
+    ~ColumnStoreSystemCatalog();
+    ColumnStoreSystemCatalogTable& getTable(const std::string& schemaName, const std::string& tableName);
+private:
+    ColumnStoreSystemCatalogImpl* mImpl;
+};
+
 }

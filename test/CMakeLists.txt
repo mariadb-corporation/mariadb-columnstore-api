@@ -27,3 +27,6 @@ compile_test(dataconvert-null)
 compile_test(bad-usage)
 compile_test(truncation)
 compile_test(summary)
+compile_test(system-catalog)
+compile_test(char4)
+

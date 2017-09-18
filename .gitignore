@@ -14,8 +14,10 @@ src/libmcsapi.a
 *.swp
 example/basic_bulk_insert
 example/advanced_bulk_insert
-install_manifest.txt
+install_manifest*.txt
 src/libmcsapi.so*
+python/pymcsapi*.so*
+python/setup.py
 CTestTestfile.cmake
 DartConfiguration.tcl
 Testing/
@@ -33,6 +35,8 @@ test/dataconvert-null
 test/bad-usage
 test/truncation
 test/summary
+test/system-catalog
+test/char4
 version.h
 docs/conf.py
 docs/sources.cmake
@@ -46,12 +50,13 @@ cmake_uninstall.cmake
 CPackConfig.cmake
 CPackSourceConfig.cmake
 _CPack_Packages/
-mcsapi-*.rpm
-
+mariadb-*.rpm
+mariadb-*.deb
 
 # QtCreator files
 *.config
 *.creator
+*.creator.user
 *.files
 *.includes
 # Ignore diffs

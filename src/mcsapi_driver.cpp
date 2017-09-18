@@ -22,18 +22,22 @@
 #include <libxml/parser.h>
 
 #include "mcsapi_driver_impl.h"
+#include "mcsapi_types_impl.h"
 
 namespace mcsapi
 {
 ColumnStoreDriver::ColumnStoreDriver(const std::string& path)
 {
+    mcsdebug("mcsapi version %s", this->getVersion());
     mImpl = new ColumnStoreDriverImpl();
     mImpl->path = path;
     mImpl->loadXML();
+    mcsdebug("loaded config: %s", path.c_str());
 }
 
 ColumnStoreDriver::ColumnStoreDriver()
 {
+    mcsdebug("mcsapi version %s", this->getVersion());
     mImpl = new ColumnStoreDriverImpl();
     char* envpath = std::getenv("COLUMNSTORE_INSTALL_DIR");
     if (envpath && (strlen(envpath) > 0))
@@ -47,6 +51,7 @@ ColumnStoreDriver::ColumnStoreDriver()
     }
 
     mImpl->loadXML();
+    mcsdebug("loaded config: %s", mImpl->path.c_str());
 }
 
 ColumnStoreDriver::~ColumnStoreDriver()
@@ -66,10 +71,38 @@ ColumnStoreBulkInsert* ColumnStoreDriver::createBulkInsert(const std::string& db
 {
     return new ColumnStoreBulkInsert(this->mImpl, db, table, mode, pm);
 }
+
+ColumnStoreSystemCatalog& ColumnStoreDriver::getSystemCatalog()
+{
+    return *mImpl->getSystemCatalog();
+}
+
 /* Private parts of API below here */
+
+ColumnStoreSystemCatalog* ColumnStoreDriverImpl::getSystemCatalog()
+{
+    if (systemCatalog)
+    {
+        return systemCatalog;
+    }
+    ColumnStoreCommands* commands = new ColumnStoreCommands(this);
+    systemCatalog = commands->brmGetSystemCatalog();
+    if (!systemCatalog)
+    {
+        std::string err("Empty system catalog retrieved");
+        throw ColumnStoreServerError(err);
+    }
+    delete commands;
+    return systemCatalog;
+}
 
 ColumnStoreDriverImpl::~ColumnStoreDriverImpl()
 {
+    if (systemCatalog && systemCatalog->mImpl)
+    {
+        systemCatalog->mImpl->clear();
+    }
+    delete systemCatalog;
     if (mXmlDoc)
         xmlFreeDoc(mXmlDoc);
 }
@@ -79,16 +112,16 @@ void ColumnStoreDriverImpl::loadXML()
     mXmlDoc = xmlParseFile(path.c_str());
     if (!mXmlDoc)
     {
-        throw ColumnStoreDriverException("Error parsing Columnstore XML file " + path);
+        throw ColumnStoreConfigError("Error parsing Columnstore XML file " + path);
     }
     mXmlRootNode = xmlDocGetRootElement(mXmlDoc);
     if (!mXmlRootNode)
     {
-        throw ColumnStoreDriverException("Could not find the root node of the XML file " + path);
+        throw ColumnStoreConfigError("Could not find the root node of the XML file " + path);
     }
     if (xmlStrcmp(mXmlRootNode->name, (const xmlChar *)"Columnstore"))
     {
-        throw ColumnStoreDriverException("The provided XML file is not a Columnstore configuration file " + path);
+        throw ColumnStoreConfigError("The provided XML file is not a Columnstore configuration file " + path);
     }
 }
 

@@ -77,7 +77,7 @@ TEST(Summary, RowsInserted)
         	bulk->writeRow();
         }
         bulk->commit();
-    } catch (mcsapi::ColumnStoreException &e) {
+    } catch (mcsapi::ColumnStoreError &e) {
         FAIL() << "Error caught: " << e.what() << std::endl;
     }
     mcsapi::ColumnStoreSummary summary;
@@ -113,7 +113,7 @@ TEST(Summary, Saturated)
         ASSERT_EQ(status, mcsapi::CONVERT_STATUS_NONE);
         bulk->writeRow();
         bulk->rollback();
-    } catch (mcsapi::ColumnStoreException &e) {
+    } catch (mcsapi::ColumnStoreError &e) {
         FAIL() << "Error caught: " << e.what() << std::endl;
     }
     mcsapi::ColumnStoreSummary summary;
@@ -160,7 +160,7 @@ TEST(Summary, Invalid)
         bulk->writeRow();
 
         bulk->rollback();
-    } catch (mcsapi::ColumnStoreException &e) {
+    } catch (mcsapi::ColumnStoreError &e) {
         FAIL() << "Error caught: " << e.what() << std::endl;
     }
     mcsapi::ColumnStoreSummary summary;
@@ -195,7 +195,7 @@ TEST(Summary, Truncated)
         ASSERT_EQ(status, mcsapi::CONVERT_STATUS_TRUNCATED);
         bulk->writeRow();
         bulk->commit();
-    } catch (mcsapi::ColumnStoreException &e) {
+    } catch (mcsapi::ColumnStoreError &e) {
         FAIL() << "Error caught: " << e.what() << std::endl;
     }
     mcsapi::ColumnStoreSummary summary;

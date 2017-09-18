@@ -61,7 +61,8 @@ setColumn()
    :param value: The value to set this column
    :param status: An optional pointer to a user supplied :cpp:type:`columnstore_data_convert_status_t` type. If supplied this will be set to the resulting status of any data conversion required.
    :returns: A pointer to the :cpp:class:`ColumnStoreBulkInsert` class so that calls can be chained
-   :raises ColumnStoreException: If there is an error setting the column, such as truncation error when :cpp:func:`ColumnStoreBulkInsert::setTruncateIsError` is used or an invalid column number is supplied
+   :raises ColumnStoreDataError: If there is an error setting the column, such as truncation error when :cpp:func:`ColumnStoreBulkInsert::setTruncateIsError` is used or an invalid column number is supplied
+   :raises ColumnStoreUsageError: If the transaction has already been closed
 
 Example
 ^^^^^^^
@@ -135,7 +136,8 @@ setNull()
    :param columnNumber: The column number to set (starting from ``0``)
    :param status: An optional pointer to a user supplied :cpp:type:`columnstore_data_convert_status_t` type. If supplied this will be set to the resulting status of any data conversion required.
    :returns: A pointer to the :cpp:class:`ColumnStoreBulkInsert` class so that calls can be chained
-   :raises ColumnStoreException: If there is an error setting the column, such as an invalid column number is supplied
+   :raises ColumnStoreDataError: If there is an error setting the column, such as an invalid column number is supplied
+   :raises ColumnStoreUsageError: If the transaction has already been closed
 
 Example
 ^^^^^^^
@@ -161,9 +163,11 @@ writeRow()
    States that a row is ready to be written.
 
    .. note::
-      The row may not be written at this stage. The library will batch an amount of rows together before sending them, by default data is only sent every 100,000 rows or :cpp:func::`commit` is called.
+      The row may not be written at this stage. The library will batch an amount of rows together before sending them, by default data is only sent to the server every 100,000 rows or :cpp:func:`ColumnStoreBulkInsert::commit` is called. Data is not committed with ``writeRow()``, it has to be explicitly committed at the end of the transaction. 
 
-   :raises ColumnStoreException: If there has been an error during the write
+   :raises ColumnStoreNetworkError: If there has been an error during the write at the network level
+   :raises ColumnStoreServerError: If there has been an error during the write at the remote server level
+   :raises ColumnStoreUsageError: If the transaction has already been closed
 
 Example
 ^^^^^^^
@@ -196,7 +200,9 @@ commit()
    .. note::
       After making this call the transaction is completed and the class should not be used for anything but :cpp:func:`ColumnStoreBulkInsert::getSummary`. Attempts to use it again will trigger an exception.
 
-   :raises ColumnStoreException: If there has been an error during the commit
+   :raises ColumnStoreNetworkError: If there has been an error during the write at the network level
+   :raises ColumnStoreServerError: If there has been an error during the write at the remote server level
+   :raises ColumnStoreUsageError: If the transaction has already been closed
 
 Example
 ^^^^^^^
@@ -235,7 +241,9 @@ rollback()
    .. note::
       After making this call the transaction is completed and the class should not be used for anything but :cpp:func:`ColumnStoreBulkInsert::getSummary`. Attempts to use it again will trigger an exception.
 
-   :raises ColumnStoreException: If there has been an error during the rollback
+   :raises ColumnStoreNetworkError: If there has been an error during the write at the network level
+   :raises ColumnStoreServerError: If there has been an error during the write at the remote server level
+   :raises ColumnStoreUsageError: If the transaction has already been closed
 
 Example
 ^^^^^^^

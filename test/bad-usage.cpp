@@ -73,11 +73,11 @@ TEST(BadUsage, UseAfterCommit)
         	bulk->writeRow();
         }
         bulk->commit();
-    } catch (mcsapi::ColumnStoreException &e) {
+    } catch (mcsapi::ColumnStoreError &e) {
         FAIL() << "Error caught: " << e.what() << std::endl;
     }
-    ASSERT_THROW(bulk->setColumn(0, (uint32_t)1), mcsapi::ColumnStoreException);
-    ASSERT_THROW(bulk->writeRow(), mcsapi::ColumnStoreException);
+    ASSERT_THROW(bulk->setColumn(0, (uint32_t)1), mcsapi::ColumnStoreUsageError);
+    ASSERT_THROW(bulk->writeRow(), mcsapi::ColumnStoreUsageError);
     if (mysql_query(my_con, "SELECT COUNT(*) FROM badusage"))
         FAIL() << "Could not run test query: " << mysql_error(my_con);
     MYSQL_RES* result = mysql_store_result(my_con);
@@ -101,13 +101,13 @@ TEST(BadUsage, ColumnNotFilled)
         driver = new mcsapi::ColumnStoreDriver();
         bulk = driver->createBulkInsert(db, table, 0, 0);
         bulk->setColumn(0, (uint32_t)1);
-    } catch (mcsapi::ColumnStoreException &e) {
+    } catch (mcsapi::ColumnStoreError &e) {
         FAIL() << "Error caught: " << e.what() << std::endl;
     }
-    ASSERT_THROW(bulk->writeRow(), mcsapi::ColumnStoreException);
+    ASSERT_THROW(bulk->writeRow(), mcsapi::ColumnStoreUsageError);
     try {
         bulk->rollback();
-    } catch (mcsapi::ColumnStoreException &e) {
+    } catch (mcsapi::ColumnStoreError &e) {
         FAIL() << "Error caught: " << e.what() << std::endl;
     }
     if (mysql_query(my_con, "SELECT COUNT(*) FROM badusage"))
@@ -132,13 +132,13 @@ TEST(BadUsage, InvalidColumn)
     try {
         driver = new mcsapi::ColumnStoreDriver();
         bulk = driver->createBulkInsert(db, table, 0, 0);
-    } catch (mcsapi::ColumnStoreException &e) {
+    } catch (mcsapi::ColumnStoreError &e) {
         FAIL() << "Error caught: " << e.what() << std::endl;
     }
-    ASSERT_THROW(bulk->setColumn(3, (uint32_t)1), mcsapi::ColumnStoreException);
+    ASSERT_THROW(bulk->setColumn(3, (uint32_t)1), mcsapi::ColumnStoreUsageError);
     try {
         bulk->rollback();
-    } catch (mcsapi::ColumnStoreException &e) {
+    } catch (mcsapi::ColumnStoreError &e) {
         FAIL() << "Error caught: " << e.what() << std::endl;
     }
     if (mysql_query(my_con, "SELECT COUNT(*) FROM badusage"))
@@ -170,7 +170,7 @@ TEST(BadUsage, SecondCommit)
             bulk->writeRow();
         }
         bulk->commit();
-    } catch (mcsapi::ColumnStoreException &e) {
+    } catch (mcsapi::ColumnStoreError &e) {
         FAIL() << "Error caught: " << e.what() << std::endl;
     }
     if (mysql_query(my_con, "SELECT COUNT(*) FROM badusage"))

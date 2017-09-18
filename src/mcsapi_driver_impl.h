@@ -25,12 +25,15 @@ class ColumnStoreDriverImpl
 public:
     ColumnStoreDriverImpl():
         mXmlDoc(NULL),
-        mXmlRootNode(NULL)
+        mXmlRootNode(NULL),
+        systemCatalog(nullptr)
     { }
     ~ColumnStoreDriverImpl();
+    ColumnStoreSystemCatalog* getSystemCatalog();
     std::string path;
     xmlDocPtr mXmlDoc;
     xmlNodePtr mXmlRootNode;
+    ColumnStoreSystemCatalog* systemCatalog;
 
     void loadXML();
     const char* getXMLNode(const char* parent, const char* node);

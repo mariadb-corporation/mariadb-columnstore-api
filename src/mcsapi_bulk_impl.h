@@ -28,7 +28,6 @@ public:
     ~ColumnStoreBulkInsertImpl();
 
     ColumnStoreDriverImpl* driver;
-    ColumnStoreSystemCatalog* systemCatalog;
     ColumnStoreSystemCatalogTable* tbl;
     ColumnStoreTableData tableData;
     ColumnStoreCommands* commands;

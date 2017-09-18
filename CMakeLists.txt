@@ -37,10 +37,8 @@ IF("${isSystemDir}" STREQUAL "-1")
     SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
 ENDIF("${isSystemDir}" STREQUAL "-1")
 
-find_package(Boost 1.53.0 REQUIRED)
-
 # Disable no-deprecated-declarations
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG -Wall -Wunused -Wwrite-strings -Wno-strict-aliasing -Wextra -Wshadow -Werror -Wno-deprecated-declarations")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG -Wall -Wunused -Wwrite-strings -Wno-strict-aliasing -Wextra -Werror -Wno-deprecated-declarations")
 
 # FORTIFY_SOURCE requires > -O0
 string(TOLOWER ${CMAKE_BUILD_TYPE} LOWERCASE_CMAKE_BUILD_TYPE)
@@ -49,7 +47,7 @@ if (NOT LOWERCASE_CMAKE_BUILD_TYPE STREQUAL "debug")
 endif()
 
 # Disable format-truncation since this triggers in mcsapi_types for something that isn't a problem
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wformat -Wformat-security -fstack-protector-all -fstack-check -Wno-format-truncation")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wformat -Wformat-security -fstack-protector-all -fstack-check -Wno-format-truncation -Wno-unused-command-line-argument -Wno-unknown-warning-option -pie -fPIC")
 
 INCLUDE (FindLibXml2)
 if (NOT LIBXML2_FOUND)
@@ -70,20 +68,6 @@ include_directories(${CMAKE_SOURCE_DIR})
 
 OPTION(RUN_CPPCHECK "Run cppcheck" OFF)
 
-IF(RUN_CPPCHECK)
-  include(CppcheckTargets)
-  if (NOT CPPCHECK_FOUND)
-      MESSAGE(FATAL_ERROR "Could not find cppcheck!")
-  endif()
-ENDIF(RUN_CPPCHECK)
-
-include(ExternalProject)
-set(ext_dir "${CMAKE_BINARY_DIR}/third-party")
-set(libuv_dir "${ext_dir}/libuv")
-add_subdirectory(libmcsapi)
-add_subdirectory(src)
-add_subdirectory(example)
-
 option(TEST_RUNNER "Build the test suite" OFF)
 
 if (TEST_RUNNER)
@@ -91,6 +75,23 @@ if (TEST_RUNNER)
   find_package(GTest REQUIRED)
   add_subdirectory(test)
 endif (TEST_RUNNER)
+
+IF(RUN_CPPCHECK)
+  include(CppcheckTargets)
+  if (NOT CPPCHECK_FOUND)
+      MESSAGE(FATAL_ERROR "Could not find cppcheck!")
+  endif()
+ENDIF(RUN_CPPCHECK)
+
+add_subdirectory(libmcsapi)
+add_subdirectory(src)
+add_subdirectory(example)
+
+OPTION(PYTHON "Build Python bindings" OFF)
+
+IF(PYTHON)
+  add_subdirectory(python)
+ENDIF(PYTHON)
 
 option(BUILD_DOCS "Build the documentation" OFF)
 #option(PDFLATEX_COMPILER "Build the pdf documentation (requires latex)" OFF)
@@ -105,11 +106,11 @@ if (NOT PKG_CONFIG_FOUND)
 endif()
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/libmcsapi.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/libmcsapi.pc" @ONLY)
 install(FILES       "${CMAKE_CURRENT_BINARY_DIR}/libmcsapi.pc"
-        DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig" COMPONENT devel)
 
 install(FILES "README.md"
     "LICENSE"
-    DESTINATION "${CMAKE_INSTALL_DOCDIR}"
+    DESTINATION "${CMAKE_INSTALL_DOCDIR}" COMPONENT libs
 )
 
 option(RPM "Build an RPM" OFF)
@@ -118,9 +119,10 @@ if (RPM)
     SET(CPACK_GENERATOR "RPM")
     SET(CPACK_RPM_PACKAGE_VERSION ${VERSION_SHORT})
     SET(CPACK_RPM_PACKAGE_RELEASE "1")
-    SET(CPACK_RPM_PACKAGE_NAME "mcsapi")
+    SET(CPACK_RPM_PACKAGE_NAME "mariadb-columnstore-api")
     SET(ENGINE_ARCH "x86_64")
     SET(CPACK_PACKAGE_FILE_NAME "${CPACK_RPM_PACKAGE_NAME}-${CPACK_RPM_PACKAGE_VERSION}-${CPACK_RPM_PACKAGE_RELEASE}-${ENGINE_ARCH}-${RPM}")
+
     include(CPack)
 endif()
 
@@ -130,7 +132,8 @@ if (DEB)
     SET(CPACK_GENERATOR "DEB")
     SET(CPACK_DEBIAN_PACKAGE_VERSION ${VERSION_SHORT})
     SET(CPACK_DEBIAN_PACKAGE_RELEASE "1")
-    SET(CPACK_DEBIAN_PACKAGE_NAME "mcsapi")
+    SET(CPACK_DEBIAN_PACKAGE_NAME "mariadb-columnstore-api")
+    SET(CPACK_PACKAGE_CONTACT "MariaDB Corporation")
     SET(ENGINE_ARCH "x86_64")
     SET(CPACK_PACKAGE_FILE_NAME "${CPACK_DEBIAN_PACKAGE_NAME}-${CPACK_DEBIAN_PACKAGE_VERSION}-${CPACK_DEBIAN_PACKAGE_RELEASE}-${ENGINE_ARCH}-${DEB}")
     include(CPack)
@@ -151,6 +154,7 @@ MESSAGE(STATUS "CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
 MESSAGE(STATUS "TEST_RUNNER = ${TEST_RUNNER}")
 MESSAGE(STATUS "RUN_CPPCHECK = ${RUN_CPPCHECK}")
 MESSAGE(STATUS "BUILD_DOCS = ${BUILD_DOCS}")
+MESSAGE(STATUS "PYTHON = ${PYTHON}")
 MESSAGE(STATUS "RPM = ${RPM}")
 MESSAGE(STATUS "DEB = ${DEB}")
 #MESSAGE(STATUS "PDFLATEX_COMPILER = ${PDFLATEX_COMPILER}")

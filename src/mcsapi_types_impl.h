@@ -41,6 +41,18 @@ public:
         second(0),
         microsecond(0)
     { }
+
+    ColumnStoreDateTimeImpl(uint16_t p_year, uint8_t p_month, uint8_t p_day, uint8_t p_hour, uint8_t p_minute, uint8_t p_second, uint32_t p_microsecond)
+    {
+        this->year = p_year;
+        this->month = p_month;
+        this->day = p_day;
+        this->hour = p_hour;
+        this->minute = p_minute;
+        this->second = p_second;
+        this->microsecond = p_microsecond;
+    }
+    
     uint32_t getDateInt();
     uint64_t getDateTimeInt();
     void getDateTimeStr(std::string& sDateTime);
@@ -98,4 +110,56 @@ public:
 
     void setStatus(columnstore_data_convert_status_t status);
 };
+
+class ColumnStoreSystemCatalogColumnImpl
+{
+public:
+    ColumnStoreSystemCatalogColumnImpl() :
+        oid(0),
+        column(""),
+        dict_oid(0),
+        type(DATA_TYPE_BIT),
+        width(0),
+        position(0),
+        default_val(""),
+        autoincrement(0),
+        precision(0),
+        scale(0),
+        null(0),
+        compression(0)
+    {}
+    uint32_t oid;
+    std::string column;
+    uint32_t dict_oid;
+    columnstore_data_types_t type;
+    uint32_t width;
+    uint32_t position;
+    std::string default_val;
+    uint8_t autoincrement;
+    uint32_t precision;
+    uint32_t scale;
+    uint8_t null;
+    uint8_t compression;
+};
+
+class ColumnStoreSystemCatalogTableImpl
+{
+public:
+    ColumnStoreSystemCatalogTableImpl() :
+        oid(0)
+    {}
+    void clear();
+    uint32_t oid;
+    std::string schema;
+    std::string table;
+    std::vector<ColumnStoreSystemCatalogColumn*> columns;
+};
+
+class ColumnStoreSystemCatalogImpl
+{
+public:
+    void clear();
+    std::vector<ColumnStoreSystemCatalogTable*> tables;
+};
+
 }

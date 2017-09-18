@@ -11,9 +11,12 @@ This C++ API currently provides access to bulk write to ColumnStore in a similar
 
 Please file bugs using the [MariaDB ColumnStore Jira](https://jira.mariadb.org/browse/MCOL) 
 
-## Building
+## Build Dependencies
 
-### Ubuntu
+**NOTE**
+CentOS 6 is not currently supported and it is not expected that the API will build on this platform.
+
+### Ubuntu 16.04 (Xenial)
 
 For the main build you need:
 
@@ -24,7 +27,7 @@ sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config
 For the documentation:
 
 ```shell
-sudo apt-get install python-sphinx texlive-latex-recommended texlive-latex-extra
+sudo apt-get install python-sphinx texlive-latex-recommended texlive-latex-extra latexmk
 ```
 
 For test test suite:
@@ -32,9 +35,47 @@ For test test suite:
 ```shell
 sudo apt-get install libgtest-dev cppcheck
 cd /usr/src/gtest
-sudo cmake . -DCMAKE_BUILD_TYPE=RELEASE
+sudo cmake . -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_SHARED_LIBS=ON
 sudo make
 sudo mv libg* /usr/lib/
+```
+### Debian 8 (Jessie)
+
+Debian Jessie will only compile if the latest CLang is along with LLVM's libc++, it also requires packages that are not in the main repositories. First of all you need Debian's Jessie backports repository enabled, edit the file `/etc/apt/sources.list` and add the following line:
+
+```
+deb http://httpredir.debian.org/debian jessie-backports main contrib non-free
+```
+
+Then install the following:
+
+```shell
+sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config clang-3.8 libc++-dev
+```
+
+Now set the following environment variables so that CLang is used to compile:
+
+```shell
+export CC=clang-3.8
+export CXX=clang++-3.8
+export CXXFLAGS=-stdlib=libc++
+```
+
+For the documentation:
+
+```shell
+sudo apt-get install python-sphinx texlive-latex-recommended texlive-latex-extra latexmk python-pip
+sudo pip install python-sphinx
+```
+
+For the test suite make sure you still have the exported environment variables above and then do the following in a directory separate from the API:
+
+```shell
+git clone https://github.com/google/googletest
+cd googletest
+cmake . -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_SHARED_LIBS=ON
+make
+sudo make install
 ```
 
 ### CentOS 7
@@ -42,6 +83,7 @@ sudo mv libg* /usr/lib/
 For the main build you need the following, the devtoolset is because GCC5 minimum is required for full C++11 support:
 
 ```shell
+sudo yum install epel-release
 sudo yum install cmake libuv-devel libxml2-devel snappy-devel
 sudo yum install centos-release-scl
 sudo yum install devtoolset-4-gcc*
@@ -51,13 +93,48 @@ scl enable devtoolset-4 bash
 For the documentation:
 
 ```shell
-sudo yum install python-sphinx texlive-scheme-full
+sudo yum install python-sphinx texlive-scheme-full latexmk
 ```
 
 For the test suite:
 
 ```shell
 sudo yum install gtest-devel cppcheck
+```
+
+### SUSE Enterprise Linux 12
+
+For the main build you need GCC5 minimum. For this example we are using GCC6, you will need the SDK and Toolchain modules enabled in Yast first:
+
+```shell
+sudo zypper install gcc6 gcc6-c++ cmake libxml2-devel snappy-devel git
+
+export CC=/usr/bin/gcc-6
+export CXX=/usr/bin/g++-6
+```
+
+Then in a directory separate from the API:
+
+```shell
+git clone https://github.com/libuv/libuv
+cd libuv
+./autogen.sh
+./configure
+make
+sudo make install
+```
+
+Unfortunately it is not possible to build the documentation in SUSE Enterprise Linux 12 due to missing LaTeX dependencies.
+
+For the test suite do the following in a directory separate from the API:
+
+```shell
+sudo zypper ar -f http://download.opensuse.org/repositories/devel:/tools/SLE_12_SP3/devel:tools.repo
+sudo zypper install cppcheck
+git clone https://github.com/google/googletest
+cmake . -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_SHARED_LIBS=ON
+make
+sudo make install
 ```
 
 ### CMake Options
