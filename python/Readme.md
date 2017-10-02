@@ -1,10 +1,10 @@
 # MariaDB ColumnStore API Python Wrapper
-This provides a python wrapper around the C++ MariaDB ColumnStore API. It takes advantage of [pybind11](https://github.com/pybind/pybind11) to provide an almost identical interface to the C++ SDK but in python.
+This provides a python wrapper around the C++ MariaDB ColumnStore API. It takes advantage of [SWIG](http://www.swig.org) to provide an almost identical interface to the C++ SDK but in python.
 
 # Building
-Python must be installed on the server and in the path. In addition the following dependencies on top of mcsapi should be installed (tested on Centos 7) for building:
+SWIG and Python must be installed on the server and in the path. In addition the following dependencies on top of mcsapi should be installed (tested on Centos 7) for building:
 ```sh
-$ sudo yum install python-devel
+$ sudo yum install swig python-devel
 ```
 
 and for testing in Ubuntu:
@@ -32,7 +32,7 @@ This should download and install the pybind11 source tree required for compilati
 # Testing
 The unit tests can be run with pytest from the python directory:
 ```sh
-$ pytest test.py
+$ pytest test_basic.py
 ```
 
 Alternatively "make test" will run the Python tests along with the C++ API tests.
