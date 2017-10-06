@@ -25,6 +25,6 @@ ENDIF(TEST_RUNNER)
 
 execute_process(COMMAND python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()" OUTPUT_VARIABLE PYTHON_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE)
 install(TARGETS _pymcsapi DESTINATION ${PYTHON_SITE_PACKAGES})
-install(FILES pymcsapi.py pymcsapi.pyc DESTINATION ${PYTHON_SITE_PACKAGES})
+install(FILES pymcsapi.py DESTINATION ${PYTHON_SITE_PACKAGES})
 
 

@@ -229,7 +229,7 @@ def i1_common(datatype, ch_len):
         exec_stmt(conn, 'create table pymcsapi_i1(i int, ch varchar(%s)) engine=columnstore' %(ch_len,))        
     
     d = pymcsapi.ColumnStoreDriver()
-    b = d.createBulkInsert('test', 'i1', 0, 0)
+    b = d.createBulkInsert(DB_NAME, tablename, 0, 0)
     try:
         b.setColumn(0,1).setColumn(1, 'ABC').writeRow()
         b.setColumn(0,2).setColumn(1, 'A').writeRow()
@@ -251,7 +251,6 @@ def i1_common(datatype, ch_len):
         pytest.fail("Error executing i1_common query: %s" %(err,))
     finally:
         if cursor: cursor.close()
-
     drop_table(conn, tablename)   
     conn.close()
 
@@ -297,3 +296,4 @@ def  test_i1_vch4():
 def  test_i1_vch3():
     i1_common('varchar', 3)
 
+test_all_types()
