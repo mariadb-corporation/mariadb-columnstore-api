@@ -20,6 +20,7 @@
 import pytest, datetime
 import mysql.connector as mariadb
 import pymcsapi
+from six.moves import range
 
 DB_NAME = 'mcsapi'
 
@@ -64,7 +65,7 @@ def test_million_row():
     b = d.createBulkInsert(DB_NAME, tablename, 0, 0)
     rows = 1000000
     try:
-        for i in xrange(0, rows):
+        for i in range(0, rows):
             b.setColumn(0, i)
             b.setColumn(1, rows - i)
             b.writeRow()

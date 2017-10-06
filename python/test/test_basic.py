@@ -18,8 +18,13 @@
 # MA 02110-1301  USA
 import pymcsapi, pytest, datetime
 import mysql.connector as mariadb
+import sys
+from six.moves import range
 
 DB_NAME = 'mcsapi'
+
+if sys.version_info[0] == 3:
+        long = int
 
 def create_db():
     try:
@@ -185,7 +190,7 @@ def test_dates():
     maxDays = 366  + 365 + 1;
     dt = datetime.datetime(2016, 1, 1, 12, 34, 56)
     try: 
-        for i in xrange(1,maxDays):
+        for i in range(1,maxDays):
             b.setColumn(0, i)
             b.setColumn(1, pymcsapi.ColumnStoreDateTime(dt.year, dt.month, dt.day))
             b.setColumn(2, pymcsapi.ColumnStoreDateTime(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second))
@@ -229,7 +234,7 @@ def i1_common(datatype, ch_len):
         exec_stmt(conn, 'create table pymcsapi_i1(i int, ch varchar(%s)) engine=columnstore' %(ch_len,))        
     
     d = pymcsapi.ColumnStoreDriver()
-    b = d.createBulkInsert('test', 'i1', 0, 0)
+    b = d.createBulkInsert('mcsapi', 'pymcsapi_i1', 0, 0)
     try:
         b.setColumn(0,1).setColumn(1, 'ABC').writeRow()
         b.setColumn(0,2).setColumn(1, 'A').writeRow()
