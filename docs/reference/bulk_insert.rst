@@ -236,14 +236,13 @@ rollback()
 
 .. cpp:function:: void ColumnStoreBulkInsert::rollback()
 
-   Rolls back the data written to the table.
+   Rolls back the data written to the table. If the transaction has already been committed or rolled back this will just return without error.
 
    .. note::
       After making this call the transaction is completed and the class should not be used for anything but :cpp:func:`ColumnStoreBulkInsert::getSummary`. Attempts to use it again will trigger an exception.
 
    :raises ColumnStoreNetworkError: If there has been an error during the write at the network level
    :raises ColumnStoreServerError: If there has been an error during the write at the remote server level
-   :raises ColumnStoreUsageError: If the transaction has already been closed
 
 Example
 ^^^^^^^
@@ -271,6 +270,15 @@ This example can be used inside the try...catch blocks in the :cpp:class:`Column
    // bulkInsert->setValue(0, (uint32_t) 99999);
    ...
 
+
+isActive()
+----------
+
+.. cpp:function:: bool ColumnStoreBulkInsert::isActive()
+
+   Returns whether or not the bulk insert transaction is still active.
+
+   :returns: true if the transaction is still active, false if it has been committed or rolled back
 
 getSummary()
 ------------

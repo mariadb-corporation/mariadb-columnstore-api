@@ -80,6 +80,7 @@ public:
     ColumnStoreSummary& getSummary();
     void setTruncateIsError(bool set);
     void setBatchSize(uint32_t batchSize);
+    bool isActive();
 
 private:
     ColumnStoreBulkInsert(ColumnStoreDriverImpl* driverInstance,
