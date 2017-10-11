@@ -3,7 +3,7 @@
 **WARNING**
 This is a work-in-progress tree for the MariaDB ColumnStore API. *It should currently be considered alpha quality.*
 
-It requires MariaDB ColumnStore 1.1 (current develop branch) to operate.
+It requires MariaDB ColumnStore 1.2 (current develop branch) to operate.
 
 This C++ API currently provides access to bulk write to ColumnStore in a similar way to the cpimport using.
 
