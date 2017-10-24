@@ -406,8 +406,9 @@ void ColumnStoreNetwork::onAlloc(uv_handle_t *client, size_t suggested_size, uv_
     ColumnStoreNetwork* This = (ColumnStoreNetwork*)client->data;
     mcsdebug("Class %p increasing read buffer to %zu bytes", (void*)This, suggested_size);
     std::vector<unsigned char> *packet_data = This->messageOut->getDataPtr();
+    size_t dataSize = packet_data->size();
     This->messageOut->allocateDataSize(suggested_size);
-    buf->base = reinterpret_cast<char*>(packet_data->data());
+    buf->base = reinterpret_cast<char*>(packet_data->data()+dataSize);
     buf->len = suggested_size;
 }
 
