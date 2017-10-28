@@ -35,7 +35,7 @@ class MCS_API ColumnStoreDateTime
 public:
     ColumnStoreDateTime();
     ColumnStoreDateTime(tm& time);
-    ColumnStoreDateTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour = 0, uint8_t minute = 0, uint8_t second = 0, uint32_t microsecond = 0);
+    ColumnStoreDateTime(uint32_t year, uint32_t month, uint32_t day, uint32_t hour = 0, uint32_t minute = 0, uint32_t second = 0, uint32_t microsecond = 0);
     ColumnStoreDateTime(const std::string& dateTime, const std::string& format);
 
     ~ColumnStoreDateTime();
@@ -118,12 +118,12 @@ public:
     ColumnStoreSystemCatalogColumn(const ColumnStoreSystemCatalogColumn& obj);
     ~ColumnStoreSystemCatalogColumn();
     uint32_t getOID();
-    std::string& getColumnName();
+    const std::string& getColumnName();
     uint32_t getDictionaryOID();
     columnstore_data_types_t getType();
     uint32_t getWidth();
     uint32_t getPosition();
-    std::string& getDefaultValue();
+    const std::string& getDefaultValue();
     bool isAutoincrement();
     uint32_t getPrecision();
     uint32_t getScale();
@@ -141,8 +141,8 @@ public:
     ColumnStoreSystemCatalogTable();
     ColumnStoreSystemCatalogTable(const ColumnStoreSystemCatalogTable& obj);
     ~ColumnStoreSystemCatalogTable();
-    std::string& getSchemaName();
-    std::string& getTableName();
+    const std::string& getSchemaName();
+    const std::string& getTableName();
     uint32_t getOID();
     uint16_t getColumnCount();
     ColumnStoreSystemCatalogColumn& getColumn(const std::string& columnName);
