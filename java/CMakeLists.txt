@@ -18,14 +18,14 @@ set(CMAKE_SWIG_FLAGS -package com.mariadb.columnstore.api)
 set(CMAKE_SWIG_OUTDIR "${CMAKE_CURRENT_BINARY_DIR}/src/main/java/com/mariadb/columnstore/api")
 set_source_files_properties( javamcsapi.i PROPERTIES CPLUSPLUS ON)
 swig_add_module(javamcsapi java javamcsapi.i)
-swig_link_libraries(javamcsapi mcsapi ${PYTHON_LIBRARIES})
+swig_link_libraries(javamcsapi mcsapi)
 
-ADD_CUSTOM_COMMAND(TARGET javamcsapi POST_BUILD
+ADD_CUSTOM_COMMAND(TARGET _javamcsapi POST_BUILD
     COMMAND "${CMAKE_CURRENT_BINARY_DIR}/gradlew" jar
 )
 
 IF(TEST_RUNNER)
-  add_test(NAME Java_BasicTest COMMAND "${CMAKE_CURRENT_BINARY_DIR}/gradlew" jar)
+  add_test(NAME Java_BasicTest COMMAND "${CMAKE_CURRENT_BINARY_DIR}/gradlew" test)
 ENDIF(TEST_RUNNER)
 
 INSTALL(TARGETS _javamcsapi DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libs)
