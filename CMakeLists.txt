@@ -93,6 +93,13 @@ IF(PYTHON)
   add_subdirectory(python)
 ENDIF(PYTHON)
 
+OPTION(JAVA "Build Java bindings" OFF)
+
+IF(JAVA)
+    add_subdirectory(java)
+ENDIF(JAVA)
+
+
 option(BUILD_DOCS "Build the documentation" OFF)
 #option(PDFLATEX_COMPILER "Build the pdf documentation (requires latex)" OFF)
 
@@ -155,6 +162,7 @@ MESSAGE(STATUS "TEST_RUNNER = ${TEST_RUNNER}")
 MESSAGE(STATUS "RUN_CPPCHECK = ${RUN_CPPCHECK}")
 MESSAGE(STATUS "BUILD_DOCS = ${BUILD_DOCS}")
 MESSAGE(STATUS "PYTHON = ${PYTHON}")
+MESSAGE(STATUS "JAVA = ${JAVA}")
 MESSAGE(STATUS "RPM = ${RPM}")
 MESSAGE(STATUS "DEB = ${DEB}")
 #MESSAGE(STATUS "PDFLATEX_COMPILER = ${PDFLATEX_COMPILER}")
