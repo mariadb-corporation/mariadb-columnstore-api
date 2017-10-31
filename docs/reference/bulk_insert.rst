@@ -155,6 +155,15 @@ This example can be used inside the try...catch blocks in the :cpp:class:`Column
    bulkInsert->setNull(0)->setNull(1)->setNull(2)->setNull(3)->writeRow();
    ...
 
+resetRow()
+----------
+
+.. cpp:function:: ColumnStoreBulkInsert* ColumnStoreBulkInsert::resetRow()
+
+   Resets everything that has been set for the current row. This method should be used to clear the row memory without using :cpp:func:`ColumnStoreBulkInsert::writeRow`.
+
+   :raises ColumnStoreUsageError: If the transaction has already been closed
+
 writeRow()
 ----------
 
