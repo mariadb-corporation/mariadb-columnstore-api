@@ -224,6 +224,17 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setNull(uint16_t columnNumber, col
     return this;
 }
 
+ColumnStoreBulkInsert* ColumnStoreBulkInsert::resetRow()
+{
+    if (mImpl->transactionClosed)
+    {
+        std::string errmsg = "Bulk insert has been committed or rolled back and cannot be reused";
+        throw ColumnStoreUsageError(errmsg);
+    }
+    mImpl->row->clear();
+    return this;
+}
+
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::writeRow()
 {
     if (mImpl->transactionClosed)
