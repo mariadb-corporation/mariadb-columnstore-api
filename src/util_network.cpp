@@ -270,7 +270,7 @@ void ColumnStoreNetwork::onWriteData(uv_write_t* req, int status)
     delete req;
     delete[] This->buf;
     This->buf = nullptr;
-    delete This->compressedBuffer;
+    delete[] This->compressedBuffer;
     This->compressedBuffer = nullptr;
     if (status < 0)
     {
