@@ -1,11 +1,8 @@
 # MariaDB ColumnStore API
 
-**WARNING**
-This is a work-in-progress tree for the MariaDB ColumnStore API. *It should currently be considered alpha quality.*
+The API requires MariaDB ColumnStore 1.1 to operate.
 
-It requires MariaDB ColumnStore 1.1 (current develop branch) to operate.
-
-This C++ API currently provides access to bulk write to ColumnStore in a similar way to the cpimport using.
+This C++, Python and Java API currently provides access to bulk write to ColumnStore in a similar way to the cpimport using.
 
 ## Bugs
 
@@ -21,7 +18,7 @@ CentOS 6 is not currently supported and it is not expected that the API will bui
 For the main build you need:
 
 ```shell
-sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config
+sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config swig python-dev default-jdk
 ```
 
 For the documentation:
@@ -50,7 +47,7 @@ deb http://httpredir.debian.org/debian jessie-backports main contrib non-free
 Then install the following:
 
 ```shell
-sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config clang-3.8 libc++-dev
+sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config clang-3.8 libc++-dev swig python-dev default-jdk
 ```
 
 Now set the following environment variables so that CLang is used to compile:
@@ -87,6 +84,7 @@ sudo yum install epel-release
 sudo yum install cmake libuv-devel libxml2-devel snappy-devel
 sudo yum install centos-release-scl
 sudo yum install devtoolset-4-gcc*
+sudo yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel swig python-devel
 scl enable devtoolset-4 bash
 ```
 
@@ -158,6 +156,8 @@ The options are as follows:
 | ``BUILD_DOCS`` | ``OFF`` | Build the PDF documentation |
 | ``RPM`` | ``OFF`` | Build a RPM (and the OS name for the package) |
 | ``DEB`` | ``OFF`` | Build a DEB (and the OS name for the package) |
+| ``PYTHON`` | ``ON`` | Build the Python library |
+| ``JAVA`` | ``ON`` | Build the Java library |
 | ``RUN_CPPCHECK`` | ``OFF`` | Run cppcheck during ``make test`` or ``make all_cppcheck``|
 
 ### Compiling

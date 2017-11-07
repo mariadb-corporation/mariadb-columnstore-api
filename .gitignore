@@ -57,6 +57,14 @@ CPackSourceConfig.cmake
 _CPack_Packages/
 mariadb-*.rpm
 mariadb-*.deb
+java/.gradle/
+java/build/
+java/javamcsapiJAVA_wrap.cxx
+java/lib_javamcsapi.so
+java/src/main/
+python/pybind11/
+build/
+java/libjavamcsapi.so
 
 # QtCreator files
 *.config

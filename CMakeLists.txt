@@ -87,13 +87,13 @@ add_subdirectory(libmcsapi)
 add_subdirectory(src)
 add_subdirectory(example)
 
-OPTION(PYTHON "Build Python bindings" OFF)
+OPTION(PYTHON "Build Python bindings" ON)
 
 IF(PYTHON)
   add_subdirectory(python)
 ENDIF(PYTHON)
 
-OPTION(JAVA "Build Java bindings" OFF)
+OPTION(JAVA "Build Java bindings" ON)
 
 IF(JAVA)
     add_subdirectory(java)

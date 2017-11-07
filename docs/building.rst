@@ -22,7 +22,7 @@ For the main build you need:
 
 .. code-block:: console
 
-   sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config
+   sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config swig python-dev default-jdk
 
 For the documentation:
 
@@ -54,7 +54,7 @@ Then install the following:
 
 .. code-block:: console
 
-   sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config clang-3.8 libc++-dev
+   sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config clang-3.8 libc++-dev swig python-dev default-jdk
 
 
 Now set the following environment variables so that CLang is used to compile:
@@ -93,6 +93,7 @@ For the main build you need the following, the devtoolset is because GCC5 minimu
    sudo yum install cmake libuv-devel libxml2-devel snappy-devel
    sudo yum install centos-release-scl
    sudo yum install devtoolset-4-gcc*
+   sudo yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel swig python-devel
    scl enable devtoolset-4 bash
 
 
@@ -169,6 +170,8 @@ Option                   Default              Definition
 ``BUILD_DOCS``           ``OFF``              Build the PDF documentation
 ``RPM``                  ``OFF``              Build a RPM (and the OS name for the package)
 ``DEB``                  ``OFF``              Build a DEB (and the OS name for the package)
+``PYTHON``               ``ON``               Build the Python library
+``JAVA``                 ``ON``               Build the Java library
 ``RUN_CPPCHECK``         ``OFF``              Run cppcheck during ``make test`` or ``make all_cppcheck``
 ======================== ==================== =========================================================================================
 
