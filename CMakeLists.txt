@@ -65,6 +65,7 @@ if (NOT SNAPPY_FOUND)
 endif()
 
 include_directories(${CMAKE_SOURCE_DIR})
+include_directories(${CMAKE_BINARY_DIR})
 
 OPTION(RUN_CPPCHECK "Run cppcheck" OFF)
 
