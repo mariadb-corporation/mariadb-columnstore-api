@@ -62,7 +62,7 @@ For the documentation:
 
 ```shell
 sudo apt-get install python-sphinx texlive-latex-recommended texlive-latex-extra latexmk python-pip
-sudo pip install python-sphinx
+sudo pip install sphinx
 ```
 
 For the test suite make sure you still have the exported environment variables above and then do the following in a directory separate from the API:
