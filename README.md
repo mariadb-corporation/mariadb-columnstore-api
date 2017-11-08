@@ -13,7 +13,7 @@ Please file bugs using the [MariaDB ColumnStore Jira](https://jira.mariadb.org/b
 **NOTE**
 CentOS 6 is not currently supported and it is not expected that the API will build on this platform.
 
-### Ubuntu 16.04 (Xenial)
+### Ubuntu 16.04 (Xenial) / Debian 9 (Stretch)
 
 For the main build you need:
 
