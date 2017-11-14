@@ -16,6 +16,17 @@ if(NOT COMPILER_SUPPORTS_CXX11)
     message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
 endif()
 
+CHECK_CXX_SOURCE_COMPILES("
+#include <time.h>
+#include <sstream>
+#include <iomanip>
+int main(int argc, char** argv){
+    tm time = {};
+    std::istringstream ss(\"01-01-01 00:00:00\");
+    ss >> std::get_time(&time, \"%Y\");
+    return 0;
+}" HAVE_GET_TIME)
+
 include(cmake/version.cmake)
 
 # use, i.e. don't skip the full RPATH for the build tree

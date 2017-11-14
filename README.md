@@ -38,7 +38,7 @@ sudo mv libg* /usr/lib/
 ```
 ### Debian 8 (Jessie)
 
-Debian Jessie will only compile if the latest CLang is along with LLVM's libc++, it also requires packages that are not in the main repositories. First of all you need Debian's Jessie backports repository enabled, edit the file `/etc/apt/sources.list` and add the following line:
+Debian Jessie requires packages that are not in the main repositories. First of all you need Debian's Jessie backports repository enabled, edit the file `/etc/apt/sources.list` and add the following line:
 
 ```
 deb http://httpredir.debian.org/debian jessie-backports main contrib non-free
@@ -47,15 +47,7 @@ deb http://httpredir.debian.org/debian jessie-backports main contrib non-free
 Then install the following:
 
 ```shell
-sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config clang-3.8 libc++-dev swig python-dev default-jdk
-```
-
-Now set the following environment variables so that CLang is used to compile:
-
-```shell
-export CC=clang-3.8
-export CXX=clang++-3.8
-export CXXFLAGS=-stdlib=libc++
+sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config libc++-dev swig python-dev default-jdk
 ```
 
 For the documentation:
@@ -65,7 +57,7 @@ sudo apt-get install python-sphinx texlive-latex-recommended texlive-latex-extra
 sudo pip install sphinx
 ```
 
-For the test suite make sure you still have the exported environment variables above and then do the following in a directory separate from the API:
+For the test suite do the following in a directory separate from the API:
 
 ```shell
 git clone https://github.com/google/googletest
