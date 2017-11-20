@@ -159,6 +159,21 @@ To run the test suite you can run ``make check``.
 
 ## Building a Package
 
+In addition to the normal dependencies, the following packages need to be
+installed for packaging.
+
+### CentOS/RHEL and SLES
+
+```
+sudo yum -y install rpm-build
+```
+
+### Debian and Ubuntu (all versions)
+
+```
+sudo apt-get -y install dpkg-dev
+```
+
 To build an RPM or DEB package you first need to specify the OS you want to build for, for example:
 
 ```shell
