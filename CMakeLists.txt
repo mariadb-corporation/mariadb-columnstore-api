@@ -16,6 +16,17 @@ if(NOT COMPILER_SUPPORTS_CXX11)
     message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
 endif()
 
+CHECK_CXX_SOURCE_COMPILES("
+#include <time.h>
+#include <sstream>
+#include <iomanip>
+int main(int argc, char** argv){
+    tm time = {};
+    std::istringstream ss(\"01-01-01 00:00:00\");
+    ss >> std::get_time(&time, \"%Y\");
+    return 0;
+}" HAVE_GET_TIME)
+
 include(cmake/version.cmake)
 
 # use, i.e. don't skip the full RPATH for the build tree
@@ -65,6 +76,7 @@ if (NOT SNAPPY_FOUND)
 endif()
 
 include_directories(${CMAKE_SOURCE_DIR})
+include_directories(${CMAKE_BINARY_DIR})
 
 OPTION(RUN_CPPCHECK "Run cppcheck" OFF)
 
@@ -87,11 +99,18 @@ add_subdirectory(libmcsapi)
 add_subdirectory(src)
 add_subdirectory(example)
 
-OPTION(PYTHON "Build Python bindings" OFF)
+OPTION(PYTHON "Build Python bindings" ON)
 
 IF(PYTHON)
   add_subdirectory(python)
 ENDIF(PYTHON)
+
+OPTION(JAVA "Build Java bindings" ON)
+
+IF(JAVA)
+    add_subdirectory(java)
+ENDIF(JAVA)
+
 
 option(BUILD_DOCS "Build the documentation" OFF)
 #option(PDFLATEX_COMPILER "Build the pdf documentation (requires latex)" OFF)
@@ -135,6 +154,7 @@ if (DEB)
     SET(CPACK_DEBIAN_PACKAGE_NAME "mariadb-columnstore-api")
     SET(CPACK_PACKAGE_CONTACT "MariaDB Corporation")
     SET(ENGINE_ARCH "x86_64")
+    SET(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
     SET(CPACK_PACKAGE_FILE_NAME "${CPACK_DEBIAN_PACKAGE_NAME}-${CPACK_DEBIAN_PACKAGE_VERSION}-${CPACK_DEBIAN_PACKAGE_RELEASE}-${ENGINE_ARCH}-${DEB}")
     include(CPack)
 endif()
@@ -155,6 +175,7 @@ MESSAGE(STATUS "TEST_RUNNER = ${TEST_RUNNER}")
 MESSAGE(STATUS "RUN_CPPCHECK = ${RUN_CPPCHECK}")
 MESSAGE(STATUS "BUILD_DOCS = ${BUILD_DOCS}")
 MESSAGE(STATUS "PYTHON = ${PYTHON}")
+MESSAGE(STATUS "JAVA = ${JAVA}")
 MESSAGE(STATUS "RPM = ${RPM}")
 MESSAGE(STATUS "DEB = ${DEB}")
 #MESSAGE(STATUS "PDFLATEX_COMPILER = ${PDFLATEX_COMPILER}")

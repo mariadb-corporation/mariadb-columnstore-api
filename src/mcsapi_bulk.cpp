@@ -224,6 +224,17 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setNull(uint16_t columnNumber, col
     return this;
 }
 
+ColumnStoreBulkInsert* ColumnStoreBulkInsert::resetRow()
+{
+    if (mImpl->transactionClosed)
+    {
+        std::string errmsg = "Bulk insert has been committed or rolled back and cannot be reused";
+        throw ColumnStoreUsageError(errmsg);
+    }
+    mImpl->row->clear();
+    return this;
+}
+
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::writeRow()
 {
     if (mImpl->transactionClosed)
@@ -265,6 +276,12 @@ void ColumnStoreBulkInsert::commit()
 {
     ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
 
+    if (mImpl->transactionClosed)
+    {
+        std::string errmsg = "Bulk insert has been already been committed or rolled back";
+        throw ColumnStoreUsageError(errmsg);
+    }
+
     if (mImpl->tableData.row_number > 0)
     {
         uint16_t pm = mImpl->pmList[mImpl->currentPm];
@@ -297,9 +314,19 @@ void ColumnStoreBulkInsert::commit()
     summaryImpl->stopTimer();
 }
 
+bool ColumnStoreBulkInsert::isActive()
+{
+    return !mImpl->transactionClosed;
+}
+
 void ColumnStoreBulkInsert::rollback()
 {
     ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
+
+    if (mImpl->transactionClosed)
+    {
+        return;
+    }
 
     for (auto& pmit: mImpl->pmList)
     {

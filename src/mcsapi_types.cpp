@@ -40,15 +40,15 @@ ColumnStoreDateTime::ColumnStoreDateTime(tm& time)
     }
 }
 
-ColumnStoreDateTime::ColumnStoreDateTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint32_t microsecond)
+ColumnStoreDateTime::ColumnStoreDateTime(uint32_t year, uint32_t month, uint32_t day, uint32_t hour, uint32_t minute, uint32_t second, uint32_t microsecond)
 {
-    mImpl = new ColumnStoreDateTimeImpl(year, month, day, hour, minute, second, microsecond);
+    mImpl = new ColumnStoreDateTimeImpl((uint16_t)year, (uint8_t)month, (uint8_t)day, (uint8_t)hour, (uint8_t)minute, (uint8_t)second, microsecond);
     if (!mImpl->validateDate())
     {
         std::string errmsg("A valid date/time could not be extracted from the time parameters");
         throw ColumnStoreDataError(errmsg);
     }
-    
+
 }
 
 ColumnStoreDateTime::ColumnStoreDateTime(const std::string& dateTime, const std::string& format)
@@ -84,13 +84,16 @@ bool ColumnStoreDateTime::set(tm& time)
 bool ColumnStoreDateTime::set(const std::string& dateTime, const std::string& format)
 {
     tm time = tm();
+#ifdef HAVE_GET_TIME
     std::istringstream ss(dateTime);
     ss >> std::get_time(&time, format.c_str());
     if (ss.fail())
     {
         return false;
     }
-
+#else
+    strptime(dateTime.c_str(), format.c_str(), &time);
+#endif
     return set(time);
 }
 
@@ -527,7 +530,7 @@ uint32_t ColumnStoreSystemCatalogColumn::getOID()
     return mImpl->oid;
 }
 
-std::string& ColumnStoreSystemCatalogColumn::getColumnName()
+const std::string& ColumnStoreSystemCatalogColumn::getColumnName()
 {
     return mImpl->column;
 }
@@ -552,7 +555,7 @@ uint32_t ColumnStoreSystemCatalogColumn::getPosition()
     return mImpl->position;
 }
 
-std::string& ColumnStoreSystemCatalogColumn::getDefaultValue()
+const std::string& ColumnStoreSystemCatalogColumn::getDefaultValue()
 {
     return mImpl->default_val;
 }
@@ -582,12 +585,12 @@ uint8_t ColumnStoreSystemCatalogColumn::compressionType()
     return mImpl->compression;
 }
 
-std::string& ColumnStoreSystemCatalogTable::getSchemaName()
+const std::string& ColumnStoreSystemCatalogTable::getSchemaName()
 {
     return mImpl->schema;
 }
 
-std::string& ColumnStoreSystemCatalogTable::getTableName()
+const std::string& ColumnStoreSystemCatalogTable::getTableName()
 {
     return mImpl->table;
 }

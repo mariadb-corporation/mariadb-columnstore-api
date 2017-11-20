@@ -16,8 +16,13 @@ example/basic_bulk_insert
 example/advanced_bulk_insert
 install_manifest*.txt
 src/libmcsapi.so*
-python/pymcsapi*.so*
-python/setup.py
+python/_pymcsapi*.so*
+python/__init__.pyc
+__pycache__/
+python/pymcsapi.py
+python/pymcsapi.pyc
+python/pymcsapiPYTHON_wrap.cxx
+python/MANIFEST
 CTestTestfile.cmake
 DartConfiguration.tcl
 Testing/
@@ -52,6 +57,14 @@ CPackSourceConfig.cmake
 _CPack_Packages/
 mariadb-*.rpm
 mariadb-*.deb
+java/.gradle/
+java/build/
+java/javamcsapiJAVA_wrap.cxx
+java/lib_javamcsapi.so
+java/src/main/
+python/pybind11/
+build/
+java/libjavamcsapi.so
 
 # QtCreator files
 *.config

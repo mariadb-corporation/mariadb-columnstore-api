@@ -75,11 +75,13 @@ public:
     ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, ColumnStoreDecimal& value, columnstore_data_convert_status_t* status = nullptr);
     ColumnStoreBulkInsert* setNull(uint16_t columnNumber, columnstore_data_convert_status_t* status = nullptr);
     ColumnStoreBulkInsert* writeRow();
+    ColumnStoreBulkInsert* resetRow();
     void commit();
     void rollback();
     ColumnStoreSummary& getSummary();
     void setTruncateIsError(bool set);
     void setBatchSize(uint32_t batchSize);
+    bool isActive();
 
 private:
     ColumnStoreBulkInsert(ColumnStoreDriverImpl* driverInstance,
