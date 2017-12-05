@@ -21,6 +21,8 @@
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
 
+#include <sstream>
+
 #include "mcsapi_driver_impl.h"
 #include "mcsapi_types_impl.h"
 
@@ -278,6 +280,15 @@ uint64_t ColumnStoreCommands::brmGetTableLock(uint32_t tableOID, uint32_t sessio
     *messageOut >> tblLock.ownerName;
     *messageOut >> tblLock.sessionID;
     *messageOut >> tblLock.ownerTxnID;
+
+    std::stringstream errmsg;
+
+    errmsg << "Table already locked by PID: " << tblLock.ownerPID;
+    errmsg << " '" << tblLock.ownerName << "'";
+    errmsg << " session ID: " << tblLock.sessionID;
+    errmsg << " txn ID: " << tblLock.ownerTxnID;
+    delete messageOut;
+    throw ColumnStoreServerError(errmsg.str());
 
     delete messageOut;
     return 0;

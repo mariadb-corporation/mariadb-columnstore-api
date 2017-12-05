@@ -202,6 +202,19 @@ TEST(BadUsage, WriteAfterReset)
     delete driver;
 }
 
+/* Test assert on table lock */
+TEST(BadUsage, AssertTableLock)
+{
+    std::string table("badusage");
+    std::string db("mcsapi");
+    mcsapi::ColumnStoreDriver* driver;
+    mcsapi::ColumnStoreBulkInsert* bulk;
+    driver = new mcsapi::ColumnStoreDriver();
+    bulk = driver->createBulkInsert(db, table, 0, 0);
+    ASSERT_THROW(driver->createBulkInsert(db, table, 0, 0), mcsapi::ColumnStoreServerError);
+    delete bulk;
+    delete driver;
+}
 
 
 int main(int argc, char** argv) {
