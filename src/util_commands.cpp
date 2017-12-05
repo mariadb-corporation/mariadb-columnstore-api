@@ -289,8 +289,6 @@ uint64_t ColumnStoreCommands::brmGetTableLock(uint32_t tableOID, uint32_t sessio
     errmsg << " txn ID: " << tblLock.ownerTxnID;
     delete messageOut;
     throw ColumnStoreServerError(errmsg.str());
-
-    delete messageOut;
     return 0;
 }
 
