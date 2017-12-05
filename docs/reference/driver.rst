@@ -77,6 +77,7 @@ createBulkInsert()
    :param mode: Future use, must be set to ``0``
    :param pm: Future use, must be set to ``0``
    :returns: An instance of :cpp:class:`ColumnStoreBulkInsert`
+   :raises ColumnStoreServerError: If a table lock cannot be acquired for the desired table
 
 Example
 ^^^^^^^
