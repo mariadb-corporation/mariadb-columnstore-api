@@ -21,15 +21,18 @@ public class MillionRowTest extends Common {
 
         // simple 1 row test
         ColumnStoreDriver d = new ColumnStoreDriver();
-        ColumnStoreBulkInsert b = d.createBulkInsert(DB_NAME, TABLE_NAME, (short)0, 0);
+        ColumnStoreBulkInsert b = null;
         int rows = 1000000;
         try {
-            for (int i=0; i<rows; ++i) {
-                b.setColumn(0, i);
-                b.setColumn(1, rows-i);
-                b.writeRow();
+            for (int j=0; j<1; ++j) {
+                b = d.createBulkInsert(DB_NAME, TABLE_NAME, (short)0, 0);
+                for (int i=0; i<rows; ++i) {
+                    b.setColumn(0, i);
+                    b.setColumn(1, rows-i);
+                    b.writeRow();
+                }
+                b.commit();                            
             }
-            b.commit();
         } catch (Exception e) {
             b.rollback();
             fail("Error during mcsapi write operations: " + e);
