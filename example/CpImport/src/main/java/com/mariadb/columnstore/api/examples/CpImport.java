@@ -47,7 +47,7 @@ public class CpImport {
 		if (args.length < 3) {
 			System.err.println("required arguments: db-name, table-name, import-file, [dateFormat, dateTimeFormat]");
 			System.err.println(
-					"If using an ambigous date format, use the Java SimpleDateFormat notation for dateFormat and dateTimeFormat.");
+					"If using an ambiguous date format, use the Java SimpleDateFormat notation for dateFormat and dateTimeFormat.");
 			System.exit(2);
 		}
 
@@ -88,6 +88,10 @@ public class CpImport {
 	private ColumnStoreDriver d;
 	private final String DB_NAME;
 	private String delimiter;
+	private SimpleDateFormat inputParser = new SimpleDateFormat();
+	private SimpleDateFormat outputParser = new SimpleDateFormat();
+	private final String OUTPUT_DATE_PATTERN = "yyyy-MM-dd";
+	private final String OUTPUT_DATETIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
 	/**
 	 * Constructor to create a new CpImport object and establish a database
@@ -222,7 +226,7 @@ public class CpImport {
 	 * @return parsed date in MariaDB format, or null in case of error.
 	 */
 	private String parseDate(String date, String dateFormat) {
-		SimpleDateFormat inputParser = new SimpleDateFormat(dateFormat);
+		inputParser.applyPattern(dateFormat);
 		Date d = null;
 		try {
 			d = inputParser.parse(date);
@@ -230,8 +234,8 @@ public class CpImport {
 			System.err.println("error, date '" + date + "' couldn't be parsed.");
 			return null;
 		}
-		SimpleDateFormat outputParser = new SimpleDateFormat("yyyy-MM-dd");
 
+		outputParser.applyPattern(OUTPUT_DATE_PATTERN);
 		return outputParser.format(d);
 	}
 
@@ -245,7 +249,7 @@ public class CpImport {
 	 * @return parsed dateTime in MariaDB format, or null in case of error.
 	 */
 	private String parseDateTime(String date, String dateTimeFormat) {
-		SimpleDateFormat inputParser = new SimpleDateFormat(dateTimeFormat);
+		inputParser.applyPattern(dateTimeFormat);
 		Date d = null;
 		try {
 			d = inputParser.parse(date);
@@ -253,8 +257,8 @@ public class CpImport {
 			System.err.println("error, dateTime '" + date + "' couldn't be parsed.");
 			return null;
 		}
-		SimpleDateFormat outputParser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+		outputParser.applyPattern(OUTPUT_DATETIME_PATTERN);
 		return outputParser.format(d);
 	}
 }
