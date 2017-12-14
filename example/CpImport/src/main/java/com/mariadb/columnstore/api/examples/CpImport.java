@@ -60,22 +60,22 @@ public class CpImport {
 
 		// Import without date parsing
 		if (args.length == 3) {
-			CpImport cpImport = new CpImport(args[0], "\\|");
-			cpImport.importFile(args[1], sourceFile);
+			CpImport cpImport = new CpImport(args[0], args[1]);
+			cpImport.importFile(sourceFile);
 			System.exit(0);
 		}
 
 		// Execute with ambiguous date format
 		if (args.length == 4) {
-			CpImport cpImport = new CpImport(args[0], "\\|");
-			cpImport.importFile(args[1], sourceFile, args[3], args[3]);
+			CpImport cpImport = new CpImport(args[0], args[1], args[3], args[3]);
+			cpImport.importFileAmbiguousDate(sourceFile);
 			System.exit(0);
 		}
 
 		// Execute with ambiguous date format
 		if (args.length == 5) {
-			CpImport cpImport = new CpImport(args[0], "\\|");
-			cpImport.importFile(args[1], sourceFile, args[3], args[4]);
+			CpImport cpImport = new CpImport(args[0], args[1], args[3], args[4]);
+			cpImport.importFileAmbiguousDate(sourceFile);
 			System.exit(0);
 		}
 	}
@@ -87,11 +87,12 @@ public class CpImport {
 
 	private ColumnStoreDriver d;
 	private final String DB_NAME;
-	private String delimiter;
-	private SimpleDateFormat inputParser = new SimpleDateFormat();
-	private SimpleDateFormat outputParser = new SimpleDateFormat();
-	private final String OUTPUT_DATE_PATTERN = "yyyy-MM-dd";
-	private final String OUTPUT_DATETIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
+	private final String TABLE_NAME;
+	private final SimpleDateFormat INPUT_PARSER_DATE;
+	private final SimpleDateFormat INPUT_PARSER_DATETIME;
+	private final SimpleDateFormat OUTPUT_PARSER_DATE = new SimpleDateFormat("yyyy-MM-dd");
+	private final SimpleDateFormat OUTPUT_PARSER_DATETIME = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	private final String DELIMITER = "\\|";
 
 	/**
 	 * Constructor to create a new CpImport object and establish a database
@@ -99,36 +100,57 @@ public class CpImport {
 	 * 
 	 * @param dbName,
 	 *            target database
-	 * @param delimiter,
-	 *            used in the import-csv-file
+	 * @param tableName,
+	 *            target table
 	 */
-	public CpImport(String dbName, String delimiter) {
+	public CpImport(String dbName, String tableName) {
 		d = new ColumnStoreDriver();
 		this.DB_NAME = dbName;
-		this.delimiter = delimiter;
+		this.TABLE_NAME = tableName;
+		this.INPUT_PARSER_DATE = null;
+		this.INPUT_PARSER_DATETIME = null;
+	}
+
+	/**
+	 * Constructor to create a new CpImport object and establish a database
+	 * connection.
+	 * 
+	 * @param dbName,
+	 *            target database
+	 * @param tableName,
+	 *            target table
+	 * @param dateFormat,
+	 *            SimpleDateFormat encoded input date format
+	 * @param dateTimeFormat,
+	 *            SimpleDateFormat encoded input dateTime format
+	 */
+	public CpImport(String dbName, String tableName, String dateFormat, String dateTimeFormat) {
+		d = new ColumnStoreDriver();
+		this.DB_NAME = dbName;
+		this.TABLE_NAME = tableName;
+		this.INPUT_PARSER_DATE = new SimpleDateFormat(dateFormat);
+		this.INPUT_PARSER_DATETIME = new SimpleDateFormat(dateTimeFormat);
 	}
 
 	/**
 	 * Imports the csv-encoded file.
 	 * 
-	 * @param targetTable,
-	 *            target table
 	 * @param importFile,
-	 *            csv-encoded file to import
+	 *            file to import
 	 */
-	public void importFile(String targetTable, File importFile) {
-		ColumnStoreBulkInsert b = d.createBulkInsert(DB_NAME, targetTable, (short) 0, 0);
+	public void importFile(File importFile) {
+		ColumnStoreBulkInsert b = d.createBulkInsert(DB_NAME, TABLE_NAME, (short) 0, 0);
 
 		// get the row count of targetTable
 		ColumnStoreSystemCatalog catalog = d.getSystemCatalog();
-		ColumnStoreSystemCatalogTable table = catalog.getTable(DB_NAME, targetTable);
+		ColumnStoreSystemCatalogTable table = catalog.getTable(DB_NAME, TABLE_NAME);
 		int targetTableColumnCount = table.getColumnCount();
 
 		// insert row by row into targetTable from importFile
 		try (BufferedReader br = new BufferedReader(new FileReader(importFile))) {
 			String line;
 			while ((line = br.readLine()) != null) {
-				String[] columns = line.split(delimiter);
+				String[] columns = line.split(DELIMITER);
 				for (int i = 0; i < columns.length; i++) {
 					if (i < targetTableColumnCount) {
 						b.setColumn(i, columns[i]);
@@ -160,35 +182,28 @@ public class CpImport {
 	 * Imports the csv-encoded file and parses dates according to dateFormat and
 	 * dateTimeFormat.
 	 * 
-	 * @param targetTable,
-	 *            target table
 	 * @param importFile,
-	 *            csv-encoded file to import
-	 * @param dateFormat,
-	 *            date format to interpret based on Java's SimpleDateFormat notation
-	 * @param dateTimeFormat,
-	 *            dateTime format to interpret based on Java's SimpleDateFormat
-	 *            notation
+	 *            file to import
 	 */
-	public void importFile(String targetTable, File importFile, String dateFormat, String dateTimeFormat) {
-		ColumnStoreBulkInsert b = d.createBulkInsert(DB_NAME, targetTable, (short) 0, 0);
+	public void importFileAmbiguousDate(File importFile) {
+		ColumnStoreBulkInsert b = d.createBulkInsert(DB_NAME, TABLE_NAME, (short) 0, 0);
 
 		// get the row count of targetTable
 		ColumnStoreSystemCatalog catalog = d.getSystemCatalog();
-		ColumnStoreSystemCatalogTable table = catalog.getTable(DB_NAME, targetTable);
+		ColumnStoreSystemCatalogTable table = catalog.getTable(DB_NAME, TABLE_NAME);
 		int targetTableColumnCount = table.getColumnCount();
 
 		// insert row by row into targetTable from importFile
 		try (BufferedReader br = new BufferedReader(new FileReader(importFile))) {
 			String line;
 			while ((line = br.readLine()) != null) {
-				String[] columns = line.split(delimiter);
+				String[] columns = line.split(DELIMITER);
 				for (int i = 0; i < columns.length; i++) {
 					if (i < targetTableColumnCount) {
 						if (table.getColumn(i).getType().equals(columnstore_data_types_t.DATA_TYPE_DATE)) {
-							b.setColumn(i, parseDate(columns[i], dateFormat));
+							b.setColumn(i, parseDate(columns[i]));
 						} else if (table.getColumn(i).getType().equals(columnstore_data_types_t.DATA_TYPE_DATETIME)) {
-							b.setColumn(i, parseDateTime(columns[i], dateTimeFormat));
+							b.setColumn(i, parseDateTime(columns[i]));
 						} else {
 							b.setColumn(i, columns[i]);
 						}
@@ -221,22 +236,18 @@ public class CpImport {
 	 * 
 	 * @param date,
 	 *            input to import
-	 * @param dateFormat,
-	 *            of input in SimpleDateFormat notation
-	 * @return parsed date in MariaDB format, or null in case of error.
+	 * @return parsed date in MariaDB format, or 0000-00-00 in case of error.
 	 */
-	private String parseDate(String date, String dateFormat) {
-		inputParser.applyPattern(dateFormat);
+	private String parseDate(String date) {
 		Date d = null;
 		try {
-			d = inputParser.parse(date);
+			d = INPUT_PARSER_DATE.parse(date);
 		} catch (ParseException e) {
-			System.err.println("error, date '" + date + "' couldn't be parsed.");
-			return null;
+			System.err.println("error, date '" + date + "' couldn't be parsed, inserting 0000-00-00 instead.");
+			return "0000-00-00";
 		}
 
-		outputParser.applyPattern(OUTPUT_DATE_PATTERN);
-		return outputParser.format(d);
+		return OUTPUT_PARSER_DATE.format(d);
 	}
 
 	/**
@@ -244,21 +255,19 @@ public class CpImport {
 	 * 
 	 * @param dateTime,
 	 *            input to import
-	 * @param dateTimeFormat,
-	 *            of input in SimpleDateFormat notation
-	 * @return parsed dateTime in MariaDB format, or null in case of error.
+	 * @return parsed dateTime in MariaDB format, or 0000-00-00 00:00:00 in case of
+	 *         error.
 	 */
-	private String parseDateTime(String date, String dateTimeFormat) {
-		inputParser.applyPattern(dateTimeFormat);
+	private String parseDateTime(String date) {
 		Date d = null;
 		try {
-			d = inputParser.parse(date);
+			d = INPUT_PARSER_DATETIME.parse(date);
 		} catch (ParseException e) {
-			System.err.println("error, dateTime '" + date + "' couldn't be parsed.");
-			return null;
+			System.err.println(
+					"error, dateTime '" + date + "' couldn't be parsed, inserting 0000-00-00 00:00:00 instead.");
+			return "0000-00-00 00:00:00";
 		}
 
-		outputParser.applyPattern(OUTPUT_DATETIME_PATTERN);
-		return outputParser.format(d);
+		return OUTPUT_PARSER_DATETIME.format(d);
 	}
 }

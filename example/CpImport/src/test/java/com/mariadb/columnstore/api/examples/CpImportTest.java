@@ -100,15 +100,13 @@ public class CpImportTest {
 	public void testBasicWithoutParsing() {
 		// create test table
 		Connection conn = getConnection();
-		String TABLE_NAME = "t1";
-		String DELIMITER = "\\|";
+		final String TABLE_NAME = "t1";
 		executeStmt(conn, "CREATE TABLE IF NOT EXISTS " + TABLE_NAME
 				+ "(i int, vc varchar(8), d date, dt datetime) ENGINE=columnstore");
 
 		// simple insert test without parsing
-		CpImport imp = new CpImport(DB_NAME, DELIMITER);
-		imp.importFile(TABLE_NAME,
-				new File(ClassLoader.getSystemClassLoader().getResource("withoutParsing.csv").getFile()));
+		CpImport imp = new CpImport(DB_NAME, TABLE_NAME);
+		imp.importFile(new File(ClassLoader.getSystemClassLoader().getResource("withoutParsing.csv").getFile()));
 
 		// verify results
 		Statement stmt = null;
@@ -155,18 +153,16 @@ public class CpImportTest {
 	public void testBasicWithParsing() {
 		// create test table
 		Connection conn = getConnection();
-		String TABLE_NAME = "t2";
-		String DELIMITER = "\\|";
+		final String TABLE_NAME = "t2";
 		executeStmt(conn, "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "(d date, dt datetime) ENGINE=columnstore");
 
 		// simple insert test without parsing
-		CpImport imp = new CpImport(DB_NAME, DELIMITER);
-		imp.importFile(TABLE_NAME,
-				new File(ClassLoader.getSystemClassLoader().getResource("dateParsing1.csv").getFile()),
-				"HH:yy,dd-MMM ss.mm", "HH:yy,dd-MMM ss.mm");
-		imp.importFile(TABLE_NAME,
-				new File(ClassLoader.getSystemClassLoader().getResource("dateParsing2.csv").getFile()), "MM-dd-yyyy",
-				"dd.MM.yyyy HH/mm/ss");
+		CpImport imp = new CpImport(DB_NAME, TABLE_NAME, "HH:yy,dd-MMM ss.mm", "HH:yy,dd-MMM ss.mm");
+		imp.importFileAmbiguousDate(
+				new File(ClassLoader.getSystemClassLoader().getResource("dateParsing1.csv").getFile()));
+		imp = new CpImport(DB_NAME, TABLE_NAME, "MM-dd-yyyy", "dd.MM.yyyy HH/mm/ss");
+		imp.importFileAmbiguousDate(
+				new File(ClassLoader.getSystemClassLoader().getResource("dateParsing2.csv").getFile()));
 
 		// verify results
 		Statement stmt = null;
@@ -187,6 +183,9 @@ public class CpImportTest {
 			assertTrue(rs.next());
 			assertEquals("2017-12-24", rs.getString(1));
 			assertEquals("2017-12-24 18:00:01.0", rs.getString(2));
+			assertTrue(rs.next());
+			assertEquals("0000-00-00", rs.getString(1));
+			assertEquals("0000-00-00 00:00:00", rs.getString(2));
 			// dateParsing2.csv
 			assertTrue(rs.next());
 			assertEquals("1736-09-14", rs.getString(1));
@@ -200,6 +199,9 @@ public class CpImportTest {
 			assertTrue(rs.next());
 			assertEquals("1989-12-02", rs.getString(1));
 			assertEquals("1989-12-02 23:42:00.0", rs.getString(2));
+			assertTrue(rs.next());
+			assertEquals("0000-00-00", rs.getString(1));
+			assertEquals("0000-00-00 00:00:00", rs.getString(2));
 		} catch (SQLException e) {
 			fail("Error while validating results: " + e);
 		} finally {
