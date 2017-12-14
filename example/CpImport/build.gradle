@@ -1,0 +1,29 @@
+apply plugin: 'java'
+
+task fatJar(type: Jar){
+	manifest {
+                attributes 'Main-Class': 'com.mariadb.columnstore.api.examples.CpImport'
+	}
+	baseName = project.name + '-all'
+	from {configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }}
+	with jar
+}
+
+repositories{
+	jcenter()
+	flatDir {
+		dirs "${project.projectDir}/../../java/build/libs/"
+	}
+}
+
+dependencies{
+	compile name: 'javamcsapi'
+	testCompile 'junit:junit:4.12'
+	testCompile 'org.mariadb.jdbc:mariadb-java-client:2.1.2'
+}
+
+test {
+	systemProperty "java.library.path","${project.projectDir}/../../java"
+}
+
+build.finalizedBy(fatJar)
