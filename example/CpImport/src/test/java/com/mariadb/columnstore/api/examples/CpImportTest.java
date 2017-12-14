@@ -1,26 +1,25 @@
 package com.mariadb.columnstore.api.examples;
 
-import java.io.File;
-
 /*
- Copyright (c) 2017, MariaDB Corporation. All rights reserved.
+Copyright (c) 2017, MariaDB Corporation. All rights reserved.
 
- This library is free software; you can redistribute it and/or
- modify it under the terms of the GNU Lesser General Public
- License as published by the Free Software Foundation; either
- version 2.1 of the License, or (at your option) any later version.
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
 
- This library is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- Lesser General Public License for more details.
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
 
- You should have received a copy of the GNU Lesser General Public
- License along with this library; if not, write to the Free Software
- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- MA 02110-1301  USA
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+MA 02110-1301  USA
 */
 
+import java.io.File;
 import java.sql.*;
 import org.junit.Test;
 
@@ -132,6 +131,11 @@ public class CpImportTest {
 			assertEquals("advice", rs.getString(2));
 			assertEquals("2043-04-01", rs.getString(3));
 			assertEquals("2017-12-13 16:23:09.0", rs.getString(4));
+			assertTrue(rs.next());
+			assertEquals(42, rs.getInt(1));
+			assertEquals("empty", rs.getString(2));
+			assertEquals("0000-00-00", rs.getString(3));
+			assertEquals("0000-00-00 00:00:00", rs.getString(4));
 		} catch (SQLException e) {
 			fail("Error while validating results: " + e);
 		} finally {
