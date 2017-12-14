@@ -30,7 +30,7 @@ sudo apt-get install python-sphinx texlive-latex-recommended texlive-latex-extra
 For test test suite:
 
 ```shell
-sudo apt-get install libgtest-dev cppcheck
+sudo apt-get install libgtest-dev cppcheck default-libmysqlclient-dev
 cd /usr/src/gtest
 sudo cmake . -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_SHARED_LIBS=ON
 sudo make
@@ -47,7 +47,16 @@ deb http://httpredir.debian.org/debian jessie-backports main contrib non-free
 Then install the following:
 
 ```shell
-sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config libc++-dev swig python-dev default-jdk
+sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config libc++-dev swig python-dev
+```
+
+A JavaSDK >= 8 is required to run properly. If not installed do the following:
+```shell
+sudo apt-get install -t jessie-backports openjdk-8-jdk
+```
+If more than one JavaSDK is installed, change the default to >= 8 by:
+```shell
+sudo update-alternatives --config java
 ```
 
 For the documentation:
@@ -60,6 +69,7 @@ sudo pip install sphinx
 For the test suite do the following in a directory separate from the API:
 
 ```shell
+sudo apt-get install cppcheck libmysqlclient-dev
 git clone https://github.com/google/googletest
 cd googletest
 cmake . -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_SHARED_LIBS=ON

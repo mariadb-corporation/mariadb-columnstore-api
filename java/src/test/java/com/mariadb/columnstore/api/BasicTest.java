@@ -29,7 +29,7 @@ public class BasicTest {
 
     // load java mcsapi native library.
     static {
-        System.loadLibrary("_javamcsapi");
+        System.loadLibrary("javamcsapi");
     }
 
     private void close(Connection conn) {

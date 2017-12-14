@@ -75,8 +75,9 @@ createBulkInsert()
    :param db: The database name for the table to insert into
    :param table: The tabe name to insert into
    :param mode: Future use, must be set to ``0``
-   :param pm: Future use, must be set to ``0``
+   :param pm: Future use, must be set to ``0``. For now batches of inserts use a round-robin between the PM servers.
    :returns: An instance of :cpp:class:`ColumnStoreBulkInsert`
+   :raises ColumnStoreServerError: If a table lock cannot be acquired for the desired table
 
 Example
 ^^^^^^^

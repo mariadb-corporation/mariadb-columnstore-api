@@ -207,7 +207,10 @@ commit()
    Commits the data to the table.
 
    .. note::
-      After making this call the transaction is completed and the class should not be used for anything but :cpp:func:`ColumnStoreBulkInsert::getSummary`. Attempts to use it again will trigger an exception.
+      After making this call the transaction is completed and the class should not be used for anything but :cpp:func:`ColumnStoreBulkInsert::getSummary` or :cpp:func:`ColumnStoreBulkInsert::isActive`. Attempts to use it again will trigger an exception.
+
+   .. note::
+      If the commit fails a rollback will be executed automatically upon deletion of the :cpp:class:`ColumnStoreBulkInsert` object.
 
    :raises ColumnStoreNetworkError: If there has been an error during the write at the network level
    :raises ColumnStoreServerError: If there has been an error during the write at the remote server level
@@ -248,7 +251,7 @@ rollback()
    Rolls back the data written to the table. If the transaction has already been committed or rolled back this will just return without error.
 
    .. note::
-      After making this call the transaction is completed and the class should not be used for anything but :cpp:func:`ColumnStoreBulkInsert::getSummary`. Attempts to use it again will trigger an exception.
+      After making this call the transaction is completed and the class should not be used for anything but :cpp:func:`ColumnStoreBulkInsert::getSummary` or :cpp:func:`ColumnStoreBulkInsert::isActive`. Attempts to use it again will trigger an exception.
 
    :raises ColumnStoreNetworkError: If there has been an error during the write at the network level
    :raises ColumnStoreServerError: If there has been an error during the write at the remote server level

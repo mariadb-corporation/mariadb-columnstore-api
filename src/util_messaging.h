@@ -26,9 +26,10 @@ class ColumnStoreMessaging
 public:
     ColumnStoreMessaging() :
         position(0),
-        current_size(0)
+        buffer_used(0)
     {
-        networkData.reserve(65536);
+        // Vector won't need to move in RAM for at least 1MB of packet data
+        networkData.reserve(1024*1024);
     }
     ColumnStoreMessaging& operator =(const ColumnStoreMessaging &obj);
     ~ColumnStoreMessaging();
@@ -55,9 +56,17 @@ public:
     uint32_t getCompressedHeader() { return COMPRESSED_HEADER; }
     uint8_t getHeaderLength() { return HEADER_LENGTH; }
     size_t getMessageCount() { return lengths.size(); }
-    void allocateDataSize(size_t size) { networkData.resize(size+current_size); }
-    void clearData() { networkData.clear(); }
-    void setDataSize(size_t size) { current_size = size; }
+    void allocateDataSize(size_t size);
+    void clearData()
+    {
+        networkData.clear();
+        buffer_used = 0;
+    }
+
+    void setBufferUsedSize(size_t size) { buffer_used = size; }
+    unsigned char* getBufferEmptyPos() { return networkData.data()+buffer_used; }
+    size_t getBufferUsedSize() { return buffer_used; }
+    size_t getBufferFreeSize() { return networkData.size() - buffer_used; }
 private:
     // Header bytes used by ByteStream
     const uint32_t HEADER            = 0x14FBC137;
@@ -68,8 +77,7 @@ private:
     std::vector<size_t> lengths;
     std::vector<unsigned char> networkData;
     size_t position;
-
-    size_t current_size;
+    size_t buffer_used;
 
     void addHeader();
 };
