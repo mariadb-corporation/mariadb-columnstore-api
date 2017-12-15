@@ -342,6 +342,7 @@ void ColumnStoreBulkInsert::rollback()
         mImpl->commands->weRemoveMeta(pmit, mImpl->uniqueId, mImpl->tbl->getOID());
         mImpl->commands->weClose(pmit);
     }
+    mImpl->commands->brmRolledback(mImpl->txnId);
     mImpl->commands->brmReleaseTableLock(mImpl->tblLock);
     mImpl->autoRollback = false;
     mImpl->transactionClosed = true;
