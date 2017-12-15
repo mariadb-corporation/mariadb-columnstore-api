@@ -991,6 +991,38 @@ void ColumnStoreCommands::brmCommitted(uint32_t txnId)
     delete messageOut;
 }
 
+void ColumnStoreCommands::brmRolledback(uint32_t txnId)
+{
+    ColumnStoreMessaging messageIn;
+    ColumnStoreMessaging* messageOut;
+    ColumnStoreNetwork *connection = getBrmConnection();
+    runSoloLoop(connection);
+
+    uint8_t command = COMMAND_DBRM_ROLLEDBACK;
+
+    messageIn << command;
+    messageIn << txnId;
+    uint8_t valid = 1;
+    messageIn << valid;
+    connection->sendData(messageIn);
+    runSoloLoop(connection);
+
+    connection->readDataStart();
+    messageOut = connection->getReadMessage();
+    runSoloLoop(connection);
+
+    uint8_t response;
+    *messageOut >> response;
+    if (response != 0)
+    {
+        std::string errmsg("Error rolling back BRM");
+        delete messageOut;
+        throw ColumnStoreServerError(errmsg);
+    }
+
+    delete messageOut;
+}
+
 void ColumnStoreCommands::brmTakeSnapshot()
 {
     ColumnStoreMessaging messageIn;
