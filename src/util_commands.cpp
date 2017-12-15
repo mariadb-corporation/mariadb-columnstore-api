@@ -1015,7 +1015,7 @@ void ColumnStoreCommands::brmRolledback(uint32_t txnId)
     *messageOut >> response;
     if (response != 0)
     {
-        std::string errmsg("Error committing BRM");
+        std::string errmsg("Error rolling back BRM");
         delete messageOut;
         throw ColumnStoreServerError(errmsg);
     }
