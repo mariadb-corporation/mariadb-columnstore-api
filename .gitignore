@@ -14,6 +14,7 @@ src/libmcsapi.a
 *.swp
 example/basic_bulk_insert
 example/advanced_bulk_insert
+example/CpImport/.gradle
 install_manifest*.txt
 src/libmcsapi.so*
 python/_pymcsapi*.so*
