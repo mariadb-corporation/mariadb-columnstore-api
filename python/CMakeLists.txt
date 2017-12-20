@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.8)
 
 include_directories(..)
 
@@ -23,7 +23,12 @@ IF(TEST_RUNNER)
   add_test(NAME test_million_row COMMAND ${PYTHON_EXECUTABLE} -m pytest test/test_million_row.py)
 ENDIF(TEST_RUNNER)
 
-execute_process(COMMAND python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()" OUTPUT_VARIABLE PYTHON_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE)
+if(PYTHONLIBS_VERSION_STRING LESS 3)
+	execute_process(COMMAND python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())" OUTPUT_VARIABLE PYTHON_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE)
+else(PYTHONLIBS_VERSION_STRING LESS 3)
+	execute_process(COMMAND python3 -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())" OUTPUT_VARIABLE PYTHON_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif(PYTHONLIBS_VERSION_STRING LESS 3)
+
 install(TARGETS _pymcsapi DESTINATION ${PYTHON_SITE_PACKAGES})
 install(FILES pymcsapi.py DESTINATION ${PYTHON_SITE_PACKAGES})
 
