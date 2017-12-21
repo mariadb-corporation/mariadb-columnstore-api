@@ -80,11 +80,6 @@ public class CpImport {
 		}
 	}
 
-	// load java mcsapi native library.
-	static {
-		System.loadLibrary("javamcsapi");
-	}
-
 	private ColumnStoreDriver d;
 	private final String DB_NAME;
 	private final String TABLE_NAME;
