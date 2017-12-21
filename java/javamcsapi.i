@@ -32,3 +32,15 @@
 %include "libmcsapi/mcsapi_exception.h"
 %include "libmcsapi/mcsapi_driver.h"
 %include "libmcsapi/mcsapi_bulk.h"
+
+/* let the parent class load the system library to avoid exceptions if it is otherwise loaded by a child class, i.e. in jupyter scala notebooks*/
+%pragma(java) jniclasscode=%{
+  static {
+    try {
+      System.loadLibrary("javamcsapi");
+    } catch (UnsatisfiedLinkError e) {
+      System.err.println("Native code library failed to load. \n" + e);
+      System.exit(1);
+    }
+  }
+%}

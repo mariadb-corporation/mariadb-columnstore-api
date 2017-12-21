@@ -27,11 +27,6 @@ public class BasicTest {
 
     private static final String DB_NAME = "mcsapi";
 
-    // load java mcsapi native library.
-    static {
-        System.loadLibrary("javamcsapi");
-    }
-
     private void close(Connection conn) {
         if (conn != null) {
             try {
