@@ -402,7 +402,7 @@ uint64_t ColumnStoreDecimalImpl::getDecimalInt(uint32_t scale)
 
 int64_t ColumnStoreDecimalImpl::getInt()
 {
-    int64_t result = decimalNumber / pow((double)10, decimalScale);
+    int64_t result = llround(getDouble());
     return result;
 }
 
