@@ -297,6 +297,7 @@ bool ColumnStoreDecimal::set(const std::string& value)
     // Copy so as not to destroy original
     std::string valCopy = value;
 
+    errno = 0;
     token = strtok(&valCopy[0], seps);
     // No decimal point
     if (!token)
@@ -313,7 +314,13 @@ bool ColumnStoreDecimal::set(const std::string& value)
             return false;
         }
     }
-    mImpl->decimalNumber = atoll(token);
+    char* tokend;
+    mImpl->decimalNumber = strtoll(token, &tokend, 10);
+    if (errno == ERANGE)
+    {
+        return false;
+    }
+    size_t digits = tokend - token;
     token = strtok(NULL, seps);
 
     // Whatever is after the dot isn't a number
@@ -321,10 +328,39 @@ bool ColumnStoreDecimal::set(const std::string& value)
     {
         return false;
     }
-    int64_t decimals = atoll(token);
-    mImpl->decimalScale = strlen(token);
+    int64_t decimals = strtoll(token, NULL, 10);
+    digits += strlen(token);
+    if (digits > 18)
+    {
+        decimals = decimals / pow(10, (digits - 18));
+        digits = digits - 18;
+    }
+    else
+    {
+        digits = 0;
+    }
+    if (errno == ERANGE)
+    {
+        return false;
+    }
+    mImpl->decimalScale = strlen(token) - digits;
     mImpl->decimalNumber *= pow((double) 10, mImpl->decimalScale);
-    mImpl->decimalNumber += decimals;
+    if (errno == ERANGE)
+    {
+        return false;
+    }
+    if (mImpl->decimalNumber >= 0)
+    {
+        mImpl->decimalNumber += decimals;
+    }
+    else
+    {
+        mImpl->decimalNumber -= decimals;
+    }
+    if (errno == ERANGE)
+    {
+        return false;
+    }
 
     token = strtok(NULL, seps);
     // Something bad happened
@@ -366,7 +402,7 @@ uint64_t ColumnStoreDecimalImpl::getDecimalInt(uint32_t scale)
 
 int64_t ColumnStoreDecimalImpl::getInt()
 {
-    int64_t result = decimalNumber / pow((double)10, decimalScale);
+    int64_t result = llround(getDouble());
     return result;
 }
 
