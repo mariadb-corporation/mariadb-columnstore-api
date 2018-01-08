@@ -372,7 +372,6 @@ ColumnStoreBulkInsertImpl::ColumnStoreBulkInsertImpl(const std::string& iDb, con
     uniqueId(0),
     tblLock(0),
     txnId(0),
-    sessionId(65535), // Maybe change this later?
     row(nullptr),
     batchSize(10000),
     autoRollback(true),
@@ -380,6 +379,7 @@ ColumnStoreBulkInsertImpl::ColumnStoreBulkInsertImpl(const std::string& iDb, con
     truncateIsError(false),
     currentPm(0)
 {
+    sessionId = rand() % 65535 + 65535;
     summary = new ColumnStoreSummary();
     if (iMode == 1)
     {
