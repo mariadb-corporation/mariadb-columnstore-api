@@ -33,6 +33,9 @@ ColumnStoreDriver::ColumnStoreDriver(const std::string& path)
     mImpl->path = path;
     mImpl->loadXML();
     mcsdebug("loaded config: %s", path.c_str());
+    timeval t1;
+    gettimeofday(&t1, NULL);
+    srand(t1.tv_usec * t1.tv_sec);
 }
 
 ColumnStoreDriver::ColumnStoreDriver()
@@ -52,6 +55,9 @@ ColumnStoreDriver::ColumnStoreDriver()
 
     mImpl->loadXML();
     mcsdebug("loaded config: %s", mImpl->path.c_str());
+    timeval t1;
+    gettimeofday(&t1, NULL);
+    srand(t1.tv_usec * t1.tv_sec);
 }
 
 ColumnStoreDriver::~ColumnStoreDriver()
