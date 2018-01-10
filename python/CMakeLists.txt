@@ -1,35 +1,46 @@
-cmake_minimum_required(VERSION 2.8.8)
+cmake_minimum_required(VERSION 2.8)
 
-include_directories(..)
+#MESSAGE(STATUS "${CMAKE_CXX_FLAGS}")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__FILENAME__='\"$(subst ${CMAKE_SOURCE_DIR}/,,$(abspath $<))\"'")
+execute_process(COMMAND python -c "print(1)" OUTPUT_VARIABLE PYTHON2_AVAILABLE OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND python3 -c "print(1)" OUTPUT_VARIABLE PYTHON3_AVAILABLE OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBUILDING_MYMCSAPI")
-
-set(Python_ADDITIONAL_VERSIONS 3.7 3.6 3.5 3.4)
-find_package(PythonLibs REQUIRED)
-include_directories(${PYTHON_INCLUDE_DIRS})
-
-find_package(SWIG REQUIRED)
-include(${SWIG_USE_FILE})
-set(CMAKE_SWIG_FLAGS "")
-set_source_files_properties( pymcsapi.i PROPERTIES CPLUSPLUS ON)
-swig_add_module(pymcsapi python pymcsapi.i)
-swig_link_libraries(pymcsapi mcsapi ${PYTHON_LIBRARIES})
-
-IF(TEST_RUNNER)
-  find_package(PythonInterp REQUIRED)
-  add_test(NAME test_basic COMMAND ${PYTHON_EXECUTABLE} -m pytest test/test_basic.py)
-  add_test(NAME test_million_row COMMAND ${PYTHON_EXECUTABLE} -m pytest test/test_million_row.py)
-ENDIF(TEST_RUNNER)
-
-if(PYTHONLIBS_VERSION_STRING LESS 3)
-	execute_process(COMMAND python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())" OUTPUT_VARIABLE PYTHON_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE)
-else(PYTHONLIBS_VERSION_STRING LESS 3)
-	execute_process(COMMAND python3 -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())" OUTPUT_VARIABLE PYTHON_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE)
-endif(PYTHONLIBS_VERSION_STRING LESS 3)
-
-install(TARGETS _pymcsapi DESTINATION ${PYTHON_SITE_PACKAGES})
-install(FILES pymcsapi.py DESTINATION ${PYTHON_SITE_PACKAGES})
-
-
+IF(PYTHON2_AVAILABLE OR PYTHON3_AVAILABLE)
+  set(SWIG_PYTHON_WRAPPER
+      "pymcsapi.py"
+      "pymcsapi_wrap.cxx"
+  )
+  add_custom_command(OUTPUT ${SWIG_PYTHON_WRAPPER}
+                     COMMAND swig -c++ -python -I.. pymcsapi.i
+                     COMMENT "Building the Python wrapper")
+  IF(PYTHON2_AVAILABLE)
+    set(PYTHON2_LIBRARY_OBJECT "_pymcsapi.so")
+    add_custom_command(OUTPUT ${PYTHON2_LIBRARY_OBJECT}
+                       COMMAND python setup.py build_ext --inplace
+                       DEPENDS ${SWIG_PYTHON_WRAPPER}
+                       COMMENT "Building the Python2 library")
+    add_custom_target(_pymcsapi ALL DEPENDS ${PYTHON2_LIBRARY_OBJECT})
+    IF(TEST_RUNNER)
+      add_test(NAME test_basic COMMAND python -m pytest test/test_basic.py)
+      add_test(NAME test_million_row COMMAND python -m pytest test/test_million_row.py)
+    ENDIF(TEST_RUNNER)
+    execute_process(COMMAND python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())" OUTPUT_VARIABLE PYTHON2_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE)
+    install(FILES _pymcsapi.so DESTINATION ${PYTHON2_SITE_PACKAGES})
+    install(FILES pymcsapi.py DESTINATION ${PYTHON2_SITE_PACKAGES})
+  ENDIF(PYTHON2_AVAILABLE)
+  IF(PYTHON3_AVAILABLE)
+    set(PYTHON3_LIBRARY_OBJECT "_pymcsapi3.so")
+    add_custom_command(OUTPUT ${PYTHON3_LIBRARY_OBJECT}
+                       COMMAND python3 setup.py build_ext --inplace
+                       DEPENDS ${SWIG_PYTHON_WRAPPER}
+                       COMMENT "Building the Python3 library")
+    add_custom_target(_pymcsapi3 ALL DEPENDS ${PYTHON3_LIBRARY_OBJECT})
+    IF(TEST_RUNNER)
+      add_test(NAME test_basic COMMAND python3 -m pytest test/test_basic.py)
+      add_test(NAME test_million_row COMMAND python3 -m pytest test/test_million_row.py)
+    ENDIF(TEST_RUNNER)
+    execute_process(COMMAND python3 -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())" OUTPUT_VARIABLE PYTHON3_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE)
+    install(FILES _pymcsapi3.so DESTINATION ${PYTHON3_SITE_PACKAGES})
+    install(FILES pymcsapi.py DESTINATION ${PYTHON3_SITE_PACKAGES})
+  ENDIF(PYTHON3_AVAILABLE)
+ENDIF(PYTHON2_AVAILABLE OR PYTHON3_AVAILABLE)
