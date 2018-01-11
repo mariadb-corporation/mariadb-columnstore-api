@@ -1,46 +1,102 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.11)
 
-#MESSAGE(STATUS "${CMAKE_CXX_FLAGS}")
+include_directories(..)
 
-execute_process(COMMAND python -c "print(1)" OUTPUT_VARIABLE PYTHON2_AVAILABLE OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process(COMMAND python3 -c "print(1)" OUTPUT_VARIABLE PYTHON3_AVAILABLE OUTPUT_STRIP_TRAILING_WHITESPACE)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__FILENAME__='\"$(subst ${CMAKE_SOURCE_DIR}/,,$(abspath $<))\"'")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBUILDING_MYMCSAPI")
 
+#Checking for Python versions and setting executables
+execute_process(COMMAND python -c "import sys; print(sys.version_info[0]);" OUTPUT_VARIABLE PYTHON_VERSION_AVAILABLE OUTPUT_STRIP_TRAILING_WHITESPACE)
+IF(PYTHON_VERSION_AVAILABLE EQUAL 2)
+  set(PYTHON2_AVAILABLE 1)
+  execute_process(COMMAND python -c "import sys; print(sys.executable);" OUTPUT_VARIABLE PYTHON2_EXECUTABLE OUTPUT_STRIP_TRAILING_WHITESPACE)
+ENDIF(PYTHON_VERSION_AVAILABLE EQUAL 2)
+IF(PYTHON_VERSION_AVAILABLE EQUAL 3)
+  set(PYTHON3_AVAILABLE 1)
+  execute_process(COMMAND python -c "import sys; print(sys.executable);" OUTPUT_VARIABLE PYTHON3_EXECUTABLE OUTPUT_STRIP_TRAILING_WHITESPACE)
+ENDIF(PYTHON_VERSION_AVAILABLE EQUAL 3)
+execute_process(COMMAND python3 -c "import sys; print(sys.version_info[0]);" OUTPUT_VARIABLE PYTHON_VERSION_AVAILABLE OUTPUT_STRIP_TRAILING_WHITESPACE)
+IF(PYTHON_VERSION_AVAILABLE EQUAL 3)
+  set(PYTHON3_AVAILABLE 1)
+  execute_process(COMMAND python3 -c "import sys; print(sys.executable);" OUTPUT_VARIABLE PYTHON3_EXECUTABLE OUTPUT_STRIP_TRAILING_WHITESPACE)
+ENDIF(PYTHON_VERSION_AVAILABLE EQUAL 3)
+
+#Checking for Python2 if the Python.h exists
+IF(PYTHON2_AVAILABLE)
+  MESSAGE(STATUS "Found Python2 interpreter")
+  #Getting the include dir
+  execute_process(COMMAND ${PYTHON2_EXECUTABLE} -c "import distutils.sysconfig; print(distutils.sysconfig.get_python_inc());" OUTPUT_VARIABLE PYTHON2_INCLUDE_DIR OUTPUT_STRIP_TRAILING_WHITESPACE)
+  #Checking for Python.h
+  IF(EXISTS "${PYTHON2_INCLUDE_DIR}/Python.h")
+    MESSAGE(STATUS "Found Python2 header file Python.h")
+  ELSE(EXISTS "${PYTHON2_INCLUDE_DIR}/Python.h")
+    MESSAGE(WARNING "NOT found Python2 header file Python.h")
+	set(PYTHON2_AVAILABLE 0)
+  ENDIF(EXISTS "${PYTHON2_INCLUDE_DIR}/Python.h")
+ENDIF(PYTHON2_AVAILABLE)
+
+#Checking for Python3 if Python.h exists
+IF(PYTHON3_AVAILABLE)
+  MESSAGE(STATUS "Found Python3 interpreter")
+  #Getting the include dir
+  execute_process(COMMAND ${PYTHON3_EXECUTABLE} -c "import distutils.sysconfig; print(distutils.sysconfig.get_python_inc());" OUTPUT_VARIABLE PYTHON3_INCLUDE_DIR OUTPUT_STRIP_TRAILING_WHITESPACE)
+  #Checking for Python.h
+  IF(EXISTS "${PYTHON3_INCLUDE_DIR}/Python.h")
+    MESSAGE(STATUS "Found Python3 header file Python.h")
+  ELSE(EXISTS "${PYTHON3_INCLUDE_DIR}/Python.h")
+    MESSAGE(WARNING "NOT found Python3 header file Python.h")
+	set(PYTHON3_AVAILABLE 0)
+  ENDIF(EXISTS "${PYTHON3_INCLUDE_DIR}/Python.h")
+ENDIF(PYTHON3_AVAILABLE)
+
+#Checking for SWIG
+find_package(SWIG REQUIRED)
+
+#Compiling the shared library
 IF(PYTHON2_AVAILABLE OR PYTHON3_AVAILABLE)
-  set(SWIG_PYTHON_WRAPPER
+  set(SWIG_PYTHON_WRAPPER_SOURCE
       "pymcsapi.py"
-      "pymcsapi_wrap.cxx"
-  )
-  add_custom_command(OUTPUT ${SWIG_PYTHON_WRAPPER}
-                     COMMAND swig -c++ -python -I.. pymcsapi.i
-                     COMMENT "Building the Python wrapper")
+      "pymcsapi_wrap.cxx")
+  add_custom_command(OUTPUT ${SWIG_PYTHON_WRAPPER_SOURCE}
+                     COMMAND ${SWIG_EXECUTABLE} -c++ -python -I.. pymcsapi.i
+                     COMMENT "Generating the Python wrapper source code")
+					 
   IF(PYTHON2_AVAILABLE)
-    set(PYTHON2_LIBRARY_OBJECT "_pymcsapi.so")
-    add_custom_command(OUTPUT ${PYTHON2_LIBRARY_OBJECT}
-                       COMMAND python setup.py build_ext --inplace
-                       DEPENDS ${SWIG_PYTHON_WRAPPER}
-                       COMMENT "Building the Python2 library")
-    add_custom_target(_pymcsapi ALL DEPENDS ${PYTHON2_LIBRARY_OBJECT})
+    add_library(_pymcsapi SHARED pymcsapi_wrap.cxx)
+	set_target_properties(_pymcsapi PROPERTIES OUTPUT_NAME "_pymcsapi")
+	set_target_properties(_pymcsapi PROPERTIES PREFIX "")
+	set_target_properties(_pymcsapi PROPERTIES LIBRARY_OUTPUT_DIRECTORY "python_build")
+	target_include_directories(_pymcsapi PRIVATE ${PYTHON2_INCLUDE_DIR})
+	target_link_libraries(_pymcsapi mcsapi)
+    
+    #Tests
     IF(TEST_RUNNER)
-      add_test(NAME test_basic COMMAND python -m pytest test/test_basic.py)
-      add_test(NAME test_million_row COMMAND python -m pytest test/test_million_row.py)
+      add_test(NAME test_basic COMMAND ${PYTHON2_EXECUTABLE} -m pytest test/test_basic.py)
+      add_test(NAME test_million_row COMMAND ${PYTHON2_EXECUTABLE} -m pytest test/test_million_row.py)
     ENDIF(TEST_RUNNER)
-    execute_process(COMMAND python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())" OUTPUT_VARIABLE PYTHON2_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE)
-    install(FILES _pymcsapi.so DESTINATION ${PYTHON2_SITE_PACKAGES})
+
+    #Install
+    execute_process(COMMAND ${PYTHON2_EXECUTABLE} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())" OUTPUT_VARIABLE PYTHON2_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE)
+    install(TARGETS _pymcsapi DESTINATION ${PYTHON2_SITE_PACKAGES})
     install(FILES pymcsapi.py DESTINATION ${PYTHON2_SITE_PACKAGES})
   ENDIF(PYTHON2_AVAILABLE)
   IF(PYTHON3_AVAILABLE)
-    set(PYTHON3_LIBRARY_OBJECT "_pymcsapi3.so")
-    add_custom_command(OUTPUT ${PYTHON3_LIBRARY_OBJECT}
-                       COMMAND python3 setup.py build_ext --inplace
-                       DEPENDS ${SWIG_PYTHON_WRAPPER}
-                       COMMENT "Building the Python3 library")
-    add_custom_target(_pymcsapi3 ALL DEPENDS ${PYTHON3_LIBRARY_OBJECT})
+    add_library(_pymcsapi3 SHARED pymcsapi_wrap.cxx)
+	set_target_properties(_pymcsapi3 PROPERTIES OUTPUT_NAME "_pymcsapi")
+	set_target_properties(_pymcsapi3 PROPERTIES PREFIX "")
+	set_target_properties(_pymcsapi3 PROPERTIES LIBRARY_OUTPUT_DIRECTORY "python3_build")
+	target_include_directories(_pymcsapi3 PRIVATE ${PYTHON3_INCLUDE_DIR})
+	target_link_libraries(_pymcsapi3 mcsapi)
+	
+    #Tests
     IF(TEST_RUNNER)
-      add_test(NAME test_basic COMMAND python3 -m pytest test/test_basic.py)
-      add_test(NAME test_million_row COMMAND python3 -m pytest test/test_million_row.py)
+      add_test(NAME test_basic COMMAND ${PYTHON3_EXECUTABLE} -m pytest test/test_basic.py)
+      add_test(NAME test_million_row COMMAND ${PYTHON3_EXECUTABLE} -m pytest test/test_million_row.py)
     ENDIF(TEST_RUNNER)
-    execute_process(COMMAND python3 -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())" OUTPUT_VARIABLE PYTHON3_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE)
-    install(FILES _pymcsapi3.so DESTINATION ${PYTHON3_SITE_PACKAGES})
+	
+    #Install
+    execute_process(COMMAND ${PYTHON3_EXECUTABLE} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())" OUTPUT_VARIABLE PYTHON3_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE)
+    install(TARGETS _pymcsapi3 DESTINATION ${PYTHON3_SITE_PACKAGES})
     install(FILES pymcsapi.py DESTINATION ${PYTHON3_SITE_PACKAGES})
   ENDIF(PYTHON3_AVAILABLE)
 ENDIF(PYTHON2_AVAILABLE OR PYTHON3_AVAILABLE)
