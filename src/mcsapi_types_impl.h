@@ -159,7 +159,6 @@ public:
 class ColumnStoreSystemCatalogImpl
 {
 public:
-    ~ColumnStoreSystemCatalogImpl() { clear(); }
     void clear();
     std::vector<ColumnStoreSystemCatalogTable*> tables;
 };
