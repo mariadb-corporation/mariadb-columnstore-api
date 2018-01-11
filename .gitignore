@@ -22,8 +22,10 @@ python/__init__.pyc
 __pycache__/
 python/pymcsapi.py
 python/pymcsapi.pyc
-python/pymcsapiPYTHON_wrap.cxx
+python/pymcsapi_wrap.cxx
 python/MANIFEST
+python/python_build
+python/python3_build
 CTestTestfile.cmake
 DartConfiguration.tcl
 Testing/

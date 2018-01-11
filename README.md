@@ -18,7 +18,7 @@ CentOS 6 is not currently supported and it is not expected that the API will bui
 For the main build you need:
 
 ```shell
-sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config swig python-dev default-jdk
+sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config swig python-dev python3-dev default-jdk
 ```
 
 For the documentation:
