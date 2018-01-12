@@ -18,7 +18,7 @@ CentOS 6 is not currently supported and it is not expected that the API will bui
 For the main build you need:
 
 ```shell
-sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config swig python-dev default-jdk
+sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config swig python-dev python3-dev default-jdk
 ```
 
 For the documentation:
@@ -47,7 +47,7 @@ deb http://httpredir.debian.org/debian jessie-backports main contrib non-free
 Then install the following:
 
 ```shell
-sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config libc++-dev swig python-dev
+sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config libc++-dev swig python-dev python3-dev
 ```
 
 A JavaSDK >= 8 is required to run properly. If not installed do the following:
@@ -86,20 +86,23 @@ sudo yum install epel-release
 sudo yum install cmake libuv-devel libxml2-devel snappy-devel
 sudo yum install centos-release-scl
 sudo yum install devtoolset-4-gcc*
-sudo yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel swig python-devel
+sudo yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel swig python-devel python34-devel
 scl enable devtoolset-4 bash
 ```
+
+**NOTE** Corresponding to your python3 installation, the correct devel packets need to be installed.
 
 For the documentation:
 
 ```shell
 sudo yum install python-sphinx texlive-scheme-full latexmk
+
 ```
 
 For the test suite:
 
 ```shell
-sudo yum install gtest-devel cppcheck
+sudo yum install gtest-devel cppcheck mariadb-devel
 ```
 
 ### SUSE Enterprise Linux 12
@@ -197,5 +200,6 @@ cmake . -DDEB=xenial
 You should of course add options as above to this as required. Then you can build the package using:
 
 ```shell
-make package
+sudo make package
 ```
+
