@@ -218,6 +218,7 @@ TEST(Commit, TwoTransactions)
     }
     delete bulk2;
     delete bulk;
+    delete driver;
 }
 
 
