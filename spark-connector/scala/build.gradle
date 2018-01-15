@@ -1,0 +1,31 @@
+apply plugin: 'scala'
+
+sourceSets {
+    main {
+        scala {
+            srcDirs = ['src/main/scala']
+        }
+    }
+    test {
+        scala {
+            srcDirs = ['src/test/scala']
+        }
+    }
+}
+
+repositories{
+	jcenter()
+	flatDir {
+		dirs "${project.projectDir}/../../java/build/libs/"
+	}
+}
+
+dependencies{
+	compile name: 'javamcsapi'
+	compile 'org.scala-lang:scala-library:2.11.8'
+	compile 'org.apache.spark:spark-sql_2.11:2.2.1'
+}
+
+test {
+	systemProperty "java.library.path","${project.projectDir}/../../java"
+}

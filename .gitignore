@@ -1,3 +1,5 @@
+spark-connector/scala/.gradle
+spark-connector/scala/build
 CMakeCache.txt
 CMakeFiles/
 Makefile
