@@ -40,7 +40,7 @@ class TestEnvironment : public ::testing::Environment {
         FAIL() << "Could not select DB: " << mysql_error(my_con);
     if (mysql_query(my_con, "DROP TABLE IF EXISTS mcol1154"))
         FAIL() << "Could not drop existing table: " << mysql_error(my_con);
-    if (mysql_query(my_con, "CREATE TABLE IF NOT EXISTS mcol1154 (a int, b varchar(50)) engine=columnstore"))
+    if (mysql_query(my_con, "CREATE TABLE IF NOT EXISTS mcol1154 (a int, b varchar(64)) engine=columnstore"))
         FAIL() << "Could not create table: " << mysql_error(my_con);
   }
   // Override this to define how to tear down the environment.
@@ -64,16 +64,32 @@ TEST(mcol1154, mcol1154)
     try {
         driver = new mcsapi::ColumnStoreDriver();
         bulk = driver->createBulkInsert(db, table, 0, 0);
-        std::string tData;
-        tData = "hello world1";
+        bulk->setColumn(0, 1);
+        bulk->setColumn(1, "preload");
+        bulk->writeRow();
+        bulk->commit();
+        if (mysql_query(my_con, "SELECT * FROM mcol1154"))
+            FAIL() << "Could not run test query: " << mysql_error(my_con);
+        MYSQL_RES* result = mysql_store_result(my_con);
+        if (!result)
+            FAIL() << "Could not get result data: " << mysql_error(my_con);
+        mysql_free_result(result);
+        delete bulk;
+        bulk = driver->createBulkInsert(db, table, 0, 0);
+        bulk->setColumn(0, 1);
+        std::string tData("hello world1");
         // Pad end with some NULs
         tData.resize(14);
-        bulk->setColumn(0, 1);
         bulk->setColumn(1, tData);
         bulk->writeRow();
-        tData = "hello world2";
         bulk->setColumn(0, 2);
-        bulk->setColumn(1, tData);
+        bulk->setColumn(1, "hello world4");
+        bulk->writeRow();
+        bulk->setColumn(0, 3);
+        bulk->setColumn(1, "hello world9");
+        bulk->writeRow();
+        bulk->setColumn(0, 4);
+        bulk->setColumn(1, "hello world16");
         bulk->writeRow();
         bulk->commit();
     } catch (mcsapi::ColumnStoreError &e) {
@@ -84,13 +100,16 @@ TEST(mcol1154, mcol1154)
     MYSQL_RES* result = mysql_store_result(my_con);
     if (!result)
         FAIL() << "Could not get result data: " << mysql_error(my_con);
-    ASSERT_EQ(mysql_num_rows(result), 2);
+    ASSERT_EQ(mysql_num_rows(result), 5);
     MYSQL_ROW row = mysql_fetch_row(result);
+    ASSERT_STREQ(row[0], "1");
+    ASSERT_STREQ(row[1], "preload");
+    row = mysql_fetch_row(result);
     ASSERT_STREQ(row[0], "1");
     ASSERT_STREQ(row[1], "hello world1");
     row = mysql_fetch_row(result);
     ASSERT_STREQ(row[0], "2");
-    ASSERT_STREQ(row[1], "hello world2");
+    ASSERT_STREQ(row[1], "hello world4");
     mysql_free_result(result);
     if (mysql_query(my_con, "DROP TABLE mcol1154"))
         FAIL() << "Could not drop table: " << mysql_error(my_con);
