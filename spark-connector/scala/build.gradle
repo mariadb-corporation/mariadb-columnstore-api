@@ -24,6 +24,8 @@ dependencies{
 	compile name: 'javamcsapi'
 	compile 'org.scala-lang:scala-library:2.11.8'
 	compile 'org.apache.spark:spark-sql_2.11:2.2.1'
+	testCompile 'junit:junit:4.12'
+	testCompile 'org.mariadb.jdbc:mariadb-java-client:2.2.0'
 }
 
 test {

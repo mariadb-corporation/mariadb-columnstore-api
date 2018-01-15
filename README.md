@@ -163,6 +163,7 @@ The options are as follows:
 | ``DEB`` | ``OFF`` | Build a DEB (and the OS name for the package) |
 | ``PYTHON`` | ``ON`` | Build the Python library |
 | ``JAVA`` | ``ON`` | Build the Java library |
+| ``SPRK_CONNECTOR`` | ``OFF`` | Build the spark-scala-connector library |
 | ``RUN_CPPCHECK`` | ``OFF`` | Run cppcheck during ``make test`` or ``make all_cppcheck``|
 
 ### Compiling
