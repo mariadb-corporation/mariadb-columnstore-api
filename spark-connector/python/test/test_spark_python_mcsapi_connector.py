@@ -23,12 +23,13 @@ from pyspark.sql import Row, SQLContext, SparkSession
 import mysql.connector as mariadb
 import pytest, sys, datetime, decimal
 
+if sys.version_info[0] == 3:
+    long = int
+
 #initialize the spark session
 sc = SparkContext("local", "spark-python-connector-test")
 sqlContext = SQLContext(sc)
 spark = SparkSession(sc)
-if sys.version_info[0] == 3:
-    long = int
 
 #create the test table
 def create_db():

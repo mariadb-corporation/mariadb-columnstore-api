@@ -18,6 +18,8 @@
 import sys, pymcsapi, decimal, datetime
 
 def exportRddToColumnstore(database, table, df):
+    
+    global long
 
     if sys.version_info[0] == 3:
         long = int
@@ -76,7 +78,11 @@ def exportRddToColumnstore(database, table, df):
                         #solution once MCOL-1133 is fixed
                         #s = '{0:f}'.format(row[columnId])
                         #bulkInsert.setColumn(columnId, pymcsapi.ColumnStoreDecimal(s)))
-                    
+
+                    #handle python2 unicode strings
+                    elif sys.version_info[0] == 2 and isinstance(row[columnId], unicode):
+                        bulkInsert.setColumn(columnId, row[columnId].encode('utf-8'))
+
                     #any other datatype is inserted without parsing
                     else:
                         bulkInsert.setColumn(columnId, row[columnId])
@@ -84,6 +90,7 @@ def exportRddToColumnstore(database, table, df):
         bulkInsert.commit()
     except Exception as e:
         bulkInsert.rollback()
+        print(row[columnId], type(row[columnId]))
         print(type(e))
         print(e)
        
