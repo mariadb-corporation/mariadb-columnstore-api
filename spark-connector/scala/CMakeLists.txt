@@ -7,7 +7,7 @@ set(SPARK_SCALA_MCSAPI_CONNECTOR_LIB
 )
 
 ADD_CUSTOM_COMMAND(OUTPUT ${SPARK_SCALA_MCSAPI_CONNECTOR_LIB} 
-	COMMAND "${CMAKE_CURRENT_BINARY_DIR}/gradlew" build
+	COMMAND "${CMAKE_CURRENT_BINARY_DIR}/gradlew" build -x test
 	DEPENDS javamcsapi
 	COMMENT "building the spark-scala-mcsapi-connector library"
 )

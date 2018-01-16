@@ -118,6 +118,7 @@ IF(SPARK_CONNECTOR)
     add_subdirectory(spark-connector/scala)
   ENDIF(JAVA)
   IF(PYTHON)
+    add_subdirectory(spark-connector/python)
   ENDIF(PYTHON)
 ENDIF(SPARK_CONNECTOR)  
 
