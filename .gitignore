@@ -1,3 +1,4 @@
+spark-connector/python/spark-warehouse
 spark-connector/python/test/.cache
 spark-connector/python/sparkPythonMcsapiConnector.pyc
 spark-connector/scala/spark-warehouse

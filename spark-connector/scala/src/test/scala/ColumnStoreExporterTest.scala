@@ -1,7 +1,7 @@
 package com.mariadb.columnstore.api.connector
 
 /*
-Copyright (c) 2017, MariaDB Corporation. All rights reserved.
+Copyright (c) 2018, MariaDB Corporation. All rights reserved.
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
 License as published by the Free Software Foundation; either

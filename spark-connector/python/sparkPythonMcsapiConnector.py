@@ -20,9 +20,11 @@ import sys, pymcsapi, decimal, datetime
 def exportRddToColumnstore(database, table, df):
     
     global long
+    python2 = True
 
     if sys.version_info[0] == 3:
         long = int
+        python2 = False
 
     rows = df.collect()
     driver = pymcsapi.ColumnStoreDriver()
@@ -80,7 +82,7 @@ def exportRddToColumnstore(database, table, df):
                         #bulkInsert.setColumn(columnId, pymcsapi.ColumnStoreDecimal(s)))
 
                     #handle python2 unicode strings
-                    elif sys.version_info[0] == 2 and isinstance(row[columnId], unicode):
+                    elif python2 and isinstance(row[columnId], unicode):
                         bulkInsert.setColumn(columnId, row[columnId].encode('utf-8'))
 
                     #any other datatype is inserted without parsing
