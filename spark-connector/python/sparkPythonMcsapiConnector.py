@@ -17,7 +17,7 @@
 
 import sys, pymcsapi, decimal, datetime
 
-def exportRddToColumnstore(database, table, df):
+def export(database, table, df):
     
     global long
     python2 = True

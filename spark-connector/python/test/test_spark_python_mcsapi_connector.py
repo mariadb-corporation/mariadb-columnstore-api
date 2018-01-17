@@ -93,7 +93,7 @@ def test_all_types():
     testDF = spark.createDataFrame(testCaseSeq)
     
     #write the test dataframe into columnstore
-    sparkPythonMcsapiConnector.exportRddToColumnstore("test","pythontest",testDF)
+    sparkPythonMcsapiConnector.export("test","pythontest",testDF)
     
     #verify that the dataframe was stored correctly
     connection = mariadb.connect(user='root', database='test', host='127.0.0.1')
