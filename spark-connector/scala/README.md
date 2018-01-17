@@ -3,7 +3,7 @@ This provides a connector between the MariaDB ColumnStore API Java Wrapper and S
 
 Currently there is only one function.
 ```scala
-ColumnStoreExporter.export(database, table, DataFrame)
+ColumnStoreExporter.export("database", "table", DataFrame)
 ```
 that exports a DataFrame to an existing table.
 
