@@ -702,6 +702,7 @@ void ColumnStoreSystemCatalogImpl::clear()
 {
     for (std::vector<ColumnStoreSystemCatalogTable*>::iterator it = tables.begin() ; it != tables.end(); ++it)
     {
+        (*it)->mImpl->clear();
         delete *it;
     }
 }
