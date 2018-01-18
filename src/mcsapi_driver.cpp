@@ -62,7 +62,6 @@ ColumnStoreDriver::ColumnStoreDriver()
 
 ColumnStoreDriver::~ColumnStoreDriver()
 {
-
     delete mImpl;
 }
 

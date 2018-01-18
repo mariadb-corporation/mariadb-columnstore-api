@@ -148,7 +148,6 @@ public:
     ColumnStoreSystemCatalogTableImpl() :
         oid(0)
     {}
-    ~ColumnStoreSystemCatalogTableImpl() { clear(); }
     void clear();
     uint32_t oid;
     std::string schema;

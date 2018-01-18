@@ -137,6 +137,7 @@ private:
 class MCS_API ColumnStoreSystemCatalogTable
 {
     friend class ColumnStoreCommands;
+    friend class ColumnStoreSystemCatalogImpl;
 public:
     ColumnStoreSystemCatalogTable();
     ColumnStoreSystemCatalogTable(const ColumnStoreSystemCatalogTable& obj);
