@@ -31,3 +31,10 @@ dependencies{
 test {
 	systemProperty "java.library.path","${project.projectDir}/../../java"
 }
+
+task benchmark(type: JavaExec, dependsOn: classes){
+        main = 'com.mariadb.columnstore.api.connector.Benchmark'
+        systemProperty "java.library.path","${project.projectDir}/../../java"
+        classpath sourceSets.test.runtimeClasspath
+        classpath configurations.runtime
+}
