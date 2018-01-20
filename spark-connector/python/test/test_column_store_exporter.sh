@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ "$#" -ne 2 ]; then
-    echo "$! python_executable_path pyspark_driver_python"
+    echo "$0 python_executable_path pyspark_driver_python"
 	exit 2
 fi
 
