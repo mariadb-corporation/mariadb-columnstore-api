@@ -39,7 +39,7 @@ def main():
     sc.setLogLevel("WARN")
     
     benchmark1()
-    print()
+    print("")
     benchmark2()
     emptyDatabase()
     
@@ -76,7 +76,7 @@ def createColumnStoreAPITable(name, schema):
 def benchmark1():
     print("===Benchmark 1===")
     print("Comparing JDBC writes to InnoDB, JDBC writes to ColumnStore and API writes to ColumnStore")
-    print()
+    print("")
     
     emptyDatabase()
     
@@ -130,7 +130,7 @@ def benchmark1execution(name, dataframe, schema):
 def benchmark2():
     print("===Benchmark 2===")
     print("Comparing JDBC writes to InnoDB and API writes to ColumnStore with larger datasets")
-    print()
+    print("")
     
     emptyDatabase()
     
