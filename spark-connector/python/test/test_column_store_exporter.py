@@ -15,7 +15,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301  USA
 
-import pytest, sys, datetime, decimal, sparkPythonMcsapiConnector
+import pytest, sys, datetime, decimal, columnStoreExporter
 from pyspark.sql import SparkSession, Row
 import mysql.connector as mariadb
 
@@ -93,7 +93,7 @@ def test_all_types():
     testDF = spark.createDataFrame(testCaseSeq)
     
     #write the test dataframe into columnstore
-    sparkPythonMcsapiConnector.export("test","pythontest",testDF)
+    columnStoreExporter.export("test","pythontest",testDF)
     
     #verify that the dataframe was stored correctly
     connection = mariadb.connect(user='root', database='test', host='127.0.0.1')
