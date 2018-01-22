@@ -1442,6 +1442,17 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         case DATA_TYPE_VARCHAR:
         case DATA_TYPE_CHAR:
         case DATA_TYPE_TEXT:
+        {
+           // Truncate trailing NUL characters for text fields
+           valStr = fromValue.substr(0, strlen(fromValue.c_str()));
+           if (valStr.length() > toMeta->getWidth())
+           {
+               status = CONVERT_STATUS_TRUNCATED;
+               valStr.resize(toMeta->getWidth());
+           }
+           cont->setData(valStr);
+           break;
+        }
         case DATA_TYPE_VARBINARY:
         case DATA_TYPE_CLOB:
         case DATA_TYPE_BLOB:
