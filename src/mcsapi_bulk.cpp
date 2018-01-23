@@ -295,8 +295,6 @@ void ColumnStoreBulkInsert::commit()
         std::vector<uint64_t> lbids;
         std::vector<ColumnStoreHWM> hwms;
         mImpl->commands->weGetWrittenLbids(pmit, mImpl->uniqueId, mImpl->txnId, lbids);
-        mImpl->commands->weClose(pmit);
-        mImpl->commands->weKeepAlive(pmit);
         mImpl->commands->weBulkCommit(pmit, mImpl->uniqueId, mImpl->sessionId, mImpl->txnId, mImpl->tbl->getOID(), hwms);
         mImpl->commands->brmSetHWMAndCP(hwms, lbids, mImpl->txnId);
     }
