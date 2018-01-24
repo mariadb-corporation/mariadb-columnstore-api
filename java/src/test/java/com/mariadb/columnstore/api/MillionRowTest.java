@@ -55,8 +55,5 @@ public class MillionRowTest extends Common {
         // drop test table
         executeStmt(conn, "DROP TABLE IF EXISTS " + TABLE_NAME);
         close(conn);
-
-        // temporary ad hoc fix MCOL-1091
-        System.out.println(d.getVersion());
     }
 }

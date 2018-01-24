@@ -15,6 +15,42 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
+
+%typemap(javacode) mcsapi::ColumnStoreSystemCatalog %{
+  // MCOL-1091: Ensure that the GC doesn't collect any ColumnStoreDriver instance set from Java
+  private ColumnStoreDriver columnStoreDriverReference;
+  protected void addReference(ColumnStoreDriver columnStoreDriver){
+    columnStoreDriverReference = columnStoreDriver;
+  }
+%}
+
+%typemap(javacode) mcsapi::ColumnStoreBulkInsert %{
+  // MCOL-1091: Ensure that the GC doesn't collect any ColumnStoreDriver instance set from Java
+  private ColumnStoreDriver columnStoreDriverReference;
+  protected void addReference(ColumnStoreDriver columnStoreDriver){
+    columnStoreDriverReference = columnStoreDriver;
+  }
+%}
+
+%typemap(javaout) mcsapi::ColumnStoreSystemCatalog &mcsapi::ColumnStoreDriver::getSystemCatalog {
+    // MCOL-1091: Add a Java reference to prevent premature garbage collection
+    $javaclassname c = new $javaclassname($jnicall, false);
+    c.addReference(this);
+    return c;
+  }
+
+%typemap(javaout) mcsapi::ColumnStoreBulkInsert *mcsapi::ColumnStoreDriver::createBulkInsert {
+      // MCOL-1091: Add a Java reference to prevent premature garbage collection
+      long cPtr = $jnicall;
+      if (cPtr == 0){
+        return null;
+      } else {
+        ColumnStoreBulkInsert b = new ColumnStoreBulkInsert(cPtr, false);
+        b.addReference(this);
+        return b;
+      }
+  }
+
 %module javamcsapi
  
 /* swig includes for standard types / exceptions */
