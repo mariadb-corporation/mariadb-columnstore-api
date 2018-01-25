@@ -142,7 +142,7 @@ object Benchmark {
     emptyDatabase()
     
     println("creating dataframe 1: two random generated doubles")
-    val randDF = sqlContext.range(0, 10000000).withColumn("uniform", rand(seed=23)).withColumn("normal", randn(seed=42)).cache()
+    val randDF = sqlContext.range(0, 7000000).withColumn("uniform", rand(seed=23)).withColumn("normal", randn(seed=42)).cache()
     val randDFRows = randDF.count()
     val randDFItems = randDFRows*randDF.columns.size
     randDF.printSchema()
@@ -151,7 +151,7 @@ object Benchmark {
     randDF.unpersist()
     
     println("creating dataframe 2: sha1, sha256, sha512 and md5 hashes of integers")
-    val tmpDF = sc.makeRDD(0 until 1000000).map(i => (i, i.toString)).toDF("number", "string")
+    val tmpDF = sc.makeRDD(0 until 3000000).map(i => (i, i.toString)).toDF("number", "string")
     tmpDF.createOrReplaceTempView("tempDF")
     val hashDF = sqlContext.sql("SELECT number, sha1(string) AS sha1, sha2(string,256) AS sha256, sha2(string,512) AS sha512, md5(string) AS md5 FROM tempDF").cache()
     val hashDFRows = hashDF.count()

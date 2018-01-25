@@ -135,7 +135,7 @@ def benchmark2():
     emptyDatabase()
     
     print("creating dataframe 1: two random generated doubles")
-    randDF = sqlContext.range(0, 10000000).withColumn('uniform', rand(seed=23)).withColumn('normal', randn(seed=42)).cache()
+    randDF = sqlContext.range(0, 7000000).withColumn('uniform', rand(seed=23)).withColumn('normal', randn(seed=42)).cache()
     randDFRows = randDF.count()
     randDFItems = randDFRows*len(randDF.columns)
     randDF.printSchema()
@@ -144,7 +144,7 @@ def benchmark2():
     randDF.unpersist()
     
     print("creating dataframe 2: sha1, sha256, sha512 and md5 hashes of integers")
-    tmpDF = sqlContext.createDataFrame(sc.parallelize(range(0, 1000000)).map(lambda i: Row(number=i, string=str(i))))
+    tmpDF = sqlContext.createDataFrame(sc.parallelize(range(0, 3000000)).map(lambda i: Row(number=i, string=str(i))))
     hashDF = tmpDF.select(tmpDF.number, sha1(tmpDF.string).alias("sha1"), sha2(tmpDF.string,256).alias("sha256"), sha2(tmpDF.string,512).alias("sha512"), md5(tmpDF.string).alias("md5")).cache()
     hashDFRows = hashDF.count()
     hashDFItems = hashDFRows*len(hashDF.columns)
@@ -154,9 +154,8 @@ def benchmark2():
     hashDF.unpersist()
     
     print("jdbc_innodb\tapi_columnstore\t\trows\t\titems")
-    print("%.3fs\t\t%.3fs\t\t\t%i\t\t%i" %(ascii_benchmark[0], ascii_benchmark[1], asciiDFRows, asciiDFItems))
-    print("%.3fs\t\t%.3fs\t\t\t%i\t\t%i" %(rand_benchmark[0], rand_benchmark[1], randDF.count(), randDFRows, randDFItems))
-    print("%.3fs\t\t%.3fs\t\t\t%i\t\t%i" %(hash_benchmark[0], hash_benchmark[1], hashDF.count(), hashDFRows, hashDFItems))
+    print("%.3fs\t\t%.3fs\t\t%i\t\t%i" %(rand_benchmark[0], rand_benchmark[1], randDFRows, randDFItems))
+    print("%.3fs\t\t%.3fs\t\t%i\t\t%i" %(hash_benchmark[0], hash_benchmark[1], hashDFRows, hashDFItems))
     
 def benchmark2execution(name, dataframe, schema):
     t = time.time()
