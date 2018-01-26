@@ -5,7 +5,7 @@ if [ "$#" -ne 1 ]; then
     exit 2
 fi
 
-export PYSPARK_SUBMIT_ARGS="--jars $1 pyspark-shell"
+export PYSPARK_SUBMIT_ARGS="--jars $1 --driver-memory 10G pyspark-shell"
 
 PYTHON_VERSION_AVAILABLE=`python -c "import sys; print(sys.version_info[0]);"`
 

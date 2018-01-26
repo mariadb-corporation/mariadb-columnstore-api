@@ -142,7 +142,7 @@ object Benchmark {
     emptyDatabase()
     
     println("creating dataframe 1: two random generated doubles")
-    val randDF = sqlContext.range(0, 10000000).withColumn("uniform", rand(seed=23)).withColumn("normal", randn(seed=42)).cache()
+    val randDF = sqlContext.range(0, 7000000).withColumn("uniform", rand(seed=23)).withColumn("normal", randn(seed=42)).cache()
     val randDFRows = randDF.count()
     val randDFItems = randDFRows*randDF.columns.size
     randDF.printSchema()
@@ -151,19 +151,20 @@ object Benchmark {
     randDF.unpersist()
     
     println("creating dataframe 2: sha1, sha256, sha512 and md5 hashes of integers")
-    val tmpDF = sc.makeRDD(0 until 1000000).map(i => (i, i.toString)).toDF("number", "string")
+    val tmpDF = sc.makeRDD(0 until 3000000).map(i => (i, i.toString)).toDF("number", "string")
     tmpDF.createOrReplaceTempView("tempDF")
     val hashDF = sqlContext.sql("SELECT number, sha1(string) AS sha1, sha2(string,256) AS sha256, sha2(string,512) AS sha512, md5(string) AS md5 FROM tempDF").cache()
     val hashDFRows = hashDF.count()
     val hashDFItems = hashDFRows*hashDF.columns.size
+    tmpDF.unpersist()
     hashDF.printSchema()
     println("bemchmarking dataframe 2")
     val hash_benchmark = benchmark2execution("hash", hashDF, "number BIGINT, sha1 VARCHAR(40), sha256 VARCHAR(64), sha512 VARCHAR(128), md5 VARCHAR(32)")
     hashDF.unpersist()
     
     println("jdbc_innodb\tapi_columnstore\t\trows\t\titems")
-    println(rand_benchmark._1/1000000000.toDouble+"s\t"+rand_benchmark._2/1000000000.toDouble+"s\t\t"+randDF.count+"\t\t"+randDF.count*randDF.columns.size)
-    println(hash_benchmark._1/1000000000.toDouble+"s\t"+hash_benchmark._2/1000000000.toDouble+"s\t\t"+hashDF.count+"\t\t"+hashDF.count*hashDF.columns.size)
+    println(rand_benchmark._1/1000000000.toDouble+"s\t"+rand_benchmark._2/1000000000.toDouble+"s\t\t"+randDFRows+"\t\t"+randDFItems)
+    println(hash_benchmark._1/1000000000.toDouble+"s\t"+hash_benchmark._2/1000000000.toDouble+"s\t\t"+hashDFRows+"\t\t"+hashDFItems)
   }
   
   private def benchmark2execution(name: String, dataframe: DataFrame, schema: String) = {
