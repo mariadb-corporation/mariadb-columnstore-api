@@ -85,7 +85,7 @@ TEST(DataConvertDecimal, DataConvertDecimal)
         bulk->setColumn(2, dData);
         bulk->setColumn(3, dData);
         bulk->writeRow();
-        dData.set((double)3.141593);
+        dData.set((double)3.1415926);
         bulk->setColumn(0, dData);
         bulk->setColumn(1, dData);
         bulk->setColumn(2, dData);
@@ -125,11 +125,15 @@ TEST(DataConvertDecimal, DataConvertDecimal)
     ASSERT_DOUBLE_EQ(dblval, 112345.67);
     row = mysql_fetch_row(result);
     ASSERT_STREQ(row[0], "3");
-    ASSERT_STREQ(row[1], "3.141593");
-    ASSERT_STREQ(row[2], "3.1415");
+    strval = row[1];
+    dblval = std::stod(strval);
+    ASSERT_DOUBLE_EQ(dblval, 3.1415926);
+    strval = row[2];
+    dblval = std::stod(strval);
+    ASSERT_DOUBLE_EQ(dblval, 3.1415);
     strval = row[3];
     dblval = std::stod(strval);
-    ASSERT_DOUBLE_EQ(dblval, 3.141593);
+    ASSERT_DOUBLE_EQ(dblval, 3.1415926);
     row = mysql_fetch_row(result);
     ASSERT_STREQ(row[0], "0");
     ASSERT_STREQ(row[1], "0");
@@ -183,6 +187,12 @@ TEST(DataConvertDecimal, MCOL1133)
         bulk->setColumn(2, dData);
         bulk->setColumn(3, dData);
         bulk->writeRow();
+        dData.set("-0.0001"); // negative below 1 check
+        bulk->setColumn(0, dData);
+        bulk->setColumn(1, dData);
+        bulk->setColumn(2, dData);
+        bulk->setColumn(3, dData);
+        bulk->writeRow();
         bulk->commit();
     } catch (mcsapi::ColumnStoreError &e) {
         FAIL() << "Error caught: " << e.what() << std::endl;
@@ -192,12 +202,12 @@ TEST(DataConvertDecimal, MCOL1133)
     MYSQL_RES* result = mysql_store_result(my_con);
     if (!result)
         FAIL() << "Could not get result data: " << mysql_error(my_con);
-    ASSERT_EQ(mysql_num_rows(result), 5);
+    ASSERT_EQ(mysql_num_rows(result), 6);
     MYSQL_ROW row = mysql_fetch_row(result);
     double dblval;
     std::string strval;
     ASSERT_STREQ(row[0], "100000001");
-    ASSERT_STREQ(row[1], "100000000.999999000");
+    ASSERT_STREQ(row[1], "100000000.999999");
     ASSERT_STREQ(row[2], "100000000.999999000");
     strval = row[3];
     dblval = std::stod(strval);
@@ -218,18 +228,25 @@ TEST(DataConvertDecimal, MCOL1133)
     ASSERT_DOUBLE_EQ(dblval, 999999999.999999999);
     row = mysql_fetch_row(result);
     ASSERT_STREQ(row[0], "1000000000");
-    ASSERT_STREQ(row[1], "1000000000.12345678");
+    ASSERT_STREQ(row[1], "1000000000.12345679");
     ASSERT_STREQ(row[2], "999999999.999999999");
     strval = row[3];
     dblval = std::stod(strval);
     ASSERT_DOUBLE_EQ(dblval, 1000000000.1234567890123);
     row = mysql_fetch_row(result);
     ASSERT_STREQ(row[0], "1000000000");
-    ASSERT_STREQ(row[1], "999999999.999999999");
+    ASSERT_STREQ(row[1], "1000000000");
     ASSERT_STREQ(row[2], "999999999.999999999");
     strval = row[3];
     dblval = std::stod(strval);
     ASSERT_DOUBLE_EQ(dblval, 999999999.999999999999999);
+    row = mysql_fetch_row(result);
+    ASSERT_STREQ(row[0], "0");
+    ASSERT_STREQ(row[1], "-0.0001");
+    ASSERT_STREQ(row[2], "-0.000100000");
+    strval = row[3];
+    dblval = std::stod(strval);
+    ASSERT_DOUBLE_EQ(dblval, -0.0001);
     mysql_free_result(result);
     delete bulk;
     delete driver;
