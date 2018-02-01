@@ -19,9 +19,13 @@
 #pragma once
 
 #include <chrono>
+#include <boost/multiprecision/cpp_dec_float.hpp>
 
 namespace mcsapi
 {
+
+typedef boost::multiprecision::number<boost::multiprecision::cpp_dec_float<18> > Decimal18;
+
 class ColumnStoreDateTimeImpl
 {
 public:
@@ -63,11 +67,9 @@ public:
 class ColumnStoreDecimalImpl
 {
 public:
-    int64_t decimalNumber;
-    uint8_t decimalScale;
+    boost::multiprecision::cpp_dec_float_50 decNum;
     ColumnStoreDecimalImpl() :
-        decimalNumber(0),
-        decimalScale(0)
+        decNum(0)
     { }
 
     uint64_t getDecimalInt(uint32_t scale);

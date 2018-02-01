@@ -75,6 +75,8 @@ if (NOT SNAPPY_FOUND)
     MESSAGE(FATAL_ERROR "Could not find a usable snappy development environment!")
 endif()
 
+find_package(Boost REQUIRED)
+
 include_directories(${CMAKE_SOURCE_DIR})
 include_directories(${CMAKE_BINARY_DIR})
 
