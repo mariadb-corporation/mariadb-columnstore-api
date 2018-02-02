@@ -18,7 +18,7 @@ CentOS 6 is not currently supported and it is not expected that the API will bui
 For the main build you need:
 
 ```shell
-sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config swig python-dev python3-dev default-jdk
+sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config swig python-dev python3-dev default-jdk libboost-dev
 ```
 
 For the documentation:
@@ -47,7 +47,7 @@ deb http://httpredir.debian.org/debian jessie-backports main contrib non-free
 Then install the following:
 
 ```shell
-sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config libc++-dev swig python-dev python3-dev
+sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config libc++-dev swig python-dev python3-dev libboost-dev
 ```
 
 A JavaSDK >= 8 is required to run properly. If not installed do the following:
@@ -86,7 +86,7 @@ sudo yum install epel-release
 sudo yum install cmake libuv-devel libxml2-devel snappy-devel
 sudo yum install centos-release-scl
 sudo yum install devtoolset-4-gcc*
-sudo yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel swig python-devel python34-devel
+sudo yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel swig python-devel python34-devel boost-devel
 scl enable devtoolset-4 bash
 ```
 
@@ -110,7 +110,7 @@ sudo yum install gtest-devel cppcheck mariadb-devel
 For the main build you need GCC5 minimum. For this example we are using GCC6, you will need the SDK and Toolchain modules enabled in Yast first:
 
 ```shell
-sudo zypper install gcc6 gcc6-c++ cmake libxml2-devel snappy-devel git
+sudo zypper install gcc6 gcc6-c++ cmake libxml2-devel snappy-devel git boost-devel
 
 export CC=/usr/bin/gcc-6
 export CXX=/usr/bin/g++-6
