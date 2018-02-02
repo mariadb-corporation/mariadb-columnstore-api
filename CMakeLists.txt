@@ -75,11 +75,15 @@ if (NOT SNAPPY_FOUND)
     MESSAGE(FATAL_ERROR "Could not find a usable snappy development environment!")
 endif()
 
-find_path(BOOST_SUB_DIR "boost/multiprecision/include")
+find_package(Boost REQUIRED)
 
-if ((NOT BOOST_SUB_DIR) OR (NOT EXISTS ${BOOST_SUB_DIR}))
-    execute_process(COMMAND git submodule update --init
-                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+if (Boost_VERSION VERSION_LESS 105800)
+    find_path(BOOST_SUB_DIR "boost/multiprecision/include")
+
+    if ((NOT BOOST_SUB_DIR) OR (NOT EXISTS ${BOOST_SUB_DIR}))
+        execute_process(COMMAND git submodule update --init
+                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    endif()
 endif()
 
 include_directories(${CMAKE_SOURCE_DIR})
