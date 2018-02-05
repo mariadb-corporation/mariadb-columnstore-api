@@ -1,0 +1,60 @@
+group 'com.mariadb.columnstore.api.kettle'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'idea'
+
+sourceCompatibility = 1.8
+
+project.ext.kettle_dependency_revision = "8.1.0.0-SNAPSHOT"
+project.ext.pentaho_metadata_dependency_revision = "8.1.0.0-SNAPSHOT"
+
+repositories {
+        jcenter()
+        maven { url "https://public.nexus.pentaho.org/content/groups/omni/" }
+        flatDir {
+                dirs "${project.projectDir}/../java/build/libs/"
+        }
+}
+
+configurations.all {
+        resolutionStrategy {
+                failOnVersionConflict()
+                preferProjectModules()
+
+                //force transitive dependenceis that can't be resolved to the correct version
+                force 'xml-apis:xml-apis:1.0.b2', 'org.eclipse.core:commands:3.3.0-I20070605-0010', 'org.eclipse:swt:3.3.0-v3346'
+        }
+
+}
+
+configurations {
+        provided
+        compile {
+                extendsFrom provided
+        }
+
+        zip
+}
+
+dependencies {
+        compile name: 'javamcsapi'
+        provided "org.pentaho:pentaho-metadata:${project.ext.pentaho_metadata_dependency_revision}"
+        provided "pentaho-kettle:kettle-core:${project.ext.kettle_dependency_revision}"
+        provided "pentaho-kettle:kettle-engine:${project.ext.kettle_dependency_revision}"
+        provided "pentaho-kettle:kettle-ui-swt:${project.ext.kettle_dependency_revision}"
+}
+
+task plugin(dependsOn:jar, type: Zip){
+	into("${project.name}/") {
+                from jar.outputs.files
+                //from fileTree(dir: 'package-res')
+        }
+
+        def compileDeps = configurations.compile.resolve()
+        def providedDeps = configurations.provided.resolve()
+        def leftovers = compileDeps - providedDeps
+        into("${project.name}/lib") {
+                from leftovers
+        }
+}
