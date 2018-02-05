@@ -51,6 +51,18 @@
       }
   }
 
+%javaexception("com.mariadb.columnstore.api.ColumnStoreException") {
+  try {
+    $action
+  }
+  catch ( mcsapi::ColumnStoreError & e ) {
+    jclass eclass = jenv->FindClass("com/mariadb/columnstore/api/ColumnStoreException");
+    if ( eclass ) {
+      jenv->ThrowNew( eclass, e.what() );
+    }
+  }
+}
+
 %module javamcsapi
  
 /* swig includes for standard types / exceptions */
