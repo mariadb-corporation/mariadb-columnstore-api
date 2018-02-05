@@ -77,6 +77,7 @@ IF(PYTHON2_AVAILABLE OR PYTHON3_AVAILABLE)
     IF(TEST_RUNNER)
       add_test(NAME test_basic COMMAND ${PYTHON2_EXECUTABLE} -m pytest test/test_basic.py)
       add_test(NAME test_million_row COMMAND ${PYTHON2_EXECUTABLE} -m pytest test/test_million_row.py)
+      add_test(NAME test_exception COMMAND ${PYTHON2_EXECUTABLE} -m pytest test/test_exception.py)
     ENDIF(TEST_RUNNER)
 
     #Install
@@ -96,6 +97,7 @@ IF(PYTHON2_AVAILABLE OR PYTHON3_AVAILABLE)
     IF(TEST_RUNNER)
       add_test(NAME test_basic_python3 COMMAND ${PYTHON3_EXECUTABLE} -m pytest test/test_basic.py)
       add_test(NAME test_million_row_python3 COMMAND ${PYTHON3_EXECUTABLE} -m pytest test/test_million_row.py)
+      add_test(NAME test_exception_python3 COMMAND ${PYTHON3_EXECUTABLE} -m pytest test/test_exception.py)
     ENDIF(TEST_RUNNER)
 	
     #Install

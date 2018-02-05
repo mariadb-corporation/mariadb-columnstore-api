@@ -53,6 +53,7 @@ test/truncation
 test/summary
 test/system-catalog
 test/char4
+test/mcol1160
 version.h
 docs/conf.py
 docs/sources.cmake
