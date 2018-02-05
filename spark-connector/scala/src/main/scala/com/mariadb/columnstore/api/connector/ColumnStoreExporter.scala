@@ -42,38 +42,19 @@ object ColumnStoreExporter {
               case input:Byte => bulkInsert.setColumn(columnId, input)
               case input:java.sql.Date => bulkInsert.setColumn(columnId, input.toString)
               case input:java.math.BigDecimal =>
-                //temporary fix for MCOL-1133
                 val dbColumn = dbTable.getColumn(columnId)
                 if (dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_DECIMAL) ||
-                  dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_UDECIMAL)){
-                  val t = new BigInteger("10")
-                  val n = new BigInteger("0")
-                  var scale = input.scale.toShort
-                  var unscaledValue = input.unscaledValue
-
-                  //remove tailing 0s
-                  while (scale > 0 && unscaledValue.mod(t) == n){
-                    scale = (scale-1).toShort
-                    unscaledValue = unscaledValue.divide(t)
-                  }
-
-                  bulkInsert.setColumn(columnId, new ColumnStoreDecimal(unscaledValue.longValue, scale))
+                  dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_UDECIMAL) ||
+                  dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_FLOAT) ||
+                  dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_UFLOAT) ||
+                  dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_DOUBLE) ||
+                  dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_UDOUBLE)){
+                  
+                  bulkInsert.setColumn(columnId, new ColumnStoreDecimal(input.toPlainString))
                 }
-                else if (dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_FLOAT) ||
-                  dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_UFLOAT)
-                ){
-                  bulkInsert.setColumn(columnId, input.floatValue)
-                }
-                else if (dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_DOUBLE) ||
-                  dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_UDOUBLE)
-                ){
-                  bulkInsert.setColumn(columnId, input.doubleValue)
-                } else {
+                else {
                   bulkInsert.setColumn(columnId, input.toBigInteger)
                 }
-
-              //solution once MCOL-1133 is fixed
-              //bulkInsert.setColumn(columnId, new ColumnStoreDecimal(input.toPlainString))
               case input:Double => bulkInsert.setColumn(columnId, input)
               case input:Float => bulkInsert.setColumn(columnId, input)
               case input:Integer => bulkInsert.setColumn(columnId, input)
