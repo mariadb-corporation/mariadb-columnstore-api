@@ -21,9 +21,10 @@ import pytest
 import pymcsapi
 
 def test_exception_thrown():
-    with pytest.raises(Exception):
+    with pytest.raises(RuntimeError) as exceptionInfo:
         driver = pymcsapi.ColumnStoreDriver()
         catalog = driver.getSystemCatalog()
         table = catalog.getTable("test", "nonexistent")
+    assert exceptionInfo.value.args[0] == 'test.nonexistent not found'
 
 test_exception_thrown()
