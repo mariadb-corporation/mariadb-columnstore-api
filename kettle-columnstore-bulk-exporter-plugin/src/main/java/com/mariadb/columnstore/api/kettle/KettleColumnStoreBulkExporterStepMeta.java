@@ -73,7 +73,7 @@ import static org.pentaho.di.core.row.ValueMetaInterface.*;
   image = "com/mariadb/columnstore/api/kettle/resources/CS.svg",
   categoryDescription = "i18n:org.pentaho.di.trans.step:BaseStep.Category.Bulk",
   i18nPackageName = "com.mariadb.columnstore.api.kettle",
-  documentationUrl = "KettleColumnStoreBulkExporterPlugin.DocumentationURL",
+  documentationUrl = "MariaDB+ColumnStore+Bulk+Loader",
   casesUrl = "KettleColumnStoreBulkExporterPlugin.CasesURL",
   forumUrl = "KettleColumnStoreBulkExporterPlugin.ForumURL"
   )
