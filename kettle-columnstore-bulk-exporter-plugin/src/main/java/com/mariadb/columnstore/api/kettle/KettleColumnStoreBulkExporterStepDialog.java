@@ -245,17 +245,16 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
     tJdbcConnection = new Text(composite, SWT.BORDER);
     tJdbcConnection.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
-    Group btnGroupJdbc = new Group(composite, SWT.BORDER);
-    btnGroupJdbc.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+    Group btnGroupJdbc = new Group(composite, SWT.NONE);
+    btnGroupJdbc.setLayout(new FillLayout(SWT.VERTICAL));
+    btnGroupJdbc.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
     btnGroupJdbc.setText("");
     btnGroupJdbc.setBounds(0, 0, 70, 82);
 
     Button btnEditConnection = new Button(btnGroupJdbc, SWT.NONE);
-    btnEditConnection.setSize(32, 25);
     btnEditConnection.setText("edit");
 
     Button btnNewConnection = new Button(btnGroupJdbc, SWT.NONE);
-    btnNewConnection.setBounds(41, 0, 34, 25);
     btnNewConnection.setText("new");
 
     Label lblLogFile = new Label(composite, SWT.NONE);
