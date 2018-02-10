@@ -99,6 +99,93 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
   @Injection( name = "TARGET_TABLE" )
   private String targetTable;
 
+  /*Wrapper Classes to store the mapping of input and ColumnStore output*/
+  protected static class TargetColumnMetaData{
+    private String fieldName;
+    private columnstore_data_types_t dataType;
+    public TargetColumnMetaData(String fieldName, columnstore_data_types_t dataType){
+      this.fieldName = fieldName;
+      this.dataType = dataType;
+    }
+    public String getFieldName(){
+      return fieldName;
+    }
+    public columnstore_data_types_t getDataType(){
+      return dataType;
+    }
+    public void setFieldName(String fieldName){
+      this.fieldName = fieldName;
+    }
+    public void setDataType(columnstore_data_types_t dataType){
+      this.dataType = dataType;
+    }
+  }
+
+  protected static class InputFieldMetaData{
+    private String fieldName;
+    private int dataType;
+    public InputFieldMetaData(String fieldName, int dataType){
+      this.fieldName = fieldName;
+      this.dataType = dataType;
+    }
+    public String getFieldName(){
+      return fieldName;
+    }
+    public int getDataType(){
+      return dataType;
+    }
+    public void setFieldName(String fieldName){
+      this.fieldName = fieldName;
+    }
+    public void setDataType(int dataType){
+      this.dataType = dataType;
+    }
+  }
+
+  protected static class InputTargetMapping{
+    private InputFieldMetaData[] inputStreamFields;
+    private TargetColumnMetaData[] targetColumnStoreColumns;
+
+    public InputTargetMapping(){
+      this(0);
+    }
+
+    public InputTargetMapping(int entries){
+      this.inputStreamFields = new InputFieldMetaData[entries];
+      this.targetColumnStoreColumns = new TargetColumnMetaData[entries];
+    }
+
+    public int getNumberOfEntries(){
+      return inputStreamFields.length;
+    }
+
+    public InputFieldMetaData[] getInputStreamFields() {
+      return inputStreamFields;
+    }
+
+    public TargetColumnMetaData[] getTargetColumnStoreColumns() {
+      return targetColumnStoreColumns;
+    }
+
+    public InputFieldMetaData getInputStreamField(int i){
+      return inputStreamFields[i];
+    }
+
+    public TargetColumnMetaData getTargetColumnStoreColumn(int i){
+      return targetColumnStoreColumns[i];
+    }
+
+    public void setInputFieldMetaData(int index, InputFieldMetaData metaData){
+      inputStreamFields[index] = metaData;
+    }
+
+    public void setTargetColumnStoreColumn(int index, TargetColumnMetaData metaData){
+      targetColumnStoreColumns[index] = metaData;
+    }
+  }
+
+  private InputTargetMapping fieldMapping;
+
   /**
    * Constructor should call super() to make sure the base class has a chance to initialize properly.
    */
@@ -148,8 +235,9 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
    * to sensible defaults. The values set here will be used by Spoon when a new step is created.    
    */
   public void setDefault() {
-      setTargetDatabase("");
-      setTargetTable("");
+      setTargetDatabase("target database");
+      setTargetTable("target table");
+      fieldMapping = new InputTargetMapping();
   }
 
   /**
@@ -184,6 +272,14 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
         this.targetTable = targetTable;
     }
 
+  public InputTargetMapping getFieldMapping(){
+    return fieldMapping;
+  }
+
+  public void setFieldMapping(InputTargetMapping itm){
+      this.fieldMapping = itm;
+  }
+
   /**
    * This method is used when a step is duplicated in Spoon. It needs to return a deep copy of this
    * step meta object. Be sure to create proper deep copies if the step configuration is stored in
@@ -195,7 +291,16 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
    * @return a deep copy of this
    */
   public Object clone() {
-    Object retval = super.clone();
+    KettleColumnStoreBulkExporterStepMeta retval = (KettleColumnStoreBulkExporterStepMeta) super.clone();
+    InputTargetMapping itm = new InputTargetMapping(fieldMapping.getNumberOfEntries());
+
+    for (int i=0; i<fieldMapping.getNumberOfEntries(); i++){
+      itm.setInputFieldMetaData(i, fieldMapping.getInputStreamField(i));
+      itm.setTargetColumnStoreColumn(i, fieldMapping.getTargetColumnStoreColumn(i));
+    }
+
+    retval.setFieldMapping(itm);
+
     return retval;
   }
 
@@ -213,6 +318,14 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
     // only one field to serialize
     xml.append( XMLHandler.addTagValue( "targetdatabase", targetDatabase ) );
     xml.append( XMLHandler.addTagValue( "targettable", targetTable ) );
+
+    xml.append( XMLHandler.addTagValue("numberOfMappingEntries", fieldMapping.getNumberOfEntries()));
+    for(int i=0; i<fieldMapping.getNumberOfEntries(); i++){
+      xml.append( XMLHandler.addTagValue("inputField_"+i+"_Name", fieldMapping.getInputStreamField(i).getFieldName()));
+      xml.append( XMLHandler.addTagValue("inputField_"+i+"_DataType", fieldMapping.getInputStreamField(i).getDataType()));
+      xml.append( XMLHandler.addTagValue("targetField_"+i+"_Name", fieldMapping.getTargetColumnStoreColumn(i).getFieldName()));
+      xml.append( XMLHandler.addTagValue("targetField_"+i+"_DataType", fieldMapping.getTargetColumnStoreColumn(i).getDataType().swigValue()));
+    }
     return xml.toString();
   }
 
@@ -230,6 +343,18 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
     try {
       setTargetDatabase( XMLHandler.getNodeValue( XMLHandler.getSubNode( stepnode, "targetdatabase" ) ) );
       setTargetTable( XMLHandler.getNodeValue( XMLHandler.getSubNode( stepnode, "targettable" ) ) );
+
+      fieldMapping = new InputTargetMapping(Integer.parseInt(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "numberOfMappingEntries"))));
+      InputFieldMetaData in = new InputFieldMetaData("",0);
+      TargetColumnMetaData ta = new TargetColumnMetaData("", null);
+      for(int i=0; i<fieldMapping.getNumberOfEntries(); i++){
+        in.setFieldName(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "inputField_"+i+"_Name")));
+        in.setDataType(Integer.parseInt(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "inputField_"+i+"_DataType"))));
+        fieldMapping.setInputFieldMetaData(i,in);
+        ta.setFieldName(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "targetField_"+i+"_Name")));
+        ta.setDataType(columnstore_data_types_t.swigToEnum(Integer.parseInt(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "targetField_"+i+"_DataType")))));
+        fieldMapping.setTargetColumnStoreColumn(i,ta);
+      }
     } catch ( Exception e ) {
       throw new KettleXMLException( "MariaDB ColumnStore Exporter Plugin unable to read step info from XML node", e );
     }
@@ -249,6 +374,15 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
     try {
       rep.saveStepAttribute( id_transformation, id_step, "targetdatabase", targetDatabase ); //$NON-NLS-1$
       rep.saveStepAttribute( id_transformation, id_step, "targettable", targetTable ); //$NON-NLS-1$
+
+      rep.saveStepAttribute( id_transformation, id_step, "numberOfMappingEntries", targetTable );
+      for(int i=0; i<fieldMapping.getNumberOfEntries(); i++){
+        rep.saveStepAttribute( id_transformation, id_step, "inputField_"+i+"_Name", fieldMapping.getInputStreamField(i).getFieldName() );
+        rep.saveStepAttribute( id_transformation, id_step, "inputField_"+i+"_DataType", fieldMapping.getInputStreamField(i).getDataType() );
+        rep.saveStepAttribute( id_transformation, id_step, "targetField_"+i+"_Name", fieldMapping.getTargetColumnStoreColumn(i).getFieldName() );
+        rep.saveStepAttribute( id_transformation, id_step, "targetField_"+i+"_DataType", fieldMapping.getTargetColumnStoreColumn(i).getDataType().swigValue() );
+      }
+
     } catch ( Exception e ) {
       throw new KettleException( "Unable to save step into repository: " + id_step, e );
     }
@@ -268,6 +402,18 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
     try {
       targetDatabase  = rep.getStepAttributeString( id_step, "targetdatabase" ); //$NON-NLS-1$
       targetTable  = rep.getStepAttributeString( id_step, "targettable" ); //$NON-NLS-1$
+
+      fieldMapping = new InputTargetMapping((int)rep.getStepAttributeInteger(id_step, "numberOfMappingEntries"));
+      InputFieldMetaData in = new InputFieldMetaData("",0);
+      TargetColumnMetaData ta = new TargetColumnMetaData("", null);
+      for(int i=0; i<fieldMapping.getNumberOfEntries(); i++){
+        in.setFieldName(rep.getStepAttributeString(id_step, "inputField_"+i+"_Name"));
+        in.setDataType((int) rep.getStepAttributeInteger(id_step, "inputField_"+i+"_DataType"));
+        fieldMapping.setInputFieldMetaData(i,in);
+        ta.setFieldName(rep.getStepAttributeString(id_step, "targetField_"+i+"_Name"));
+        ta.setDataType(columnstore_data_types_t.swigToEnum((int) rep.getStepAttributeInteger(id_step, "targetField_"+i+"_DataType")));
+        fieldMapping.setTargetColumnStoreColumn(i,ta);
+      }
     } catch ( Exception e ) {
       throw new KettleException( "Unable to load step from repository", e );
     }

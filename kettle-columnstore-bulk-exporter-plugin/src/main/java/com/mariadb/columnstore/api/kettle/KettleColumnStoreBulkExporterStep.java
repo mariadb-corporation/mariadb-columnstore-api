@@ -108,7 +108,7 @@ public class KettleColumnStoreBulkExporterStep extends BaseStep implements StepI
     catalog = d.getSystemCatalog();
     try {
         table = catalog.getTable(meta.getTargetDatabase(), meta.getTargetTable());
-    }catch(Exception e){
+    }catch(ColumnStoreException e){
         log.logError("Target table " + meta.getTargetTable() + " doesn't exist.", e);
         setErrors(1);
         return false;

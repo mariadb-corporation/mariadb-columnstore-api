@@ -16,6 +16,7 @@
 
 package com.mariadb.columnstore.api.kettle;
 
+import com.mariadb.columnstore.api.columnstore_data_types_t;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -26,12 +27,18 @@ import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 import org.pentaho.di.core.Const;
+import org.pentaho.di.core.exception.KettleException;
+import org.pentaho.di.core.row.ValueMetaInterface;
 import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.ui.core.widget.LabelText;
 import org.pentaho.di.ui.trans.step.BaseStepDialog;
 import org.pentaho.di.trans.step.BaseStepMeta;
 import org.pentaho.di.trans.step.StepDialogInterface;
+
+import java.util.List;
+
+import static org.pentaho.di.core.row.ValueMetaInterface.*;
 
 /**
  * This class is part of the demo step plug-in implementation.
@@ -73,6 +80,8 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
   private Text tJdbcConnection;
 
   private Text tLogFile;
+
+  private KettleColumnStoreBulkExporterStepMeta.InputTargetMapping itm;
 
   /**
    * The constructor should simply invoke super() and save the incoming meta
@@ -117,6 +126,13 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
     // the dialog, it will be restored to this saved value.
     // The "changed" variable is inherited from BaseStepDialog
     changed = meta.hasChanged();
+
+    // Save a local deep copy of the FieldMapping
+    itm = new KettleColumnStoreBulkExporterStepMeta.InputTargetMapping(meta.getFieldMapping().getNumberOfEntries());
+    for (int i=0; i<meta.getFieldMapping().getNumberOfEntries(); i++){
+      itm.setInputFieldMetaData(i, meta.getFieldMapping().getInputStreamField(i));
+      itm.setTargetColumnStoreColumn(i, meta.getFieldMapping().getTargetColumnStoreColumn(i));
+    }
 
     // The ModifyListener used on all controls. It will update the meta object to
     // indicate that changes are being made.
@@ -188,7 +204,7 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
 
     // TabItem field mapping
     TabItem tabItemFieldMapping = new TabItem(tabFolder, SWT.NONE);
-    tabItemFieldMapping.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.FieldMapping.Label"));
+    tabItemFieldMapping.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.FieldMapping.Tab"));
 
     Composite compositeFieldMapping = new Composite(tabFolder, SWT.NONE);
     tabItemFieldMapping.setControl(compositeFieldMapping);
@@ -203,36 +219,37 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
 
     TableColumn tblclmnInputStreamField = new TableColumn(table, SWT.NONE);
     tblclmnInputStreamField.setWidth(210);
-    tblclmnInputStreamField.setText("Input Stream Field");
+    tblclmnInputStreamField.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.InputStreamField.Tabular"));
 
     TableColumn tblclmnColumnstoreTargetColumn = new TableColumn(table, SWT.NONE);
     tblclmnColumnstoreTargetColumn.setWidth(210);
-    tblclmnColumnstoreTargetColumn.setText("ColumnStore Target Column");
+    tblclmnColumnstoreTargetColumn.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.TargetColumn.Tabular"));
 
     TableColumn tblclmnCompatible = new TableColumn(table, SWT.NONE);
     tblclmnCompatible.setWidth(127);
-    tblclmnCompatible.setText("Compatible");
+    tblclmnCompatible.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.Compatible.Tabular"));
 
-    TableItem tableItem = new TableItem(table, SWT.NONE);
-    tableItem.setText("New TableItem");
-
-    TableItem tableItem_1 = new TableItem(table, SWT.NONE);
-    tableItem_1.setText("New TableItem");
+    //display the mappings from the itm in the table
+    updateTableView();
 
     Group btnGroupMapping = new Group(compositeFieldMapping, SWT.NONE);
     btnGroupMapping.setLayout(new GridLayout(1, false));
 
     Button btnGetFields = new Button(btnGroupMapping, SWT.NONE);
     btnGetFields.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-    btnGetFields.setText("Get Fields");
+    btnGetFields.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.Button.MapAllInputs"));
+
+    btnGetFields.addListener(SWT.Selection, new Listener() { public void handleEvent(Event arg0) {mapAllInputs();}});
 
     Button btnEditMapping = new Button(btnGroupMapping, SWT.NONE);
     btnEditMapping.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-    btnEditMapping.setText("Edit Mapping");
+    btnEditMapping.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.Button.CustomMapping"));
+
+    btnEditMapping.addListener(SWT.Selection, new Listener() { 	public void handleEvent(Event arg0) { customMapping();}});
 
     // TabItem settings
     TabItem tabItemSettings = new TabItem(tabFolder, SWT.FILL);
-    tabItemSettings.setText("Settings");
+    tabItemSettings.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.Settings.Tab"));
 
     Composite composite = new Composite(tabFolder, SWT.NONE);
     tabItemSettings.setControl(composite);
@@ -240,7 +257,7 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
 
     Label lblJdbcConnection = new Label(composite, SWT.NONE);
     lblJdbcConnection.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-    lblJdbcConnection.setText("JDBC Connection");
+    lblJdbcConnection.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.Label.JDBCConnection"));
 
     tJdbcConnection = new Text(composite, SWT.BORDER);
     tJdbcConnection.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -252,34 +269,34 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
     btnGroupJdbc.setBounds(0, 0, 70, 82);
 
     Button btnEditConnection = new Button(btnGroupJdbc, SWT.NONE);
-    btnEditConnection.setText("edit");
+    btnEditConnection.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.Button.Edit"));
 
     Button btnNewConnection = new Button(btnGroupJdbc, SWT.NONE);
-    btnNewConnection.setText("new");
+    btnNewConnection.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.Button.New"));
 
     Label lblLogFile = new Label(composite, SWT.NONE);
     lblLogFile.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-    lblLogFile.setText("Log File");
+    lblLogFile.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.Label.LogFile"));
 
     tLogFile = new Text(composite, SWT.BORDER);
     tLogFile.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
     Button btnBrowseLogfile = new Button(composite, SWT.NONE);
     btnBrowseLogfile.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-    btnBrowseLogfile.setText("browse");
+    btnBrowseLogfile.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.Button.Browse"));
 
     // OK, cancel and SQL buttons
     wOK = new Button(shell, SWT.NONE);
     FormData fd_btnOk = new FormData();
     wOK.setLayoutData(fd_btnOk);
-    wOK.setText("OK");
+    wOK.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.Button.OK"));
 
     wCancel = new Button(shell, SWT.NONE);
     fd_btnOk.top = new FormAttachment(wCancel, 0, SWT.TOP);
     fd_btnOk.right = new FormAttachment(wCancel, -3);
     FormData fd_btnCancel = new FormData();
     wCancel.setLayoutData(fd_btnCancel);
-    wCancel.setText("Cancel");
+    wCancel.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.Button.Cancel"));
 
     wSQL = new Button(shell, SWT.NONE);
     fd_btnCancel.top = new FormAttachment(wSQL, 0, SWT.TOP);
@@ -288,7 +305,7 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
     fd_btnSql.left = new FormAttachment(0, 359);
     fd_btnSql.bottom = new FormAttachment(100);
     wSQL.setLayoutData(fd_btnSql);
-    wSQL.setText("SQL");
+    wSQL.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.Button.SQL"));
 
     // Add listeners for cancel and OK
     lsCancel = new Listener() {
@@ -345,6 +362,73 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
   }
 
   /**
+   * Function is invoked when button "Map all Inputs" is hit.
+   * It maps all input fields to a new ColumnStore columns of adequate type.
+   */
+  private void mapAllInputs() {
+
+    System.out.println("BUTTON MAP ALL INPUTS PRESSED");
+
+    List<ValueMetaInterface> inputValueTypes = meta.getTableFields().getValueMetaList();
+
+    itm = new KettleColumnStoreBulkExporterStepMeta.InputTargetMapping(inputValueTypes.size());
+
+    for(int i=0; i< inputValueTypes.size(); i++){
+      itm.setInputFieldMetaData(i, new KettleColumnStoreBulkExporterStepMeta.InputFieldMetaData(inputValueTypes.get(i).getName(),inputValueTypes.get(i).getType()));
+      KettleColumnStoreBulkExporterStepMeta.TargetColumnMetaData t = new KettleColumnStoreBulkExporterStepMeta.TargetColumnMetaData(inputValueTypes.get(i).getName(),null);
+      // Find the correct ColumnStore type
+      switch(inputValueTypes.get(i).getType()){
+        case TYPE_STRING:
+          t.setDataType(columnstore_data_types_t.DATA_TYPE_TEXT);
+          break;
+        case TYPE_INTEGER:
+          t.setDataType(columnstore_data_types_t.DATA_TYPE_BIGINT);
+          break;
+        case TYPE_NUMBER:
+          t.setDataType(columnstore_data_types_t.DATA_TYPE_DOUBLE);
+          break;
+        case TYPE_BIGNUMBER:
+          t.setDataType(columnstore_data_types_t.DATA_TYPE_DECIMAL);
+          break;
+        case TYPE_DATE:
+          t.setDataType(columnstore_data_types_t.DATA_TYPE_DATE);
+          break;
+        case TYPE_TIMESTAMP:
+          t.setDataType(columnstore_data_types_t.DATA_TYPE_DATETIME);
+          break;
+        case TYPE_BOOLEAN:
+          t.setDataType(columnstore_data_types_t.DATA_TYPE_TINYINT);
+          break;
+        default:
+          t.setDataType(columnstore_data_types_t.DATA_TYPE_BLOB);
+          log.logError("Input datatype " + typeCodes[inputValueTypes.get(i).getType()] + " is currently not supported.");
+      }
+      itm.setTargetColumnStoreColumn(i, t);
+    }
+    updateTableView();
+  }
+
+  /**
+  * Updates the table based on the current itm
+   */
+  private void updateTableView(){
+    table.removeAll();
+    for (int i=0; i<itm.getNumberOfEntries(); i++){
+      TableItem tableItem = new TableItem(table, SWT.NONE);
+      tableItem.setText(0, itm.getInputStreamField(i).getFieldName() + " <" + typeCodes[itm.getInputStreamField(i).getDataType()]+">");
+      tableItem.setText(1, itm.getTargetColumnStoreColumn(i).getFieldName() + " <" + itm.getTargetColumnStoreColumn(i).getDataType()+">");
+    }
+    table.update();
+  }
+
+  /**
+   * Function is invoked when button Custom Mapping is hit
+   */
+  private void customMapping(){
+    System.out.println("BUTTON CUSTOM MAPPING HIT");
+  }
+
+  /**
    * This helper method puts the step configuration stored in the meta object
    * and puts it into the dialog controls.
    */
@@ -377,8 +461,14 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
     // Setting the  settings to the meta object
     meta.setTargetDatabase( wTargetDatabaseFieldName.getText() );
     meta.setTargetTable( wTargetTableFieldName.getText() );
+
+    // Set the field mapping
+    meta.setFieldMapping(itm);
+
     // close the SWT dialog window
     dispose();
   }
+
+
 }
 
