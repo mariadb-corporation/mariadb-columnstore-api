@@ -102,43 +102,27 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
   /*Wrapper Classes to store the mapping of input and ColumnStore output*/
   protected static class TargetColumnMetaData{
     private String fieldName;
-    private columnstore_data_types_t dataType;
-    public TargetColumnMetaData(String fieldName, columnstore_data_types_t dataType){
+    public TargetColumnMetaData(String fieldName){
       this.fieldName = fieldName;
-      this.dataType = dataType;
     }
     public String getFieldName(){
       return fieldName;
     }
-    public columnstore_data_types_t getDataType(){
-      return dataType;
-    }
     public void setFieldName(String fieldName){
       this.fieldName = fieldName;
-    }
-    public void setDataType(columnstore_data_types_t dataType){
-      this.dataType = dataType;
     }
   }
 
   protected static class InputFieldMetaData{
     private String fieldName;
-    private int dataType;
-    public InputFieldMetaData(String fieldName, int dataType){
+    public InputFieldMetaData(String fieldName){
       this.fieldName = fieldName;
-      this.dataType = dataType;
     }
     public String getFieldName(){
       return fieldName;
     }
-    public int getDataType(){
-      return dataType;
-    }
     public void setFieldName(String fieldName){
       this.fieldName = fieldName;
-    }
-    public void setDataType(int dataType){
-      this.dataType = dataType;
     }
   }
 
@@ -322,9 +306,7 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
     xml.append( XMLHandler.addTagValue("numberOfMappingEntries", fieldMapping.getNumberOfEntries()));
     for(int i=0; i<fieldMapping.getNumberOfEntries(); i++){
       xml.append( XMLHandler.addTagValue("inputField_"+i+"_Name", fieldMapping.getInputStreamField(i).getFieldName()));
-      xml.append( XMLHandler.addTagValue("inputField_"+i+"_DataType", fieldMapping.getInputStreamField(i).getDataType()));
       xml.append( XMLHandler.addTagValue("targetField_"+i+"_Name", fieldMapping.getTargetColumnStoreColumn(i).getFieldName()));
-      xml.append( XMLHandler.addTagValue("targetField_"+i+"_DataType", fieldMapping.getTargetColumnStoreColumn(i).getDataType().swigValue()));
     }
     return xml.toString();
   }
@@ -345,15 +327,9 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
       setTargetTable( XMLHandler.getNodeValue( XMLHandler.getSubNode( stepnode, "targettable" ) ) );
 
       fieldMapping = new InputTargetMapping(Integer.parseInt(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "numberOfMappingEntries"))));
-      InputFieldMetaData in = new InputFieldMetaData("",0);
-      TargetColumnMetaData ta = new TargetColumnMetaData("", null);
       for(int i=0; i<fieldMapping.getNumberOfEntries(); i++){
-        in.setFieldName(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "inputField_"+i+"_Name")));
-        in.setDataType(Integer.parseInt(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "inputField_"+i+"_DataType"))));
-        fieldMapping.setInputFieldMetaData(i,in);
-        ta.setFieldName(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "targetField_"+i+"_Name")));
-        ta.setDataType(columnstore_data_types_t.swigToEnum(Integer.parseInt(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "targetField_"+i+"_DataType")))));
-        fieldMapping.setTargetColumnStoreColumn(i,ta);
+        fieldMapping.setInputFieldMetaData(i,new InputFieldMetaData(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "inputField_"+i+"_Name"))));
+        fieldMapping.setTargetColumnStoreColumn(i,new TargetColumnMetaData(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "targetField_"+i+"_Name"))));
       }
     } catch ( Exception e ) {
       throw new KettleXMLException( "MariaDB ColumnStore Exporter Plugin unable to read step info from XML node", e );
@@ -378,9 +354,7 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
       rep.saveStepAttribute( id_transformation, id_step, "numberOfMappingEntries", targetTable );
       for(int i=0; i<fieldMapping.getNumberOfEntries(); i++){
         rep.saveStepAttribute( id_transformation, id_step, "inputField_"+i+"_Name", fieldMapping.getInputStreamField(i).getFieldName() );
-        rep.saveStepAttribute( id_transformation, id_step, "inputField_"+i+"_DataType", fieldMapping.getInputStreamField(i).getDataType() );
         rep.saveStepAttribute( id_transformation, id_step, "targetField_"+i+"_Name", fieldMapping.getTargetColumnStoreColumn(i).getFieldName() );
-        rep.saveStepAttribute( id_transformation, id_step, "targetField_"+i+"_DataType", fieldMapping.getTargetColumnStoreColumn(i).getDataType().swigValue() );
       }
 
     } catch ( Exception e ) {
@@ -404,14 +378,12 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
       targetTable  = rep.getStepAttributeString( id_step, "targettable" ); //$NON-NLS-1$
 
       fieldMapping = new InputTargetMapping((int)rep.getStepAttributeInteger(id_step, "numberOfMappingEntries"));
-      InputFieldMetaData in = new InputFieldMetaData("",0);
-      TargetColumnMetaData ta = new TargetColumnMetaData("", null);
+      InputFieldMetaData in = new InputFieldMetaData("");
+      TargetColumnMetaData ta = new TargetColumnMetaData("");
       for(int i=0; i<fieldMapping.getNumberOfEntries(); i++){
         in.setFieldName(rep.getStepAttributeString(id_step, "inputField_"+i+"_Name"));
-        in.setDataType((int) rep.getStepAttributeInteger(id_step, "inputField_"+i+"_DataType"));
         fieldMapping.setInputFieldMetaData(i,in);
         ta.setFieldName(rep.getStepAttributeString(id_step, "targetField_"+i+"_Name"));
-        ta.setDataType(columnstore_data_types_t.swigToEnum((int) rep.getStepAttributeInteger(id_step, "targetField_"+i+"_DataType")));
         fieldMapping.setTargetColumnStoreColumn(i,ta);
       }
     } catch ( Exception e ) {
@@ -494,95 +466,7 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
             //(input column name, type), (output column name, type)
             String types = "("+prev.getFieldNames()[i]+", "+typeCodes[inputColumnType]+"), ("+table.getColumn(i).getColumnName()+ ", "+outputColumnType.toString()+ ")";
 
-            boolean compatible = false;
-            switch(inputColumnType) {
-              case TYPE_STRING:
-                if(outputColumnType == columnstore_data_types_t.DATA_TYPE_TEXT ||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_CHAR ||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_VARCHAR){
-                  compatible = true;
-                }
-                break;
-              case TYPE_INTEGER:
-                if(outputColumnType == columnstore_data_types_t.DATA_TYPE_BIGINT ||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_DECIMAL||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_DOUBLE||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_FLOAT||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_INT||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_MEDINT||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_SMALLINT||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_TINYINT||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_UBIGINT ||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_UDECIMAL||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_UDOUBLE||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_UFLOAT||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_UINT||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_UMEDINT||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_USMALLINT||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_UTINYINT){
-                  compatible = true;
-                }
-                break;
-              case TYPE_NUMBER:
-                if(outputColumnType == columnstore_data_types_t.DATA_TYPE_BIGINT ||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_DECIMAL||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_DOUBLE||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_FLOAT||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_INT||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_MEDINT||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_SMALLINT||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_TINYINT||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_UBIGINT ||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_UDECIMAL||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_UDOUBLE||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_UFLOAT||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_UINT||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_UMEDINT||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_USMALLINT||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_UTINYINT){
-                  compatible = true;
-                }
-                break;
-              case TYPE_BIGNUMBER:
-                if(outputColumnType == columnstore_data_types_t.DATA_TYPE_BIGINT ||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_DECIMAL||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_DOUBLE||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_FLOAT||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_INT||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_MEDINT||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_SMALLINT||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_TINYINT||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_UBIGINT ||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_UDECIMAL||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_UDOUBLE||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_UFLOAT||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_UINT||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_UMEDINT||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_USMALLINT||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_UTINYINT){
-                  compatible = true;
-                }
-                break;
-              case TYPE_DATE:
-                if(outputColumnType == columnstore_data_types_t.DATA_TYPE_DATE ||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_DATETIME){
-                  compatible = true;
-                }
-                break;
-              case TYPE_TIMESTAMP:
-                if(outputColumnType == columnstore_data_types_t.DATA_TYPE_DATE ||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_DATETIME){
-                  compatible = true;
-                }
-                break;
-              case TYPE_BOOLEAN:
-                if(outputColumnType == columnstore_data_types_t.DATA_TYPE_TINYINT||
-                        outputColumnType == columnstore_data_types_t.DATA_TYPE_UTINYINT){
-                  compatible = true;
-                }
-                break;
-            }
-            if(compatible){
+            if(checkCompatibility(inputColumnType, outputColumnType)){
               remarks.add(new CheckResult(CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG, "KettleColumnStoreBulkExporterPlugin.CheckResult.ColumnTypeCompatible.OK") + types, stepMeta));
             }else{
               remarks.add(new CheckResult(CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG, "KettleColumnStoreBulkExporterPlugin.CheckResult.ColumnTypeCompatible.ERROR") + types, stepMeta));
@@ -597,6 +481,104 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
       cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG, "KettleColumnStoreBulkExporterPlugin.CheckResult.ReceivingRows.ERROR" ), stepMeta );
       remarks.add( cr );
     }
+  }
+
+  /**
+   * Checks compatibility of Kettle Input Field Type and ColumnStore output Column Type
+   * @param inputColumnType Kettle input type
+   * @param outputColumnType ColumnStore output column data type
+   * @return true if compatible, otherwise false
+   */
+  public boolean checkCompatibility(int inputColumnType, columnstore_data_types_t outputColumnType){
+    boolean compatible = false;
+    switch(inputColumnType) {
+      case TYPE_STRING:
+        if(outputColumnType == columnstore_data_types_t.DATA_TYPE_TEXT ||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_CHAR ||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_VARCHAR){
+          compatible = true;
+        }
+        break;
+      case TYPE_INTEGER:
+        if(outputColumnType == columnstore_data_types_t.DATA_TYPE_BIGINT ||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_DECIMAL||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_DOUBLE||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_FLOAT||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_INT||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_MEDINT||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_SMALLINT||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_TINYINT||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_UBIGINT ||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_UDECIMAL||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_UDOUBLE||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_UFLOAT||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_UINT||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_UMEDINT||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_USMALLINT||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_UTINYINT){
+          compatible = true;
+        }
+        break;
+      case TYPE_NUMBER:
+        if(outputColumnType == columnstore_data_types_t.DATA_TYPE_BIGINT ||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_DECIMAL||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_DOUBLE||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_FLOAT||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_INT||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_MEDINT||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_SMALLINT||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_TINYINT||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_UBIGINT ||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_UDECIMAL||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_UDOUBLE||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_UFLOAT||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_UINT||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_UMEDINT||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_USMALLINT||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_UTINYINT){
+          compatible = true;
+        }
+        break;
+      case TYPE_BIGNUMBER:
+        if(outputColumnType == columnstore_data_types_t.DATA_TYPE_BIGINT ||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_DECIMAL||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_DOUBLE||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_FLOAT||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_INT||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_MEDINT||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_SMALLINT||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_TINYINT||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_UBIGINT ||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_UDECIMAL||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_UDOUBLE||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_UFLOAT||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_UINT||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_UMEDINT||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_USMALLINT||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_UTINYINT){
+          compatible = true;
+        }
+        break;
+      case TYPE_DATE:
+        if(outputColumnType == columnstore_data_types_t.DATA_TYPE_DATE ||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_DATETIME){
+          compatible = true;
+        }
+        break;
+      case TYPE_TIMESTAMP:
+        if(outputColumnType == columnstore_data_types_t.DATA_TYPE_DATE ||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_DATETIME){
+          compatible = true;
+        }
+        break;
+      case TYPE_BOOLEAN:
+        if(outputColumnType == columnstore_data_types_t.DATA_TYPE_TINYINT||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_UTINYINT){
+          compatible = true;
+        }
+        break;
+    }
+    return compatible;
   }
 }
 

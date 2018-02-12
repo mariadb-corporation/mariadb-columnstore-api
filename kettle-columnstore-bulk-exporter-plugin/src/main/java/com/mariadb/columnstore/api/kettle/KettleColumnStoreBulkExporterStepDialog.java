@@ -16,7 +16,7 @@
 
 package com.mariadb.columnstore.api.kettle;
 
-import com.mariadb.columnstore.api.columnstore_data_types_t;
+import com.mariadb.columnstore.api.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -28,14 +28,18 @@ import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
+import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.row.ValueMetaInterface;
 import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.trans.TransMeta;
+import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.ui.core.widget.LabelText;
 import org.pentaho.di.ui.trans.step.BaseStepDialog;
 import org.pentaho.di.trans.step.BaseStepMeta;
 import org.pentaho.di.trans.step.StepDialogInterface;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.pentaho.di.core.row.ValueMetaInterface.*;
@@ -139,6 +143,7 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
         meta.setChanged();
+        updateTableView();
       }
     };
 
@@ -361,49 +366,31 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
     return stepname;
   }
 
+  private void getActualMapping(){
+
+  }
+
   /**
    * Function is invoked when button "Map all Inputs" is hit.
    * It maps all input fields to a new ColumnStore columns of adequate type.
    */
   private void mapAllInputs() {
 
-    System.out.println("BUTTON MAP ALL INPUTS PRESSED");
+    StepMeta stepMeta = transMeta.findStep(stepname);
 
-    List<ValueMetaInterface> inputValueTypes = meta.getTableFields().getValueMetaList();
+    try {
+      RowMetaInterface row = transMeta.getPrevStepFields(stepMeta);
 
-    itm = new KettleColumnStoreBulkExporterStepMeta.InputTargetMapping(inputValueTypes.size());
+      List<ValueMetaInterface> inputValueTypes = row.getValueMetaList();
 
-    for(int i=0; i< inputValueTypes.size(); i++){
-      itm.setInputFieldMetaData(i, new KettleColumnStoreBulkExporterStepMeta.InputFieldMetaData(inputValueTypes.get(i).getName(),inputValueTypes.get(i).getType()));
-      KettleColumnStoreBulkExporterStepMeta.TargetColumnMetaData t = new KettleColumnStoreBulkExporterStepMeta.TargetColumnMetaData(inputValueTypes.get(i).getName(),null);
-      // Find the correct ColumnStore type
-      switch(inputValueTypes.get(i).getType()){
-        case TYPE_STRING:
-          t.setDataType(columnstore_data_types_t.DATA_TYPE_TEXT);
-          break;
-        case TYPE_INTEGER:
-          t.setDataType(columnstore_data_types_t.DATA_TYPE_BIGINT);
-          break;
-        case TYPE_NUMBER:
-          t.setDataType(columnstore_data_types_t.DATA_TYPE_DOUBLE);
-          break;
-        case TYPE_BIGNUMBER:
-          t.setDataType(columnstore_data_types_t.DATA_TYPE_DECIMAL);
-          break;
-        case TYPE_DATE:
-          t.setDataType(columnstore_data_types_t.DATA_TYPE_DATE);
-          break;
-        case TYPE_TIMESTAMP:
-          t.setDataType(columnstore_data_types_t.DATA_TYPE_DATETIME);
-          break;
-        case TYPE_BOOLEAN:
-          t.setDataType(columnstore_data_types_t.DATA_TYPE_TINYINT);
-          break;
-        default:
-          t.setDataType(columnstore_data_types_t.DATA_TYPE_BLOB);
-          log.logError("Input datatype " + typeCodes[inputValueTypes.get(i).getType()] + " is currently not supported.");
+      itm = new KettleColumnStoreBulkExporterStepMeta.InputTargetMapping(inputValueTypes.size());
+
+      for(int i=0; i< inputValueTypes.size(); i++){
+        itm.setInputFieldMetaData(i, new KettleColumnStoreBulkExporterStepMeta.InputFieldMetaData(inputValueTypes.get(i).getName()));
+        itm.setTargetColumnStoreColumn(i, new KettleColumnStoreBulkExporterStepMeta.TargetColumnMetaData(inputValueTypes.get(i).getName()));
       }
-      itm.setTargetColumnStoreColumn(i, t);
+    }catch(KettleException e){
+      logError("Can't get fields from previous step.", e);
     }
     updateTableView();
   }
@@ -413,10 +400,64 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
    */
   private void updateTableView(){
     table.removeAll();
+    int[] inputTypes = new int[itm.getNumberOfEntries()];
+    columnstore_data_types_t[] outputTypes = new columnstore_data_types_t[itm.getNumberOfEntries()];
+
+    //get datatypes of mapped input stream fields
+    try{
+      RowMetaInterface row = transMeta.getPrevStepFields(stepMeta);
+
+      List<ValueMetaInterface> inputValueTypes = row.getValueMetaList();
+      ArrayList<String> inputValueFields = new ArrayList<String>(Arrays.asList(row.getFieldNames()));
+
+      for (int i=0; i<itm.getNumberOfEntries(); i++){
+        int field = inputValueFields.indexOf(itm.getInputStreamField(i).getFieldName());
+        if(field >= 0) { //field was found
+          inputTypes[i] = inputValueTypes.get(field).getType();
+        } else{ //input field was not found, set type to -1
+          inputTypes[i] = -1;
+        }
+      }
+    }
+   catch(KettleException e){
+      logError("Can't get fields from previous step", e);
+   }
+
+    //get datatypes of mapped output stream fields
+    try {
+      ColumnStoreDriver d = new ColumnStoreDriver();
+      ColumnStoreSystemCatalog c = d.getSystemCatalog();
+      ColumnStoreSystemCatalogTable t = c.getTable(wTargetDatabaseFieldName.getText(), wTargetTableFieldName.getText());
+      for (int i=0; i<itm.getNumberOfEntries(); i++){
+        try{
+          outputTypes[i] = t.getColumn(itm.getTargetColumnStoreColumn(i).getFieldName()).getType();
+        }catch (ColumnStoreException ex){
+          logDetailed("Can't find column " + itm.getTargetColumnStoreColumn(i).getFieldName() + " in table " + wTargetTableFieldName.getText());
+        }
+      }
+    }catch(ColumnStoreException e){
+      logDetailed("Can't access the ColumnStore table " + wTargetDatabaseFieldName.getText() + " " + wTargetTableFieldName.getText());
+    }
+
+   //update the entries in the table
     for (int i=0; i<itm.getNumberOfEntries(); i++){
       TableItem tableItem = new TableItem(table, SWT.NONE);
-      tableItem.setText(0, itm.getInputStreamField(i).getFieldName() + " <" + typeCodes[itm.getInputStreamField(i).getDataType()]+">");
-      tableItem.setText(1, itm.getTargetColumnStoreColumn(i).getFieldName() + " <" + itm.getTargetColumnStoreColumn(i).getDataType()+">");
+      if(inputTypes[i] > 0) {
+        tableItem.setText(0, itm.getInputStreamField(i).getFieldName() + " <" + typeCodes[inputTypes[i]] + ">");
+      } else {
+        tableItem.setText(0, itm.getInputStreamField(i).getFieldName() + " <None>");
+      }
+      if(outputTypes[i] != null) {
+        tableItem.setText(1, itm.getTargetColumnStoreColumn(i).getFieldName() + " <" + outputTypes[i].toString().substring(10) + ">");
+      }
+      else{
+        tableItem.setText(1, itm.getTargetColumnStoreColumn(i).getFieldName() + " <None>");
+      }
+      if(inputTypes[i] > 0 && outputTypes[i] != null && meta.checkCompatibility(inputTypes[i],outputTypes[i])){
+        tableItem.setText(2, "yes");
+      }else{
+        tableItem.setText(2, "no");
+      }
     }
     table.update();
   }
