@@ -291,26 +291,13 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
     btnBrowseLogfile.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.Button.Browse"));
 
     // OK, cancel and SQL buttons
-    wOK = new Button(shell, SWT.NONE);
-    FormData fd_btnOk = new FormData();
-    wOK.setLayoutData(fd_btnOk);
-    wOK.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.Button.OK"));
-
-    wCancel = new Button(shell, SWT.NONE);
-    fd_btnOk.top = new FormAttachment(wCancel, 0, SWT.TOP);
-    fd_btnOk.right = new FormAttachment(wCancel, -3);
-    FormData fd_btnCancel = new FormData();
-    wCancel.setLayoutData(fd_btnCancel);
-    wCancel.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.Button.Cancel"));
-
-    wSQL = new Button(shell, SWT.NONE);
-    fd_btnCancel.top = new FormAttachment(wSQL, 0, SWT.TOP);
-    fd_btnCancel.right = new FormAttachment(wSQL, -6);
-    FormData fd_btnSql = new FormData();
-    fd_btnSql.left = new FormAttachment(0, 359);
-    fd_btnSql.bottom = new FormAttachment(100);
-    wSQL.setLayoutData(fd_btnSql);
-    wSQL.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.Button.SQL"));
+    wOK = new Button( shell, SWT.PUSH );
+    wOK.setText( BaseMessages.getString( PKG, "KettleColumnStoreBulkExporterPlugin.Button.OK" ) );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "KettleColumnStoreBulkExporterPlugin.Button.Cancel" ) );
+    wSQL = new Button( shell, SWT.PUSH );
+    wSQL.setText( BaseMessages.getString( PKG, "KettleColumnStoreBulkExporterPlugin.Button.SQL" ) );
+    setButtonPositions( new Button[] { wOK, wCancel, wSQL }, margin, tabFolder );
 
     // Add listeners for cancel and OK
     lsCancel = new Listener() {
@@ -323,8 +310,14 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
         ok();
       }
     };
+    lsSQL = new Listener() {
+      public void handleEvent( Event e ) {
+        sqlBtnHit();
+      }
+    };
     wCancel.addListener( SWT.Selection, lsCancel );
     wOK.addListener( SWT.Selection, lsOK );
+    wSQL.addListener(SWT.Selection, lsSQL);
 
     // default listener (for hitting "enter")
     lsDef = new SelectionAdapter() {
@@ -366,10 +359,6 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
     return stepname;
   }
 
-  private void getActualMapping(){
-
-  }
-
   /**
    * Function is invoked when button "Map all Inputs" is hit.
    * It maps all input fields to a new ColumnStore columns of adequate type.
@@ -386,8 +375,8 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
       itm = new KettleColumnStoreBulkExporterStepMeta.InputTargetMapping(inputValueTypes.size());
 
       for(int i=0; i< inputValueTypes.size(); i++){
-        itm.setInputFieldMetaData(i, new KettleColumnStoreBulkExporterStepMeta.InputFieldMetaData(inputValueTypes.get(i).getName()));
-        itm.setTargetColumnStoreColumn(i, new KettleColumnStoreBulkExporterStepMeta.TargetColumnMetaData(inputValueTypes.get(i).getName()));
+        itm.setInputFieldMetaData(i, inputValueTypes.get(i).getName());
+        itm.setTargetColumnStoreColumn(i, inputValueTypes.get(i).getName());
       }
     }catch(KettleException e){
       logError("Can't get fields from previous step.", e);
@@ -396,7 +385,7 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
   }
 
   /**
-  * Updates the table based on the current itm
+   * Updates the table based on the current itm
    */
   private void updateTableView(){
     table.removeAll();
@@ -411,7 +400,7 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
       ArrayList<String> inputValueFields = new ArrayList<String>(Arrays.asList(row.getFieldNames()));
 
       for (int i=0; i<itm.getNumberOfEntries(); i++){
-        int field = inputValueFields.indexOf(itm.getInputStreamField(i).getFieldName());
+        int field = inputValueFields.indexOf(itm.getInputStreamField(i));
         if(field >= 0) { //field was found
           inputTypes[i] = inputValueTypes.get(field).getType();
         } else{ //input field was not found, set type to -1
@@ -419,41 +408,41 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
         }
       }
     }
-   catch(KettleException e){
+    catch(KettleException e){
       logError("Can't get fields from previous step", e);
-   }
+    }
 
-    //get datatypes of mapped output stream fields
+    //get datatypes of mapped output columnstore columns
     try {
       ColumnStoreDriver d = new ColumnStoreDriver();
       ColumnStoreSystemCatalog c = d.getSystemCatalog();
       ColumnStoreSystemCatalogTable t = c.getTable(wTargetDatabaseFieldName.getText(), wTargetTableFieldName.getText());
       for (int i=0; i<itm.getNumberOfEntries(); i++){
         try{
-          outputTypes[i] = t.getColumn(itm.getTargetColumnStoreColumn(i).getFieldName()).getType();
+          outputTypes[i] = t.getColumn(itm.getTargetColumnStoreColumn(i).toLowerCase()).getType();
         }catch (ColumnStoreException ex){
-          logDetailed("Can't find column " + itm.getTargetColumnStoreColumn(i).getFieldName() + " in table " + wTargetTableFieldName.getText());
+          logDetailed("Can't find column " + itm.getTargetColumnStoreColumn(i) + " in table " + wTargetTableFieldName.getText());
         }
       }
     }catch(ColumnStoreException e){
       logDetailed("Can't access the ColumnStore table " + wTargetDatabaseFieldName.getText() + " " + wTargetTableFieldName.getText());
     }
 
-   //update the entries in the table
+    //update the entries in the table
     for (int i=0; i<itm.getNumberOfEntries(); i++){
       TableItem tableItem = new TableItem(table, SWT.NONE);
-      if(inputTypes[i] > 0) {
-        tableItem.setText(0, itm.getInputStreamField(i).getFieldName() + " <" + typeCodes[inputTypes[i]] + ">");
+      if(inputTypes[i] > -1) {
+        tableItem.setText(0, itm.getInputStreamField(i) + " <" + typeCodes[inputTypes[i]] + ">");
       } else {
-        tableItem.setText(0, itm.getInputStreamField(i).getFieldName() + " <None>");
+        tableItem.setText(0, itm.getInputStreamField(i) + " <None>");
       }
       if(outputTypes[i] != null) {
-        tableItem.setText(1, itm.getTargetColumnStoreColumn(i).getFieldName() + " <" + outputTypes[i].toString().substring(10) + ">");
+        tableItem.setText(1, itm.getTargetColumnStoreColumn(i) + " <" + outputTypes[i].toString().substring(10) + ">");
       }
       else{
-        tableItem.setText(1, itm.getTargetColumnStoreColumn(i).getFieldName() + " <None>");
+        tableItem.setText(1, itm.getTargetColumnStoreColumn(i) + " <None>");
       }
-      if(inputTypes[i] > 0 && outputTypes[i] != null && meta.checkCompatibility(inputTypes[i],outputTypes[i])){
+      if(inputTypes[i] > -1 && outputTypes[i] != null && meta.checkCompatibility(inputTypes[i],outputTypes[i])){
         tableItem.setText(2, "yes");
       }else{
         tableItem.setText(2, "no");
@@ -467,6 +456,13 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
    */
   private void customMapping(){
     System.out.println("BUTTON CUSTOM MAPPING HIT");
+  }
+
+  /**
+   * Function is invoked when the SQL button is hit
+   */
+  private void sqlBtnHit(){
+    System.out.println("BUTTON SQL HIT");
   }
 
   /**
@@ -509,7 +505,4 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
     // close the SWT dialog window
     dispose();
   }
-
-
 }
-

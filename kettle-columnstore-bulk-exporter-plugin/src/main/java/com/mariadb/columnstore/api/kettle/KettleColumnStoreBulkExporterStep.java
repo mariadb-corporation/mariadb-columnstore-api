@@ -18,7 +18,6 @@ package com.mariadb.columnstore.api.kettle;
 
 import com.mariadb.columnstore.api.*;
 import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.trans.Trans;
 import org.pentaho.di.trans.TransMeta;
@@ -29,6 +28,8 @@ import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 
 import static org.pentaho.di.core.row.ValueMetaInterface.*;
@@ -62,6 +63,8 @@ public class KettleColumnStoreBulkExporterStep extends BaseStep implements StepI
   private ColumnStoreSystemCatalog catalog;
   private ColumnStoreSystemCatalogTable table;
   private int targetColumnCount;
+
+  private int[] targetInputMapping;
 
   /**
    * The constructor should simply pass on its arguments to the parent class.
@@ -117,6 +120,14 @@ public class KettleColumnStoreBulkExporterStep extends BaseStep implements StepI
     targetColumnCount = table.getColumnCount();
 
     b = d.createBulkInsert(meta.getTargetDatabase(), meta.getTargetTable(), (short) 0, 0);
+
+    if(meta.getFieldMapping().getNumberOfEntries() == targetColumnCount) {
+        targetInputMapping = new int[meta.getFieldMapping().getNumberOfEntries()];
+    }else{
+        log.logError("Number of mapping entries and target columns doesn't match");
+        setErrors(1);
+        return false;
+    }
 
     return true;
   }
@@ -177,78 +188,88 @@ public class KettleColumnStoreBulkExporterStep extends BaseStep implements StepI
                 log.logDebug(i + " : " + table.getColumn(i).getColumnName() + " : " + table.getColumn(i).getType().toString());
             }
         }
+
+        // Construct the targetInputMapping as target[int] mapped to input index int.
+        ArrayList<String> inputFields = new ArrayList<>(Arrays.asList(data.rowMeta.getFieldNames()));
+        for(int i = 0; i<targetColumnCount; i++){
+            String mappedInputField = meta.getFieldMapping().getTargetInputMappingField(table.getColumn(i).getColumnName());
+            targetInputMapping[i] = inputFields.indexOf(mappedInputField);
+            if(targetInputMapping[i]<0){
+                b.rollback();
+                putError(data.rowMeta, r, 1L, "no mapping for column " + table.getColumn(i).getColumnName() + " found - rollback", data.rowMeta.getFieldNames()[i], "Column mapping not found");
+            }
+        }
     }
 
     // put the row into ColumnStore
-    log.logDebug("Processing the row object");
-    for (int i=0; i<data.rowValueTypes.size(); i++){
-      log.logDebug("item: " + i + ", value to String: " + r[i].toString());
-      if (i < targetColumnCount){
-        switch(data.rowValueTypes.get(i).getType()){
-          case TYPE_STRING:
-            log.logDebug("Try to insert item " + i + " as String");
-            b.setColumn(i, (String) r[i]);
-            log.logDebug("Inserted item " + i + " as String");
-            break;
-          case TYPE_INTEGER:
-            log.logDebug("Try to insert item " + i + " as Long");
-            b.setColumn(i, (Long) r[i]);
-            log.logDebug("Inserted item " + i + " as Long");
-            break;
-          case TYPE_NUMBER:
-            log.logDebug("Try to insert item " + i + " as Double");
-            b.setColumn(i, (Double) r[i]);
-            log.logDebug("Inserted item " + i + " as Double");
-            break;
-          case TYPE_BIGNUMBER:
-            log.logDebug("Detect ColumnStore row type");
-            BigDecimal bd = (BigDecimal) r[i];
-            if(table.getColumn(i).getType() == columnstore_data_types_t.DATA_TYPE_DECIMAL ||
-               table.getColumn(i).getType() == columnstore_data_types_t.DATA_TYPE_FLOAT ||
-               table.getColumn(i).getType() == columnstore_data_types_t.DATA_TYPE_DOUBLE ||
-               table.getColumn(i).getType() == columnstore_data_types_t.DATA_TYPE_UDECIMAL ||
-               table.getColumn(i).getType() == columnstore_data_types_t.DATA_TYPE_UFLOAT ||
-               table.getColumn(i).getType() == columnstore_data_types_t.DATA_TYPE_UDOUBLE){
-               log.logDebug("ColumnStore column is of type 'real'");
-               log.logDebug("Try to insert item " + i + " as BigDecimal");
-               b.setColumn(i, new ColumnStoreDecimal(bd.toPlainString()));
-               log.logDebug("Inserted item " + i + " as BigDecimal");
-            }else{
-               log.logDebug("ColumnStore column is of type 'decimal'");
-               log.logDebug("Try to insert item " + i + " as BigInteger");
-               b.setColumn(i, bd.toBigInteger());
-               log.logDebug("Inserted item " + i + " as BigInteger");
-            }
-            break;
-          case TYPE_DATE:
-            log.logDebug("Try to insert item " + i + " as Date");
-            Date dt = (Date) r[i];
-            b.setColumn(i, dt.toString());
-            log.logDebug("Inserted item " + i + " as Date");
-            break;
-          case TYPE_TIMESTAMP:
-            log.logDebug("Try to insert item " + i + " as Timestamp");
-            Date dt2 = (Date) r[i];
-            b.setColumn(i, dt2.toString());
-            log.logDebug("Inserted item " + i + " as Timestamp");
-            break;
-          case TYPE_BOOLEAN:
-            log.logDebug("Try to insert item " + i + " as Boolean");
-            if((boolean) r[i]){
-              b.setColumn(i, 1);
-            }
-            else{
-              b.setColumn(i, 0);
-            }
-            log.logDebug("Inserted item " + i + " as Boolean");
-            break;
-          case TYPE_BINARY:
-            b.rollback();
-            putError(data.rowMeta, r, 1L, "data type binary is not supported at the moment - rollback", data.rowMeta.getFieldNames()[i], "Binary data type not supported");
-          default:
-            b.rollback();
-            putError(data.rowMeta, r, 1L, "data type " + data.rowValueTypes.get(i).getType() + " is not supported at the moment - rollback", data.rowMeta.getFieldNames()[i], "Data type not supported");
-        }
+    log.logDebug("Iterating through the ColumnStore table to set the row object");
+    for (int c=0; c<targetColumnCount; c++){
+      int i = targetInputMapping[c];
+      log.logDebug("Column " + c + " - " + table.getColumn(c).getColumnName() + " - trying to insert item: " + i + ", value to String: " + r[i].toString());
+      switch(data.rowValueTypes.get(i).getType()){
+        case TYPE_STRING:
+          log.logDebug("Try to insert item " + i + " as String");
+          b.setColumn(c, (String) r[i]);
+          log.logDebug("Inserted item " + i + " as String");
+          break;
+        case TYPE_INTEGER:
+          log.logDebug("Try to insert item " + i + " as Long");
+          b.setColumn(c, (Long) r[i]);
+          log.logDebug("Inserted item " + i + " as Long");
+          break;
+        case TYPE_NUMBER:
+          log.logDebug("Try to insert item " + i + " as Double");
+          b.setColumn(c, (Double) r[i]);
+          log.logDebug("Inserted item " + i + " as Double");
+          break;
+        case TYPE_BIGNUMBER:
+          log.logDebug("Detect ColumnStore row type");
+          BigDecimal bd = (BigDecimal) r[i];
+          if(table.getColumn(c).getType() == columnstore_data_types_t.DATA_TYPE_DECIMAL ||
+             table.getColumn(c).getType() == columnstore_data_types_t.DATA_TYPE_FLOAT ||
+             table.getColumn(c).getType() == columnstore_data_types_t.DATA_TYPE_DOUBLE ||
+             table.getColumn(c).getType() == columnstore_data_types_t.DATA_TYPE_UDECIMAL ||
+             table.getColumn(c).getType() == columnstore_data_types_t.DATA_TYPE_UFLOAT ||
+             table.getColumn(c).getType() == columnstore_data_types_t.DATA_TYPE_UDOUBLE){
+             log.logDebug("ColumnStore column is of type 'real'");
+             log.logDebug("Try to insert item " + i + " as BigDecimal");
+             b.setColumn(c, new ColumnStoreDecimal(bd.toPlainString()));
+             log.logDebug("Inserted item " + i + " as BigDecimal");
+          }else{
+             log.logDebug("ColumnStore column is of type 'decimal'");
+             log.logDebug("Try to insert item " + i + " as BigInteger");
+             b.setColumn(c, bd.toBigInteger());
+             log.logDebug("Inserted item " + i + " as BigInteger");
+          }
+          break;
+        case TYPE_DATE:
+          log.logDebug("Try to insert item " + i + " as Date");
+          Date dt = (Date) r[i];
+          b.setColumn(c, dt.toString());
+          log.logDebug("Inserted item " + i + " as Date");
+          break;
+        case TYPE_TIMESTAMP:
+          log.logDebug("Try to insert item " + i + " as Timestamp");
+          Date dt2 = (Date) r[i];
+          b.setColumn(c, dt2.toString());
+          log.logDebug("Inserted item " + i + " as Timestamp");
+          break;
+        case TYPE_BOOLEAN:
+          log.logDebug("Try to insert item " + i + " as Boolean");
+          if((boolean) r[i]){
+            b.setColumn(c, 1);
+          }
+          else{
+            b.setColumn(c, 0);
+          }
+          log.logDebug("Inserted item " + i + " as Boolean");
+          break;
+        case TYPE_BINARY:
+          b.rollback();
+          putError(data.rowMeta, r, 1L, "data type binary is not supported at the moment - rollback", data.rowMeta.getFieldNames()[i], "Binary data type not supported");
+        default:
+          b.rollback();
+          putError(data.rowMeta, r, 1L, "data type " + data.rowValueTypes.get(i).getType() + " is not supported at the moment - rollback", data.rowMeta.getFieldNames()[i], "Data type not supported");
       }
     }
     b.writeRow();
@@ -287,6 +308,7 @@ public class KettleColumnStoreBulkExporterStep extends BaseStep implements StepI
 
     // Finally commit the changes to ColumnStore
     b.commit();
+    log.logDebug("bulk insert committed");
 
   if(log.isDetailed()){
       ColumnStoreSummary summary = b.getSummary();

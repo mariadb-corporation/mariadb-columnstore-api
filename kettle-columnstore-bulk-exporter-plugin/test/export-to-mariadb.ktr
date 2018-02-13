@@ -500,7 +500,7 @@
     </hop>
     <hop>
       <from>MariaDB input table</from>
-      <to>MariaDB ColumnStore Bulk Exporter</to>
+      <to>MariaDB ColumnStore Bulk Loader</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -643,7 +643,7 @@ FROM kettle_test_data
     </GUI>
   </step>
   <step>
-    <name>MariaDB ColumnStore Bulk Exporter</name>
+    <name>MariaDB ColumnStore Bulk Loader</name>
     <type>KettleColumnStoreBulkExporterPlugin</type>
     <description />
     <distribute>Y</distribute>
@@ -655,6 +655,45 @@ FROM kettle_test_data
     </partitioning>
     <targetdatabase>test</targetdatabase>
     <targettable>kettle_api_columnstore</targettable>
+    <numberOfMappingEntries>19</numberOfMappingEntries>
+    <inputField_0_Name>uint64</inputField_0_Name>
+    <targetField_0_Name>uint64</targetField_0_Name>
+    <inputField_1_Name>int64</inputField_1_Name>
+    <targetField_1_Name>int64</targetField_1_Name>
+    <inputField_2_Name>uint32</inputField_2_Name>
+    <targetField_2_Name>uint32</targetField_2_Name>
+    <inputField_3_Name>int32</inputField_3_Name>
+    <targetField_3_Name>int32</targetField_3_Name>
+    <inputField_4_Name>uint16</inputField_4_Name>
+    <targetField_4_Name>uint16</targetField_4_Name>
+    <inputField_5_Name>int16</inputField_5_Name>
+    <targetField_5_Name>int16</targetField_5_Name>
+    <inputField_6_Name>uint8</inputField_6_Name>
+    <targetField_6_Name>uint8</targetField_6_Name>
+    <inputField_7_Name>intEight</inputField_7_Name>
+    <targetField_7_Name>intEight</targetField_7_Name>
+    <inputField_8_Name>f</inputField_8_Name>
+    <targetField_8_Name>f</targetField_8_Name>
+    <inputField_9_Name>d</inputField_9_Name>
+    <targetField_9_Name>d</targetField_9_Name>
+    <inputField_10_Name>ch4</inputField_10_Name>
+    <targetField_10_Name>ch4</targetField_10_Name>
+    <inputField_11_Name>vch30</inputField_11_Name>
+    <targetField_11_Name>vch30</targetField_11_Name>
+    <inputField_12_Name>dt</inputField_12_Name>
+    <targetField_12_Name>dt</targetField_12_Name>
+    <inputField_13_Name>dtm</inputField_13_Name>
+    <targetField_13_Name>dtm</targetField_13_Name>
+    <inputField_14_Name>dc</inputField_14_Name>
+    <targetField_14_Name>dc</targetField_14_Name>
+    <inputField_15_Name>tx</inputField_15_Name>
+    <targetField_15_Name>tx</targetField_15_Name>
+    <inputField_16_Name>bit</inputField_16_Name>
+    <targetField_16_Name>bit</targetField_16_Name>
+    <inputField_17_Name>mathInt</inputField_17_Name>
+    <targetField_17_Name>mathInt</targetField_17_Name>
+    <inputField_18_Name>dc2</inputField_18_Name>
+    <targetField_18_Name>dc2</targetField_18_Name>
     <cluster_schema />
     <remotesteps>
       <input>
@@ -664,7 +703,7 @@ FROM kettle_test_data
     </remotesteps>
     <GUI>
       <xloc>464</xloc>
-      <yloc>288</yloc>
+      <yloc>272</yloc>
       <draw>Y</draw>
     </GUI>
   </step>

@@ -16,6 +16,8 @@
 
 package com.mariadb.columnstore.api.kettle;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.mariadb.columnstore.api.*;
@@ -99,72 +101,57 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
   @Injection( name = "TARGET_TABLE" )
   private String targetTable;
 
-  /*Wrapper Classes to store the mapping of input and ColumnStore output*/
-  protected static class TargetColumnMetaData{
-    private String fieldName;
-    public TargetColumnMetaData(String fieldName){
-      this.fieldName = fieldName;
-    }
-    public String getFieldName(){
-      return fieldName;
-    }
-    public void setFieldName(String fieldName){
-      this.fieldName = fieldName;
-    }
-  }
-
-  protected static class InputFieldMetaData{
-    private String fieldName;
-    public InputFieldMetaData(String fieldName){
-      this.fieldName = fieldName;
-    }
-    public String getFieldName(){
-      return fieldName;
-    }
-    public void setFieldName(String fieldName){
-      this.fieldName = fieldName;
-    }
-  }
-
+  /**
+   * Wrapper class to store the mapping between input and output
+   */
   protected static class InputTargetMapping{
-    private InputFieldMetaData[] inputStreamFields;
-    private TargetColumnMetaData[] targetColumnStoreColumns;
+    private String[] inputStreamFields;
+    private String[] targetColumnStoreColumns;
 
     public InputTargetMapping(){
       this(0);
     }
 
     public InputTargetMapping(int entries){
-      this.inputStreamFields = new InputFieldMetaData[entries];
-      this.targetColumnStoreColumns = new TargetColumnMetaData[entries];
+      this.inputStreamFields = new String[entries];
+      this.targetColumnStoreColumns = new String[entries];
     }
 
     public int getNumberOfEntries(){
       return inputStreamFields.length;
     }
 
-    public InputFieldMetaData[] getInputStreamFields() {
+    public String[] getInputStreamFields() {
       return inputStreamFields;
     }
 
-    public TargetColumnMetaData[] getTargetColumnStoreColumns() {
+    public String[] getTargetColumnStoreColumns() {
       return targetColumnStoreColumns;
     }
 
-    public InputFieldMetaData getInputStreamField(int i){
+    public String getInputStreamField(int i){
       return inputStreamFields[i];
     }
 
-    public TargetColumnMetaData getTargetColumnStoreColumn(int i){
+    public String getTargetColumnStoreColumn(int i){
       return targetColumnStoreColumns[i];
     }
 
-    public void setInputFieldMetaData(int index, InputFieldMetaData metaData){
+    public void setInputFieldMetaData(int index, String metaData){
       inputStreamFields[index] = metaData;
     }
 
-    public void setTargetColumnStoreColumn(int index, TargetColumnMetaData metaData){
+    public void setTargetColumnStoreColumn(int index, String metaData){
       targetColumnStoreColumns[index] = metaData;
+    }
+
+    public String getTargetInputMappingField(String ColumnStoreTargetName){
+      for (int i=0; i< targetColumnStoreColumns.length; i++){
+        if(targetColumnStoreColumns[i].toLowerCase().equals(ColumnStoreTargetName.toLowerCase())){ //quick fix for MCOL-1213
+          return inputStreamFields[i];
+        }
+      }
+      return null;
     }
   }
 
@@ -305,8 +292,8 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
 
     xml.append( XMLHandler.addTagValue("numberOfMappingEntries", fieldMapping.getNumberOfEntries()));
     for(int i=0; i<fieldMapping.getNumberOfEntries(); i++){
-      xml.append( XMLHandler.addTagValue("inputField_"+i+"_Name", fieldMapping.getInputStreamField(i).getFieldName()));
-      xml.append( XMLHandler.addTagValue("targetField_"+i+"_Name", fieldMapping.getTargetColumnStoreColumn(i).getFieldName()));
+      xml.append( XMLHandler.addTagValue("inputField_"+i+"_Name", fieldMapping.getInputStreamField(i)));
+      xml.append( XMLHandler.addTagValue("targetField_"+i+"_Name", fieldMapping.getTargetColumnStoreColumn(i)));
     }
     return xml.toString();
   }
@@ -328,8 +315,8 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
 
       fieldMapping = new InputTargetMapping(Integer.parseInt(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "numberOfMappingEntries"))));
       for(int i=0; i<fieldMapping.getNumberOfEntries(); i++){
-        fieldMapping.setInputFieldMetaData(i,new InputFieldMetaData(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "inputField_"+i+"_Name"))));
-        fieldMapping.setTargetColumnStoreColumn(i,new TargetColumnMetaData(XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "targetField_"+i+"_Name"))));
+        fieldMapping.setInputFieldMetaData(i,XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "inputField_"+i+"_Name")));
+        fieldMapping.setTargetColumnStoreColumn(i,XMLHandler.getNodeValue(XMLHandler.getSubNode(stepnode, "targetField_"+i+"_Name")));
       }
     } catch ( Exception e ) {
       throw new KettleXMLException( "MariaDB ColumnStore Exporter Plugin unable to read step info from XML node", e );
@@ -353,8 +340,8 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
 
       rep.saveStepAttribute( id_transformation, id_step, "numberOfMappingEntries", targetTable );
       for(int i=0; i<fieldMapping.getNumberOfEntries(); i++){
-        rep.saveStepAttribute( id_transformation, id_step, "inputField_"+i+"_Name", fieldMapping.getInputStreamField(i).getFieldName() );
-        rep.saveStepAttribute( id_transformation, id_step, "targetField_"+i+"_Name", fieldMapping.getTargetColumnStoreColumn(i).getFieldName() );
+        rep.saveStepAttribute( id_transformation, id_step, "inputField_"+i+"_Name", fieldMapping.getInputStreamField(i));
+        rep.saveStepAttribute( id_transformation, id_step, "targetField_"+i+"_Name", fieldMapping.getTargetColumnStoreColumn(i));
       }
 
     } catch ( Exception e ) {
@@ -378,13 +365,9 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
       targetTable  = rep.getStepAttributeString( id_step, "targettable" ); //$NON-NLS-1$
 
       fieldMapping = new InputTargetMapping((int)rep.getStepAttributeInteger(id_step, "numberOfMappingEntries"));
-      InputFieldMetaData in = new InputFieldMetaData("");
-      TargetColumnMetaData ta = new TargetColumnMetaData("");
       for(int i=0; i<fieldMapping.getNumberOfEntries(); i++){
-        in.setFieldName(rep.getStepAttributeString(id_step, "inputField_"+i+"_Name"));
-        fieldMapping.setInputFieldMetaData(i,in);
-        ta.setFieldName(rep.getStepAttributeString(id_step, "targetField_"+i+"_Name"));
-        fieldMapping.setTargetColumnStoreColumn(i,ta);
+        fieldMapping.setInputFieldMetaData(i,rep.getStepAttributeString(id_step, "inputField_"+i+"_Name"));
+        fieldMapping.setTargetColumnStoreColumn(i,rep.getStepAttributeString(id_step, "targetField_"+i+"_Name"));
       }
     } catch ( Exception e ) {
       throw new KettleException( "Unable to load step from repository", e );
@@ -456,20 +439,33 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
         remarks.add(new CheckResult(CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG, "KettleColumnStoreBulkExporterPlugin.CheckResult.TableExistent.OK" ), stepMeta));
         // check if the input columns would fit into ColumnStore
         List<ValueMetaInterface> inputValueTypes = prev.getValueMetaList();
-        if(inputValueTypes.size() <= table.getColumnCount()){
+        ArrayList<String> inputFields = new ArrayList<String>(Arrays.asList(prev.getFieldNames()));
+
+        if(fieldMapping.getNumberOfEntries() == table.getColumnCount()){
           remarks.add(new CheckResult(CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG, "KettleColumnStoreBulkExporterPlugin.CheckResult.TableSizes.OK" ), stepMeta));
-          // check if the input column layout and ColumnStore column layout are compatible (data type wise)
-          for(int i = 0; i<inputValueTypes.size(); i++){
-            int inputColumnType = inputValueTypes.get(i).getType();
+          // check if the input column layout and ColumnStore column layout are compatible (data type wise and that there is a mapping for every columnstore column)
+          for(int i = 0; i<table.getColumnCount(); i++){
+
             columnstore_data_types_t outputColumnType = table.getColumn(i).getType();
+            String outputColumnName = table.getColumn(i).getColumnName();
 
-            //(input column name, type), (output column name, type)
-            String types = "("+prev.getFieldNames()[i]+", "+typeCodes[inputColumnType]+"), ("+table.getColumn(i).getColumnName()+ ", "+outputColumnType.toString()+ ")";
+            String mappedInputField = fieldMapping.getTargetInputMappingField(outputColumnName);
+            int mappedInputIndex = inputFields.indexOf(mappedInputField);
 
-            if(checkCompatibility(inputColumnType, outputColumnType)){
-              remarks.add(new CheckResult(CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG, "KettleColumnStoreBulkExporterPlugin.CheckResult.ColumnTypeCompatible.OK") + types, stepMeta));
+            if(mappedInputIndex > -1) {
+              remarks.add(new CheckResult(CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG, "KettleColumnStoreBulkExporterPlugin.CheckResult.MappingAvailable.OK") + " " + table.getColumn(i).getColumnName(), stepMeta));
+              int inputColumnType = inputValueTypes.get(i).getType();
+
+              //(input column name, type), (output column name, type)
+              String types = "("+prev.getFieldNames()[i]+", "+typeCodes[inputColumnType]+"), ("+table.getColumn(i).getColumnName()+ ", "+outputColumnType.toString()+ ")";
+
+              if(checkCompatibility(inputColumnType, outputColumnType)){
+                remarks.add(new CheckResult(CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG, "KettleColumnStoreBulkExporterPlugin.CheckResult.ColumnTypeCompatible.OK") + types, stepMeta));
+              }else{
+                remarks.add(new CheckResult(CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG, "KettleColumnStoreBulkExporterPlugin.CheckResult.ColumnTypeCompatible.ERROR") + types, stepMeta));
+              }
             }else{
-              remarks.add(new CheckResult(CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG, "KettleColumnStoreBulkExporterPlugin.CheckResult.ColumnTypeCompatible.ERROR") + types, stepMeta));
+              remarks.add(new CheckResult(CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG, "KettleColumnStoreBulkExporterPlugin.CheckResult.MappingAvailable.ERROR") +  " " + table.getColumn(i).getColumnName(), stepMeta));
             }
           }
         } else{
