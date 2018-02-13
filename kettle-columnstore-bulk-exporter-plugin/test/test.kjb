@@ -516,8 +516,10 @@ DROP TABLE IF EXISTS test.kettle_api_columnstore;
 CREATE TABLE IF NOT EXISTS test.kettle_api_columnstore
 (
   uint64 BIGINT UNSIGNED
+, vch30 VARCHAR(30)
 , int64 BIGINT
 , uint32 INT UNSIGNED
+, tx TEXT
 , int32 INT
 , uint16 SMALLINT UNSIGNED
 , int16 SMALLINT
@@ -526,12 +528,10 @@ CREATE TABLE IF NOT EXISTS test.kettle_api_columnstore
 , f FLOAT
 , d DOUBLE
 , ch4 VARCHAR(5)
-, vch30 VARCHAR(30)
+, bit TINYINT(1)
 , dt DATE
 , dtm DATETIME
 , dc DECIMAL(18)
-, tx TEXT
-, bit TINYINT(1)
 , mathInt BIGINT UNSIGNED
 , dc2 DECIMAL(18,9)
 )
