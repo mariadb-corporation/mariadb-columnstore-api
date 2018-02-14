@@ -102,6 +102,11 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
   private String targetTable;
 
   /**
+   * Database connection (JDBC)
+   */
+  private DatabaseMeta databaseMeta;
+
+  /**
    * Wrapper class to store the mapping between input and output
    */
   protected static class InputTargetMapping{
@@ -201,14 +206,27 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
     return new KettleColumnStoreBulkExporterStepData();
   }
 
+  public DatabaseMeta[] getUsedDatabaseConnections()
+  {
+    if (databaseMeta!=null)
+    {
+      return new DatabaseMeta[] { databaseMeta };
+    }
+    else
+    {
+      return super.getUsedDatabaseConnections();
+    }
+  }
+
   /**
    * This method is called every time a new step is created and should allocate/set the step configuration
    * to sensible defaults. The values set here will be used by Spoon when a new step is created.    
    */
   public void setDefault() {
-      setTargetDatabase("target database");
-      setTargetTable("target table");
+      setTargetDatabase(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.TargetDatabase.Text.Default"));
+      setTargetTable(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.TargetTable.Text.Default"));
       fieldMapping = new InputTargetMapping();
+      databaseMeta = null;
   }
 
   /**
@@ -251,6 +269,16 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
       this.fieldMapping = itm;
   }
 
+  public DatabaseMeta getDatabaseMeta()
+  {
+    return databaseMeta;
+  }
+
+  public void setDatabaseMeta(DatabaseMeta database)
+  {
+    this.databaseMeta = database;
+  }
+
   /**
    * This method is used when a step is duplicated in Spoon. It needs to return a deep copy of this
    * step meta object. Be sure to create proper deep copies if the step configuration is stored in
@@ -286,7 +314,7 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
   public String getXML() {
     StringBuilder xml = new StringBuilder();
 
-    // only one field to serialize
+    xml.append( XMLHandler.addTagValue("connection",     databaseMeta==null?"":databaseMeta.getName())); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     xml.append( XMLHandler.addTagValue( "targetdatabase", targetDatabase ) );
     xml.append( XMLHandler.addTagValue( "targettable", targetTable ) );
 
@@ -310,6 +338,9 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
    */
   public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws KettleXMLException {
     try {
+      String con     = XMLHandler.getTagValue(stepnode, "connection"); //$NON-NLS-1$
+      databaseMeta   = DatabaseMeta.findDatabase(databases, con);
+
       setTargetDatabase( XMLHandler.getNodeValue( XMLHandler.getSubNode( stepnode, "targetdatabase" ) ) );
       setTargetTable( XMLHandler.getNodeValue( XMLHandler.getSubNode( stepnode, "targettable" ) ) );
 
@@ -335,6 +366,8 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
   public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step )
       throws KettleException {
     try {
+      rep.saveDatabaseMetaStepAttribute(id_transformation, id_step, "id_connection", databaseMeta);
+
       rep.saveStepAttribute( id_transformation, id_step, "targetdatabase", targetDatabase ); //$NON-NLS-1$
       rep.saveStepAttribute( id_transformation, id_step, "targettable", targetTable ); //$NON-NLS-1$
 
@@ -343,6 +376,9 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
         rep.saveStepAttribute( id_transformation, id_step, "inputField_"+i+"_Name", fieldMapping.getInputStreamField(i));
         rep.saveStepAttribute( id_transformation, id_step, "targetField_"+i+"_Name", fieldMapping.getTargetColumnStoreColumn(i));
       }
+
+      // Also, save the step-database relationship!
+      if (databaseMeta!=null) rep.insertStepDatabase(id_transformation, id_step, databaseMeta.getObjectId());
 
     } catch ( Exception e ) {
       throw new KettleException( "Unable to save step into repository: " + id_step, e );
@@ -361,6 +397,7 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
   public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases )
       throws KettleException {
     try {
+      databaseMeta = rep.loadDatabaseMetaFromStepAttribute(id_step, "id_connection", databases);
       targetDatabase  = rep.getStepAttributeString( id_step, "targetdatabase" ); //$NON-NLS-1$
       targetTable  = rep.getStepAttributeString( id_step, "targettable" ); //$NON-NLS-1$
 
