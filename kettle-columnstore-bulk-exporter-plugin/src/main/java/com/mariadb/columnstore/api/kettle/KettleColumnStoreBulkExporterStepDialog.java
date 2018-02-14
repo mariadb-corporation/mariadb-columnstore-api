@@ -28,12 +28,17 @@ import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 import org.pentaho.di.core.Const;
+import org.pentaho.di.core.DBCache;
+import org.pentaho.di.core.SQLStatement;
+import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.row.ValueMetaInterface;
 import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.StepMeta;
+import org.pentaho.di.ui.core.database.dialog.SQLEditor;
+import org.pentaho.di.ui.core.dialog.ErrorDialog;
 import org.pentaho.di.ui.core.widget.LabelText;
 import org.pentaho.di.ui.core.widget.TextVar;
 import org.pentaho.di.ui.trans.step.BaseStepDialog;
@@ -380,6 +385,12 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
 
     StepMeta stepMeta = transMeta.findStep(stepname);
 
+    KettleColumnStoreBulkExporterStepMeta.InputTargetMapping oldItm = new KettleColumnStoreBulkExporterStepMeta.InputTargetMapping(itm.getNumberOfEntries());
+    for (int i=0; i<itm.getNumberOfEntries(); i++){
+      oldItm.setInputFieldMetaData(i,itm.getInputStreamField(i));
+      oldItm.setTargetColumnStoreColumn(i,itm.getTargetColumnStoreColumn(i));
+    }
+
     try {
       RowMetaInterface row = transMeta.getPrevStepFields(stepMeta);
 
@@ -394,6 +405,23 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
     }catch(KettleException e){
       logError("Can't get fields from previous step.", e);
     }
+
+    boolean changed = false;
+    if(itm.getNumberOfEntries() == oldItm.getNumberOfEntries()){
+      for(int i=0; i<itm.getNumberOfEntries(); i++){
+        if(!itm.getInputStreamField(i).equals(oldItm.getInputStreamField(i)) ||
+                !itm.getTargetColumnStoreColumn(i).equals(oldItm.getTargetColumnStoreColumn(i))){
+          changed = true;
+          break;
+        }
+      }
+    }else{
+      changed = true;
+    }
+    if (changed){
+      meta.setChanged();
+    }
+
     updateTableView();
   }
 
@@ -474,8 +502,49 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
   /**
    * Function is invoked when the SQL button is hit
    */
-  private void sqlBtnHit(){
-    System.out.println("BUTTON SQL HIT");
+  private void sqlBtnHit(){ //TODO
+    try
+    {
+      //Use a copy of meta here as meta won't be updated until OK is clicked
+      KettleColumnStoreBulkExporterStepMeta metaCopy = new KettleColumnStoreBulkExporterStepMeta();
+      metaCopy.setDatabaseMeta(transMeta.findDatabase(wConnection.getText()));
+      metaCopy.setFieldMapping(itm);
+      metaCopy.setTargetDatabase(wTargetDatabaseFieldName.getText());
+      metaCopy.setTargetTable(wTargetTableFieldName.getText());
+
+      StepMeta stepMeta = new StepMeta(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.StepMeta.Title"), wStepname.getText(), metaCopy); //$NON-NLS-1$
+      RowMetaInterface prev = transMeta.getPrevStepFields(stepname);
+
+      SQLStatement sql = metaCopy.getSQLStatements(transMeta, stepMeta, prev);
+      if (!sql.hasError())
+      {
+        if (sql.hasSQL())
+        {
+          SQLEditorC sqledit = new SQLEditorC(shell, SWT.NONE, metaCopy.getDatabaseMeta(), transMeta.getDbCache(), sql.getSQL());
+          sqledit.open();
+        }
+        else
+        {
+          MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+          mb.setMessage(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.NoSQLNeeds.DialogMessage")); //$NON-NLS-1$
+          mb.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.NoSQLNeeds.DialogTitle")); //$NON-NLS-1$
+          mb.open();
+        }
+      }
+      else
+      {
+        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+        mb.setMessage(sql.getError());
+        mb.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.SQLError.DialogTitle")); //$NON-NLS-1$
+        mb.open();
+      }
+    }
+    catch (KettleException ke)
+    {
+      new ErrorDialog(shell, BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.CouldNotBuildSQL.DialogTitle"), //$NON-NLS-1$
+              BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.CouldNotBuildSQL.DialogMessage"), ke); //$NON-NLS-1$
+    }
+    updateTableView();
   }
 
   /**
@@ -520,5 +589,19 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
 
     // close the SWT dialog window
     dispose();
+  }
+
+  /**
+   * Adapted class of SQLEditor to updateTableView after execution
+   */
+  private class SQLEditorC extends SQLEditor{
+    public SQLEditorC(Shell parent, int style, DatabaseMeta ci, DBCache dbc, String sql) {
+      super(parent, style, ci, dbc, sql);
+    }
+    @Override
+    protected void refreshExecutionResults() {
+      super.refreshExecutionResults();
+      updateTableView();
+    }
   }
 }

@@ -22,14 +22,19 @@ import java.util.List;
 
 import com.mariadb.columnstore.api.*;
 import org.eclipse.swt.widgets.Shell;
+import org.pentaho.database.util.Const;
 import org.pentaho.di.core.CheckResult;
 import org.pentaho.di.core.CheckResultInterface;
+import org.pentaho.di.core.SQLStatement;
 import org.pentaho.di.core.annotations.Step;
+import org.pentaho.di.core.database.Database;
 import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.exception.KettleException;
+import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.exception.KettleXMLException;
 import org.pentaho.di.core.injection.Injection;
 import org.pentaho.di.core.injection.InjectionSupported;
+import org.pentaho.di.core.row.RowMeta;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.row.ValueMetaInterface;
 import org.pentaho.di.core.variables.VariableSpace;
@@ -105,6 +110,7 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
    * Database connection (JDBC)
    */
   private DatabaseMeta databaseMeta;
+  private final String COLUMNSTORE_SCHEMA = "";
 
   /**
    * Wrapper class to store the mapping between input and output
@@ -312,9 +318,15 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
    * @return a string containing the XML serialization of this step
    */
   public String getXML() {
+
     StringBuilder xml = new StringBuilder();
 
-    xml.append( XMLHandler.addTagValue("connection",     databaseMeta==null?"":databaseMeta.getName())); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    if(databaseMeta != null) {
+      xml.append(XMLHandler.addTagValue("connection", databaseMeta.getName()));
+    }else{
+      xml.append(XMLHandler.addTagValue("connection", ""));
+    }
+
     xml.append( XMLHandler.addTagValue( "targetdatabase", targetDatabase ) );
     xml.append( XMLHandler.addTagValue( "targettable", targetTable ) );
 
@@ -612,6 +624,84 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
         break;
     }
     return compatible;
+  }
+
+  /**
+   * Generates the SQL statement to alter / create the ColumnStore target table to fit the input fields.
+   * @param transMeta
+   * @param stepMeta
+   * @param prev
+   * @return
+   * @throws KettleStepException
+   */
+  public SQLStatement getSQLStatements(TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev) throws KettleStepException //TODO
+  {
+    SQLStatement retval = new SQLStatement(stepMeta.getName(), databaseMeta, null); // default: nothing to do!
+
+    if (databaseMeta!=null)
+    {
+      if (prev!=null && prev.size()>0)
+      {
+        // Copy the row
+        RowMetaInterface tableFields = new RowMeta();
+
+        // Now change the ColumnStore column names
+        for (int i=0;i<fieldMapping.getNumberOfEntries();i++)
+        {
+          ValueMetaInterface v = prev.searchValueMeta(fieldMapping.getInputStreamField(i));
+          if (v!=null)
+          {
+            ValueMetaInterface tableField = v.clone();
+            tableField.setName(fieldMapping.getTargetColumnStoreColumn(i));
+            tableFields.addValueMeta(tableField);
+          }
+          else
+          {
+            throw new KettleStepException("Unable to find field ["+fieldMapping.getInputStreamField(i)+"] in the input rows");
+          }
+        }
+
+        if (!Const.isEmpty(targetTable))
+        {
+          Database db = new Database(loggingObject, databaseMeta);
+          db.shareVariablesWith(transMeta);
+          try
+          {
+            db.connect();
+
+            String schemaTable = databaseMeta.getQuotedSchemaTableCombination(transMeta.environmentSubstitute(COLUMNSTORE_SCHEMA), transMeta.environmentSubstitute(targetTable));
+            String cr_table = db.getDDL(schemaTable,
+                    tableFields,
+                    null,
+                    false,
+                    null,
+                    true
+            );
+
+            String sql = cr_table;
+            if (sql.length()==0) retval.setSQL(null); else retval.setSQL(sql);
+          }
+          catch(KettleException e)
+          {
+            retval.setError(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.GetSQL.ErrorOccurred")+e.getMessage()); //$NON-NLS-1$
+          }
+        }
+        else
+        {
+          retval.setError(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.GetSQL.NoTableDefinedOnConnection")); //$NON-NLS-1$
+        }
+      }
+      else
+      {
+        retval.setError(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.GetSQL.NotReceivingAnyFields")); //$NON-NLS-1$
+      }
+    }
+    else
+    {
+      retval.setError(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.GetSQL.NoConnectionDefined")); //$NON-NLS-1$
+    }
+
+    return retval;
   }
 }
 
