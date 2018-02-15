@@ -437,7 +437,7 @@
   <notepads>
   </notepads>
   <connection>
-    <name>MariaDB JDBC</name>
+    <name>ColumnStore JDBC</name>
     <server>localhost</server>
     <type>MARIADB</type>
     <access>Native</access>
@@ -515,7 +515,7 @@
       <method>none</method>
       <schema_name />
     </partitioning>
-    <connection>MariaDB JDBC</connection>
+    <connection>ColumnStore JDBC</connection>
     <schema />
     <table>kettle_jdbc_columnstore</table>
     <commit>1000</commit>
@@ -558,7 +558,7 @@
       <method>none</method>
       <schema_name />
     </partitioning>
-    <connection>MariaDB JDBC</connection>
+    <connection>ColumnStore JDBC</connection>
     <schema />
     <table>kettle_jdbc_innodb</table>
     <commit>1000</commit>
@@ -591,58 +591,6 @@
     </GUI>
   </step>
   <step>
-    <name>MariaDB input table</name>
-    <type>TableInput</type>
-    <description />
-    <distribute>N</distribute>
-    <custom_distribution />
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name />
-    </partitioning>
-    <connection>MariaDB JDBC</connection>
-    <sql>SELECT
-  uint64
-, int64
-, uint32
-, int32
-, uint16
-, int16
-, uint8
-, intEight
-, f
-, d
-, ch4
-, vch30
-, dt
-, dtm
-, dc
-, tx
-, bit
-, mathInt
-, dc2
-FROM kettle_test_data
-</sql>
-    <limit>0</limit>
-    <lookup />
-    <execute_each_row>N</execute_each_row>
-    <variables_active>N</variables_active>
-    <lazy_conversion_active>N</lazy_conversion_active>
-    <cluster_schema />
-    <remotesteps>
-      <input>
-      </input>
-      <output>
-      </output>
-    </remotesteps>
-    <GUI>
-      <xloc>112</xloc>
-      <yloc>176</yloc>
-      <draw>Y</draw>
-    </GUI>
-  </step>
-  <step>
     <name>MariaDB ColumnStore Bulk Loader</name>
     <type>KettleColumnStoreBulkExporterPlugin</type>
     <description />
@@ -653,6 +601,7 @@ FROM kettle_test_data
       <method>none</method>
       <schema_name />
     </partitioning>
+    <connection>ColumnStore JDBC</connection>
     <targetdatabase>test</targetdatabase>
     <targettable>kettle_api_columnstore</targettable>
     <numberOfMappingEntries>19</numberOfMappingEntries>
@@ -704,6 +653,58 @@ FROM kettle_test_data
     <GUI>
       <xloc>464</xloc>
       <yloc>272</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>MariaDB input table</name>
+    <type>TableInput</type>
+    <description />
+    <distribute>N</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <connection>ColumnStore JDBC</connection>
+    <sql>SELECT
+  uint64
+, int64
+, uint32
+, int32
+, uint16
+, int16
+, uint8
+, intEight
+, f
+, d
+, ch4
+, vch30
+, dt
+, dtm
+, dc
+, tx
+, bit
+, mathInt
+, dc2
+FROM kettle_test_data
+</sql>
+    <limit>0</limit>
+    <lookup />
+    <execute_each_row>N</execute_each_row>
+    <variables_active>N</variables_active>
+    <lazy_conversion_active>N</lazy_conversion_active>
+    <cluster_schema />
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>112</xloc>
+      <yloc>176</yloc>
       <draw>Y</draw>
     </GUI>
   </step>

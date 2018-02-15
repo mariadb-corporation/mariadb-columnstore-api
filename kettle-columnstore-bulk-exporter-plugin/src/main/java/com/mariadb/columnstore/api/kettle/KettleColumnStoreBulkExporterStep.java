@@ -28,6 +28,7 @@ import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -63,6 +64,7 @@ public class KettleColumnStoreBulkExporterStep extends BaseStep implements StepI
   private ColumnStoreSystemCatalog catalog;
   private ColumnStoreSystemCatalogTable table;
   private int targetColumnCount;
+  private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SS");
 
   private int[] targetInputMapping;
 
@@ -112,7 +114,7 @@ public class KettleColumnStoreBulkExporterStep extends BaseStep implements StepI
     try {
         table = catalog.getTable(meta.getTargetDatabase(), meta.getTargetTable());
     }catch(ColumnStoreException e){
-        log.logError("Target table " + meta.getTargetTable() + " doesn't exist.", e);
+        logError("Target table " + meta.getTargetTable() + " doesn't exist.", e);
         setErrors(1);
         return false;
     }
@@ -124,7 +126,7 @@ public class KettleColumnStoreBulkExporterStep extends BaseStep implements StepI
     if(meta.getFieldMapping().getNumberOfEntries() == targetColumnCount) {
         targetInputMapping = new int[meta.getFieldMapping().getNumberOfEntries()];
     }else{
-        log.logError("Number of mapping entries and target columns doesn't match");
+        logError("Number of mapping entries and target columns doesn't match");
         setErrors(1);
         return false;
     }
@@ -177,15 +179,15 @@ public class KettleColumnStoreBulkExporterStep extends BaseStep implements StepI
         data.rowValueTypes = getInputRowMeta().getValueMetaList();
 
         if(log.isDebug()) {
-            log.logDebug("Input field names and types");
+            logDebug("Input field names and types");
             int g = 0;
             for (String s : data.rowMeta.getFieldNamesAndTypes(16)) {
-                log.logDebug(g++ + " : " + s);
+                logDebug(g++ + " : " + s);
             }
 
-            log.logDebug("ColumnStore rows and types");
+            logDebug("ColumnStore rows and types");
             for (int i = 0; i < table.getColumnCount(); i++) {
-                log.logDebug(i + " : " + table.getColumn(i).getColumnName() + " : " + table.getColumn(i).getType().toString());
+                logDebug(i + " : " + table.getColumn(i).getColumnName() + " : " + table.getColumn(i).getType().toString());
             }
         }
 
@@ -202,28 +204,28 @@ public class KettleColumnStoreBulkExporterStep extends BaseStep implements StepI
     }
 
     // put the row into ColumnStore
-    log.logDebug("Iterating through the ColumnStore table to set the row object");
+    logDebug("Iterating through the ColumnStore table to set the row object");
     for (int c=0; c<targetColumnCount; c++){
       int i = targetInputMapping[c];
-      log.logDebug("Column " + c + " - " + table.getColumn(c).getColumnName() + " - trying to insert item: " + i + ", value to String: " + r[i].toString());
+      logDebug("Column " + c + " - " + table.getColumn(c).getColumnName() + " - trying to insert item: " + i + ", value to String: " + r[i].toString());
       switch(data.rowValueTypes.get(i).getType()){
         case TYPE_STRING:
-          log.logDebug("Try to insert item " + i + " as String");
+          logDebug("Try to insert item " + i + " as String");
           b.setColumn(c, (String) r[i]);
-          log.logDebug("Inserted item " + i + " as String");
+          logDebug("Inserted item " + i + " as String");
           break;
         case TYPE_INTEGER:
-          log.logDebug("Try to insert item " + i + " as Long");
+          logDebug("Try to insert item " + i + " as Long");
           b.setColumn(c, (Long) r[i]);
-          log.logDebug("Inserted item " + i + " as Long");
+          logDebug("Inserted item " + i + " as Long");
           break;
         case TYPE_NUMBER:
-          log.logDebug("Try to insert item " + i + " as Double");
+          logDebug("Try to insert item " + i + " as Double");
           b.setColumn(c, (Double) r[i]);
-          log.logDebug("Inserted item " + i + " as Double");
+          logDebug("Inserted item " + i + " as Double");
           break;
         case TYPE_BIGNUMBER:
-          log.logDebug("Detect ColumnStore row type");
+          logDebug("Detect ColumnStore row type");
           BigDecimal bd = (BigDecimal) r[i];
           if(table.getColumn(c).getType() == columnstore_data_types_t.DATA_TYPE_DECIMAL ||
              table.getColumn(c).getType() == columnstore_data_types_t.DATA_TYPE_FLOAT ||
@@ -231,38 +233,42 @@ public class KettleColumnStoreBulkExporterStep extends BaseStep implements StepI
              table.getColumn(c).getType() == columnstore_data_types_t.DATA_TYPE_UDECIMAL ||
              table.getColumn(c).getType() == columnstore_data_types_t.DATA_TYPE_UFLOAT ||
              table.getColumn(c).getType() == columnstore_data_types_t.DATA_TYPE_UDOUBLE){
-             log.logDebug("ColumnStore column is of type 'real'");
-             log.logDebug("Try to insert item " + i + " as BigDecimal");
+             logDebug("ColumnStore column is of type 'real'");
+             logDebug("Try to insert item " + i + " as BigDecimal");
+             logDebug("Value to insert: " + bd.toPlainString());
              b.setColumn(c, new ColumnStoreDecimal(bd.toPlainString()));
-             log.logDebug("Inserted item " + i + " as BigDecimal");
+             logDebug("Inserted item " + i + " as BigDecimal");
           }else{
-             log.logDebug("ColumnStore column is of type 'decimal'");
-             log.logDebug("Try to insert item " + i + " as BigInteger");
+             logDebug("ColumnStore column is of type 'decimal'");
+             logDebug("Try to insert item " + i + " as BigInteger");
+             logDebug("Value to insert: " + bd.toBigInteger());
              b.setColumn(c, bd.toBigInteger());
-             log.logDebug("Inserted item " + i + " as BigInteger");
+             logDebug("Inserted item " + i + " as BigInteger");
           }
           break;
         case TYPE_DATE:
-          log.logDebug("Try to insert item " + i + " as Date");
+          logDebug("Try to insert item " + i + " as Date");
           Date dt = (Date) r[i];
-          b.setColumn(c, dt.toString());
-          log.logDebug("Inserted item " + i + " as Date");
+          logDebug("Value to insert: " + dateFormat.format(dt).toString());
+          b.setColumn(c, dateFormat.format(dt).toString());
+          logDebug("Inserted item " + i + " as Date");
           break;
         case TYPE_TIMESTAMP:
-          log.logDebug("Try to insert item " + i + " as Timestamp");
+          logDebug("Try to insert item " + i + " as Timestamp");
           Date dt2 = (Date) r[i];
-          b.setColumn(c, dt2.toString());
-          log.logDebug("Inserted item " + i + " as Timestamp");
+          logDebug("Value to insert: " + dateFormat.format(dt2).toString());
+          b.setColumn(c, dateFormat.format(dt2).toString());
+          logDebug("Inserted item " + i + " as Timestamp");
           break;
         case TYPE_BOOLEAN:
-          log.logDebug("Try to insert item " + i + " as Boolean");
+          logDebug("Try to insert item " + i + " as Boolean");
           if((boolean) r[i]){
             b.setColumn(c, 1);
           }
           else{
             b.setColumn(c, 0);
           }
-          log.logDebug("Inserted item " + i + " as Boolean");
+          logDebug("Inserted item " + i + " as Boolean");
           break;
         case TYPE_BINARY:
           b.rollback();
@@ -307,16 +313,21 @@ public class KettleColumnStoreBulkExporterStep extends BaseStep implements StepI
     KettleColumnStoreBulkExporterStepData data = (KettleColumnStoreBulkExporterStepData) sdi;
 
     // Finally commit the changes to ColumnStore
-    b.commit();
-    log.logDebug("bulk insert committed");
+    try {
+        b.commit(); //TODO ERROR HANDLING
+    }catch(ColumnStoreException e){
+        //ERROR HANDLING HERE
+        b.rollback();
+    }
+    logDebug("bulk insert committed");
 
   if(log.isDetailed()){
       ColumnStoreSummary summary = b.getSummary();
-      log.logDetailed("Execution time: " + summary.getExecutionTime());
-      log.logDetailed("Rows inserted: " + summary.getRowsInsertedCount());
-      log.logDetailed("Truncation count: " + summary.getTruncationCount());
-      log.logDetailed("Saturated count: " + summary.getSaturatedCount());
-      log.logDetailed("Invalid count: " + summary.getInvalidCount());
+      logDetailed("Execution time: " + summary.getExecutionTime());
+      logDetailed("Rows inserted: " + summary.getRowsInsertedCount());
+      logDetailed("Truncation count: " + summary.getTruncationCount());
+      logDetailed("Saturated count: " + summary.getSaturatedCount());
+      logDetailed("Invalid count: " + summary.getInvalidCount());
   }
 
     // Call superclass dispose()

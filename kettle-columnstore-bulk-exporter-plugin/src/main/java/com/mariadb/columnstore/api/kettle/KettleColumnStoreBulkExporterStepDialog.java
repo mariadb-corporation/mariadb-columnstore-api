@@ -496,7 +496,7 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
    * Function is invoked when button Custom Mapping is hit
    */
   private void customMapping(){
-    System.out.println("BUTTON CUSTOM MAPPING HIT");
+    logDebug("BUTTON CUSTOM MAPPING HIT");
   }
 
   /**
