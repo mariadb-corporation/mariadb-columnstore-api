@@ -548,10 +548,10 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
 
               if (mappedInputIndex > -1) {
                 remarks.add(new CheckResult(CheckResult.TYPE_RESULT_OK, BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.CheckResult.MappingAvailable.OK") + " " + table.getColumn(i).getColumnName(), stepMeta));
-                int inputColumnType = inputValueTypes.get(i).getType();
+                int inputColumnType = inputValueTypes.get(mappedInputIndex).getType();
 
                 //(input column name, type), (output column name, type)
-                String types = "(" + prev.getFieldNames()[i] + ", " + typeCodes[inputColumnType] + "), (" + table.getColumn(i).getColumnName() + ", " + outputColumnType.toString() + ")";
+                String types = "(" + prev.getFieldNames()[mappedInputIndex] + ", " + typeCodes[inputColumnType] + "), (" + table.getColumn(i).getColumnName() + ", " + outputColumnType.toString() + ")";
 
                 if (checkCompatibility(inputColumnType, outputColumnType)) {
                   remarks.add(new CheckResult(CheckResult.TYPE_RESULT_OK, BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.CheckResult.ColumnTypeCompatible.OK") + types, stepMeta));
