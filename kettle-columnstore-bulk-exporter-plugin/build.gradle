@@ -37,6 +37,10 @@ configurations {
         zip
 }
 
+compileJava {
+        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+}
+
 dependencies {
         compile name: 'javamcsapi'
         provided "org.pentaho:pentaho-metadata:${project.ext.pentaho_metadata_dependency_revision}"

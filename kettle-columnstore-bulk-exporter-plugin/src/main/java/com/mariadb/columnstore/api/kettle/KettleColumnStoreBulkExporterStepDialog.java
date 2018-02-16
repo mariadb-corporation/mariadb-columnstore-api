@@ -571,7 +571,7 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
   /**
    * Function is invoked when the SQL button is hit
    */
-  private void sqlBtnHit(){ //TODO
+  private void sqlBtnHit(){
     try
     {
       //Use a copy of meta here as meta won't be updated until OK is clicked
@@ -584,7 +584,7 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
       StepMeta stepMeta = new StepMeta(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.StepMeta.Title"), wStepname.getText(), metaCopy); //$NON-NLS-1$
       RowMetaInterface prev = transMeta.getPrevStepFields(stepname);
 
-      SQLStatement sql = metaCopy.getSQLStatements(transMeta, stepMeta, prev);
+      SQLStatement sql = metaCopy.getSQLStatements(transMeta, stepMeta, prev, repository, metaStore);
       if (!sql.hasError())
       {
         if (sql.hasSQL())
@@ -613,7 +613,6 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
       new ErrorDialog(shell, BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.CouldNotBuildSQL.DialogTitle"), //$NON-NLS-1$
               BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.CouldNotBuildSQL.DialogMessage"), ke); //$NON-NLS-1$
     }
-    updateTableView();
   }
 
   /**
@@ -645,7 +644,7 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
     // The "stepname" variable will be the return value for the open() method.  
     // Setting to null to indicate that dialog was cancelled.
     stepname = null;
-    // Restoring original "changed" flag on the met aobject
+    // Restoring original "changed" flag on the meta object
     meta.setChanged( changed );
     // close the SWT dialog window
     dispose();
@@ -666,16 +665,7 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
     meta.setDatabaseMeta(transMeta.findDatabase(wConnection.getText()));
 
     // set the columnstore xml file location
-    try{
-      meta.setColumnStoreXML( wColumnStoreXML.getText() );
-    } catch(ColumnStoreException e){
-      meta.setColumnStoreXML("");
-      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-      mb.setMessage(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.XMLConfiguration.Error.DialogMessage") + e.getMessage());
-      mb.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.XMLConfiguration.Error.DialogTitle"));
-      mb.open();
-    }
-
+    meta.setColumnStoreXML( wColumnStoreXML.getText() );
 
     // Set the field mapping
     meta.setFieldMapping(itm);
@@ -694,6 +684,7 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
     @Override
     protected void refreshExecutionResults() {
       super.refreshExecutionResults();
+      updateColumnStoreDriver(); //temporary fix for MCOL-1218
       updateTableView();
     }
   }

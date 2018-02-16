@@ -115,6 +115,7 @@ public class KettleColumnStoreBulkExporterStep extends BaseStep implements StepI
         setErrors(1);
         return false;
     }
+    meta.reinitializeColumnStoreDriver(); // temporary fix for MCOL-1218
     catalog = d.getSystemCatalog();
     try {
         table = catalog.getTable(meta.getTargetDatabase(), meta.getTargetTable());
@@ -319,12 +320,12 @@ public class KettleColumnStoreBulkExporterStep extends BaseStep implements StepI
 
     // Finally commit the changes to ColumnStore
     try {
-        b.commit(); //TODO ERROR HANDLING
+        b.commit();
+        logDebug("bulk insert committed");
     }catch(ColumnStoreException e){
-        //ERROR HANDLING HERE
         b.rollback();
+        logError("couldn't commit bulk insert to ColumnStore - rollback", e);
     }
-    logDebug("bulk insert committed");
 
   if(log.isDetailed()){
       ColumnStoreSummary summary = b.getSummary();

@@ -27,8 +27,7 @@ import org.pentaho.di.core.CheckResult;
 import org.pentaho.di.core.CheckResultInterface;
 import org.pentaho.di.core.SQLStatement;
 import org.pentaho.di.core.annotations.Step;
-import org.pentaho.di.core.database.Database;
-import org.pentaho.di.core.database.DatabaseMeta;
+import org.pentaho.di.core.database.*;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.exception.KettleXMLException;
@@ -113,7 +112,6 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
    * Database connection (JDBC)
    */
   private DatabaseMeta databaseMeta;
-  private final String COLUMNSTORE_SCHEMA = "";
 
   /**
    * Wrapper class to store the mapping between input and output
@@ -282,21 +280,25 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
 
   public void setColumnStoreXML(String columnStoreXML){
      this.columnStoreXML = columnStoreXML;
-     if(columnStoreXML!=null && !columnStoreXML.equals("")) {
-       try{
-         d = new ColumnStoreDriver(columnStoreXML);
-       } catch(ColumnStoreException e){
-         logError("can't instantiate the ColumnStoreDriver with configuration file: " + columnStoreXML,e);
-         d = null;
-       }
+     reinitializeColumnStoreDriver();
+  }
+
+  public void reinitializeColumnStoreDriver(){
+    if(columnStoreXML!=null && !columnStoreXML.equals("")) {
+      try{
+        d = new ColumnStoreDriver(columnStoreXML);
+      } catch(ColumnStoreException e){
+        logError("can't instantiate the ColumnStoreDriver with configuration file: " + columnStoreXML,e);
+        d = null;
+      }
     } else{
-       try{
-         d = new ColumnStoreDriver();
-       } catch(ColumnStoreException e){
-         logError("can't instantiate the default ColumnStoreDriver.", e);
-         d = null;
-       }
-     }
+      try{
+        d = new ColumnStoreDriver();
+      } catch(ColumnStoreException e){
+        logError("can't instantiate the default ColumnStoreDriver.", e);
+        d = null;
+      }
+    }
   }
 
   public ColumnStoreDriver getColumnStoreDriver(){
@@ -514,12 +516,11 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
     if ( input != null && input.length > 0 ) {
       cr = new CheckResult(CheckResult.TYPE_RESULT_OK, BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.CheckResult.ReceivingRows.OK"), stepMeta);
       remarks.add(cr);
-      // check if the specified db and table exists
-      ColumnStoreDriver d = getColumnStoreDriver();
       if (d == null) {
         remarks.add(new CheckResult(CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.CheckResult.ColumnStoreDriver.ERROR"), stepMeta));
       } else {
         remarks.add(new CheckResult(CheckResult.TYPE_RESULT_OK, BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.CheckResult.ColumnStoreDriver.OK"), stepMeta));
+        reinitializeColumnStoreDriver(); // temporary fix for MCOL-1218
         ColumnStoreSystemCatalog catalog = d.getSystemCatalog();
         ColumnStoreSystemCatalogTable table = null;
 
@@ -664,7 +665,8 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
         break;
       case TYPE_BOOLEAN:
         if(outputColumnType == columnstore_data_types_t.DATA_TYPE_TINYINT||
-                outputColumnType == columnstore_data_types_t.DATA_TYPE_UTINYINT){
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_UTINYINT||
+                outputColumnType == columnstore_data_types_t.DATA_TYPE_CHAR){
           compatible = true;
         }
         break;
@@ -672,15 +674,23 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
     return compatible;
   }
 
+  @Override
+  public SQLStatement getSQLStatements(TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev, Repository repository, IMetaStore metaStore) throws KettleStepException {
+    return getSQLStatements(transMeta, stepMeta, prev, repository, metaStore, d);
+  }
+
   /**
    * Generates the SQL statement to alter / create the ColumnStore target table to fit the input fields.
    * @param transMeta
    * @param stepMeta
    * @param prev
+   * @param rep
+   * @param metaStore
+   * @param dr
    * @return
    * @throws KettleStepException
    */
-  public SQLStatement getSQLStatements(TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev) throws KettleStepException //TODO
+  public SQLStatement getSQLStatements(TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev, Repository rep, IMetaStore metaStore, ColumnStoreDriver dr) throws KettleStepException //TODO
   {
     SQLStatement retval = new SQLStatement(stepMeta.getName(), databaseMeta, null); // default: nothing to do!
 
@@ -709,14 +719,15 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
 
         if (!Const.isEmpty(targetTable))
         {
-          Database db = new Database(loggingObject, databaseMeta);
+          databaseMeta.setSupportsBooleanDataType(false);
+          MariaDBColumnStoreDatabase db = new MariaDBColumnStoreDatabase(loggingObject, databaseMeta, this, dr);
           db.shareVariablesWith(transMeta);
           try
           {
             db.connect();
 
-            String schemaTable = databaseMeta.getQuotedSchemaTableCombination(transMeta.environmentSubstitute(COLUMNSTORE_SCHEMA), transMeta.environmentSubstitute(targetTable));
-            String cr_table = db.getDDL(schemaTable,
+            String schemaTable = databaseMeta.getQuotedSchemaTableCombination(transMeta.environmentSubstitute(targetDatabase), transMeta.environmentSubstitute(targetTable));
+            String sql = db.getDDL(schemaTable,
                     tableFields,
                     null,
                     false,
@@ -724,7 +735,6 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
                     true
             );
 
-            String sql = cr_table;
             if (sql.length()==0) retval.setSQL(null); else retval.setSQL(sql);
           }
           catch(KettleException e)
