@@ -64,7 +64,7 @@ public class KettleColumnStoreBulkExporterStep extends BaseStep implements StepI
   private ColumnStoreSystemCatalog catalog;
   private ColumnStoreSystemCatalogTable table;
   private int targetColumnCount;
-  private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SS");
+  private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
   private int[] targetInputMapping;
 
@@ -109,7 +109,12 @@ public class KettleColumnStoreBulkExporterStep extends BaseStep implements StepI
     }
 
     // Initialize the ColumnStore Driver
-    d = new ColumnStoreDriver();
+    d = meta.getColumnStoreDriver();
+    if(d == null){
+        logError("The ColumnStoreDriver couldn't be instantiated.");
+        setErrors(1);
+        return false;
+    }
     catalog = d.getSystemCatalog();
     try {
         table = catalog.getTable(meta.getTargetDatabase(), meta.getTargetTable());

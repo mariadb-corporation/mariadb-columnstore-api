@@ -19,6 +19,9 @@ package com.mariadb.columnstore.api.kettle;
 import com.mariadb.columnstore.api.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.custom.TextChangeListener;
+import org.eclipse.swt.custom.TextChangedEvent;
+import org.eclipse.swt.custom.TextChangingEvent;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -89,14 +92,16 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
   //table to display mapping
   private Table table;
 
-  //connection
+  //jdbc connection
   private CCombo wConnection;
 
-  //logfile
-  private Label	wlLogFile;
-  private Button wbLogFile;
-  private TextVar wLogFile;
-  private FormData fdlLogFile, fdbLogFile, fdLogFile;
+  //columnstore xml connection configuration file
+  private Label	wlColumnStoreXML;
+  private Button wbColumnStoreXML;
+  private TextVar wColumnStoreXML;
+  private FormData fdlColumnStoreXML, fdbColumnStoreXML, fdColumnStoreXML;
+
+  private ColumnStoreDriver d;
 
   private KettleColumnStoreBulkExporterStepMeta.InputTargetMapping itm;
 
@@ -143,6 +148,30 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
     // the dialog, it will be restored to this saved value.
     // The "changed" variable is inherited from BaseStepDialog
     changed = meta.hasChanged();
+
+    // Initialize the ColumnStoreDriver
+    if(meta.getColumnStoreXML()!=null && !meta.getColumnStoreXML().equals("")) {
+      try{
+        d = new ColumnStoreDriver(meta.getColumnStoreXML());
+      } catch(ColumnStoreException e){
+        logError("can't instantiate the ColumnStoreDriver with configuration file: " + meta.getColumnStoreXML(),e);
+        d = null;
+      }
+    } else{
+      try{
+        d = new ColumnStoreDriver();
+      } catch(ColumnStoreException e){
+        logError("can't instantiate the default ColumnStoreDriver.", e);
+        d = null;
+      }
+    }
+
+    if(d==null){
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setMessage(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.XMLConfigurationLoading.Error.DialogMessage"));
+      mb.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.XMLConfigurationLoading.Error.DialogTitle"));
+      mb.open();
+    }
 
     // Save a local deep copy of the FieldMapping
     itm = new KettleColumnStoreBulkExporterStepMeta.InputTargetMapping(meta.getFieldMapping().getNumberOfEntries());
@@ -273,40 +302,58 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
     wConnection = addConnectionLine(composite, composite, middle, margin);
     if (meta.getDatabaseMeta()==null && transMeta.nrDatabases()==1) wConnection.select(0);
     wConnection.addModifyListener(lsMod);
-    if (meta.getDatabaseMeta() != null)
-      wConnection.setText(meta.getDatabaseMeta().getName());
-    else
-    {
-      if (transMeta.nrDatabases() == 1)
-      {
-        wConnection.setText(transMeta.getDatabase(0).getName());
-      }
-    }
 
-    // Logfile line
-    wlLogFile = new Label(composite, SWT.RIGHT);
-    wlLogFile.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.Label.LogFile"));
-    props.setLook(wlLogFile);
-    fdlLogFile = new FormData();
-    fdlLogFile.left = new FormAttachment(0, 0);
-    fdlLogFile.top = new FormAttachment(wConnection, margin);
-    fdlLogFile.right = new FormAttachment(middle, -margin);
-    wlLogFile.setLayoutData(fdlLogFile);
-    wbLogFile = new Button(composite, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbLogFile);
-    wbLogFile.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.Button.Browse"));
-    fdbLogFile = new FormData();
-    fdbLogFile.right = new FormAttachment(100, 0);
-    fdbLogFile.top = new FormAttachment(wConnection, margin);
-    wbLogFile.setLayoutData(fdbLogFile);
-    wLogFile = new TextVar(transMeta, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wLogFile);
-    wLogFile.addModifyListener(lsMod);
-    fdLogFile = new FormData();
-    fdLogFile.left = new FormAttachment(middle, 0);
-    fdLogFile.top = new FormAttachment(wConnection, margin);
-    fdLogFile.right = new FormAttachment(wbLogFile, -margin);
-    wLogFile.setLayoutData(fdLogFile);
+    // ColumnStore.xml line
+    wlColumnStoreXML = new Label(composite, SWT.RIGHT);
+    wlColumnStoreXML.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.Label.ColumnStoreXML"));
+    props.setLook(wlColumnStoreXML);
+    fdlColumnStoreXML = new FormData();
+    fdlColumnStoreXML.left = new FormAttachment(0, 0);
+    fdlColumnStoreXML.top = new FormAttachment(wConnection, margin);
+    fdlColumnStoreXML.right = new FormAttachment(middle, -margin);
+    wlColumnStoreXML.setLayoutData(fdlColumnStoreXML);
+    wbColumnStoreXML = new Button(composite, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbColumnStoreXML);
+    wbColumnStoreXML.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.Button.Browse"));
+    fdbColumnStoreXML = new FormData();
+    fdbColumnStoreXML.right = new FormAttachment(100, 0);
+    fdbColumnStoreXML.top = new FormAttachment(wConnection, margin);
+    wbColumnStoreXML.setLayoutData(fdbColumnStoreXML);
+    wColumnStoreXML = new TextVar(transMeta, composite, SWT.READ_ONLY | SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    props.setLook(wColumnStoreXML);
+    wColumnStoreXML.addModifyListener(lsMod);
+    fdColumnStoreXML = new FormData();
+    fdColumnStoreXML.left = new FormAttachment(middle, 0);
+    fdColumnStoreXML.top = new FormAttachment(wConnection, margin);
+    fdColumnStoreXML.right = new FormAttachment(wbColumnStoreXML, -margin);
+    wColumnStoreXML.setLayoutData(fdColumnStoreXML);
+
+    wbColumnStoreXML.addSelectionListener(new SelectionAdapter()
+    {
+      public void widgetSelected(SelectionEvent e)
+      {
+        FileDialog dialog = new FileDialog(shell, SWT.OPEN);
+        dialog.setFilterExtensions(new String[]{"*"});
+        if (wColumnStoreXML.getText() != null)
+        {
+          dialog.setFileName(wColumnStoreXML.getText());
+        }
+        if (dialog.open() != null) {
+          try{
+            String path = dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName();
+            ColumnStoreDriver tmp = new ColumnStoreDriver(path);
+            wColumnStoreXML.setText(path);
+            updateColumnStoreDriver();
+            updateTableView();
+          } catch(ColumnStoreException ex){
+            MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+            mb.setMessage(ex.getMessage());
+            mb.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.XMLConfigurationPicker.Error.DialogTitle"));
+            mb.open();
+          }
+        }
+      }
+    });
 
     // OK, cancel and SQL buttons
     wOK = new Button( shell, SWT.PUSH );
@@ -375,6 +422,27 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
     // at this point the dialog has closed, so either ok() or cancel() have been executed
     // The "stepname" variable is inherited from BaseStepDialog
     return stepname;
+  }
+
+  /**
+   * Updates the ColumnStoreDriver from wColumnStoreXML
+   */
+  private void updateColumnStoreDriver(){
+    if(wColumnStoreXML.getText() != null && !wColumnStoreXML.getText().equals("")) {
+      try{
+        d = new ColumnStoreDriver(wColumnStoreXML.getText());
+      } catch(ColumnStoreException e){
+        logError("can't instantiate the ColumnStoreDriver with configuration file: " + wColumnStoreXML.getText(),e);
+        d = null;
+      }
+    } else{
+      try{
+        d = new ColumnStoreDriver();
+      } catch(ColumnStoreException e){
+        logError("can't instantiate the default ColumnStoreDriver.", e);
+        d = null;
+      }
+    }
   }
 
   /**
@@ -454,19 +522,20 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
     }
 
     //get datatypes of mapped output columnstore columns
-    try {
-      ColumnStoreDriver d = new ColumnStoreDriver();
-      ColumnStoreSystemCatalog c = d.getSystemCatalog();
-      ColumnStoreSystemCatalogTable t = c.getTable(wTargetDatabaseFieldName.getText(), wTargetTableFieldName.getText());
-      for (int i=0; i<itm.getNumberOfEntries(); i++){
-        try{
-          outputTypes[i] = t.getColumn(itm.getTargetColumnStoreColumn(i).toLowerCase()).getType();
-        }catch (ColumnStoreException ex){
-          logDetailed("Can't find column " + itm.getTargetColumnStoreColumn(i) + " in table " + wTargetTableFieldName.getText());
+    if(d != null) {
+      try {
+        ColumnStoreSystemCatalog c = d.getSystemCatalog();
+        ColumnStoreSystemCatalogTable t = c.getTable(wTargetDatabaseFieldName.getText(), wTargetTableFieldName.getText());
+        for (int i = 0; i < itm.getNumberOfEntries(); i++) {
+          try {
+            outputTypes[i] = t.getColumn(itm.getTargetColumnStoreColumn(i).toLowerCase()).getType();
+          } catch (ColumnStoreException ex) {
+            logDetailed("Can't find column " + itm.getTargetColumnStoreColumn(i) + " in table " + wTargetTableFieldName.getText());
+          }
         }
+      } catch (ColumnStoreException e) {
+        logDetailed("Can't access the ColumnStore table " + wTargetDatabaseFieldName.getText() + " " + wTargetTableFieldName.getText());
       }
-    }catch(ColumnStoreException e){
-      logDetailed("Can't access the ColumnStore table " + wTargetDatabaseFieldName.getText() + " " + wTargetTableFieldName.getText());
     }
 
     //update the entries in the table
@@ -555,6 +624,18 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
     wStepname.selectAll();
     wTargetDatabaseFieldName.setText( meta.getTargetDatabase() );
     wTargetTableFieldName.setText( meta.getTargetTable() );
+    if (meta.getDatabaseMeta() != null)
+      wConnection.setText(meta.getDatabaseMeta().getName());
+    else {
+      if (transMeta.nrDatabases() == 1) {
+        wConnection.setText(transMeta.getDatabase(0).getName());
+      }
+    }
+    if(meta.getColumnStoreXML()==null){
+      wColumnStoreXML.setText("");
+    }else{
+      wColumnStoreXML.setText( meta.getColumnStoreXML() );
+    }
   }
 
   /**
@@ -583,6 +664,18 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
 
     // set the jdbc database connection
     meta.setDatabaseMeta(transMeta.findDatabase(wConnection.getText()));
+
+    // set the columnstore xml file location
+    try{
+      meta.setColumnStoreXML( wColumnStoreXML.getText() );
+    } catch(ColumnStoreException e){
+      meta.setColumnStoreXML("");
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setMessage(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.XMLConfiguration.Error.DialogMessage") + e.getMessage());
+      mb.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.XMLConfiguration.Error.DialogTitle"));
+      mb.open();
+    }
+
 
     // Set the field mapping
     meta.setFieldMapping(itm);
