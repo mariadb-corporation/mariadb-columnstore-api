@@ -140,7 +140,8 @@ public class MariaDBColumnStoreDatabase extends org.pentaho.di.core.database.Dat
         RowMetaInterface modify_desired = new RowMeta();
 
         ColumnStoreSystemCatalog c = d.getSystemCatalog();
-        ColumnStoreSystemCatalogTable t = c.getTable(tableName.split(".")[0], tableName.split(".")[1]);
+        System.out.println(tableName);
+        ColumnStoreSystemCatalogTable t = c.getTable(tableName.split("\\.")[0], tableName.split("\\.")[1]);
 
 
         for ( int i = 0; i < fields.size(); i++ ) {
@@ -149,7 +150,7 @@ public class MariaDBColumnStoreDatabase extends org.pentaho.di.core.database.Dat
 
             if ( desiredField != null && currentField != null ) {
 
-                columnstore_data_types_t columnStoreType = t.getColumn(currentField.getName()).getType();
+                columnstore_data_types_t columnStoreType = t.getColumn(currentField.getName().toLowerCase()).getType();
 
                 // only change if types are not compatible
                 if ( !meta.checkCompatibility(desiredField.getType(),columnStoreType) ) {

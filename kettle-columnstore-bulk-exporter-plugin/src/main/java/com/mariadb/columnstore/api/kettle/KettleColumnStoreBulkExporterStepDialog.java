@@ -584,7 +584,7 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
       StepMeta stepMeta = new StepMeta(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.StepMeta.Title"), wStepname.getText(), metaCopy); //$NON-NLS-1$
       RowMetaInterface prev = transMeta.getPrevStepFields(stepname);
 
-      SQLStatement sql = metaCopy.getSQLStatements(transMeta, stepMeta, prev, repository, metaStore);
+      SQLStatement sql = metaCopy.getSQLStatements(transMeta, stepMeta, prev, repository, metaStore, d);
       if (!sql.hasError())
       {
         if (sql.hasSQL())
