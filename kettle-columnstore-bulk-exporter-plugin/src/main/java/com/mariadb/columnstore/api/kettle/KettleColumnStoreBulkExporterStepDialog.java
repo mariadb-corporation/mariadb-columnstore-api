@@ -19,9 +19,6 @@ package com.mariadb.columnstore.api.kettle;
 import com.mariadb.columnstore.api.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.custom.TextChangeListener;
-import org.eclipse.swt.custom.TextChangedEvent;
-import org.eclipse.swt.custom.TextChangingEvent;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -584,7 +581,7 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
       StepMeta stepMeta = new StepMeta(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.StepMeta.Title"), wStepname.getText(), metaCopy); //$NON-NLS-1$
       RowMetaInterface prev = transMeta.getPrevStepFields(stepname);
 
-      SQLStatement sql = metaCopy.getSQLStatements(transMeta, stepMeta, prev, repository, metaStore, d);
+      SQLStatement sql = metaCopy.getSQLStatements(transMeta, stepMeta, prev, repository, metaStore);
       if (!sql.hasError())
       {
         if (sql.hasSQL())

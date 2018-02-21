@@ -1,12 +1,10 @@
 package com.mariadb.columnstore.api.kettle;
 
 import com.mariadb.columnstore.api.ColumnStoreDriver;
-import com.mariadb.columnstore.api.ColumnStoreSystemCatalog;
-import com.mariadb.columnstore.api.ColumnStoreSystemCatalogTable;
-import com.mariadb.columnstore.api.columnstore_data_types_t;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.database.DatabaseInterface;
 import org.pentaho.di.core.database.DatabaseMeta;
+import org.pentaho.di.core.database.MySQLDatabaseMeta;
 import org.pentaho.di.core.exception.KettleDatabaseException;
 import org.pentaho.di.core.logging.LoggingObjectInterface;
 import org.pentaho.di.core.row.RowMeta;
@@ -17,13 +15,9 @@ import org.pentaho.di.core.variables.Variables;
 
 public class MariaDBColumnStoreDatabase extends org.pentaho.di.core.database.Database {
 
-    private KettleColumnStoreBulkExporterStepMeta meta;
-    private ColumnStoreDriver d;
 
-    public MariaDBColumnStoreDatabase(LoggingObjectInterface parentObject, DatabaseMeta databaseMeta, KettleColumnStoreBulkExporterStepMeta meta, ColumnStoreDriver d) {
+    public MariaDBColumnStoreDatabase(LoggingObjectInterface parentObject, DatabaseMeta databaseMeta) {
         super(parentObject, databaseMeta);
-        this.meta = meta;
-        this.d = d;
     }
 
     /**
@@ -73,7 +67,7 @@ public class MariaDBColumnStoreDatabase extends org.pentaho.di.core.database.Dat
         retval.append(")").append(Const.CR);
 
         VariableSpace variables = new Variables();
-        for(String variableName : super.listVariables()){
+        for (String variableName : super.listVariables()) {
             variables.setVariable(variableName, super.getVariable(variableName));
         }
 
@@ -88,47 +82,47 @@ public class MariaDBColumnStoreDatabase extends org.pentaho.di.core.database.Dat
         return retval.toString();
     }
 
-    public String getAlterTableStatement( String tableName, RowMetaInterface fields, String tk, boolean use_autoinc,
-                                          String pk, boolean semicolon ) throws KettleDatabaseException {
+    public String getAlterTableStatement(String tableName, RowMetaInterface fields, String tk, boolean use_autoinc,
+                                         String pk, boolean semicolon) throws KettleDatabaseException {
         String retval = "";
 
         // Get the fields that are in the table now:
-        RowMetaInterface tabFields = getTableFields( tableName );
+        RowMetaInterface tabFields = getTableFields(tableName);
 
         // Don't forget to quote these as well...
-        super.getDatabaseMeta().quoteReservedWords( tabFields );
+        super.getDatabaseMeta().quoteReservedWords(tabFields);
 
         // Find the missing fields
         RowMetaInterface missing = new RowMeta();
-        for ( int i = 0; i < fields.size(); i++ ) {
-            ValueMetaInterface v = fields.getValueMeta( i );
+        for (int i = 0; i < fields.size(); i++) {
+            ValueMetaInterface v = fields.getValueMeta(i);
             // Not found?
-            if ( tabFields.searchValueMeta( v.getName() ) == null ) {
-                missing.addValueMeta( v ); // nope --> Missing!
+            if (tabFields.searchValueMeta(v.getName()) == null) {
+                missing.addValueMeta(v); // nope --> Missing!
             }
         }
 
-        if ( missing.size() != 0 ) {
-            for ( int i = 0; i < missing.size(); i++ ) {
-                ValueMetaInterface v = missing.getValueMeta( i );
-                retval += super.getDatabaseMeta().getAddColumnStatement( tableName, v, tk, use_autoinc, pk, true );
+        if (missing.size() != 0) {
+            for (int i = 0; i < missing.size(); i++) {
+                ValueMetaInterface v = missing.getValueMeta(i);
+                retval += super.getDatabaseMeta().getAddColumnStatement(tableName, v, tk, use_autoinc, pk, true);
             }
         }
 
         // Find the surplus fields
         RowMetaInterface surplus = new RowMeta();
-        for ( int i = 0; i < tabFields.size(); i++ ) {
-            ValueMetaInterface v = tabFields.getValueMeta( i );
+        for (int i = 0; i < tabFields.size(); i++) {
+            ValueMetaInterface v = tabFields.getValueMeta(i);
             // Found in table, not in input ?
-            if ( fields.searchValueMeta( v.getName() ) == null ) {
-                surplus.addValueMeta( v ); // yes --> surplus!
+            if (fields.searchValueMeta(v.getName()) == null) {
+                surplus.addValueMeta(v); // yes --> surplus!
             }
         }
 
-        if ( surplus.size() != 0 ) {
-            for ( int i = 0; i < surplus.size(); i++ ) {
-                ValueMetaInterface v = surplus.getValueMeta( i );
-                retval += super.getDatabaseMeta().getDropColumnStatement( tableName, v, tk, use_autoinc, pk, true );
+        if (surplus.size() != 0) {
+            for (int i = 0; i < surplus.size(); i++) {
+                ValueMetaInterface v = surplus.getValueMeta(i);
+                retval += super.getDatabaseMeta().getDropColumnStatement(tableName, v, tk, use_autoinc, pk, true);
             }
         }
 
@@ -138,40 +132,65 @@ public class MariaDBColumnStoreDatabase extends org.pentaho.di.core.database.Dat
         //
         RowMetaInterface modify_current = new RowMeta();
         RowMetaInterface modify_desired = new RowMeta();
+        for (int i = 0; i < fields.size(); i++) {
+            ValueMetaInterface desiredField = fields.getValueMeta(i);
+            ValueMetaInterface currentField = tabFields.searchValueMeta(desiredField.getName());
+            if (desiredField != null && currentField != null) {
+                String desiredDDL = super.getDatabaseMeta().getFieldDefinition(desiredField, tk, pk, use_autoinc);
+                String currentDDL = super.getDatabaseMeta().getFieldDefinition(currentField, tk, pk, use_autoinc);
 
-        ColumnStoreSystemCatalog c = d.getSystemCatalog();
-        System.out.println(tableName);
-        ColumnStoreSystemCatalogTable t = c.getTable(tableName.split("\\.")[0], tableName.split("\\.")[1]);
-
-
-        for ( int i = 0; i < fields.size(); i++ ) {
-            ValueMetaInterface desiredField = fields.getValueMeta( i );
-            ValueMetaInterface currentField = tabFields.searchValueMeta( desiredField.getName() );
-
-            if ( desiredField != null && currentField != null ) {
-
-                columnstore_data_types_t columnStoreType = t.getColumn(currentField.getName().toLowerCase()).getType();
-
-                // only change if types are not compatible
-                if ( !meta.checkCompatibility(desiredField.getType(),columnStoreType) ) {
-                    modify_current.addValueMeta( currentField );
-                    modify_desired.addValueMeta( desiredField );
+                boolean mod = !desiredDDL.equalsIgnoreCase(currentDDL);
+                if (mod) {
+                    modify_current.addValueMeta(currentField);
+                    modify_desired.addValueMeta(desiredField);
                 }
             }
         }
 
-        if ( modify_desired.size() > 0 ) {
-            for ( int i = 0; i < modify_desired.size(); i++ ) {
-                ValueMetaInterface v_current = modify_current.getValueMeta( i );
-                ValueMetaInterface v_desired = modify_desired.getValueMeta( i );
+        // As ColumnStore doesn't support MODIFY commands we have to add the temporary desired field, copy all data from the old field to the temporary, drop the old field and rename the temporary.
+        if (modify_desired.size() > 0) {
+            for (int i = 0; i < modify_desired.size(); i++) {
+                ValueMetaInterface v_current = modify_current.getValueMeta(i);
+                ValueMetaInterface v_desired = modify_desired.getValueMeta(i);
 
-                // As ColumnStore doesn't support MODIFY commands we have to remove the current field and add the desired field.
-                retval += super.getDatabaseMeta().getDropColumnStatement( tableName, v_current, tk, use_autoinc, pk, true );
-                retval += super.getDatabaseMeta().getAddColumnStatement( tableName, v_desired, tk, use_autoinc, pk, true );
+                v_desired.setName(v_desired.getName().concat("_tmp"));
+
+                retval += super.getDatabaseMeta().getAddColumnStatement(tableName, v_desired, tk, use_autoinc, pk, true); // create temporary column
+                retval += getColumnCopyDataStatement(tableName, v_current.getName(), v_desired.getName()); // copy data into temporary column
+                retval += super.getDatabaseMeta().getDropColumnStatement(tableName, v_current, tk, use_autoinc, pk, true); // drop old column
+                retval += getRenameColumnStatement(tableName, v_desired, null, false, null, v_current.getName()); // rename temporary into new column
             }
         }
 
         return retval;
     }
-}
 
+    /**
+     * Copies data from source column to target column in table.
+     * @param table
+     * @param sourceColumnName
+     * @param targetColumnName
+     * @return
+     */
+    private String getColumnCopyDataStatement(String table, String sourceColumnName, String targetColumnName) {
+        return "UPDATE " + table + " SET " + targetColumnName + "=" + sourceColumnName +  Const.CR + ";" + Const.CR;
+    }
+
+    /**
+     * Renames old_column to new_column in table
+     * @param table
+     * @param sourceColumn
+     * @param targetColumnName
+     * @return
+     */
+    private String getRenameColumnStatement(String table, ValueMetaInterface sourceColumn, String tk, boolean use_autoinc, String pk, String targetColumnName) {
+        StringBuilder retval = new StringBuilder("ALTER TABLE " + table + " CHANGE COLUMN " + sourceColumn.getName() + " " + targetColumnName);
+        String[] fieldDefinition = super.getDatabaseMeta().getFieldDefinition(sourceColumn, tk, pk, use_autoinc).split(" ");
+        for(int i=1; i<fieldDefinition.length; i++){
+            retval.append(" ").append(fieldDefinition[i]);
+        }
+        retval.append(";" + Const.CR);
+
+        return retval.toString();
+    }
+}

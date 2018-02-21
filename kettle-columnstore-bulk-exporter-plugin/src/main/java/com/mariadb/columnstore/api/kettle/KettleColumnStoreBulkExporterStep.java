@@ -279,9 +279,11 @@ public class KettleColumnStoreBulkExporterStep extends BaseStep implements StepI
         case TYPE_BINARY:
           b.rollback();
           putError(data.rowMeta, r, 1L, "data type binary is not supported at the moment - rollback", data.rowMeta.getFieldNames()[i], "Binary data type not supported");
+          setErrors(1);
         default:
           b.rollback();
           putError(data.rowMeta, r, 1L, "data type " + data.rowValueTypes.get(i).getType() + " is not supported at the moment - rollback", data.rowMeta.getFieldNames()[i], "Data type not supported");
+          setErrors(1);
       }
     }
     b.writeRow();
@@ -325,6 +327,7 @@ public class KettleColumnStoreBulkExporterStep extends BaseStep implements StepI
     }catch(ColumnStoreException e){
         b.rollback();
         logError("couldn't commit bulk insert to ColumnStore - rollback", e);
+        setErrors(1);
     }
 
   if(log.isDetailed()){

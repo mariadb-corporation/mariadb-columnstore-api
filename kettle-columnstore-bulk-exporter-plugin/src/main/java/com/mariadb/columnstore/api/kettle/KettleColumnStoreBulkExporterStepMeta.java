@@ -674,24 +674,17 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
     return compatible;
   }
 
-  @Override
-  public SQLStatement getSQLStatements(TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev, Repository repository, IMetaStore metaStore) throws KettleStepException {
-    return getSQLStatements(transMeta, stepMeta, prev, repository, metaStore, d);
-  }
-
   /**
    * Generates the SQL statement to alter / create the ColumnStore target table to fit the input fields.
    * @param transMeta
    * @param stepMeta
    * @param prev
-   * @param rep
    * @param metaStore
-   * @param dr
    * @return
    * @throws KettleStepException
    */
-  public SQLStatement getSQLStatements(TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev, Repository rep, IMetaStore metaStore, ColumnStoreDriver dr) throws KettleStepException //TODO
-  {
+  @Override
+  public SQLStatement getSQLStatements(TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev, Repository repository, IMetaStore metaStore) throws KettleStepException {
     SQLStatement retval = new SQLStatement(stepMeta.getName(), databaseMeta, null); // default: nothing to do!
 
     if (databaseMeta!=null)
@@ -720,7 +713,7 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
         if (!Const.isEmpty(targetTable))
         {
           databaseMeta.setSupportsBooleanDataType(false);
-          MariaDBColumnStoreDatabase db = new MariaDBColumnStoreDatabase(loggingObject, databaseMeta, this, dr);
+          MariaDBColumnStoreDatabase db = new MariaDBColumnStoreDatabase(loggingObject, databaseMeta);
           db.shareVariablesWith(transMeta);
           try
           {
