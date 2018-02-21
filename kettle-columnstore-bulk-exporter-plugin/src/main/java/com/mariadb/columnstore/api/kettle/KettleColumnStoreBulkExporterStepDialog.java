@@ -17,6 +17,7 @@
 package com.mariadb.columnstore.api.kettle;
 
 import com.mariadb.columnstore.api.*;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
@@ -30,6 +31,7 @@ import org.eclipse.swt.widgets.*;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.DBCache;
 import org.pentaho.di.core.SQLStatement;
+import org.pentaho.di.core.SourceToTargetMapping;
 import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.RowMetaInterface;
@@ -38,7 +40,9 @@ import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.ui.core.database.dialog.SQLEditor;
+import org.pentaho.di.ui.core.dialog.EnterMappingDialog;
 import org.pentaho.di.ui.core.dialog.ErrorDialog;
+import org.pentaho.di.ui.core.gui.GUIResource;
 import org.pentaho.di.ui.core.widget.LabelText;
 import org.pentaho.di.ui.core.widget.TextVar;
 import org.pentaho.di.ui.trans.step.BaseStepDialog;
@@ -485,9 +489,8 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
     }
     if (changed){
       meta.setChanged();
+      updateTableView();
     }
-
-    updateTableView();
   }
 
   /**
@@ -561,9 +564,143 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
   /**
    * Function is invoked when button Custom Mapping is hit
    */
-  private void customMapping(){
-    logDebug("BUTTON CUSTOM MAPPING HIT");
+  private void customMapping() {
+    //create a copy of the old mapping to check for changes
+    KettleColumnStoreBulkExporterStepMeta.InputTargetMapping oldItm = new KettleColumnStoreBulkExporterStepMeta.InputTargetMapping(itm.getNumberOfEntries());
+    for (int i=0; i<itm.getNumberOfEntries(); i++){
+      oldItm.setInputFieldMetaData(i,itm.getInputStreamField(i));
+      oldItm.setTargetColumnStoreColumn(i,itm.getTargetColumnStoreColumn(i));
+    }
+
+    ArrayList<String> sourceFields = new ArrayList<String>();
+    ArrayList<String> targetFields = new ArrayList<String>();
+    List<SourceToTargetMapping> mappings = new ArrayList<SourceToTargetMapping>();
+
+    // Determine the source and target fields
+    try {
+      sourceFields.addAll(Arrays.asList(transMeta.getPrevStepFields(stepMeta).getFieldNames()));
+    } catch (KettleException e) {
+      new ErrorDialog(shell, BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.DoMapping.UnableToFindSourceFields.Title"), BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.DoMapping.UnableToFindSourceFields.Message"), e);
+      return;
+    }
+
+    updateColumnStoreDriver(); //temporary fix for MCOL-1218
+    ColumnStoreSystemCatalog c;
+    ColumnStoreSystemCatalogTable t;
+    try {
+      c = d.getSystemCatalog();
+      t = c.getTable(wTargetDatabaseFieldName.getText(), wTargetTableFieldName.getText());
+      for (int i = 0; i < t.getColumnCount(); i++) {
+        targetFields.add(t.getColumn(i).getColumnName().toLowerCase());
+      }
+    } catch (ColumnStoreException e) {
+      new ErrorDialog(shell, BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.DoMapping.UnableToFindTargetFields.Title"), BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.DoMapping.UnableToFindTargetFields.Message"), e);
+      return;
+    }
+
+    // Transform the existing mapping list into the format required for EnterMappingDialog
+    ArrayList<String> missingSourceFields = new ArrayList<>();
+    ArrayList<String> missingTargetFields = new ArrayList<>();
+    ArrayList<SourceToTargetMapping> missingFieldMappings = new ArrayList<SourceToTargetMapping>(); //missing entries are counted negatively, available entries as in mapping
+    missingSourceFields.add("dummy"); //needs to be added as they will be counted negatively in missingFieldMappings and 0 is taken by mappings already
+    missingTargetFields.add("dummy"); //needs to be added as they will be counted negatively in missingFieldMappings and 0 is taken by mappings already
+
+    for (int i = 0; i < itm.getNumberOfEntries(); i++) {
+      int sourceFieldId = sourceFields.lastIndexOf(itm.getInputStreamField(i));
+      int targetFieldId = targetFields.lastIndexOf(itm.getTargetColumnStoreColumn(i));
+
+      if (sourceFieldId > -1 && targetFieldId > -1) {
+        mappings.add(new SourceToTargetMapping(sourceFieldId, targetFieldId));
+      } else {
+        if (sourceFieldId < 0 && targetFieldId < 0) {
+          missingSourceFields.add(itm.getInputStreamField(i));
+          missingTargetFields.add(itm.getTargetColumnStoreColumn(i));
+          missingFieldMappings.add(new SourceToTargetMapping(-1 * (missingSourceFields.size() - 1), -1 * (missingTargetFields.size() - 1)));
+        } else {
+          if (sourceFieldId < 0) {
+            missingSourceFields.add(itm.getInputStreamField(i));
+            missingFieldMappings.add(new SourceToTargetMapping(-1 * (missingSourceFields.size() - 1), targetFieldId));
+          } else { //targetFieldId < 0
+            missingTargetFields.add(itm.getTargetColumnStoreColumn(i));
+            missingFieldMappings.add(new SourceToTargetMapping(sourceFieldId, -1 * (missingTargetFields.size() - 1)));
+          }
+        }
+      }
+    }
+
+    missingSourceFields.remove(0); //remove the dummy
+    missingTargetFields.remove(0); //remove the dummy
+
+    // If existing mapping fields are unavailable a dialog is shown to consider them in the following mapping or to drop them
+    if (missingFieldMappings.size() > 0) {
+      StringBuilder message = new StringBuilder();
+      if (missingSourceFields.size() > 0) {
+        message.append(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.DoMapping.SomeFieldsNotFoundSource") + Const.CR);
+        for (String s : missingSourceFields) {
+          message.append(s + Const.CR);
+        }
+        message.append(Const.CR);
+      }
+      if (missingTargetFields.size() > 0) {
+        message.append(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.DoMapping.SomeFieldsNotFoundTarget") + Const.CR);
+        for (String s : missingTargetFields) {
+          message.append(s + Const.CR);
+        }
+        message.append(Const.CR);
+      }
+      message.append(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.DoMapping.SomeFieldsNotFoundQuestion"));
+
+      MessageDialog.setDefaultImage(GUIResource.getInstance().getImageSpoon());
+      boolean proceedWithNonExistingMappings = MessageDialog.openQuestion(shell, BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.DoMapping.SomeFieldsNotFoundTitle"), message.toString());
+      if (proceedWithNonExistingMappings) {
+        int sourcePadding = sourceFields.size() - 1;
+        int targetPadding = targetFields.size() - 1;
+        sourceFields.addAll(missingSourceFields);
+        targetFields.addAll(missingTargetFields);
+        for (SourceToTargetMapping m : missingFieldMappings) {
+          if (m.getSourcePosition() < 0) {
+            m.setSourcePosition(m.getSourcePosition() * -1 + sourcePadding);
+          }
+          if (m.getTargetPosition() < 0) {
+            m.setTargetPosition(m.getTargetPosition() * -1 + targetPadding);
+          }
+          mappings.add(m);
+        }
+      }
+    }
+
+    // Open the mapping dialog
+    EnterMappingDialog d = new EnterMappingDialog(KettleColumnStoreBulkExporterStepDialog.this.shell, sourceFields.toArray(new String[0]), targetFields.toArray(new String[0]), mappings);
+    mappings = d.open();
+
+    // Transform the received mapping list back into the format required by our plugin
+    if (mappings != null) { // mappings == null if the user pressed cancel
+      itm = new KettleColumnStoreBulkExporterStepMeta.InputTargetMapping(mappings.size());
+      for (int i = 0; i < mappings.size(); i++) {
+        itm.setInputFieldMetaData(i, mappings.get(i).getSourceString(sourceFields.toArray(new String[0])));
+        itm.setTargetColumnStoreColumn(i, mappings.get(i).getTargetString(targetFields.toArray(new String[0])));
+      }
+    }
+
+    // Check if the mapping differs
+    boolean changed = false;
+    if(itm.getNumberOfEntries() == oldItm.getNumberOfEntries()){
+      for(int i=0; i<itm.getNumberOfEntries(); i++){
+        if(!itm.getInputStreamField(i).equals(oldItm.getInputStreamField(i)) ||
+                !itm.getTargetColumnStoreColumn(i).equals(oldItm.getTargetColumnStoreColumn(i))){
+          changed = true;
+          break;
+        }
+      }
+    }else{
+      changed = true;
+    }
+    if (changed){
+      updateTableView();
+      meta.setChanged();
+    }
   }
+
 
   /**
    * Function is invoked when the SQL button is hit

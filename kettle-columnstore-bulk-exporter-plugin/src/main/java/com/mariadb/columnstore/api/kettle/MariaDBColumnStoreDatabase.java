@@ -1,10 +1,8 @@
 package com.mariadb.columnstore.api.kettle;
 
-import com.mariadb.columnstore.api.ColumnStoreDriver;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.database.DatabaseInterface;
 import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.di.core.database.MySQLDatabaseMeta;
 import org.pentaho.di.core.exception.KettleDatabaseException;
 import org.pentaho.di.core.logging.LoggingObjectInterface;
 import org.pentaho.di.core.row.RowMeta;
@@ -84,7 +82,7 @@ public class MariaDBColumnStoreDatabase extends org.pentaho.di.core.database.Dat
 
     public String getAlterTableStatement(String tableName, RowMetaInterface fields, String tk, boolean use_autoinc,
                                          String pk, boolean semicolon) throws KettleDatabaseException {
-        String retval = "";
+        StringBuilder retval = new StringBuilder();
 
         // Get the fields that are in the table now:
         RowMetaInterface tabFields = getTableFields(tableName);
@@ -105,7 +103,7 @@ public class MariaDBColumnStoreDatabase extends org.pentaho.di.core.database.Dat
         if (missing.size() != 0) {
             for (int i = 0; i < missing.size(); i++) {
                 ValueMetaInterface v = missing.getValueMeta(i);
-                retval += super.getDatabaseMeta().getAddColumnStatement(tableName, v, tk, use_autoinc, pk, true);
+                retval.append(super.getDatabaseMeta().getAddColumnStatement(tableName, v, tk, use_autoinc, pk, true));
             }
         }
 
@@ -122,7 +120,7 @@ public class MariaDBColumnStoreDatabase extends org.pentaho.di.core.database.Dat
         if (surplus.size() != 0) {
             for (int i = 0; i < surplus.size(); i++) {
                 ValueMetaInterface v = surplus.getValueMeta(i);
-                retval += super.getDatabaseMeta().getDropColumnStatement(tableName, v, tk, use_autoinc, pk, true);
+                retval.append(super.getDatabaseMeta().getDropColumnStatement(tableName, v, tk, use_autoinc, pk, true));
             }
         }
 
@@ -155,14 +153,14 @@ public class MariaDBColumnStoreDatabase extends org.pentaho.di.core.database.Dat
 
                 v_desired.setName(v_desired.getName().concat("_tmp"));
 
-                retval += super.getDatabaseMeta().getAddColumnStatement(tableName, v_desired, tk, use_autoinc, pk, true); // create temporary column
-                retval += getColumnCopyDataStatement(tableName, v_current.getName(), v_desired.getName()); // copy data into temporary column
-                retval += super.getDatabaseMeta().getDropColumnStatement(tableName, v_current, tk, use_autoinc, pk, true); // drop old column
-                retval += getRenameColumnStatement(tableName, v_desired, null, false, null, v_current.getName()); // rename temporary into new column
+                retval.append(super.getDatabaseMeta().getAddColumnStatement(tableName, v_desired, tk, use_autoinc, pk, true)); // create temporary column
+                retval.append(getColumnCopyDataStatement(tableName, v_current.getName(), v_desired.getName())); // copy data into temporary column
+                retval.append(super.getDatabaseMeta().getDropColumnStatement(tableName, v_current, tk, use_autoinc, pk, true)); // drop old column
+                retval.append(getRenameColumnStatement(tableName, v_desired, null, false, null, v_current.getName())); // rename temporary into new column
             }
         }
 
-        return retval;
+        return retval.toString();
     }
 
     /**
