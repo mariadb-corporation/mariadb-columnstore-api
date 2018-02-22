@@ -15,6 +15,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
+
+%exception {
+  try {
+    $action
+  } catch (mcsapi::ColumnStoreError &e) {
+    PyErr_SetString(PyExc_RuntimeError, const_cast<char*>(e.what()));
+    SWIG_fail;
+  }
+}
+
 %module pymcsapi
  
 %{

@@ -18,7 +18,7 @@ CentOS 6 is not currently supported and it is not expected that the API will bui
 For the main build you need:
 
 ```shell
-sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config swig python-dev default-jdk
+sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config swig python-dev python3-dev default-jdk libboost-dev
 ```
 
 For the documentation:
@@ -30,7 +30,7 @@ sudo apt-get install python-sphinx texlive-latex-recommended texlive-latex-extra
 For test test suite:
 
 ```shell
-sudo apt-get install libgtest-dev cppcheck
+sudo apt-get install libgtest-dev cppcheck default-libmysqlclient-dev
 cd /usr/src/gtest
 sudo cmake . -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_SHARED_LIBS=ON
 sudo make
@@ -47,7 +47,16 @@ deb http://httpredir.debian.org/debian jessie-backports main contrib non-free
 Then install the following:
 
 ```shell
-sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config libc++-dev swig python-dev default-jdk
+sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config libc++-dev swig python-dev python3-dev libboost-dev
+```
+
+A JavaSDK >= 8 is required to run properly. If not installed do the following:
+```shell
+sudo apt-get install -t jessie-backports openjdk-8-jdk
+```
+If more than one JavaSDK is installed, change the default to >= 8 by:
+```shell
+sudo update-alternatives --config java
 ```
 
 For the documentation:
@@ -60,6 +69,7 @@ sudo pip install sphinx
 For the test suite do the following in a directory separate from the API:
 
 ```shell
+sudo apt-get install cppcheck libmysqlclient-dev
 git clone https://github.com/google/googletest
 cd googletest
 cmake . -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_SHARED_LIBS=ON
@@ -76,20 +86,23 @@ sudo yum install epel-release
 sudo yum install cmake libuv-devel libxml2-devel snappy-devel
 sudo yum install centos-release-scl
 sudo yum install devtoolset-4-gcc*
-sudo yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel swig python-devel
+sudo yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel swig python-devel python34-devel boost-devel
 scl enable devtoolset-4 bash
 ```
+
+**NOTE** Corresponding to your python3 installation, the correct devel packets need to be installed.
 
 For the documentation:
 
 ```shell
 sudo yum install python-sphinx texlive-scheme-full latexmk
+
 ```
 
 For the test suite:
 
 ```shell
-sudo yum install gtest-devel cppcheck
+sudo yum install gtest-devel cppcheck mariadb-devel
 ```
 
 ### SUSE Enterprise Linux 12
@@ -97,7 +110,7 @@ sudo yum install gtest-devel cppcheck
 For the main build you need GCC5 minimum. For this example we are using GCC6, you will need the SDK and Toolchain modules enabled in Yast first:
 
 ```shell
-sudo zypper install gcc6 gcc6-c++ cmake libxml2-devel snappy-devel git
+sudo zypper install gcc6 gcc6-c++ cmake libxml2-devel snappy-devel git boost-devel
 
 export CC=/usr/bin/gcc-6
 export CXX=/usr/bin/g++-6
@@ -150,6 +163,7 @@ The options are as follows:
 | ``DEB`` | ``OFF`` | Build a DEB (and the OS name for the package) |
 | ``PYTHON`` | ``ON`` | Build the Python library |
 | ``JAVA`` | ``ON`` | Build the Java library |
+| ``SPRK_CONNECTOR`` | ``OFF`` | Build the spark-connector library for Python and Scala |
 | ``RUN_CPPCHECK`` | ``OFF`` | Run cppcheck during ``make test`` or ``make all_cppcheck``|
 
 ### Compiling
@@ -187,5 +201,6 @@ cmake . -DDEB=xenial
 You should of course add options as above to this as required. Then you can build the package using:
 
 ```shell
-make package
+sudo make package
 ```
+

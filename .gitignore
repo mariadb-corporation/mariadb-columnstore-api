@@ -1,3 +1,11 @@
+*.pyc
+.cache
+spark-connector/python/spark-warehouse
+spark-connector/python/test/.cache
+spark-connector/python/sparkPythonMcsapiConnector.pyc
+spark-connector/scala/spark-warehouse
+spark-connector/scala/.gradle
+spark-connector/scala/build
 CMakeCache.txt
 CMakeFiles/
 Makefile
@@ -14,6 +22,7 @@ src/libmcsapi.a
 *.swp
 example/basic_bulk_insert
 example/advanced_bulk_insert
+example/CpImport/.gradle
 install_manifest*.txt
 src/libmcsapi.so*
 python/_pymcsapi*.so*
@@ -21,8 +30,10 @@ python/__init__.pyc
 __pycache__/
 python/pymcsapi.py
 python/pymcsapi.pyc
-python/pymcsapiPYTHON_wrap.cxx
+python/pymcsapi_wrap.cxx
 python/MANIFEST
+python/python_build
+python/python3_build
 CTestTestfile.cmake
 DartConfiguration.tcl
 Testing/
@@ -42,6 +53,7 @@ test/truncation
 test/summary
 test/system-catalog
 test/char4
+test/mcol1160
 version.h
 docs/conf.py
 docs/sources.cmake
@@ -62,6 +74,7 @@ java/build/
 java/javamcsapiJAVA_wrap.cxx
 java/lib_javamcsapi.so
 java/src/main/
+!java/src/main/java/com/mariadb/columnstore/api/ColumnStoreException.java
 python/pybind11/
 build/
 java/libjavamcsapi.so

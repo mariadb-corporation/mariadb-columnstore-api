@@ -75,6 +75,17 @@ if (NOT SNAPPY_FOUND)
     MESSAGE(FATAL_ERROR "Could not find a usable snappy development environment!")
 endif()
 
+find_package(Boost REQUIRED)
+
+if (Boost_VERSION VERSION_LESS 105800)
+    find_path(BOOST_SUB_DIR "boost/multiprecision/include")
+
+    if ((NOT BOOST_SUB_DIR) OR (NOT EXISTS ${BOOST_SUB_DIR}))
+        execute_process(COMMAND git submodule update --init
+                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    endif()
+endif()
+
 include_directories(${CMAKE_SOURCE_DIR})
 include_directories(${CMAKE_BINARY_DIR})
 
@@ -111,6 +122,16 @@ IF(JAVA)
     add_subdirectory(java)
 ENDIF(JAVA)
 
+OPTION(SPARK_CONNECTOR "Build spark connector" OFF)
+
+IF(SPARK_CONNECTOR)
+  IF(JAVA)
+    add_subdirectory(spark-connector/scala)
+  ENDIF(JAVA)
+  IF(PYTHON)
+    add_subdirectory(spark-connector/python)
+  ENDIF(PYTHON)
+ENDIF(SPARK_CONNECTOR)  
 
 option(BUILD_DOCS "Build the documentation" OFF)
 #option(PDFLATEX_COMPILER "Build the pdf documentation (requires latex)" OFF)
@@ -176,6 +197,7 @@ MESSAGE(STATUS "RUN_CPPCHECK = ${RUN_CPPCHECK}")
 MESSAGE(STATUS "BUILD_DOCS = ${BUILD_DOCS}")
 MESSAGE(STATUS "PYTHON = ${PYTHON}")
 MESSAGE(STATUS "JAVA = ${JAVA}")
+MESSAGE(STATUS "SPARK_CONNECTOR = ${SPARK_CONNECTOR}")
 MESSAGE(STATUS "RPM = ${RPM}")
 MESSAGE(STATUS "DEB = ${DEB}")
 #MESSAGE(STATUS "PDFLATEX_COMPILER = ${PDFLATEX_COMPILER}")

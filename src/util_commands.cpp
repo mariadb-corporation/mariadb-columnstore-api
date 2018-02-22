@@ -21,6 +21,8 @@
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
 
+#include <sstream>
+
 #include "mcsapi_driver_impl.h"
 #include "mcsapi_types_impl.h"
 
@@ -279,7 +281,14 @@ uint64_t ColumnStoreCommands::brmGetTableLock(uint32_t tableOID, uint32_t sessio
     *messageOut >> tblLock.sessionID;
     *messageOut >> tblLock.ownerTxnID;
 
+    std::stringstream errmsg;
+
+    errmsg << "Table already locked by PID: " << tblLock.ownerPID;
+    errmsg << " '" << tblLock.ownerName << "'";
+    errmsg << " session ID: " << tblLock.sessionID;
+    errmsg << " txn ID: " << tblLock.ownerTxnID;
     delete messageOut;
+    throw ColumnStoreServerError(errmsg.str());
     return 0;
 }
 
@@ -975,6 +984,38 @@ void ColumnStoreCommands::brmCommitted(uint32_t txnId)
     if (response != 0)
     {
         std::string errmsg("Error committing BRM");
+        delete messageOut;
+        throw ColumnStoreServerError(errmsg);
+    }
+
+    delete messageOut;
+}
+
+void ColumnStoreCommands::brmRolledback(uint32_t txnId)
+{
+    ColumnStoreMessaging messageIn;
+    ColumnStoreMessaging* messageOut;
+    ColumnStoreNetwork *connection = getBrmConnection();
+    runSoloLoop(connection);
+
+    uint8_t command = COMMAND_DBRM_ROLLEDBACK;
+
+    messageIn << command;
+    messageIn << txnId;
+    uint8_t valid = 1;
+    messageIn << valid;
+    connection->sendData(messageIn);
+    runSoloLoop(connection);
+
+    connection->readDataStart();
+    messageOut = connection->getReadMessage();
+    runSoloLoop(connection);
+
+    uint8_t response;
+    *messageOut >> response;
+    if (response != 0)
+    {
+        std::string errmsg("Error rolling back BRM");
         delete messageOut;
         throw ColumnStoreServerError(errmsg);
     }

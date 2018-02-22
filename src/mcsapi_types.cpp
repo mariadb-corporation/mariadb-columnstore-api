@@ -285,105 +285,64 @@ ColumnStoreDecimal::~ColumnStoreDecimal()
 
 bool ColumnStoreDecimal::set(int64_t value)
 {
-    mImpl->decimalNumber = value;
-    mImpl->decimalScale = 0;
+    mImpl->decNum = value;
     return true;
 }
 
 bool ColumnStoreDecimal::set(const std::string& value)
 {
-    char seps[] = ".";
-    char *token;
-    // Copy so as not to destroy original
-    std::string valCopy = value;
-
-    token = strtok(&valCopy[0], seps);
-    // No decimal point
-    if (!token)
-    {
-        try
-        {
-            mImpl->decimalNumber = stoll(valCopy);
-            mImpl->decimalScale = 0;
-            return true;
-        }
-        catch (...)
-        {
-            // Invalid number
-            return false;
-        }
-    }
-    mImpl->decimalNumber = atoll(token);
-    token = strtok(NULL, seps);
-
-    // Whatever is after the dot isn't a number
-    if (!token)
-    {
-        return false;
-    }
-    int64_t decimals = atoll(token);
-    mImpl->decimalScale = strlen(token);
-    mImpl->decimalNumber *= pow((double) 10, mImpl->decimalScale);
-    mImpl->decimalNumber += decimals;
-
-    token = strtok(NULL, seps);
-    // Something bad happened
-    if (token)
-    {
-        return false;
-    }
+    mImpl->decNum.assign(value);
     return true;
 }
 
 bool ColumnStoreDecimal::set(double value)
 {
-    std::string strVal = std::to_string(value);
-    return set(strVal);
+    mImpl->decNum = value;
+    return true;
 }
 
 bool ColumnStoreDecimal::set(int64_t number, uint8_t scale)
 {
-    mImpl->decimalNumber = number;
-    mImpl->decimalScale = scale;
+    mImpl->decNum = number;
+    mImpl->decNum *= boost::multiprecision::pow(Decimal18(10), 0 - scale);
     return true;
 }
 
 uint64_t ColumnStoreDecimalImpl::getDecimalInt(uint32_t scale)
 {
-    int64_t result = decimalNumber;
+    uint64_t result;
+    int64_t decimalScale = boost::multiprecision::ilogb(decNum);
+    boost::multiprecision::cpp_dec_float_50 converted = decNum * pow(10, 18 - decimalScale);
+    decimalScale = 18 - decimalScale;
 
     if (scale > decimalScale)
     {
-        result = decimalNumber * pow((double)10, scale - decimalScale);
+        converted *= boost::multiprecision::pow(Decimal18(10), scale - decimalScale);
     }
     else if (scale < decimalScale)
     {
-        result = decimalNumber / pow((double)10, decimalScale - scale);
+        converted /= boost::multiprecision::pow(Decimal18(10), decimalScale - scale);
     }
+    result = static_cast<int64_t>(converted);
 
     return result;
 }
 
 int64_t ColumnStoreDecimalImpl::getInt()
 {
-    int64_t result = decimalNumber / pow((double)10, decimalScale);
+    int64_t result = llround(getDouble());
     return result;
 }
 
 double ColumnStoreDecimalImpl::getDouble()
 {
-    double result =  (double)decimalNumber / pow((double)10, decimalScale);
+    double result = decNum.convert_to<double>();
     return result;
 }
 
 void ColumnStoreDecimalImpl::getDecimalStr(std::string& sDecimal)
 {
-    sDecimal = std::to_string(decimalNumber);
-    if (decimalScale)
-    {
-        size_t pos = sDecimal.length() - decimalScale;
-        sDecimal.insert(pos, 1, '.');
-    }
+    sDecimal = decNum.str(18);
 }
 
 ColumnStoreSummary::ColumnStoreSummary()
@@ -666,6 +625,7 @@ void ColumnStoreSystemCatalogImpl::clear()
 {
     for (std::vector<ColumnStoreSystemCatalogTable*>::iterator it = tables.begin() ; it != tables.end(); ++it)
     {
+        (*it)->mImpl->clear();
         delete *it;
     }
 }

@@ -1,0 +1,42 @@
+apply plugin: 'scala'
+
+sourceSets {
+    main {
+        scala {
+            srcDirs = ['src/main/scala']
+        }
+    }
+    test {
+        scala {
+            srcDirs = ['src/test/scala']
+        }
+    }
+}
+
+repositories{
+	jcenter()
+	flatDir {
+		dirs "${project.projectDir}/../../java/build/libs/"
+	}
+}
+
+dependencies{
+	compile name: 'javamcsapi'
+	compile 'org.scala-lang:scala-library:2.11.8'
+	compile 'org.apache.spark:spark-sql_2.11:2.2.1'
+	testCompile 'junit:junit:4.12'
+	testCompile 'org.mariadb.jdbc:mariadb-java-client:2.2.0'
+}
+
+test {
+	systemProperty "java.library.path","${project.projectDir}/../../java"
+}
+
+task benchmark(type: JavaExec, dependsOn: classes){
+        main = 'com.mariadb.columnstore.api.connector.Benchmark'
+        jvmArgs = ['-Xms4g', '-Xmx10g']
+        systemProperty "java.library.path","${project.projectDir}/../../java"
+        systemProperty "spark.driver.memory","10g"
+        classpath sourceSets.test.runtimeClasspath
+        classpath configurations.runtime
+}

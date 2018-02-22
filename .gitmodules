@@ -1,0 +1,12 @@
+[submodule "boost/type_traits"]
+	path = boost/type_traits
+	url = https://github.com/boostorg/type_traits
+[submodule "boost/multiprecision"]
+	path = boost/multiprecision
+	url = https://github.com/boostorg/multiprecision
+[submodule "boost/config"]
+	path = boost/config
+	url = https://github.com/boostorg/config
+[submodule "boost/lexical_cast"]
+	path = boost/lexical_cast
+	url = https://github.com/boostorg/lexical_cast
