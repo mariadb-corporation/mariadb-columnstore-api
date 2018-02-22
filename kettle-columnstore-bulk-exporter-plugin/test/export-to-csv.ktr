@@ -529,7 +529,7 @@
     <fileNameField />
     <create_parent_folder>Y</create_parent_folder>
     <file>
-      <name>/home/jens/Kettle/api-columnstore</name>
+      <name>${Internal.Entry.Current.Directory}/api-columnstore</name>
       <is_command>N</is_command>
       <servlet_output>N</servlet_output>
       <do_not_open_new_file_init>N</do_not_open_new_file_init>
@@ -865,7 +865,7 @@ FROM kettle_api_columnstore</sql>
     <fileNameField />
     <create_parent_folder>Y</create_parent_folder>
     <file>
-      <name>/home/jens/Kettle/jdbc-columnstore</name>
+      <name>${Internal.Entry.Current.Directory}/jdbc-columnstore</name>
       <is_command>N</is_command>
       <servlet_output>N</servlet_output>
       <do_not_open_new_file_init>N</do_not_open_new_file_init>
@@ -1201,7 +1201,7 @@ FROM kettle_jdbc_columnstore</sql>
     <fileNameField />
     <create_parent_folder>Y</create_parent_folder>
     <file>
-      <name>/home/jens/Kettle/jdbc-innodb</name>
+      <name>${Internal.Entry.Current.Directory}/jdbc-innodb</name>
       <is_command>N</is_command>
       <servlet_output>N</servlet_output>
       <do_not_open_new_file_init>N</do_not_open_new_file_init>

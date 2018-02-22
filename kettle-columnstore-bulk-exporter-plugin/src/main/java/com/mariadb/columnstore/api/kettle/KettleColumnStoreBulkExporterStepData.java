@@ -16,6 +16,10 @@
 
 package com.mariadb.columnstore.api.kettle;
 
+import com.mariadb.columnstore.api.ColumnStoreBulkInsert;
+import com.mariadb.columnstore.api.ColumnStoreDriver;
+import com.mariadb.columnstore.api.ColumnStoreSystemCatalog;
+import com.mariadb.columnstore.api.ColumnStoreSystemCatalogTable;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.row.ValueMetaInterface;
 import org.pentaho.di.trans.step.BaseStepData;
@@ -24,12 +28,7 @@ import org.pentaho.di.trans.step.StepDataInterface;
 import java.util.List;
 
 /**
- * This class is part of the demo step plug-in implementation.
- * It demonstrates the basics of developing a plug-in step for PDI. 
- * 
- * The demo step adds a new string field to the row stream and sets its
- * value to "Hello World!". The user may select the name of the new field.
- *   
+ *
  * This class is the implementation of StepDataInterface.
  *   
  * Implementing classes inherit from BaseStepData, which implements the entire
@@ -39,14 +38,23 @@ import java.util.List;
  * per-thread resources during step execution. Typical examples are:
  * result sets, temporary data, caching indexes, etc.
  *   
- * The implementation for the demo step stores the output row structure in 
- * the data class. 
+ * This implementation stores information about the output row structure,
+ * the target mapping, and ColumnStoreDriver to execute the
+ * KettleColumnStoreBulkExporterStep.
  *   
  */
 public class KettleColumnStoreBulkExporterStepData extends BaseStepData implements StepDataInterface {
 
   RowMetaInterface rowMeta;
   List<ValueMetaInterface> rowValueTypes;
+
+  ColumnStoreDriver d;
+  ColumnStoreBulkInsert b;
+  ColumnStoreSystemCatalog catalog;
+  ColumnStoreSystemCatalogTable table;
+  int targetColumnCount;
+
+  int[] targetInputMapping;
 
   public KettleColumnStoreBulkExporterStepData() {
     super();

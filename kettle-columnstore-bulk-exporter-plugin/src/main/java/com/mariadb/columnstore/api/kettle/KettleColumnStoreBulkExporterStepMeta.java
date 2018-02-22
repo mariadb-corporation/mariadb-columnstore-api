@@ -55,23 +55,20 @@ import org.w3c.dom.Node;
 import static org.pentaho.di.core.row.ValueMetaInterface.*;
 
 /**
- * This class is part of the demo step plug-in implementation.
- * It demonstrates the basics of developing a plug-in step for PDI. 
- * 
- * The demo step adds a new string field to the row stream and sets its
- * value to "Hello World!". The user may select the name of the new field.
- *   
+ *
  * This class is the implementation of StepMetaInterface.
- * Classes implementing this interface need to:
- * 
- * - keep track of the step settings
- * - serialize step settings both to xml and a repository
- * - provide new instances of objects implementing StepDialogInterface, StepInterface and StepDataInterface
- * - report on how the step modifies the meta-data of the row-stream (row structure and field types)
- * - perform a sanity-check on the settings provided by the user 
- * 
+ * This class is responsible for:
+ *
+ * - keeping track of the step settings
+ * - serializing step settings both to xml and a repository
+ * - providing new instances of objects implementing StepDialogInterface, StepInterface and StepDataInterface
+ * - reporting on how the step modifies the meta-data of the row-stream (row structure and field types)
+ * - performing a sanity-check on the settings provided by the user
+ *
  */
 
+
+// Metadata annotation for the appearance in Spoon (image, category, help site etc.)
 @Step(
   id = "KettleColumnStoreBulkExporterPlugin",
   name = "KettleColumnStoreBulkExporterPlugin.Name",
@@ -82,7 +79,8 @@ import static org.pentaho.di.core.row.ValueMetaInterface.*;
   documentationUrl = "MariaDB+ColumnStore+Bulk+Loader",
   casesUrl = "KettleColumnStoreBulkExporterPlugin.CasesURL",
   forumUrl = "KettleColumnStoreBulkExporterPlugin.ForumURL"
-  )
+)
+
 @InjectionSupported( localizationPrefix = "KettleColumnStoreBulkExporterStepMeta.Injection." )
 public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implements StepMetaInterface {
 
@@ -114,7 +112,10 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
   private DatabaseMeta databaseMeta;
 
   /**
-   * Wrapper class to store the mapping between input and output
+   * Wrapper class to store the mapping between input and output.
+   * Mapped are field and column names not the position in the ColumnStore
+   * table or input fields. It gets translated into positions in
+   * KettleColumnStoreBulkExporterStep..
    */
   protected static class InputTargetMapping{
     private String[] inputStreamFields;
@@ -213,6 +214,10 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
     return new KettleColumnStoreBulkExporterStepData();
   }
 
+  /**
+   * Gets used/defined database connections (JDBC), that are set in Spoon.
+   * @return used/defined database connections
+   */
   public DatabaseMeta[] getUsedDatabaseConnections()
   {
     if (databaseMeta!=null)
@@ -274,15 +279,26 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
         this.targetTable = targetTable;
     }
 
+  /**
+   * Getter for the serialized ColumnStoreXML to be stored on disk
+   * @return serialized XML
+   */
   public String getColumnStoreXML(){
       return columnStoreXML;
   }
 
+  /**
+   * Setter for the serialized ColumnStoreXML to be stored on disk
+   * @param columnStoreXML XML
+   */
   public void setColumnStoreXML(String columnStoreXML){
      this.columnStoreXML = columnStoreXML;
      reinitializeColumnStoreDriver();
   }
 
+  /**
+   * Reinitalizes the ColumnStoreDriver to fetch updates (cf. MCOL-1218) or to get a new configuration.
+   */
   public void reinitializeColumnStoreDriver(){
     if(columnStoreXML!=null && !columnStoreXML.equals("")) {
       try{
@@ -301,23 +317,43 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
     }
   }
 
+  /**
+   * Gets the ColumnStoreDriver
+   * @return ColumnStoreDriver
+   */
   public ColumnStoreDriver getColumnStoreDriver(){
       return d;
   }
 
+  /**
+   * Gets the fieldMapping between fields and ColumnStore columns.
+   * @return fieldMapping
+   */
   public InputTargetMapping getFieldMapping(){
     return fieldMapping;
   }
 
+  /**
+   * Sets the fieldMapping between fields and ColumnStore columns.
+   * @param itm field mapping
+   */
   public void setFieldMapping(InputTargetMapping itm){
       this.fieldMapping = itm;
   }
 
+  /**
+   * Gets the DatabaseMeta object for the used JDBC connection.
+   * @return databaseMeta
+   */
   public DatabaseMeta getDatabaseMeta()
   {
     return databaseMeta;
   }
 
+  /**
+   * Sets the DatabaseMeta object for the used JDBC connection
+   * @param database to use
+   */
   public void setDatabaseMeta(DatabaseMeta database)
   {
     this.databaseMeta = database;
@@ -327,9 +363,6 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
    * This method is used when a step is duplicated in Spoon. It needs to return a deep copy of this
    * step meta object. Be sure to create proper deep copies if the step configuration is stored in
    * modifiable objects.
-   * 
-   * See org.pentaho.di.trans.steps.rowgenerator.RowGeneratorMeta.clone() for an example on creating
-   * a deep copy.
    * 
    * @return a deep copy of this
    */
@@ -350,9 +383,7 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
 
   /**
    * This method is called by Spoon when a step needs to serialize its configuration to XML. The expected
-   * return value is an XML fragment consisting of one or more XML tags.  
-   * 
-   * Please use org.pentaho.di.core.xml.XMLHandler to conveniently generate the XML.
+   * return value is an XML fragment consisting of one or more XML tags.
    * 
    * @return a string containing the XML serialization of this step
    */
@@ -380,9 +411,6 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
 
   /**
    * This method is called by PDI when a step needs to load its configuration from XML.
-   * 
-   * Please use org.pentaho.di.core.xml.XMLHandler to conveniently read from the
-   * XML node passed in.
    * 
    * @param stepnode  the XML node containing the configuration
    * @param databases  the databases available in the transformation
@@ -483,20 +511,14 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
       VariableSpace space, Repository repository, IMetaStore metaStore ) {
 
-      //nothing to do here as we only dump the row stream to ColumnStore
+      //nothing to do here as we only dump the row stream to ColumnStore and don't change it's structure.
 
   }
 
   /**
    * This method is called when the user selects the "Verify Transformation" option in Spoon. 
    * A list of remarks is passed in that this method should add to. Each remark is a comment, warning, error, or ok.
-   * The method should perform as many checks as necessary to catch design-time errors.
-   * 
-   * Typical checks include:
-   * - verify that all mandatory configuration is given
-   * - verify that the step receives any input, unless it's a row generating step
-   * - verify that the step does not receive any input if it does not take them into account
-   * - verify that the step finds fields it relies on in the row-stream
+   * It checks if the current configuration is valid and can be executed.
    * 
    *   @param remarks    the list of remarks to append to
    *   @param transMeta  the description of the transformation
@@ -510,12 +532,10 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
       String[] input, String[] output, RowMetaInterface info, VariableSpace space, Repository repository,
       IMetaStore metaStore ) {
-    CheckResult cr;
 
     // See if there are input streams leading to this step!
     if ( input != null && input.length > 0 ) {
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.CheckResult.ReceivingRows.OK"), stepMeta);
-      remarks.add(cr);
+      remarks.add( new CheckResult(CheckResult.TYPE_RESULT_OK, BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.CheckResult.ReceivingRows.OK"), stepMeta));
       if (d == null) {
         remarks.add(new CheckResult(CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.CheckResult.ColumnStoreDriver.ERROR"), stepMeta));
       } else {
@@ -534,7 +554,7 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
           remarks.add(new CheckResult(CheckResult.TYPE_RESULT_OK, BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.CheckResult.TableExistent.OK"), stepMeta));
           // check if the input columns would fit into ColumnStore
           List<ValueMetaInterface> inputValueTypes = prev.getValueMetaList();
-          ArrayList<String> inputFields = new ArrayList<String>(Arrays.asList(prev.getFieldNames()));
+          ArrayList<String> inputFields = new ArrayList<>(Arrays.asList(prev.getFieldNames()));
 
           if (fieldMapping.getNumberOfEntries() == table.getColumnCount()) {
             remarks.add(new CheckResult(CheckResult.TYPE_RESULT_OK, BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.CheckResult.TableSizes.OK"), stepMeta));
@@ -570,8 +590,7 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
 
       }
     }else {
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG, "KettleColumnStoreBulkExporterPlugin.CheckResult.ReceivingRows.ERROR" ), stepMeta );
-      remarks.add( cr );
+      remarks.add( new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG, "KettleColumnStoreBulkExporterPlugin.CheckResult.ReceivingRows.ERROR" ), stepMeta ));
     }
   }
 
@@ -675,13 +694,14 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
   }
 
   /**
-   * Generates the SQL statement to alter / create the ColumnStore target table to fit the input fields.
-   * @param transMeta
-   * @param stepMeta
-   * @param prev
-   * @param metaStore
-   * @return
-   * @throws KettleStepException
+   * Generates the SQL statement to alter / create the ColumnStore target table, necessary to execute the Step.
+   * @param transMeta transaction meta data
+   * @param stepMeta step meta data
+   * @param prev previous step
+   * @param repository repository
+   * @param metaStore meta store
+   * @return SQLStatement to alter/create the ColumnStore target table.
+   * @throws KettleStepException in case ColumnStoreDriver can't be used
    */
   @Override
   public SQLStatement getSQLStatements(TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev, Repository repository, IMetaStore metaStore) throws KettleStepException {

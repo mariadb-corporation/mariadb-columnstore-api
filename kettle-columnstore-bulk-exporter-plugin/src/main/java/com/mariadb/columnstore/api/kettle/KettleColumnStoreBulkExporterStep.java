@@ -36,22 +36,16 @@ import java.util.Date;
 import static org.pentaho.di.core.row.ValueMetaInterface.*;
 
 /**
- * This class is part of the demo step plug-in implementation.
- * It demonstrates the basics of developing a plug-in step for PDI. 
- * 
- * The demo step adds a new string field to the row stream and sets its
- * value to "Hello World!". The user may select the name of the new field.
  *   
  * This class is the implementation of StepInterface.
- * Classes implementing this interface need to:
+ * The class is responsible for:
  * 
- * - initialize the step
- * - execute the row processing logic
- * - dispose of the step 
- * 
- * Please do not create any local fields in a StepInterface class. Store any
- * information related to the processing logic in the supplied step data interface
- * instead.  
+ * - initializing the step
+ * - executing the row processing logic
+ * - disposing of the step
+ *
+ * Any information related to the processing logic
+ * is stored in the supplied step data interface.
  * 
  */
 
@@ -59,14 +53,7 @@ public class KettleColumnStoreBulkExporterStep extends BaseStep implements StepI
 
   private static final Class<?> PKG = KettleColumnStoreBulkExporterStepMeta.class; // for i18n purposes
 
-  private ColumnStoreDriver d;
-  private ColumnStoreBulkInsert b;
-  private ColumnStoreSystemCatalog catalog;
-  private ColumnStoreSystemCatalogTable table;
-  private int targetColumnCount;
-  private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-
-  private int[] targetInputMapping;
+  private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
   /**
    * The constructor should simply pass on its arguments to the parent class.
@@ -109,28 +96,28 @@ public class KettleColumnStoreBulkExporterStep extends BaseStep implements StepI
     }
 
     // Initialize the ColumnStore Driver
-    d = meta.getColumnStoreDriver();
-    if(d == null){
+    data.d = meta.getColumnStoreDriver();
+    if(data.d == null){
         logError("The ColumnStoreDriver couldn't be instantiated.");
         setErrors(1);
         return false;
     }
     meta.reinitializeColumnStoreDriver(); // temporary fix for MCOL-1218
-    catalog = d.getSystemCatalog();
+    data.catalog = data.d.getSystemCatalog();
     try {
-        table = catalog.getTable(meta.getTargetDatabase(), meta.getTargetTable());
+        data.table = data.catalog.getTable(meta.getTargetDatabase(), meta.getTargetTable());
     }catch(ColumnStoreException e){
         logError("Target table " + meta.getTargetTable() + " doesn't exist.", e);
         setErrors(1);
         return false;
     }
 
-    targetColumnCount = table.getColumnCount();
+    data.targetColumnCount = data.table.getColumnCount();
 
-    b = d.createBulkInsert(meta.getTargetDatabase(), meta.getTargetTable(), (short) 0, 0);
+    data.b = data.d.createBulkInsert(meta.getTargetDatabase(), meta.getTargetTable(), (short) 0, 0);
 
-    if(meta.getFieldMapping().getNumberOfEntries() == targetColumnCount) {
-        targetInputMapping = new int[meta.getFieldMapping().getNumberOfEntries()];
+    if(meta.getFieldMapping().getNumberOfEntries() == data.targetColumnCount) {
+        data.targetInputMapping = new int[meta.getFieldMapping().getNumberOfEntries()];
     }else{
         logError("Number of mapping entries and target columns doesn't match");
         setErrors(1);
@@ -192,101 +179,106 @@ public class KettleColumnStoreBulkExporterStep extends BaseStep implements StepI
             }
 
             logDebug("ColumnStore rows and types");
-            for (int i = 0; i < table.getColumnCount(); i++) {
-                logDebug(i + " : " + table.getColumn(i).getColumnName() + " : " + table.getColumn(i).getType().toString());
+            for (int i = 0; i < data.table.getColumnCount(); i++) {
+                logDebug(i + " : " + data.table.getColumn(i).getColumnName() + " : " + data.table.getColumn(i).getType().toString());
             }
         }
 
-        // Construct the targetInputMapping as target[int] mapped to input index int.
+        // Construct the targetInputMapping as target[int] mapped to input index int used for bulk import.
         ArrayList<String> inputFields = new ArrayList<>(Arrays.asList(data.rowMeta.getFieldNames()));
-        for(int i = 0; i<targetColumnCount; i++){
-            String mappedInputField = meta.getFieldMapping().getTargetInputMappingField(table.getColumn(i).getColumnName());
-            targetInputMapping[i] = inputFields.indexOf(mappedInputField);
-            if(targetInputMapping[i]<0){
-                b.rollback();
-                putError(data.rowMeta, r, 1L, "no mapping for column " + table.getColumn(i).getColumnName() + " found - rollback", data.rowMeta.getFieldNames()[i], "Column mapping not found");
+        for(int i = 0; i<data.targetColumnCount; i++){
+            String mappedInputField = meta.getFieldMapping().getTargetInputMappingField(data.table.getColumn(i).getColumnName());
+            data.targetInputMapping[i] = inputFields.indexOf(mappedInputField);
+            if(data.targetInputMapping[i]<0){
+                data.b.rollback();
+                putError(data.rowMeta, r, 1L, "no mapping for column " + data.table.getColumn(i).getColumnName() + " found - rollback", data.rowMeta.getFieldNames()[i], "Column mapping not found");
             }
         }
     }
 
     // put the row into ColumnStore
-    logDebug("Iterating through the ColumnStore table to set the row object");
-    for (int c=0; c<targetColumnCount; c++){
-      int i = targetInputMapping[c];
-      logDebug("Column " + c + " - " + table.getColumn(c).getColumnName() + " - trying to insert item: " + i + ", value to String: " + r[i].toString());
-      switch(data.rowValueTypes.get(i).getType()){
-        case TYPE_STRING:
-          logDebug("Try to insert item " + i + " as String");
-          b.setColumn(c, (String) r[i]);
-          logDebug("Inserted item " + i + " as String");
-          break;
-        case TYPE_INTEGER:
-          logDebug("Try to insert item " + i + " as Long");
-          b.setColumn(c, (Long) r[i]);
-          logDebug("Inserted item " + i + " as Long");
-          break;
-        case TYPE_NUMBER:
-          logDebug("Try to insert item " + i + " as Double");
-          b.setColumn(c, (Double) r[i]);
-          logDebug("Inserted item " + i + " as Double");
-          break;
-        case TYPE_BIGNUMBER:
-          logDebug("Detect ColumnStore row type");
-          BigDecimal bd = (BigDecimal) r[i];
-          if(table.getColumn(c).getType() == columnstore_data_types_t.DATA_TYPE_DECIMAL ||
-             table.getColumn(c).getType() == columnstore_data_types_t.DATA_TYPE_FLOAT ||
-             table.getColumn(c).getType() == columnstore_data_types_t.DATA_TYPE_DOUBLE ||
-             table.getColumn(c).getType() == columnstore_data_types_t.DATA_TYPE_UDECIMAL ||
-             table.getColumn(c).getType() == columnstore_data_types_t.DATA_TYPE_UFLOAT ||
-             table.getColumn(c).getType() == columnstore_data_types_t.DATA_TYPE_UDOUBLE){
-             logDebug("ColumnStore column is of type 'real'");
-             logDebug("Try to insert item " + i + " as BigDecimal");
-             logDebug("Value to insert: " + bd.toPlainString());
-             b.setColumn(c, new ColumnStoreDecimal(bd.toPlainString()));
-             logDebug("Inserted item " + i + " as BigDecimal");
-          }else{
-             logDebug("ColumnStore column is of type 'decimal'");
-             logDebug("Try to insert item " + i + " as BigInteger");
-             logDebug("Value to insert: " + bd.toBigInteger());
-             b.setColumn(c, bd.toBigInteger());
-             logDebug("Inserted item " + i + " as BigInteger");
-          }
-          break;
-        case TYPE_DATE:
-          logDebug("Try to insert item " + i + " as Date");
-          Date dt = (Date) r[i];
-          logDebug("Value to insert: " + dateFormat.format(dt).toString());
-          b.setColumn(c, dateFormat.format(dt).toString());
-          logDebug("Inserted item " + i + " as Date");
-          break;
-        case TYPE_TIMESTAMP:
-          logDebug("Try to insert item " + i + " as Timestamp");
-          Date dt2 = (Date) r[i];
-          logDebug("Value to insert: " + dateFormat.format(dt2).toString());
-          b.setColumn(c, dateFormat.format(dt2).toString());
-          logDebug("Inserted item " + i + " as Timestamp");
-          break;
-        case TYPE_BOOLEAN:
-          logDebug("Try to insert item " + i + " as Boolean");
-          if((boolean) r[i]){
-            b.setColumn(c, 1);
-          }
-          else{
-            b.setColumn(c, 0);
-          }
-          logDebug("Inserted item " + i + " as Boolean");
-          break;
-        case TYPE_BINARY:
-          b.rollback();
-          putError(data.rowMeta, r, 1L, "data type binary is not supported at the moment - rollback", data.rowMeta.getFieldNames()[i], "Binary data type not supported");
-          setErrors(1);
-        default:
-          b.rollback();
-          putError(data.rowMeta, r, 1L, "data type " + data.rowValueTypes.get(i).getType() + " is not supported at the moment - rollback", data.rowMeta.getFieldNames()[i], "Data type not supported");
-          setErrors(1);
-      }
+    try {
+        logDebug("Iterating through the ColumnStore table to set the row object");
+        for (int c = 0; c < data.targetColumnCount; c++) {
+            int i = data.targetInputMapping[c];
+            logDebug("Column " + c + " - " + data.table.getColumn(c).getColumnName() + " - trying to insert item: " + i + ", value to String: " + r[i].toString());
+            switch (data.rowValueTypes.get(i).getType()) {
+                case TYPE_STRING:
+                    logDebug("Try to insert item " + i + " as String");
+                    data.b.setColumn(c, (String) r[i]);
+                    logDebug("Inserted item " + i + " as String");
+                    break;
+                case TYPE_INTEGER:
+                    logDebug("Try to insert item " + i + " as Long");
+                    data.b.setColumn(c, (Long) r[i]);
+                    logDebug("Inserted item " + i + " as Long");
+                    break;
+                case TYPE_NUMBER:
+                    logDebug("Try to insert item " + i + " as Double");
+                    data.b.setColumn(c, (Double) r[i]);
+                    logDebug("Inserted item " + i + " as Double");
+                    break;
+                case TYPE_BIGNUMBER:
+                    logDebug("Detect ColumnStore row type");
+                    BigDecimal bd = (BigDecimal) r[i];
+                    if (data.table.getColumn(c).getType() == columnstore_data_types_t.DATA_TYPE_DECIMAL ||
+                            data.table.getColumn(c).getType() == columnstore_data_types_t.DATA_TYPE_FLOAT ||
+                            data.table.getColumn(c).getType() == columnstore_data_types_t.DATA_TYPE_DOUBLE ||
+                            data.table.getColumn(c).getType() == columnstore_data_types_t.DATA_TYPE_UDECIMAL ||
+                            data.table.getColumn(c).getType() == columnstore_data_types_t.DATA_TYPE_UFLOAT ||
+                            data.table.getColumn(c).getType() == columnstore_data_types_t.DATA_TYPE_UDOUBLE) {
+                        logDebug("ColumnStore column is of type 'real'");
+                        logDebug("Try to insert item " + i + " as BigDecimal");
+                        logDebug("Value to insert: " + bd.toPlainString());
+                        data.b.setColumn(c, new ColumnStoreDecimal(bd.toPlainString()));
+                        logDebug("Inserted item " + i + " as BigDecimal");
+                    } else {
+                        logDebug("ColumnStore column is of type 'decimal'");
+                        logDebug("Try to insert item " + i + " as BigInteger");
+                        logDebug("Value to insert: " + bd.toBigInteger());
+                        data.b.setColumn(c, bd.toBigInteger());
+                        logDebug("Inserted item " + i + " as BigInteger");
+                    }
+                    break;
+                case TYPE_DATE:
+                    logDebug("Try to insert item " + i + " as Date");
+                    Date dt = (Date) r[i];
+                    logDebug("Value to insert: " + dateFormat.format(dt));
+                    data.b.setColumn(c, dateFormat.format(dt));
+                    logDebug("Inserted item " + i + " as Date");
+                    break;
+                case TYPE_TIMESTAMP:
+                    logDebug("Try to insert item " + i + " as Timestamp");
+                    Date dt2 = (Date) r[i];
+                    logDebug("Value to insert: " + dateFormat.format(dt2));
+                    data.b.setColumn(c, dateFormat.format(dt2));
+                    logDebug("Inserted item " + i + " as Timestamp");
+                    break;
+                case TYPE_BOOLEAN:
+                    logDebug("Try to insert item " + i + " as Boolean");
+                    if ((boolean) r[i]) {
+                        data.b.setColumn(c, 1);
+                    } else {
+                        data.b.setColumn(c, 0);
+                    }
+                    logDebug("Inserted item " + i + " as Boolean");
+                    break;
+                case TYPE_BINARY:
+                    data.b.rollback();
+                    putError(data.rowMeta, r, 1L, "data type binary is not supported at the moment - rollback", data.rowMeta.getFieldNames()[i], "Binary data type not supported");
+                    setErrors(1);
+                default:
+                    data.b.rollback();
+                    putError(data.rowMeta, r, 1L, "data type " + data.rowValueTypes.get(i).getType() + " is not supported at the moment - rollback", data.rowMeta.getFieldNames()[i], "Data type not supported");
+                    setErrors(1);
+            }
+        }
+        data.b.writeRow();
+    }catch(ColumnStoreException e){
+        data.b.rollback();
+        putError(data.rowMeta, r, 1L, "An error occurred during bulk insert - rollback ", "", e.getMessage());
+        setErrors(1);
     }
-    b.writeRow();
 
     // put the row to the output row stream
     putRow( data.rowMeta, r );
@@ -322,16 +314,16 @@ public class KettleColumnStoreBulkExporterStep extends BaseStep implements StepI
 
     // Finally commit the changes to ColumnStore
     try {
-        b.commit();
+        data.b.commit();
         logDebug("bulk insert committed");
     }catch(ColumnStoreException e){
-        b.rollback();
+        data.b.rollback();
         logError("couldn't commit bulk insert to ColumnStore - rollback", e);
         setErrors(1);
     }
 
   if(log.isDetailed()){
-      ColumnStoreSummary summary = b.getSummary();
+      ColumnStoreSummary summary = data.b.getSummary();
       logDetailed("Execution time: " + summary.getExecutionTime());
       logDetailed("Rows inserted: " + summary.getRowsInsertedCount());
       logDetailed("Truncation count: " + summary.getTruncationCount());

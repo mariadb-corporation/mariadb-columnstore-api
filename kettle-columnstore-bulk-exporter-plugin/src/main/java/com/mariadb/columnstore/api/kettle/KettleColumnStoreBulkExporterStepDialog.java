@@ -56,18 +56,13 @@ import java.util.List;
 import static org.pentaho.di.core.row.ValueMetaInterface.*;
 
 /**
- * This class is part of the demo step plug-in implementation.
- * It demonstrates the basics of developing a plug-in step for PDI.
- *
- * The demo step adds a new string field to the row stream and sets its
- * value to "Hello World!". The user may select the name of the new field.
  *
  * This class is the implementation of StepDialogInterface.
- * Classes implementing this interface need to:
+ * This class is responsible for:
  *
- * - build and open a SWT dialog displaying the step's settings (stored in the step's meta object)
- * - write back any changes the user makes to the step's meta object
- * - report whether the user changed any settings when confirming the dialog
+ * - building and opening a SWT dialog displaying the step's settings (stored in the step's meta object)
+ * - writing back any changes the user makes to the step's meta object
+ * - reporting whether the user changed any settings when confirming the dialog
  *
  */
 public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog implements StepDialogInterface {
@@ -93,14 +88,11 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
   //table to display mapping
   private Table table;
 
-  //jdbc connection
+  //jdbc connection gui component
   private CCombo wConnection;
 
   //columnstore xml connection configuration file
-  private Label	wlColumnStoreXML;
-  private Button wbColumnStoreXML;
   private TextVar wColumnStoreXML;
-  private FormData fdlColumnStoreXML, fdbColumnStoreXML, fdColumnStoreXML;
 
   private ColumnStoreDriver d;
 
@@ -123,16 +115,16 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
 
   /**
    * This method is called by Spoon when the user opens the settings dialog of the step.
-   * It should open the dialog and return only once the dialog has been closed by the user.
+   * It opens the dialog and returns only once the dialog has been closed by the user.
    *
-   * If the user confirms the dialog, the meta object (passed in the constructor) must
-   * be updated to reflect the new step settings. The changed flag of the meta object must
-   * reflect whether the step configuration was changed by the dialog.
+   * If the user confirms the dialog, the meta object (passed in the constructor) is
+   * updated to reflect the new step settings. The changed flag of the meta object
+   * reflects whether the step configuration was changed by the dialog.
    *
-   * If the user cancels the dialog, the meta object must not be updated, and its changed flag
-   * must remain unaltered.
+   * If the user cancels the dialog, the meta object is not updated, and its changed flag
+   * remains unaltered.
    *
-   * The open() method must return the name of the step after the user has confirmed the dialog,
+   * The open() method returns the name of the step after the user has confirmed the dialog,
    * or null if the user cancelled the dialog.
    */
   public String open() {
@@ -167,6 +159,7 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
       }
     }
 
+    // If the ColumnStoreDriver can't be accessed, show an error message.
     if(d==null){
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.XMLConfigurationLoading.Error.DialogMessage"));
@@ -174,7 +167,7 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
       mb.open();
     }
 
-    // Save a local deep copy of the FieldMapping
+    // Save a local deep copy of the FieldMapping to avoid altering the current one.
     itm = new KettleColumnStoreBulkExporterStepMeta.InputTargetMapping(meta.getFieldMapping().getNumberOfEntries());
     for (int i=0; i<meta.getFieldMapping().getNumberOfEntries(); i++){
       itm.setInputFieldMetaData(i, meta.getFieldMapping().getInputStreamField(i));
@@ -250,7 +243,7 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
     fTabFolder.left = new FormAttachment(0, 5);
     tabFolder.setLayoutData(fTabFolder);
 
-    // TabItem field mapping
+    // TabItem field mapping to ColumnStore
     TabItem tabItemFieldMapping = new TabItem(tabFolder, SWT.NONE);
     tabItemFieldMapping.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.FieldMapping.Tab"));
 
@@ -260,6 +253,7 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
     g.numColumns = 2;
     compositeFieldMapping.setLayout(g);
 
+    // table to display the mapping
     table = new Table(compositeFieldMapping, SWT.BORDER | SWT.FULL_SELECTION);
     table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
     table.setHeaderVisible(true);
@@ -277,6 +271,7 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
     tblclmnCompatible.setWidth(127);
     tblclmnCompatible.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.Compatible.Tabular"));
 
+    // mapping buttons
     Group btnGroupMapping = new Group(compositeFieldMapping, SWT.NONE);
     btnGroupMapping.setLayout(new GridLayout(1, false));
 
@@ -305,25 +300,25 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
     wConnection.addModifyListener(lsMod);
 
     // ColumnStore.xml line
-    wlColumnStoreXML = new Label(composite, SWT.RIGHT);
+    Label wlColumnStoreXML = new Label(composite, SWT.RIGHT);
     wlColumnStoreXML.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.Label.ColumnStoreXML"));
     props.setLook(wlColumnStoreXML);
-    fdlColumnStoreXML = new FormData();
+    FormData fdlColumnStoreXML = new FormData();
     fdlColumnStoreXML.left = new FormAttachment(0, 0);
     fdlColumnStoreXML.top = new FormAttachment(wConnection, margin);
     fdlColumnStoreXML.right = new FormAttachment(middle, -margin);
     wlColumnStoreXML.setLayoutData(fdlColumnStoreXML);
-    wbColumnStoreXML = new Button(composite, SWT.PUSH | SWT.CENTER);
+    Button wbColumnStoreXML = new Button(composite, SWT.PUSH | SWT.CENTER);
     props.setLook(wbColumnStoreXML);
     wbColumnStoreXML.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.Button.Browse"));
-    fdbColumnStoreXML = new FormData();
+    FormData fdbColumnStoreXML = new FormData();
     fdbColumnStoreXML.right = new FormAttachment(100, 0);
     fdbColumnStoreXML.top = new FormAttachment(wConnection, margin);
     wbColumnStoreXML.setLayoutData(fdbColumnStoreXML);
     wColumnStoreXML = new TextVar(transMeta, composite, SWT.READ_ONLY | SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wColumnStoreXML);
     wColumnStoreXML.addModifyListener(lsMod);
-    fdColumnStoreXML = new FormData();
+    FormData fdColumnStoreXML = new FormData();
     fdColumnStoreXML.left = new FormAttachment(middle, 0);
     fdColumnStoreXML.top = new FormAttachment(wConnection, margin);
     fdColumnStoreXML.right = new FormAttachment(wbColumnStoreXML, -margin);
@@ -340,13 +335,13 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
           dialog.setFileName(wColumnStoreXML.getText());
         }
         if (dialog.open() != null) {
-          try{
+          try{ //try to initialize a ColumnStoreDriver with the new configuration file
             String path = dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName();
-            ColumnStoreDriver tmp = new ColumnStoreDriver(path);
-            wColumnStoreXML.setText(path);
-            updateColumnStoreDriver();
+            new ColumnStoreDriver(path); //if the configuration is invalid an exception will be thrown
+            wColumnStoreXML.setText(path); //otherwise update the XML path
+            updateColumnStoreDriver(); // and update the driver
             updateTableView();
-          } catch(ColumnStoreException ex){
+          } catch(ColumnStoreException ex){ //display error if not valid configuration (changes are not stored)
             MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
             mb.setMessage(ex.getMessage());
             mb.setText(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.XMLConfigurationPicker.Error.DialogTitle"));
@@ -494,7 +489,7 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
   }
 
   /**
-   * Updates the table based on the current itm
+   * Updates/displays the table based on the current mapping stored in itm.
    */
   private void updateTableView(){
     table.removeAll();
@@ -506,7 +501,7 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
       RowMetaInterface row = transMeta.getPrevStepFields(stepMeta);
 
       List<ValueMetaInterface> inputValueTypes = row.getValueMetaList();
-      ArrayList<String> inputValueFields = new ArrayList<String>(Arrays.asList(row.getFieldNames()));
+      ArrayList<String> inputValueFields = new ArrayList<>(Arrays.asList(row.getFieldNames()));
 
       for (int i=0; i<itm.getNumberOfEntries(); i++){
         int field = inputValueFields.indexOf(itm.getInputStreamField(i));
@@ -528,7 +523,7 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
         ColumnStoreSystemCatalogTable t = c.getTable(wTargetDatabaseFieldName.getText(), wTargetTableFieldName.getText());
         for (int i = 0; i < itm.getNumberOfEntries(); i++) {
           try {
-            outputTypes[i] = t.getColumn(itm.getTargetColumnStoreColumn(i).toLowerCase()).getType();
+            outputTypes[i] = t.getColumn(itm.getTargetColumnStoreColumn(i).toLowerCase()).getType(); //quick fix for MCOL-1213
           } catch (ColumnStoreException ex) {
             logDetailed("Can't find column " + itm.getTargetColumnStoreColumn(i) + " in table " + wTargetTableFieldName.getText());
           }
@@ -562,19 +557,20 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
   }
 
   /**
-   * Function is invoked when button Custom Mapping is hit
+   * Function is invoked when button Custom Mapping is hit.
+   * Prepares the custom mapping dialog, and transfers it back into our Meta data structure of field and column names.
    */
   private void customMapping() {
-    //create a copy of the old mapping to check for changes
+    //create a copy of the old mapping to check for changes after mapping.
     KettleColumnStoreBulkExporterStepMeta.InputTargetMapping oldItm = new KettleColumnStoreBulkExporterStepMeta.InputTargetMapping(itm.getNumberOfEntries());
     for (int i=0; i<itm.getNumberOfEntries(); i++){
       oldItm.setInputFieldMetaData(i,itm.getInputStreamField(i));
       oldItm.setTargetColumnStoreColumn(i,itm.getTargetColumnStoreColumn(i));
     }
 
-    ArrayList<String> sourceFields = new ArrayList<String>();
-    ArrayList<String> targetFields = new ArrayList<String>();
-    List<SourceToTargetMapping> mappings = new ArrayList<SourceToTargetMapping>();
+    ArrayList<String> sourceFields = new ArrayList<>();
+    ArrayList<String> targetFields = new ArrayList<>();
+    List<SourceToTargetMapping> mappings = new ArrayList<>();
 
     // Determine the source and target fields
     try {
@@ -591,7 +587,7 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
       c = d.getSystemCatalog();
       t = c.getTable(wTargetDatabaseFieldName.getText(), wTargetTableFieldName.getText());
       for (int i = 0; i < t.getColumnCount(); i++) {
-        targetFields.add(t.getColumn(i).getColumnName().toLowerCase());
+        targetFields.add(t.getColumn(i).getColumnName().toLowerCase()); //quick fix for MCOL-1213
       }
     } catch (ColumnStoreException e) {
       new ErrorDialog(shell, BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.DoMapping.UnableToFindTargetFields.Title"), BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.DoMapping.UnableToFindTargetFields.Message"), e);
@@ -601,50 +597,45 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
     // Transform the existing mapping list into the format required for EnterMappingDialog
     ArrayList<String> missingSourceFields = new ArrayList<>();
     ArrayList<String> missingTargetFields = new ArrayList<>();
-    ArrayList<SourceToTargetMapping> missingFieldMappings = new ArrayList<SourceToTargetMapping>(); //missing entries are counted negatively, available entries as in mapping
-    missingSourceFields.add("dummy"); //needs to be added as they will be counted negatively in missingFieldMappings and 0 is taken by mappings already
-    missingTargetFields.add("dummy"); //needs to be added as they will be counted negatively in missingFieldMappings and 0 is taken by mappings already
+    ArrayList<SourceToTargetMapping> missingFieldMappings = new ArrayList<>(); //missing entries are counted negatively, available entries as in mapping
 
     for (int i = 0; i < itm.getNumberOfEntries(); i++) {
       int sourceFieldId = sourceFields.lastIndexOf(itm.getInputStreamField(i));
-      int targetFieldId = targetFields.lastIndexOf(itm.getTargetColumnStoreColumn(i));
+      int targetFieldId = targetFields.lastIndexOf(itm.getTargetColumnStoreColumn(i).toLowerCase()); //quick fix for MCOL-1213
 
       if (sourceFieldId > -1 && targetFieldId > -1) {
         mappings.add(new SourceToTargetMapping(sourceFieldId, targetFieldId));
       } else {
         if (sourceFieldId < 0 && targetFieldId < 0) {
           missingSourceFields.add(itm.getInputStreamField(i));
-          missingTargetFields.add(itm.getTargetColumnStoreColumn(i));
-          missingFieldMappings.add(new SourceToTargetMapping(-1 * (missingSourceFields.size() - 1), -1 * (missingTargetFields.size() - 1)));
+          missingTargetFields.add(itm.getTargetColumnStoreColumn(i).toLowerCase()); //quick fix for MCOL-1213
+          missingFieldMappings.add(new SourceToTargetMapping(-1 * (missingSourceFields.size()), -1 * (missingTargetFields.size())));
         } else {
           if (sourceFieldId < 0) {
             missingSourceFields.add(itm.getInputStreamField(i));
-            missingFieldMappings.add(new SourceToTargetMapping(-1 * (missingSourceFields.size() - 1), targetFieldId));
+            missingFieldMappings.add(new SourceToTargetMapping(-1 * (missingSourceFields.size()), targetFieldId));
           } else { //targetFieldId < 0
-            missingTargetFields.add(itm.getTargetColumnStoreColumn(i));
-            missingFieldMappings.add(new SourceToTargetMapping(sourceFieldId, -1 * (missingTargetFields.size() - 1)));
+            missingTargetFields.add(itm.getTargetColumnStoreColumn(i).toLowerCase()); //quick fix for MCOL-1213
+            missingFieldMappings.add(new SourceToTargetMapping(sourceFieldId, -1 * (missingTargetFields.size())));
           }
         }
       }
     }
 
-    missingSourceFields.remove(0); //remove the dummy
-    missingTargetFields.remove(0); //remove the dummy
-
     // If existing mapping fields are unavailable a dialog is shown to consider them in the following mapping or to drop them
     if (missingFieldMappings.size() > 0) {
       StringBuilder message = new StringBuilder();
       if (missingSourceFields.size() > 0) {
-        message.append(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.DoMapping.SomeFieldsNotFoundSource") + Const.CR);
+        message.append(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.DoMapping.SomeFieldsNotFoundSource")).append(Const.CR);
         for (String s : missingSourceFields) {
-          message.append(s + Const.CR);
+          message.append(s).append(Const.CR);
         }
         message.append(Const.CR);
       }
       if (missingTargetFields.size() > 0) {
-        message.append(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.DoMapping.SomeFieldsNotFoundTarget") + Const.CR);
+        message.append(BaseMessages.getString(PKG, "KettleColumnStoreBulkExporterPlugin.DoMapping.SomeFieldsNotFoundTarget")).append(Const.CR);
         for (String s : missingTargetFields) {
-          message.append(s + Const.CR);
+          message.append(s).append(Const.CR);
         }
         message.append(Const.CR);
       }
@@ -701,9 +692,10 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
     }
   }
 
-
   /**
-   * Function is invoked when the SQL button is hit
+   * Function is invoked when the SQL button is hit.
+   * It displays the necessary SQL commands (ALTER, CREATE) needed to perform the step and gives the possibility
+   * to execute them.
    */
   private void sqlBtnHit(){
     try
@@ -809,7 +801,7 @@ public class KettleColumnStoreBulkExporterStepDialog extends BaseStepDialog impl
   }
 
   /**
-   * Adapted class of SQLEditor to updateTableView after execution
+   * Adapted class of SQLEditor to call updateTableView after execution.
    */
   private class SQLEditorC extends SQLEditor{
     public SQLEditorC(Shell parent, int style, DatabaseMeta ci, DBCache dbc, String sql) {
