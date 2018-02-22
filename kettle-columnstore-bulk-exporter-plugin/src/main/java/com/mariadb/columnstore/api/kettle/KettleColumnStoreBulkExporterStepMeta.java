@@ -280,16 +280,16 @@ public class KettleColumnStoreBulkExporterStepMeta extends BaseStepMeta implemen
     }
 
   /**
-   * Getter for the serialized ColumnStoreXML to be stored on disk
-   * @return serialized XML
+   * Getter for the Columnstore.xml configuration file
+   * @return path to the Columnstore.xml configuration file
    */
   public String getColumnStoreXML(){
       return columnStoreXML;
   }
 
   /**
-   * Setter for the serialized ColumnStoreXML to be stored on disk
-   * @param columnStoreXML XML
+   * Setter for the Columnstore.xml configuration file
+   * @param columnStoreXML path to the Columnstore.xml configuration file
    */
   public void setColumnStoreXML(String columnStoreXML){
      this.columnStoreXML = columnStoreXML;

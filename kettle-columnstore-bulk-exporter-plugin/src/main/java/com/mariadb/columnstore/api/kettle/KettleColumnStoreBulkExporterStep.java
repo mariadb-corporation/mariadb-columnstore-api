@@ -71,15 +71,12 @@ public class KettleColumnStoreBulkExporterStep extends BaseStep implements StepI
   /**
    * This method is called by PDI during transformation startup. 
    * 
-   * It should initialize required for step execution. 
+   * It's initialization is required for step execution. 
    * 
-   * The meta and data implementations passed in can safely be cast
+   * The meta and data implementations passed in are safely cast
    * to the step's respective implementations. 
    * 
-   * It is mandatory that super.init() is called to ensure correct behavior.
-   * 
-   * Typical tasks executed here are establishing the connection to a database,
-   * as wall as obtaining resources, like file handles.
+   * It is mandatory that super.init() is called to ensure correct behaviour.
    * 
    * @param smi  step meta interface implementation, containing the step settings
    * @param sdi  step data interface implementation, used to store runtime information
