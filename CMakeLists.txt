@@ -122,7 +122,7 @@ IF(JAVA)
     add_subdirectory(java)
 ENDIF(JAVA)
 
-OPTION(SPARK_CONNECTOR "Build spark connector" OFF)
+OPTION(SPARK_CONNECTOR "Build spark connector" ON)
 
 IF(SPARK_CONNECTOR)
   IF(JAVA)
