@@ -5,6 +5,9 @@ include_directories(..)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__FILENAME__='\"$(subst ${CMAKE_SOURCE_DIR}/,,$(abspath $<))\"'")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBUILDING_MYMCSAPI")
 
+set(PYTHON2_AVAILABLE 0)
+set(PYTHON3_AVAILABLE 0)
+
 #Checking for Python versions and setting executables
 execute_process(COMMAND python -c "import sys; print(sys.version_info[0]);" OUTPUT_VARIABLE PYTHON_VERSION_AVAILABLE OUTPUT_STRIP_TRAILING_WHITESPACE)
 IF(PYTHON_VERSION_AVAILABLE EQUAL 2)
@@ -52,6 +55,14 @@ IF(PYTHON3_AVAILABLE)
 ELSE(PYTHON3_AVAILABLE)
   MESSAGE(WARNING "NOT found Python3 interpreter")
 ENDIF(PYTHON3_AVAILABLE)
+
+#Abort during packaging if Python2 and Python3 are not available
+IF(DEB OR RPM)
+  IF(NOT (${PYTHON2_AVAILABLE} AND ${PYTHON3_AVAILABLE}))
+    MESSAGE(FATAL_ERROR "Python2 and Python3 including headers are required for package build")
+  ENDIF(NOT (${PYTHON2_AVAILABLE} AND ${PYTHON3_AVAILABLE}))
+ENDIF(DEB OR RPM)
+
 
 #Checking for SWIG
 find_package(SWIG REQUIRED)
