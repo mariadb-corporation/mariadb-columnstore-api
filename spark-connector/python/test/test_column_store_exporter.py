@@ -20,11 +20,11 @@ from pyspark.sql import SparkSession, Row
 import mysql.connector as mariadb
 
 #verify that the dataframe was stored correctly
-def verifyAllTypes(conn, rowid, expected):
-    query_all_types = "select uint64, int64, uint32, int32, uint16, int16, uint8, `int8`, f, d, ch4, vch30, dt, dtm, dc, tx, bit, mathInt, dc2 from pythontest where uint64 = %s"
+def verifyAllTypes(conn, table, rowid, expected):
+    query_all_types = "select uint64, int64, uint32, int32, uint16, int16, uint8, `int8`, f, d, ch4, vch30, dt, dtm, dc, tx, bit, mathInt, dc2 from %s where uint64 = %s" % (table, rowid)
     try:
         cursor = conn.cursor()
-        cursor.execute(query_all_types, (rowid,))
+        cursor.execute(query_all_types)
         for (uint64, int64, uint32, int32, uint16, int16, uint8, int8, f, d, ch4, vch30, dt, dtm, dc, tx, bit, mathInt, dc2) in cursor:
             rowStr = "{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}".format(uint64, int64, uint32, int32, uint16, int16, uint8, int8, f, d, ch4, vch30, dt, dtm, dc, tx, bit, mathInt, dc2)
             assert rowStr == expected
@@ -74,9 +74,32 @@ def test_all_types():
         mathInt bigint unsigned, \
         dc2 decimal(18,9)) \
         ENGINE=columnstore")
+        cursor.execute("DROP TABLE IF EXISTS pythontest2")
+        cursor.execute(" \
+        CREATE TABLE pythontest2 ( \
+        uint64 bigint unsigned, \
+        int64 bigint, \
+        uint32 int unsigned, \
+        int32 int, \
+        uint16 smallint unsigned, \
+        int16 smallint, \
+        uint8 tinyint unsigned, \
+        `int8` tinyint, \
+        f float, \
+        d double, \
+        ch4 char(5), \
+        vch30 varchar(30), \
+        dt date, \
+        dtm datetime, \
+        dc decimal(18), \
+        tx text, \
+        bit tinyint(1), \
+        mathInt bigint unsigned, \
+        dc2 decimal(18,9)) \
+        ENGINE=columnstore")
     
     except mariadb.Error as err:
-        pytest.fail("Error creating table pythontest")
+        pytest.fail("Error creating table pythontest or pythontest2")
     finally:
         if cursor: cursor.close()
         if conn: conn.close()
@@ -94,19 +117,23 @@ def test_all_types():
     
     #write the test dataframe into columnstore
     columnStoreExporter.export("test","pythontest",testDF)
+    columnStoreExporter.export("test","pythontest2",testDF,"/usr/local/mariadb/columnstore/etc/Columnstore.xml")
     
     #verify that the dataframe was stored correctly
-    connection = mariadb.connect(user='root', database='test', host='127.0.0.1')
-    verifyAllTypes(connection, 1, "1, 2, 3, 4, 5, 6, 7, 8, 1.234, 2.34567, ABCD, Hello World, 2017-09-08, 2017-09-08 13:58:23, 123, Hello World Longer, 1, 9223372036854775807, -1E-9")
-    if sys.version_info[0] == 2:
-        verifyAllTypes(connection, 0, "0, -9223372036854775806, 0, -2147483646, 0, -32766, 0, -126, 1.234, 2.34567, A, B, 2000-01-01, 2000-01-01 00:00:00, -123, C, 0, 18446744073709551613, 100000000.999999999")
-    else:
-        verifyAllTypes(connection, 0, "0, -9223372036854775806, 0, -2147483646, 0, -32766, 0, -126, 1.234, 2.34567, A, B, 1000-01-01, 1000-01-01 00:00:00, -123, C, 0, 18446744073709551613, 100000000.999999999")
-    verifyAllTypes(connection, 9223372036854775807, "9223372036854775807, 9223372036854775807, 4294967293, 2147483647, 65533, 32767, 253, 127, 1.234, 2.34567, ZYXW, 012345678901234567890123456789, 9999-12-31, 9999-12-31 23:59:59, 123, 012345678901234567890123456789, 1, 2342, 23.420000000")
+    tables = ['pythontest', 'pythontest2']
+    for table in tables:
+        connection = mariadb.connect(user='root', database='test', host='127.0.0.1')
+        verifyAllTypes(connection, table, 1, "1, 2, 3, 4, 5, 6, 7, 8, 1.234, 2.34567, ABCD, Hello World, 2017-09-08, 2017-09-08 13:58:23, 123, Hello World Longer, 1, 9223372036854775807, -1E-9")
+        if sys.version_info[0] == 2:
+            verifyAllTypes(connection, table, 0, "0, -9223372036854775806, 0, -2147483646, 0, -32766, 0, -126, 1.234, 2.34567, A, B, 2000-01-01, 2000-01-01 00:00:00, -123, C, 0, 18446744073709551613, 100000000.999999999")
+        else:
+            verifyAllTypes(connection, table, 0, "0, -9223372036854775806, 0, -2147483646, 0, -32766, 0, -126, 1.234, 2.34567, A, B, 1000-01-01, 1000-01-01 00:00:00, -123, C, 0, 18446744073709551613, 100000000.999999999")
+        verifyAllTypes(connection, table, 9223372036854775807, "9223372036854775807, 9223372036854775807, 4294967293, 2147483647, 65533, 32767, 253, 127, 1.234, 2.34567, ZYXW, 012345678901234567890123456789, 9999-12-31, 9999-12-31 23:59:59, 123, 012345678901234567890123456789, 1, 2342, 23.420000000")
     
-    #drop the test table
+    #drop the test tables
     cursor = connection.cursor()
     cursor.execute("DROP TABLE IF EXISTS pythontest")
+    cursor.execute("DROP TABLE IF EXISTS pythontest2")
     cursor.close()
     connection.close()
 

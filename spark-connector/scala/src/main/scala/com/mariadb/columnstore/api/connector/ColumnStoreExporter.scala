@@ -21,9 +21,15 @@ import org.apache.spark.sql.DataFrame
 import java.math.BigInteger
 
 object ColumnStoreExporter {
-  def export( database: String, table: String, df: DataFrame ) : Unit = {
+  def export( database: String, table: String, df: DataFrame, configuration: String) : Unit = {
     val rows = df.collect()
-    val driver = new ColumnStoreDriver()
+    var driver: ColumnStoreDriver = null
+    if (configuration == ""){
+      driver = new ColumnStoreDriver()
+    }
+    else{
+      driver = new ColumnStoreDriver(configuration)
+    }
     val bulkInsert = driver.createBulkInsert(database, table, 0, 0)
 
     // get the column count of table
@@ -82,4 +88,9 @@ object ColumnStoreExporter {
       println("Invalid count: " + summary.getInvalidCount)
     }
   }
+  
+  def export( database: String, table: String, df: DataFrame) : Unit = {
+    export(database, table, df, "")
+  }
 }
+
