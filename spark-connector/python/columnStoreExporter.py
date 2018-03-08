@@ -16,9 +16,8 @@
 # MA 02110-1301  USA
 
 import sys, pymcsapi, decimal, datetime
-
-def export(database, table, df):
-    
+	
+def export(database, table, df, configuration=None):
     global long
     python2 = True
 
@@ -27,7 +26,10 @@ def export(database, table, df):
         python2 = False
 
     rows = df.collect()
-    driver = pymcsapi.ColumnStoreDriver()
+    if configuration == None:
+        driver = pymcsapi.ColumnStoreDriver()
+    else:
+        driver = pymcsapi.ColumnStoreDriver(configuration)
     bulkInsert = driver.createBulkInsert(database, table, 0, 0)
     
     # get the column count of table
