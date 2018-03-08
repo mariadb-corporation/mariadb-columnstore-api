@@ -40,7 +40,7 @@ class TestEnvironment : public ::testing::Environment {
         FAIL() << "Could not select DB: " << mysql_error(my_con);
     if (mysql_query(my_con, "DROP TABLE IF EXISTS syscat"))
         FAIL() << "Could not drop existing table: " << mysql_error(my_con);
-    if (mysql_query(my_con, "CREATE TABLE IF NOT EXISTS syscat (a int, b int) engine=columnstore comment='compression=2'"))
+    if (mysql_query(my_con, "CREATE TABLE IF NOT EXISTS syscat (aCol int, bCol int) engine=columnstore comment='compression=2'"))
         FAIL() << "Could not create table: " << mysql_error(my_con);
   }
   // Override this to define how to tear down the environment.
@@ -72,7 +72,7 @@ TEST(SystemCatalog, NormalUsage)
         ASSERT_GE(tbl.getOID(), 3000);
         mcsapi::ColumnStoreSystemCatalogColumn col1 = tbl.getColumn(0);
         ASSERT_GE(col1.getOID(), 3000);
-        ASSERT_STREQ(col1.getColumnName().c_str(), "a");
+        ASSERT_STREQ(col1.getColumnName().c_str(), "acol");
         ASSERT_EQ(0, col1.getDictionaryOID());
         ASSERT_EQ(mcsapi::DATA_TYPE_INT, col1.getType());
         ASSERT_EQ(4, col1.getWidth());
@@ -84,9 +84,9 @@ TEST(SystemCatalog, NormalUsage)
         ASSERT_EQ(true, col1.isNullable());
         ASSERT_EQ(2, col1.compressionType());
 
-        mcsapi::ColumnStoreSystemCatalogColumn col2 = tbl.getColumn("b");
+        mcsapi::ColumnStoreSystemCatalogColumn col2 = tbl.getColumn("bCol");
         ASSERT_GE(col2.getOID(), 3000);
-        ASSERT_STREQ(col2.getColumnName().c_str(), "b");
+        ASSERT_STREQ(col2.getColumnName().c_str(), "bcol");
         ASSERT_EQ(0, col2.getDictionaryOID());
         ASSERT_EQ(mcsapi::DATA_TYPE_INT, col2.getType());
         ASSERT_EQ(4, col2.getWidth());
