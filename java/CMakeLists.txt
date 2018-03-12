@@ -15,7 +15,7 @@ include(UseSWIG)
 include_directories(${JNI_INCLUDE_DIRS})
 
 set(CMAKE_SWIG_FLAGS -package com.mariadb.columnstore.api)
-set(CMAKE_SWIG_OUTDIR "${CMAKE_CURRENT_BINARY_DIR}/src/main/java/com/mariadb/columnstore/api")
+set(CMAKE_SWIG_OUTDIR "${CMAKE_CURRENT_SOURCE_DIR}/src/main/java/com/mariadb/columnstore/api")
 set_source_files_properties( javamcsapi.i PROPERTIES CPLUSPLUS ON)
 IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.0)
   swig_add_module(javamcsapi java javamcsapi.i)
