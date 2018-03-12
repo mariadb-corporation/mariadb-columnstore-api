@@ -69,11 +69,11 @@ ENDIF ()
 swig_link_libraries(javamcsapi mcsapi)
 
 ADD_CUSTOM_COMMAND(TARGET javamcsapi POST_BUILD
-    COMMAND "${CMAKE_CURRENT_BINARY_DIR}/gradlew" jar
+    COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/gradlew" jar
 )
 INSTALL(TARGETS javamcsapi DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libs)
 IF(TEST_RUNNER)
-  add_test(NAME Java_BasicTest COMMAND "${CMAKE_CURRENT_BINARY_DIR}/gradlew" test)
+    add_test(NAME Java_BasicTest COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/gradlew" test)
 ENDIF(TEST_RUNNER)
 
 INSTALL(FILES build/libs/javamcsapi.jar DESTINATION  ${CMAKE_INSTALL_LIBDIR})

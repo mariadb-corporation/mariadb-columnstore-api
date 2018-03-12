@@ -73,17 +73,17 @@ IF(PYTHON2_AVAILABLE OR PYTHON3_AVAILABLE)
       "pymcsapi.py"
       "pymcsapi_wrap.cxx")
   add_custom_command(OUTPUT ${SWIG_PYTHON_WRAPPER_SOURCE}
-                     COMMAND ${SWIG_EXECUTABLE} -c++ -python -I.. pymcsapi.i
-                     COMMENT "Generating the Python wrapper source code")
-					 
+      COMMAND ${SWIG_EXECUTABLE} -c++ -python -I${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/pymcsapi.i
+      COMMENT "Generating the Python wrapper source code")
+
   IF(PYTHON2_AVAILABLE)
-    add_library(_pymcsapi SHARED pymcsapi_wrap.cxx)
+    add_library(_pymcsapi SHARED "${CMAKE_CURRENT_SOURCE_DIR}/pymcsapi_wrap.cxx")
     set_target_properties(_pymcsapi PROPERTIES OUTPUT_NAME "_pymcsapi")
     set_target_properties(_pymcsapi PROPERTIES PREFIX "")
     set_target_properties(_pymcsapi PROPERTIES LIBRARY_OUTPUT_DIRECTORY "python_build")
     target_include_directories(_pymcsapi PRIVATE ${PYTHON2_INCLUDE_DIR})
     target_link_libraries(_pymcsapi mcsapi)
-    
+
     #Tests
     IF(TEST_RUNNER)
       add_test(NAME test_basic COMMAND ${PYTHON2_EXECUTABLE} -m pytest test/test_basic.py)
@@ -97,7 +97,7 @@ IF(PYTHON2_AVAILABLE OR PYTHON3_AVAILABLE)
     install(FILES pymcsapi.py DESTINATION ${PYTHON2_SITE_PACKAGES})
   ENDIF(PYTHON2_AVAILABLE)
   IF(PYTHON3_AVAILABLE)
-    add_library(_pymcsapi3 SHARED pymcsapi_wrap.cxx)
+    add_library(_pymcsapi3 SHARED "${CMAKE_CURRENT_SOURCE_DIR}/pymcsapi_wrap.cxx")
     set_target_properties(_pymcsapi3 PROPERTIES OUTPUT_NAME "_pymcsapi")
     set_target_properties(_pymcsapi3 PROPERTIES PREFIX "")
     set_target_properties(_pymcsapi3 PROPERTIES LIBRARY_OUTPUT_DIRECTORY "python3_build")
