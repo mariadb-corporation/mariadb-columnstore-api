@@ -14,6 +14,8 @@ file(GLOB SOURCES
   "@CMAKE_CURRENT_SOURCE_DIR@/reference/*.rst"
   "@CMAKE_CURRENT_SOURCE_DIR@/usage/*.rst"
   "@CMAKE_CURRENT_SOURCE_DIR@/_static/*.png"
+  "@CMAKE_SOURCE_DIR@/example/*.cpp"
+  "@CMAKE_SOURCE_DIR@/example/*.sql"
 )
 foreach(source ${SOURCES})
   configure_file(
