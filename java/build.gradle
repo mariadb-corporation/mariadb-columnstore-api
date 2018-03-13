@@ -30,6 +30,6 @@ dependencies {
 }
 
 tasks.withType(Test) {
-    systemProperty "java.library.path",project.projectDir
+    systemProperty "java.library.path","${project.projectDir}"
 }
 

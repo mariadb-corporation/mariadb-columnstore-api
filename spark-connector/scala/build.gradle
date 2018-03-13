@@ -30,6 +30,7 @@ dependencies{
 
 test {
 	systemProperty "java.library.path","${project.projectDir}/../../java"
+        systemProperty "spark.driver.memory","5g"
 }
 
 task benchmark(type: JavaExec, dependsOn: classes){
