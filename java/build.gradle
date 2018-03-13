@@ -30,6 +30,7 @@ dependencies {
 }
 
 tasks.withType(Test) {
-    systemProperty "java.library.path","${project.projectDir}"
+    def default_lib_path = "${project.projectDir}/../../java"
+    systemProperty "java.library.path","${project.hasProperty('java.library.path') ? project.property('java.library.path') : default_lib_path}"
 }
 
