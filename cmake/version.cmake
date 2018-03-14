@@ -4,7 +4,7 @@ set(MCSAPI_VERSION_MAJOR 1)
 # Incement if source code has changed, zero if major is incremented
 set(MCSAPI_VERSION_MINOR 1)
 # Increment if interfaces have beed added, set to zero if minor is changed
-set(MCSAPI_VERSION_PATCH 3)
+set(MCSAPI_VERSION_PATCH 4)
 set(MCSAPI_VERSION_STRING ${MCSAPI_VERSION_MAJOR}.${MCSAPI_VERSION_MINOR}.${MCSAPI_VERSION_PATCH})
 
 # Version number to echo
