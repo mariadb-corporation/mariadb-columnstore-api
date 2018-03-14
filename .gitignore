@@ -79,6 +79,7 @@ java/src/main/
 python/pybind11/
 build/
 java/libjavamcsapi.so
+docs/example
 
 # QtCreator files
 *.config

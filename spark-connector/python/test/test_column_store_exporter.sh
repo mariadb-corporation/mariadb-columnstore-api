@@ -5,6 +5,9 @@ if [ "$#" -ne 2 ]; then
 	exit 2
 fi
 
+SCRIPT=$(readlink -f "$0")
+SCRIPTPATH=$(dirname "$SCRIPT")
+
 export PYSPARK_PYTHON=$1
 export PYSPARK_DRIVER_PYTHON=$2
-$1 -m pytest test/test_column_store_exporter.py
+$1 -m pytest $SCRIPTPATH/test_column_store_exporter.py
