@@ -87,8 +87,7 @@
     try {
       System.loadLibrary("javamcsapi");
     } catch (UnsatisfiedLinkError e) {
-      System.err.println("Native code library failed to load. \n" + e);
-      System.exit(1);
+      System.err.println("Native code library failed to load by parent classloader. \nEnsure that it is loaded by a child classloader\n" + e);
     }
   }
 %}
