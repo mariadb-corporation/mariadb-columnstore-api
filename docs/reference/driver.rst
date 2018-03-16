@@ -28,7 +28,7 @@ Example
 
    int main(void)
    {
-       ColumnStoreDriver* driver = nullptr;
+       mcsapi::ColumnStoreDriver* driver = nullptr;
        try {
            driver = new mcsapi::ColumnStoreDriver();
        } catch (mcsapi::ColumnStoreError &e) {
@@ -55,7 +55,7 @@ Example
 
    int main(void)
    {
-       ColumnStoreDriver* driver = nullptr;
+       mcsapi::ColumnStoreDriver* driver = nullptr;
        try {
            driver = new mcsapi::ColumnStoreDriver("/usr/local/mariadb/columnstore/etc/Columnstore.xml");
        } catch (mcsapi::ColumnStoreError &e) {
@@ -91,8 +91,8 @@ Example
    {
        std::string table("t1");
        std::string db("test");
-       ColumnStoreDriver* driver = nullptr;
-       ColumnStoreBulkInsert* bulkInsert = nullptr;
+       mcsapi::ColumnStoreDriver* driver = nullptr;
+       mcsapi::ColumnStoreBulkInsert* bulkInsert = nullptr;
        try {
            driver = new mcsapi::ColumnStoreDriver();
            bulkInsert = driver->createBulkInsert(db, table, 0, 0);
