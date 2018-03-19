@@ -32,5 +32,5 @@ The following is a basic example of how to do compile an example c++ application
 
 .. code-block:: console
 
-   g++ example.cpp -o example `pkg-config libmcsapi --cflags --libs
+   g++ example.cpp -o example -std=c++11 `pkg-config libmcsapi --cflags --libs`
 

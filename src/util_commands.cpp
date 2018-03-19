@@ -143,7 +143,7 @@ ColumnStoreSystemCatalog* ColumnStoreCommands::brmGetSystemCatalog()
     if (response != 0)
     {
         std::string errmsg("Error getting system catalog");
-        delete messageOut;
+        connection->deleteReadMessage();
         throw ColumnStoreServerError(errmsg);
     }
     uint32_t table_count;
@@ -182,7 +182,7 @@ ColumnStoreSystemCatalog* ColumnStoreCommands::brmGetSystemCatalog()
         }
         systemCatalog->mImpl->tables.push_back(table);
     }
-    delete messageOut;
+    connection->deleteReadMessage();
     return systemCatalog;
 }
 
@@ -213,7 +213,7 @@ uint32_t ColumnStoreCommands::brmGetTxnID(uint32_t sessionId)
     if (response != 0)
     {
         std::string errmsg("Error getting transaction ID");
-        delete messageOut;
+        connection->deleteReadMessage();
         throw ColumnStoreServerError(errmsg);
     }
     uint8_t isValid;
@@ -221,7 +221,7 @@ uint32_t ColumnStoreCommands::brmGetTxnID(uint32_t sessionId)
     *messageOut >> isValid;
     txnId.isValid = txnId.isValid;
 
-    delete messageOut;
+    connection->deleteReadMessage();
     return txnId.id;
 }
 
@@ -265,14 +265,14 @@ uint64_t ColumnStoreCommands::brmGetTableLock(uint32_t tableOID, uint32_t sessio
     if (response != 0)
     {
         std::string errmsg("Error getting table lock");
-        delete messageOut;
+        connection->deleteReadMessage();
         throw ColumnStoreServerError(errmsg);
     }
     uint64_t ret;
     *messageOut >> ret;
     if (ret)
     {
-        delete messageOut;
+        connection->deleteReadMessage();
         return ret;
     }
     ColumnStoreTableLock tblLock;
@@ -287,7 +287,7 @@ uint64_t ColumnStoreCommands::brmGetTableLock(uint32_t tableOID, uint32_t sessio
     errmsg << " '" << tblLock.ownerName << "'";
     errmsg << " session ID: " << tblLock.sessionID;
     errmsg << " txn ID: " << tblLock.ownerTxnID;
-    delete messageOut;
+    connection->deleteReadMessage();
     throw ColumnStoreServerError(errmsg.str());
     return 0;
 }
@@ -350,10 +350,10 @@ void ColumnStoreCommands::weBulkRollback(uint32_t pm, uint64_t uniqueId, uint32_
     {
         std::string errmsg;
         *messageOut >> errmsg;
-        delete messageOut;
+        connection->deleteReadMessage();
         throw ColumnStoreServerError(errmsg);
     }
-    delete messageOut;
+    connection->deleteReadMessage();
 }
 
 void ColumnStoreCommands::weBulkCommit(uint32_t pm, uint64_t uniqueId, uint32_t sessionId, uint32_t txnId, uint32_t tableOid, std::vector<ColumnStoreHWM>& hwms)
@@ -383,7 +383,7 @@ void ColumnStoreCommands::weBulkCommit(uint32_t pm, uint64_t uniqueId, uint32_t 
     *messageOut >> errmsg;
     if (response != 0)
     {
-        delete messageOut;
+        connection->deleteReadMessage();
         throw ColumnStoreServerError(errmsg);
     }
     uint64_t bulk_hwm_count;
@@ -400,7 +400,7 @@ void ColumnStoreCommands::weBulkCommit(uint32_t pm, uint64_t uniqueId, uint32_t 
         *messageOut >> hwm;
         hwms.push_back(ColumnStoreHWM(oid, partNum, segNum, hwm));
     }
-    delete messageOut;
+    connection->deleteReadMessage();
 }
 
 void ColumnStoreCommands::weGetWrittenLbids(uint32_t pm, uint64_t uniqueId, uint32_t txnId, std::vector<uint64_t>& lbids)
@@ -428,7 +428,7 @@ void ColumnStoreCommands::weGetWrittenLbids(uint32_t pm, uint64_t uniqueId, uint
     *messageOut >> errmsg;
     if (response != 0)
     {
-        delete messageOut;
+        connection->deleteReadMessage();
         throw ColumnStoreServerError(errmsg);
     }
     uint64_t lbid_count;
@@ -439,7 +439,7 @@ void ColumnStoreCommands::weGetWrittenLbids(uint32_t pm, uint64_t uniqueId, uint
         *messageOut >> lbid;
         lbids.push_back(lbid);
     }
-    delete messageOut;
+    connection->deleteReadMessage();
 }
 
 void ColumnStoreCommands::weKeepAlive(uint32_t pm)
@@ -470,10 +470,10 @@ void ColumnStoreCommands::weKeepAlive(uint32_t pm)
     if (response != RESPONSE_OK)
     {
         std::string errmsg("Error attempting to set KeepAlive");
-        delete messageOut;
+        connection->deleteReadMessage();
         throw ColumnStoreServerError(errmsg);
     }
-    delete messageOut;
+    connection->deleteReadMessage();
 }
 
 void ColumnStoreCommands::weClose(uint32_t pm)
@@ -568,11 +568,11 @@ void ColumnStoreCommands::weBulkInsert(uint32_t pm, uint64_t uniqueId, uint32_t 
     {
         std::string errmsg;
         *messageOut >> errmsg;
-        delete messageOut;
+        connection->deleteReadMessage();
         throw ColumnStoreServerError(errmsg);
     }
 
-    delete messageOut;
+    connection->deleteReadMessage();
 }
 
 void ColumnStoreCommands::weBulkInsertEnd(uint32_t pm, uint64_t uniqueId, uint32_t txnId, uint32_t tableOid, uint8_t errCode)
@@ -606,10 +606,10 @@ void ColumnStoreCommands::weBulkInsertEnd(uint32_t pm, uint64_t uniqueId, uint32
     {
         std::string errmsg;
         *messageOut >> errmsg;
-        delete messageOut;
+        connection->deleteReadMessage();
         throw ColumnStoreServerError(errmsg);
     }
-    delete messageOut;
+    connection->deleteReadMessage();
 }
 
 void ColumnStoreCommands::weRollbackBlocks(uint32_t pm, uint64_t uniqueId, uint32_t sessionId, uint32_t txnId)
@@ -640,10 +640,10 @@ void ColumnStoreCommands::weRollbackBlocks(uint32_t pm, uint64_t uniqueId, uint3
     {
         std::string errmsg;
         *messageOut >> errmsg;
-        delete messageOut;
+        connection->deleteReadMessage();
         throw ColumnStoreServerError(errmsg);
     }
-    delete messageOut;
+    connection->deleteReadMessage();
 }
 
 void ColumnStoreCommands::weRemoveMeta(uint32_t pm, uint64_t uniqueId, uint32_t tableOid)
@@ -673,10 +673,10 @@ void ColumnStoreCommands::weRemoveMeta(uint32_t pm, uint64_t uniqueId, uint32_t 
     {
         std::string errmsg;
         *messageOut >> errmsg;
-        delete messageOut;
+        connection->deleteReadMessage();
         throw ColumnStoreServerError(errmsg);
     }
-    delete messageOut;
+    connection->deleteReadMessage();
 }
 
 uint64_t ColumnStoreCommands::brmGetUniqueId()
@@ -700,13 +700,13 @@ uint64_t ColumnStoreCommands::brmGetUniqueId()
     if (response != 0)
     {
         std::string errmsg("Error getting a unique ID");
-        delete messageOut;
+        connection->deleteReadMessage();
         throw ColumnStoreServerError(errmsg);
     }
     uint64_t uniqueId;
     *messageOut >> uniqueId;
 
-    delete messageOut;
+    connection->deleteReadMessage();
     return uniqueId;
 }
 
@@ -754,7 +754,7 @@ bool ColumnStoreCommands::procMonCheckVersion()
         return false;
     }
 
-    delete messageOut;
+    connection->deleteReadMessage();
     return true;
 }
 
@@ -781,7 +781,7 @@ void ColumnStoreCommands::brmGetUncommittedLbids(uint32_t txnId, std::vector<uin
     if (response != 0)
     {
         std::string errmsg("Error getting uncommitted LBIDs");
-        delete messageOut;
+        connection->deleteReadMessage();
         throw ColumnStoreServerError(errmsg);
     }
 
@@ -795,7 +795,7 @@ void ColumnStoreCommands::brmGetUncommittedLbids(uint32_t txnId, std::vector<uin
         lbids.push_back(lbid);
     }
 
-    delete messageOut;
+    connection->deleteReadMessage();
 
 }
 
@@ -844,11 +844,11 @@ void ColumnStoreCommands::brmSetHWMAndCP(std::vector<ColumnStoreHWM>& hwms, std:
     if (response != 0)
     {
         std::string errmsg("Error setting HWM");
-        delete messageOut;
+        connection->deleteReadMessage();
         throw ColumnStoreServerError(errmsg);
     }
 
-    delete messageOut;
+    connection->deleteReadMessage();
 }
 
 void ColumnStoreCommands::brmSetExtentsMaxMin(std::vector<uint64_t>& lbids)
@@ -885,11 +885,11 @@ void ColumnStoreCommands::brmSetExtentsMaxMin(std::vector<uint64_t>& lbids)
     if (response != 0)
     {
         std::string errmsg("Error setting Extents Max/Min");
-        delete messageOut;
+        connection->deleteReadMessage();
         throw ColumnStoreServerError(errmsg);
     }
 
-    delete messageOut;
+    connection->deleteReadMessage();
 }
 
 void ColumnStoreCommands::brmRollback(std::vector<uint64_t>& lbids, uint32_t txnId)
@@ -921,11 +921,11 @@ void ColumnStoreCommands::brmRollback(std::vector<uint64_t>& lbids, uint32_t txn
     if (response != 0)
     {
         std::string errmsg("Error in VB rollback");
-        delete messageOut;
+        connection->deleteReadMessage();
         throw ColumnStoreServerError(errmsg);
     }
 
-    delete messageOut;
+    connection->deleteReadMessage();
 }
 
 /* Don't think we need this? */
@@ -952,11 +952,11 @@ void ColumnStoreCommands::brmVBCommit(uint32_t txnId)
     if (response != 0)
     {
         std::string errmsg("Error committing version buffer");
-        delete messageOut;
+        connection->deleteReadMessage();
         throw ColumnStoreServerError(errmsg);
     }
 
-    delete messageOut;
+    connection->deleteReadMessage();
 }
 
 void ColumnStoreCommands::brmCommitted(uint32_t txnId)
@@ -984,11 +984,11 @@ void ColumnStoreCommands::brmCommitted(uint32_t txnId)
     if (response != 0)
     {
         std::string errmsg("Error committing BRM");
-        delete messageOut;
+        connection->deleteReadMessage();
         throw ColumnStoreServerError(errmsg);
     }
 
-    delete messageOut;
+    connection->deleteReadMessage();
 }
 
 void ColumnStoreCommands::brmRolledback(uint32_t txnId)
@@ -1016,11 +1016,11 @@ void ColumnStoreCommands::brmRolledback(uint32_t txnId)
     if (response != 0)
     {
         std::string errmsg("Error rolling back BRM");
-        delete messageOut;
+        connection->deleteReadMessage();
         throw ColumnStoreServerError(errmsg);
     }
 
-    delete messageOut;
+    connection->deleteReadMessage();
 }
 
 void ColumnStoreCommands::brmTakeSnapshot()
@@ -1045,11 +1045,11 @@ void ColumnStoreCommands::brmTakeSnapshot()
     if (response != 0)
     {
         std::string errmsg("Error taking BRM snapshot");
-        delete messageOut;
+        connection->deleteReadMessage();
         throw ColumnStoreServerError(errmsg);
     }
 
-    delete messageOut;
+    connection->deleteReadMessage();
 }
 
 void ColumnStoreCommands::brmChangeState(uint64_t lockId)
@@ -1076,11 +1076,11 @@ void ColumnStoreCommands::brmChangeState(uint64_t lockId)
     if (response != 0)
     {
         std::string errmsg("Error changing BRM lock state");
-        delete messageOut;
+        connection->deleteReadMessage();
         throw ColumnStoreServerError(errmsg);
     }
 
-    delete messageOut;
+    connection->deleteReadMessage();
 }
 
 void ColumnStoreCommands::brmReleaseTableLock(uint64_t lockId)
@@ -1106,14 +1106,14 @@ void ColumnStoreCommands::brmReleaseTableLock(uint64_t lockId)
     if (response != 0)
     {
         std::string errmsg("Error releasing table lock");
-        delete messageOut;
+        connection->deleteReadMessage();
         throw ColumnStoreServerError(errmsg);
     }
     // Unknown ignored byte
     uint8_t unknown;
     *messageOut >> unknown;
 
-    delete messageOut;
+    connection->deleteReadMessage();
 }
 
 }
