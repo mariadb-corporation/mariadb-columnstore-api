@@ -258,7 +258,7 @@ void ColumnStoreNetwork::uncompressData(size_t result_length)
     messageOut->setBufferUsedSize(result_length+8);
     // Copy so that the pointers are OK
     *compressedMessageOut = *messageOut;
-    delete messageOut;
+    deleteReadMessage();
 }
 
 void ColumnStoreNetwork::onWriteData(uv_write_t* req, int status)
