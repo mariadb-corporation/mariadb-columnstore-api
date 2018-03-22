@@ -15,7 +15,7 @@ include(UseSWIG)
 include_directories(${JNI_INCLUDE_DIRS})
 
 set(CMAKE_SWIG_FLAGS -package com.mariadb.columnstore.api)
-set(CMAKE_SWIG_OUTDIR "${CMAKE_CURRENT_BINARY_DIR}/src/main/java/com/mariadb/columnstore/api")
+set(CMAKE_SWIG_OUTDIR "${CMAKE_CURRENT_SOURCE_DIR}/src/main/java/com/mariadb/columnstore/api")
 set_source_files_properties( javamcsapi.i PROPERTIES CPLUSPLUS ON)
 IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.0)
   swig_add_module(javamcsapi java javamcsapi.i)
@@ -69,11 +69,11 @@ ENDIF ()
 swig_link_libraries(javamcsapi mcsapi)
 
 ADD_CUSTOM_COMMAND(TARGET javamcsapi POST_BUILD
-    COMMAND "${CMAKE_CURRENT_BINARY_DIR}/gradlew" jar
+    COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/gradlew" -p ${CMAKE_CURRENT_SOURCE_DIR} jar
 )
 INSTALL(TARGETS javamcsapi DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libs)
 IF(TEST_RUNNER)
-  add_test(NAME Java_BasicTest COMMAND "${CMAKE_CURRENT_BINARY_DIR}/gradlew" test)
+    add_test(NAME Java_BasicTest COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/gradlew" -p ${CMAKE_CURRENT_SOURCE_DIR} -Pjava.library.path=${CMAKE_CURRENT_BINARY_DIR} test)
 ENDIF(TEST_RUNNER)
 
 INSTALL(FILES build/libs/javamcsapi.jar DESTINATION  ${CMAKE_INSTALL_LIBDIR})

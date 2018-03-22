@@ -5,6 +5,9 @@ include_directories(..)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__FILENAME__='\"$(subst ${CMAKE_SOURCE_DIR}/,,$(abspath $<))\"'")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBUILDING_MYMCSAPI")
 
+set(PYTHON2_AVAILABLE 0)
+set(PYTHON3_AVAILABLE 0)
+
 #Checking for Python versions and setting executables
 execute_process(COMMAND python -c "import sys; print(sys.version_info[0]);" OUTPUT_VARIABLE PYTHON_VERSION_AVAILABLE OUTPUT_STRIP_TRAILING_WHITESPACE)
 IF(PYTHON_VERSION_AVAILABLE EQUAL 2)
@@ -53,31 +56,39 @@ ELSE(PYTHON3_AVAILABLE)
   MESSAGE(WARNING "NOT found Python3 interpreter")
 ENDIF(PYTHON3_AVAILABLE)
 
+#Abort during packaging if Python2 and Python3 are not available
+IF(DEB OR RPM)
+  IF(NOT (${PYTHON2_AVAILABLE} AND ${PYTHON3_AVAILABLE}))
+    MESSAGE(FATAL_ERROR "Python2 and Python3 including headers are required for package build")
+  ENDIF(NOT (${PYTHON2_AVAILABLE} AND ${PYTHON3_AVAILABLE}))
+ENDIF(DEB OR RPM)
+
+
 #Checking for SWIG
 find_package(SWIG REQUIRED)
 
 #Compiling the shared library
 IF(PYTHON2_AVAILABLE OR PYTHON3_AVAILABLE)
   set(SWIG_PYTHON_WRAPPER_SOURCE
-      "pymcsapi.py"
-      "pymcsapi_wrap.cxx")
+      "${CMAKE_CURRENT_SOURCE_DIR}/pymcsapi.py"
+      "${CMAKE_CURRENT_SOURCE_DIR}/pymcsapi_wrap.cxx")
   add_custom_command(OUTPUT ${SWIG_PYTHON_WRAPPER_SOURCE}
-                     COMMAND ${SWIG_EXECUTABLE} -c++ -python -I.. pymcsapi.i
-                     COMMENT "Generating the Python wrapper source code")
-					 
+      COMMAND ${SWIG_EXECUTABLE} -c++ -python -I${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/pymcsapi.i
+      COMMENT "Generating the Python wrapper source code")
+
   IF(PYTHON2_AVAILABLE)
-    add_library(_pymcsapi SHARED pymcsapi_wrap.cxx)
+    add_library(_pymcsapi SHARED "${CMAKE_CURRENT_SOURCE_DIR}/pymcsapi_wrap.cxx")
     set_target_properties(_pymcsapi PROPERTIES OUTPUT_NAME "_pymcsapi")
     set_target_properties(_pymcsapi PROPERTIES PREFIX "")
     set_target_properties(_pymcsapi PROPERTIES LIBRARY_OUTPUT_DIRECTORY "python_build")
     target_include_directories(_pymcsapi PRIVATE ${PYTHON2_INCLUDE_DIR})
     target_link_libraries(_pymcsapi mcsapi)
-    
+
     #Tests
     IF(TEST_RUNNER)
-      add_test(NAME test_basic COMMAND ${PYTHON2_EXECUTABLE} -m pytest test/test_basic.py)
-      add_test(NAME test_million_row COMMAND ${PYTHON2_EXECUTABLE} -m pytest test/test_million_row.py)
-      add_test(NAME test_exception COMMAND ${PYTHON2_EXECUTABLE} -m pytest test/test_exception.py)
+      add_test(NAME test_basic COMMAND ${PYTHON2_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/test/test_basic.py)
+      add_test(NAME test_million_row COMMAND ${PYTHON2_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/test/test_million_row.py)
+      add_test(NAME test_exception COMMAND ${PYTHON2_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/test/test_exception.py)
     ENDIF(TEST_RUNNER)
 
     #Install
@@ -85,8 +96,9 @@ IF(PYTHON2_AVAILABLE OR PYTHON3_AVAILABLE)
     install(TARGETS _pymcsapi DESTINATION ${PYTHON2_SITE_PACKAGES})
     install(FILES pymcsapi.py DESTINATION ${PYTHON2_SITE_PACKAGES})
   ENDIF(PYTHON2_AVAILABLE)
+  
   IF(PYTHON3_AVAILABLE)
-    add_library(_pymcsapi3 SHARED pymcsapi_wrap.cxx)
+    add_library(_pymcsapi3 SHARED "${CMAKE_CURRENT_SOURCE_DIR}/pymcsapi_wrap.cxx")
     set_target_properties(_pymcsapi3 PROPERTIES OUTPUT_NAME "_pymcsapi")
     set_target_properties(_pymcsapi3 PROPERTIES PREFIX "")
     set_target_properties(_pymcsapi3 PROPERTIES LIBRARY_OUTPUT_DIRECTORY "python3_build")
@@ -95,9 +107,9 @@ IF(PYTHON2_AVAILABLE OR PYTHON3_AVAILABLE)
 	
     #Tests
     IF(TEST_RUNNER)
-      add_test(NAME test_basic_python3 COMMAND ${PYTHON3_EXECUTABLE} -m pytest test/test_basic.py)
-      add_test(NAME test_million_row_python3 COMMAND ${PYTHON3_EXECUTABLE} -m pytest test/test_million_row.py)
-      add_test(NAME test_exception_python3 COMMAND ${PYTHON3_EXECUTABLE} -m pytest test/test_exception.py)
+      add_test(NAME test_basic_python3 COMMAND ${PYTHON3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/test/test_basic.py)
+      add_test(NAME test_million_row_python3 COMMAND ${PYTHON3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/test/test_million_row.py)
+      add_test(NAME test_exception_python3 COMMAND ${PYTHON3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/test/test_exception.py)
     ENDIF(TEST_RUNNER)
 	
     #Install

@@ -22,6 +22,8 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <cctype>
+#include <boost/algorithm/string.hpp>
 
 namespace mcsapi
 {
@@ -569,7 +571,7 @@ ColumnStoreSystemCatalogColumn& ColumnStoreSystemCatalogTable::getColumn(const s
     ColumnStoreSystemCatalogColumn* col = nullptr;
     for (auto& itColumn : mImpl->columns)
     {
-        if (columnName == itColumn->getColumnName())
+        if (boost::iequals(columnName,itColumn->getColumnName()))
         {
             col = itColumn;
             break;
@@ -599,7 +601,7 @@ ColumnStoreSystemCatalogTable& ColumnStoreSystemCatalog::getTable(const std::str
     ColumnStoreSystemCatalogTable* tbl = nullptr;
     for (auto& itTable : mImpl->tables)
     {
-        if ((schemaName == itTable->getSchemaName()) && (tableName == itTable->getTableName()))
+        if (boost::iequals(schemaName, itTable->getSchemaName()) && boost::iequals(tableName, itTable->getTableName()))
         {
             tbl = itTable;
             break;

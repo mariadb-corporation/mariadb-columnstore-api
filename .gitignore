@@ -1,3 +1,4 @@
+.gradle
 *.pyc
 .cache
 spark-connector/python/spark-warehouse
@@ -78,6 +79,7 @@ java/src/main/
 python/pybind11/
 build/
 java/libjavamcsapi.so
+docs/example
 
 # QtCreator files
 *.config

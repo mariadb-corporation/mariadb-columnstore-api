@@ -29,7 +29,9 @@ dependencies{
 }
 
 test {
-	systemProperty "java.library.path","${project.projectDir}/../../java"
+        def default_lib_path = "${project.projectDir}/../../java"
+        systemProperty "java.library.path","${project.hasProperty('java.library.path') ? project.property('java.library.path') : default_lib_path}"
+        systemProperty "spark.driver.memory","5g"
 }
 
 task benchmark(type: JavaExec, dependsOn: classes){

@@ -3,7 +3,7 @@ This provides a connector between the MariaDB ColumnStore API Python Wrapper and
 
 Currently there is only one function.
 ```python
-columnStoreExporter.export("database", "table", DataFrame)
+columnStoreExporter.export("database", "table", DataFrame, [path to Columnstore.xml])
 ```
 that exports a DataFrame to an existing table.
 

@@ -110,6 +110,8 @@ add_subdirectory(libmcsapi)
 add_subdirectory(src)
 add_subdirectory(example)
 
+option(DEB "Build a DEB" OFF)
+option(RPM "Build an RPM" OFF)
 OPTION(PYTHON "Build Python bindings" ON)
 
 IF(PYTHON)
@@ -122,7 +124,7 @@ IF(JAVA)
     add_subdirectory(java)
 ENDIF(JAVA)
 
-OPTION(SPARK_CONNECTOR "Build spark connector" OFF)
+OPTION(SPARK_CONNECTOR "Build spark connector" ON)
 
 IF(SPARK_CONNECTOR)
   IF(JAVA)
@@ -153,8 +155,6 @@ install(FILES "README.md"
     DESTINATION "${CMAKE_INSTALL_DOCDIR}" COMPONENT libs
 )
 
-option(RPM "Build an RPM" OFF)
-
 if (RPM)
     SET(CPACK_GENERATOR "RPM")
     SET(CPACK_RPM_PACKAGE_VERSION ${VERSION_SHORT})
@@ -165,8 +165,6 @@ if (RPM)
 
     include(CPack)
 endif()
-
-option(DEB "Build a DEB" OFF)
 
 if (DEB)
     SET(CPACK_GENERATOR "DEB")

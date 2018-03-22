@@ -53,6 +53,7 @@ public:
     void readDataStart();
     void readDataStop();
     ColumnStoreMessaging* getReadMessage() { return messageOut; };
+    void deleteReadMessage() { delete messageOut; messageOut = nullptr; };
     size_t getDataInBuffer() { return dataInBuffer; };
     void uncompressData(size_t result_length);
 

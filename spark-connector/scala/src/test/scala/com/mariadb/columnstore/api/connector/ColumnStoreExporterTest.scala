@@ -45,9 +45,34 @@ class ColumnStoreExporterTest {
       connection = DriverManager.getConnection(url, connectionProperties)
       val statement = connection.createStatement
       statement.executeQuery("""DROP TABLE IF EXISTS scalatest""")
+      statement.executeQuery("""DROP TABLE IF EXISTS scalatest2""")
       statement.executeQuery(
         """
-        CREATE TABLE scalatest (
+		CREATE TABLE scalatest (
+        uint64 bigint unsigned,
+        int64 bigint,
+        uint32 int unsigned,
+        int32 int,
+        uint16 smallint unsigned,
+        int16 smallint,
+        uint8 tinyint unsigned,
+        `int8` tinyint,
+        f float,
+        d double,
+        ch4 char(5),
+        vch30 varchar(30),
+        dt date,
+        dtm datetime,
+        dc decimal(18),
+        tx text,
+        bit tinyint(1),
+        mathInt bigint unsigned,
+        dc2 decimal(18,9))
+        ENGINE=columnstore""")
+		
+	statement.executeQuery(
+        """	
+        CREATE TABLE scalatest2 (
         uint64 bigint unsigned,
         int64 bigint,
         uint32 int unsigned,
@@ -78,16 +103,20 @@ class ColumnStoreExporterTest {
 
       //write the test dataframe into columnstore
       ColumnStoreExporter.export("test", "scalatest", testDF)
-
-      //verify that the dataframe was stored correctly
+      ColumnStoreExporter.export("test", "scalatest2", testDF, "/usr/local/mariadb/columnstore/etc/Columnstore.xml")
+      
       verifyAllTypes(connection, 1L, "1, 2, 3, 4, 5, 6, 7, 8, 1.234, 2.345669984817505, ABCD, Hello World, 2017-09-08, 2017-09-08 13:58:23.0, 123, Hello World Longer, true, 9223372036854775807, -1E-9")
       verifyAllTypes(connection, 0L, "0, -9223372036854775806, 0, -2147483646, 0, -32766, 0, -126, 1.234, 2.345669984817505, A, B, 1000-01-01, 1000-01-01 00:00:00.0, -123, C, false, 18446744073709551613, 100000000.999999999")
       verifyAllTypes(connection, 9223372036854775807L, "9223372036854775807, 9223372036854775807, 4294967293, 2147483647, 65533, 32767, 253, 127, 1.234, 2.345669984817505, ZYXW, 012345678901234567890123456789, 9999-12-31, 9999-12-31 23:59:59.0, 123, 012345678901234567890123456789, true, 2342, 23.420000000")
-
+	  verifyAllTypes2(connection, 1L, "1, 2, 3, 4, 5, 6, 7, 8, 1.234, 2.345669984817505, ABCD, Hello World, 2017-09-08, 2017-09-08 13:58:23.0, 123, Hello World Longer, true, 9223372036854775807, -1E-9")
+      verifyAllTypes2(connection, 0L, "0, -9223372036854775806, 0, -2147483646, 0, -32766, 0, -126, 1.234, 2.345669984817505, A, B, 1000-01-01, 1000-01-01 00:00:00.0, -123, C, false, 18446744073709551613, 100000000.999999999")
+      verifyAllTypes2(connection, 9223372036854775807L, "9223372036854775807, 9223372036854775807, 4294967293, 2147483647, 65533, 32767, 253, 127, 1.234, 2.345669984817505, ZYXW, 012345678901234567890123456789, 9999-12-31, 9999-12-31 23:59:59.0, 123, 012345678901234567890123456789, true, 2342, 23.420000000")
+ 
       //drop the test table
       statement.executeQuery("""DROP TABLE IF EXISTS scalatest""")
+      statement.executeQuery("""DROP TABLE IF EXISTS scalatest2""")
     } catch {
-      case e: Exception => e.printStackTrace()
+      case e: Exception => fail("error during test: " + e)
     } finally {
       connection.close()
     }
@@ -118,7 +147,40 @@ class ColumnStoreExporterTest {
       assertEquals(expected, str.toString)
     }
     catch {
-      case e: SQLException => println("Error while validating all_types results for id: " + id + ", error:" + e)
+      case e: SQLException => fail("Error while validating all_types results for id: " + id + ", error:" + e)
+    }
+    finally {
+      rs.close()
+      stmt.close()
+    }
+  }
+  
+    /**
+    * Tests if the data stored in the database equals the expected value.
+    * @param conn, MariaDB connection
+    * @param id, id of the database row
+    * @param expected, the expected value
+    */
+  private def verifyAllTypes2(conn: Connection, id: Long, expected: String) : Unit = {
+    val QUERY_ALL_TYPES = "select uint64, int64, uint32, int32, uint16, int16, uint8, `int8`, " +
+      "f, d, ch4, vch30, dt, dtm, dc, tx, bit, mathInt, dc2 from scalatest2 where uint64 = ?"
+    var stmt: PreparedStatement = null
+    var rs: ResultSet = null
+    try {
+      stmt = conn.prepareStatement(QUERY_ALL_TYPES)
+      stmt.setLong(1, id)
+      rs = stmt.executeQuery
+      assertTrue(rs.next)
+      val str = new StringBuffer
+      val colCount = stmt.getMetaData.getColumnCount
+      for (i <- 1 to colCount){
+        if (i>1) str.append(", ")
+        str.append(rs.getObject(i))
+      }
+      assertEquals(expected, str.toString)
+    }
+    catch {
+      case e: SQLException => fail("Error while validating all_types results for id: " + id + ", error:" + e)
     }
     finally {
       rs.close()
@@ -126,3 +188,4 @@ class ColumnStoreExporterTest {
     }
   }
 }
+

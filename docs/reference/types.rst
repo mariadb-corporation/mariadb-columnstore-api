@@ -280,6 +280,9 @@ ColumnStoreSystemCatalog Class
 
    A class which contains the ColumnStore system catalog of tables and columns. It should be instantiated using :cpp:func:`ColumnStoreDriver::getSystemCatalog`.
 
+   .. note::
+      The system catalog stores schema, table and column names as lower case and therefore the functions only return lower case names. Since version 1.1.4 we make case insensitive matches.
+
 getTable()
 ----------
 
@@ -298,6 +301,10 @@ ColumnStoreSystemCatalogTable Class
 .. cpp:class:: ColumnStoreSystemCatalogTable
 
    A class which contains the system catalog information for a specific table. It should be instantiated using :cpp:func:`ColumnStoreSystemCatalog::getTable`.
+
+   .. note::
+      The system catalog stores schema, table and column names as lower case and therefore the functions only return lower case names. Since version 1.1.4 we make case insensitive matches.
+
 
 getSchemaName()
 ---------------
@@ -361,6 +368,10 @@ ColumnStoreSystemCatalogColumn Class
 .. cpp:class:: ColumnStoreSystemCatalogColumn
 
    A class containing information about a specific column in the system catalog. Should be instantiated using :cpp:func:`ColumnStoreSystemCatalogTable::getColumn`.
+
+   .. note::
+      The system catalog stores schema, table and column names as lower case and therefore the functions only return lower case names. Since version 1.1.4 we make case insensitive matches.
+
 
 getOID()
 --------

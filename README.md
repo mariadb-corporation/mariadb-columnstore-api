@@ -1,6 +1,6 @@
 # MariaDB ColumnStore API
 
-The API requires MariaDB ColumnStore 1.1 to operate.
+The API requires MariaDB ColumnStore 1.1 or higher to operate.
 
 This C++, Python and Java API currently provides access to bulk write to ColumnStore in a similar way to the cpimport using.
 
@@ -163,7 +163,7 @@ The options are as follows:
 | ``DEB`` | ``OFF`` | Build a DEB (and the OS name for the package) |
 | ``PYTHON`` | ``ON`` | Build the Python library |
 | ``JAVA`` | ``ON`` | Build the Java library |
-| ``SPRK_CONNECTOR`` | ``OFF`` | Build the spark-connector library for Python and Scala |
+| ``SPRK_CONNECTOR`` | ``ON`` | Build the spark-connector library for Python and Scala |
 | ``RUN_CPPCHECK`` | ``OFF`` | Run cppcheck during ``make test`` or ``make all_cppcheck``|
 
 ### Compiling
