@@ -22,7 +22,7 @@ For the main build you need:
 
 .. code-block:: console
 
-   sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config
+   sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config swig python-dev default-jdk
 
 For the documentation:
 
@@ -43,7 +43,7 @@ For the test suite:
 Debian 8 (Jessie)
 ^^^^^^^^^^^^^^^^^
 
-Debian Jessie will only compile if the latest CLang is along with LLVM's libc++, it also requires packages that are not in the main repositories. First of all you need Debian's Jessie backports repository enabled, edit the file ``/etc/apt/sources/list`` and add the following line:
+Debian Jessie requires packages that are not in the main repositories. First of all you need Debian's Jessie backports repository enabled, edit the file ``/etc/apt/sources/list`` and add the following line:
 
 .. code-block:: sourceslist
 
@@ -54,16 +54,7 @@ Then install the following:
 
 .. code-block:: console
 
-   sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config clang-3.8 libc++-dev
-
-
-Now set the following environment variables so that CLang is used to compile:
-
-.. code-block:: console
-
-   export CC=clang-3.8
-   export CXX=clang++-3.8
-   export CXXFLAGS=-stdlib=libc++
+   sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config libc++-dev swig python-dev default-jdk
 
 For the documentation:
 
@@ -72,7 +63,7 @@ For the documentation:
    sudo apt-get install python-sphinx texlive-latex-recommended texlive-latex-extra latexmk python-pip
    sudo pip install python-sphinx
 
-For the test suite make sure you still have the exported environment variables above and then do the following in a directory separate from the API:
+For the test suite do the following in a directory separate from the API:
 
 .. code-block:: console
 
@@ -93,6 +84,7 @@ For the main build you need the following, the devtoolset is because GCC5 minimu
    sudo yum install cmake libuv-devel libxml2-devel snappy-devel
    sudo yum install centos-release-scl
    sudo yum install devtoolset-4-gcc*
+   sudo yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel swig python-devel
    scl enable devtoolset-4 bash
 
 
@@ -169,6 +161,8 @@ Option                   Default              Definition
 ``BUILD_DOCS``           ``OFF``              Build the PDF documentation
 ``RPM``                  ``OFF``              Build a RPM (and the OS name for the package)
 ``DEB``                  ``OFF``              Build a DEB (and the OS name for the package)
+``PYTHON``               ``ON``               Build the Python library
+``JAVA``                 ``ON``               Build the Java library
 ``RUN_CPPCHECK``         ``OFF``              Run cppcheck during ``make test`` or ``make all_cppcheck``
 ======================== ==================== =========================================================================================
 

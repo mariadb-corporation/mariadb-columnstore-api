@@ -22,6 +22,8 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <cctype>
+#include <boost/algorithm/string.hpp>
 
 namespace mcsapi
 {
@@ -40,15 +42,15 @@ ColumnStoreDateTime::ColumnStoreDateTime(tm& time)
     }
 }
 
-ColumnStoreDateTime::ColumnStoreDateTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint32_t microsecond)
+ColumnStoreDateTime::ColumnStoreDateTime(uint32_t year, uint32_t month, uint32_t day, uint32_t hour, uint32_t minute, uint32_t second, uint32_t microsecond)
 {
-    mImpl = new ColumnStoreDateTimeImpl(year, month, day, hour, minute, second, microsecond);
+    mImpl = new ColumnStoreDateTimeImpl((uint16_t)year, (uint8_t)month, (uint8_t)day, (uint8_t)hour, (uint8_t)minute, (uint8_t)second, microsecond);
     if (!mImpl->validateDate())
     {
         std::string errmsg("A valid date/time could not be extracted from the time parameters");
         throw ColumnStoreDataError(errmsg);
     }
-    
+
 }
 
 ColumnStoreDateTime::ColumnStoreDateTime(const std::string& dateTime, const std::string& format)
@@ -84,13 +86,16 @@ bool ColumnStoreDateTime::set(tm& time)
 bool ColumnStoreDateTime::set(const std::string& dateTime, const std::string& format)
 {
     tm time = tm();
+#ifdef HAVE_GET_TIME
     std::istringstream ss(dateTime);
     ss >> std::get_time(&time, format.c_str());
     if (ss.fail())
     {
         return false;
     }
-
+#else
+    strptime(dateTime.c_str(), format.c_str(), &time);
+#endif
     return set(time);
 }
 
@@ -282,105 +287,64 @@ ColumnStoreDecimal::~ColumnStoreDecimal()
 
 bool ColumnStoreDecimal::set(int64_t value)
 {
-    mImpl->decimalNumber = value;
-    mImpl->decimalScale = 0;
+    mImpl->decNum = value;
     return true;
 }
 
 bool ColumnStoreDecimal::set(const std::string& value)
 {
-    char seps[] = ".";
-    char *token;
-    // Copy so as not to destroy original
-    std::string valCopy = value;
-
-    token = strtok(&valCopy[0], seps);
-    // No decimal point
-    if (!token)
-    {
-        try
-        {
-            mImpl->decimalNumber = stoll(valCopy);
-            mImpl->decimalScale = 0;
-            return true;
-        }
-        catch (...)
-        {
-            // Invalid number
-            return false;
-        }
-    }
-    mImpl->decimalNumber = atoll(token);
-    token = strtok(NULL, seps);
-
-    // Whatever is after the dot isn't a number
-    if (!token)
-    {
-        return false;
-    }
-    int64_t decimals = atoll(token);
-    mImpl->decimalScale = strlen(token);
-    mImpl->decimalNumber *= pow((double) 10, mImpl->decimalScale);
-    mImpl->decimalNumber += decimals;
-
-    token = strtok(NULL, seps);
-    // Something bad happened
-    if (token)
-    {
-        return false;
-    }
+    mImpl->decNum.assign(value);
     return true;
 }
 
 bool ColumnStoreDecimal::set(double value)
 {
-    std::string strVal = std::to_string(value);
-    return set(strVal);
+    mImpl->decNum = value;
+    return true;
 }
 
 bool ColumnStoreDecimal::set(int64_t number, uint8_t scale)
 {
-    mImpl->decimalNumber = number;
-    mImpl->decimalScale = scale;
+    mImpl->decNum = number;
+    mImpl->decNum *= boost::multiprecision::pow(Decimal18(10), 0 - scale);
     return true;
 }
 
 uint64_t ColumnStoreDecimalImpl::getDecimalInt(uint32_t scale)
 {
-    int64_t result = decimalNumber;
+    uint64_t result;
+    int64_t decimalScale = boost::multiprecision::ilogb(decNum);
+    boost::multiprecision::cpp_dec_float_50 converted = decNum * pow(10, 18 - decimalScale);
+    decimalScale = 18 - decimalScale;
 
     if (scale > decimalScale)
     {
-        result = decimalNumber * pow((double)10, scale - decimalScale);
+        converted *= boost::multiprecision::pow(Decimal18(10), scale - decimalScale);
     }
     else if (scale < decimalScale)
     {
-        result = decimalNumber / pow((double)10, decimalScale - scale);
+        converted /= boost::multiprecision::pow(Decimal18(10), decimalScale - scale);
     }
+    result = static_cast<int64_t>(converted);
 
     return result;
 }
 
 int64_t ColumnStoreDecimalImpl::getInt()
 {
-    int64_t result = decimalNumber / pow((double)10, decimalScale);
+    int64_t result = llround(getDouble());
     return result;
 }
 
 double ColumnStoreDecimalImpl::getDouble()
 {
-    double result =  (double)decimalNumber / pow((double)10, decimalScale);
+    double result = decNum.convert_to<double>();
     return result;
 }
 
 void ColumnStoreDecimalImpl::getDecimalStr(std::string& sDecimal)
 {
-    sDecimal = std::to_string(decimalNumber);
-    if (decimalScale)
-    {
-        size_t pos = sDecimal.length() - decimalScale;
-        sDecimal.insert(pos, 1, '.');
-    }
+    sDecimal = decNum.str(18);
 }
 
 ColumnStoreSummary::ColumnStoreSummary()
@@ -527,7 +491,7 @@ uint32_t ColumnStoreSystemCatalogColumn::getOID()
     return mImpl->oid;
 }
 
-std::string& ColumnStoreSystemCatalogColumn::getColumnName()
+const std::string& ColumnStoreSystemCatalogColumn::getColumnName()
 {
     return mImpl->column;
 }
@@ -552,7 +516,7 @@ uint32_t ColumnStoreSystemCatalogColumn::getPosition()
     return mImpl->position;
 }
 
-std::string& ColumnStoreSystemCatalogColumn::getDefaultValue()
+const std::string& ColumnStoreSystemCatalogColumn::getDefaultValue()
 {
     return mImpl->default_val;
 }
@@ -582,12 +546,12 @@ uint8_t ColumnStoreSystemCatalogColumn::compressionType()
     return mImpl->compression;
 }
 
-std::string& ColumnStoreSystemCatalogTable::getSchemaName()
+const std::string& ColumnStoreSystemCatalogTable::getSchemaName()
 {
     return mImpl->schema;
 }
 
-std::string& ColumnStoreSystemCatalogTable::getTableName()
+const std::string& ColumnStoreSystemCatalogTable::getTableName()
 {
     return mImpl->table;
 }
@@ -607,7 +571,7 @@ ColumnStoreSystemCatalogColumn& ColumnStoreSystemCatalogTable::getColumn(const s
     ColumnStoreSystemCatalogColumn* col = nullptr;
     for (auto& itColumn : mImpl->columns)
     {
-        if (columnName == itColumn->getColumnName())
+        if (boost::iequals(columnName,itColumn->getColumnName()))
         {
             col = itColumn;
             break;
@@ -637,7 +601,7 @@ ColumnStoreSystemCatalogTable& ColumnStoreSystemCatalog::getTable(const std::str
     ColumnStoreSystemCatalogTable* tbl = nullptr;
     for (auto& itTable : mImpl->tables)
     {
-        if ((schemaName == itTable->getSchemaName()) && (tableName == itTable->getTableName()))
+        if (boost::iequals(schemaName, itTable->getSchemaName()) && boost::iequals(tableName, itTable->getTableName()))
         {
             tbl = itTable;
             break;
@@ -663,6 +627,7 @@ void ColumnStoreSystemCatalogImpl::clear()
 {
     for (std::vector<ColumnStoreSystemCatalogTable*>::iterator it = tables.begin() ; it != tables.end(); ++it)
     {
+        (*it)->mImpl->clear();
         delete *it;
     }
 }

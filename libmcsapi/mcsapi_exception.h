@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <stdexcept>
+
 namespace mcsapi
 {
 class MCS_API ColumnStoreError: public std::runtime_error

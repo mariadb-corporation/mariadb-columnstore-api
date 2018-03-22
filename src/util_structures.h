@@ -134,7 +134,7 @@ typedef std::map<uint32_t, ColumnStoreDataContainer> ColumnStoreRowData;
 class ColumnStoreColumnData
 {
 public:
-    ColumnStoreColumnData(uint32_t cOid, std::string& cColumnName) :
+    ColumnStoreColumnData(uint32_t cOid, const std::string& cColumnName) :
         oid(cOid),
         columnName(cColumnName)
     { }

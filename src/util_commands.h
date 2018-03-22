@@ -31,6 +31,7 @@ enum columnstore_commands_t
     COMMAND_DBRM_BULK_SET_HWM_AND_CP = 0x28,
     COMMAND_DBRM_GET_TXN_ID = 0x2E,
     COMMAND_DBRM_COMMITTED = 0x2F,
+    COMMAND_DBRM_ROLLEDBACK = 0x30,
     COMMAND_DBRM_GET_UNIQUE_ID = 0x38,
     COMMAND_DBRM_GET_TABLE_LOCK = 0x46,
     COMMAND_DBRM_RELEASE_TABLE_LOCK = 0x47,
@@ -69,6 +70,7 @@ public:
     void brmSetHWMAndCP(std::vector<ColumnStoreHWM>& hwms, std::vector<uint64_t>& lbids, uint32_t txnId);
     void brmVBCommit(uint32_t txnId);
     void brmCommitted(uint32_t txnId);
+    void brmRolledback(uint32_t txnId);
     void brmReleaseTableLock(uint64_t lockId);
     void brmGetUncommittedLbids(uint32_t txnId, std::vector<uint64_t>& lbids);
     void brmTakeSnapshot();

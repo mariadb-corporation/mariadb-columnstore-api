@@ -28,7 +28,7 @@ Example
 
    int main(void)
    {
-       ColumnStoreDriver* driver = nullptr;
+       mcsapi::ColumnStoreDriver* driver = nullptr;
        try {
            driver = new mcsapi::ColumnStoreDriver();
        } catch (mcsapi::ColumnStoreError &e) {
@@ -55,7 +55,7 @@ Example
 
    int main(void)
    {
-       ColumnStoreDriver* driver = nullptr;
+       mcsapi::ColumnStoreDriver* driver = nullptr;
        try {
            driver = new mcsapi::ColumnStoreDriver("/usr/local/mariadb/columnstore/etc/Columnstore.xml");
        } catch (mcsapi::ColumnStoreError &e) {
@@ -75,8 +75,9 @@ createBulkInsert()
    :param db: The database name for the table to insert into
    :param table: The tabe name to insert into
    :param mode: Future use, must be set to ``0``
-   :param pm: Future use, must be set to ``0``
+   :param pm: Future use, must be set to ``0``. For now batches of inserts use a round-robin between the PM servers.
    :returns: An instance of :cpp:class:`ColumnStoreBulkInsert`
+   :raises ColumnStoreServerError: If a table lock cannot be acquired for the desired table
 
 Example
 ^^^^^^^
@@ -90,8 +91,8 @@ Example
    {
        std::string table("t1");
        std::string db("test");
-       ColumnStoreDriver* driver = nullptr;
-       ColumnStoreBulkInsert* bulkInsert = nullptr;
+       mcsapi::ColumnStoreDriver* driver = nullptr;
+       mcsapi::ColumnStoreBulkInsert* bulkInsert = nullptr;
        try {
            driver = new mcsapi::ColumnStoreDriver();
            bulkInsert = driver->createBulkInsert(db, table, 0, 0);
