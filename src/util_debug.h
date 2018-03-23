@@ -18,52 +18,8 @@
 
 #pragma once
 
-#if DEBUG
-#define mcsdebug(MSG, ...) do { \
-    struct timeval tv; \
-    time_t nowtime; \
-    struct tm *nowtm; \
-    char tmpdbuf[64], dbuf[64]; \
-    gettimeofday(&tv, NULL); \
-    nowtime = tv.tv_sec; \
-    nowtm = localtime(&nowtime); \
-    strftime(tmpdbuf, sizeof tmpdbuf, "%H:%M:%S", nowtm); \
-    snprintf(dbuf, sizeof dbuf, "%s.%06ld", tmpdbuf, tv.tv_usec); \
-    fprintf(stderr, "[mcsapi][%s] %s:%d " MSG "\n", dbuf,  __FILENAME__, __LINE__, ##__VA_ARGS__); \
-} while(0)
+void mcsdebug_set(bool enabled);
 
-#define mcsdebug_hex(DATA, LEN) do { \
-    struct timeval tv; \
-    time_t nowtime; \
-    struct tm *nowtm; \
-    char tmpdbuf[64], dbuf[64]; \
-    gettimeofday(&tv, NULL); \
-    nowtime = tv.tv_sec; \
-    nowtm = localtime(&nowtime); \
-    strftime(tmpdbuf, sizeof tmpdbuf, "%H:%M:%S", nowtm); \
-    snprintf(dbuf, sizeof dbuf, "%s.%06ld", tmpdbuf, tv.tv_usec); \
-    size_t hex_it; \
-    fprintf(stderr, "[mcsapi][%s] %s:%d packet hex: ", dbuf, __FILENAME__, __LINE__); \
-    for (hex_it = 0; hex_it < LEN ; hex_it++) \
-    { \
-        fprintf(stderr, "%02X ", (unsigned char)DATA[hex_it]); \
-    } \
-    fprintf(stderr, "\n"); \
-    fprintf(stderr, "[mcsapi][%s] %s:%d printable packet data: ", dbuf, __FILENAME__, __LINE__); \
-    for (hex_it = 0; hex_it < LEN ; hex_it++) \
-    { \
-        if (((unsigned char)DATA[hex_it] < 0x21) or (((unsigned char)DATA[hex_it] > 0x7e))) \
-        { \
-            fprintf(stderr, "."); \
-        } \
-        else \
-        { \
-            fprintf(stderr, "%c", (unsigned char)DATA[hex_it]); \
-        } \
-    } \
-    fprintf(stderr, "\n"); \
-} while(0)
-#else
-#define mcsdebug(MSG, ...)
-#define mcsdebug_hex(DATA, LEN)
-#endif
+void mcsdebug(const char* MSG, ...);
+
+void mcsdebug_hex(const char* DATA, size_t LEN);
