@@ -1,0 +1,23 @@
+{
+  "name": "nodemcsapi",
+  "version": "1.1.4",
+  "description": "NodeJS wrapper of the Bulk Write SDK",
+  "main": "nodemcsapi",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "MariaDB Corporation",
+  "homepage": "https://github.com/mariadb-corporation/mariadb-columnstore-api",
+  "license": "LGPL-2.1-or-later",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mariadb-corporation/mariadb-columnstore-api.git"
+  },
+  "devDependencies": {
+    "mocha": "^5.0.4",
+    "mariasql": "^0.2.6"
+  }
+}
