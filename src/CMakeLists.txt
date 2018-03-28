@@ -16,6 +16,7 @@ set(SOURCE_FILES
     mcsapi_driver.cpp
     mcsapi_types.cpp
     mcsapi_bulk.cpp
+    util_debug.cpp
     util_dataconvert.cpp
     util_messaging.cpp
     util_network.cpp

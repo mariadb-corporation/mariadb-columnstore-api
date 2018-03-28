@@ -22,6 +22,9 @@
   } catch (mcsapi::ColumnStoreError &e) {
     PyErr_SetString(PyExc_RuntimeError, const_cast<char*>(e.what()));
     SWIG_fail;
+  } catch (std::bad_alloc &er) {
+    PyErr_SetString(PyExc_RuntimeError, const_cast<char*>(er.what()));
+    SWIG_fail;
   }
 }
 

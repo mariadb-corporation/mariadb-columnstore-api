@@ -31,6 +31,7 @@ public:
     ~ColumnStoreDriver();
 
     const char* getVersion();
+    void setDebug(bool enabled);
     ColumnStoreBulkInsert* createBulkInsert(const std::string& db,
             const std::string& table, uint8_t mode, uint16_t pm);
     ColumnStoreSystemCatalog& getSystemCatalog();

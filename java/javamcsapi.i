@@ -61,6 +61,12 @@
       jenv->ThrowNew( eclass, e.what() );
     }
   }
+  catch ( std::bad_alloc & er ) {
+    jclass eclass = jenv->FindClass("com/mariadb/columnstore/api/ColumnStoreException");
+    if ( eclass ) {
+      jenv->ThrowNew( eclass, er.what() );
+    }
+  }
 }
 
 %module javamcsapi
