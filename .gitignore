@@ -1,3 +1,5 @@
+nodejs/nodemcsapi_wrap.cxx
+nodejs/node_modules
 .gradle
 *.pyc
 .cache
