@@ -71,6 +71,7 @@ void ColumnStoreBulkInsertImpl::runChecks(uint16_t columnNumber)
 
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, const std::string& value, columnstore_data_convert_status_t* status)
 {
+	mcsdebug("Class %p setColumn std::string& call", (void*)this);
     mImpl->runChecks(columnNumber);
     columnstore_data_convert_status_t convert_status;
     ColumnStoreSystemCatalogColumn column = mImpl->tbl->getColumn(columnNumber);
@@ -89,11 +90,13 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, c
         throw ColumnStoreDataError(errmsg);
     }
 
+	mcsdebug("Class %p setColumn std::string& called", (void*)this);
     return this;
 }
 
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, uint64_t value, columnstore_data_convert_status_t* status)
 {
+	mcsdebug("Class %p setColumn uint64_t call", (void*)this);
     mImpl->runChecks(columnNumber);
     columnstore_data_convert_status_t convert_status;
     ColumnStoreSystemCatalogColumn column = mImpl->tbl->getColumn(columnNumber);
@@ -112,34 +115,49 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, u
         throw ColumnStoreDataError(errmsg);
     }
 
+	mcsdebug("Class %p setColumn uint64_t called", (void*)this);
     return this;
 }
 
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, int64_t value, columnstore_data_convert_status_t* status)
 {
+	mcsdebug("Class %p setColumn int64_t call", (void*)this);
     mImpl->runChecks(columnNumber);
+	mcsdebug_advanced("Class %p 'mImpl->runChecks(columnNumber)' called", (void*)this);
     columnstore_data_convert_status_t convert_status;
+	mcsdebug_advanced("Class %p 'columnstore_data_convert_status_t convert_status' called", (void*)this);
     ColumnStoreSystemCatalogColumn column = mImpl->tbl->getColumn(columnNumber);
+	mcsdebug_advanced("Class %p 'column = mImpl->tbl->getColumn(columnNumber)' called", (void*)this);
     ColumnStoreDataContainer* cont = &(*mImpl->row)[columnNumber];
+	mcsdebug_advanced("Class %p 'cont = &(*mImpl->row)[columnNumber]' called", (void*)this);
     convert_status = ColumnStoreDataConvert::convert(&column, cont, value);
+	mcsdebug_advanced("Class %p 'convert_status = ColumnStoreDataConvert::convert(&column, cont, value)' called", (void*)this);
     if (status)
     {
+		mcsdebug_advanced("if (status) procedure entered", (void*)this);
         *status = convert_status;
+		mcsdebug_advanced("Class %p '*status = convert_status' called", (void*)this);
     }
     ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
+	mcsdebug_advanced("Class %p 'ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl' called", (void*)this);
     summaryImpl->setStatus(convert_status);
+	mcsdebug_advanced("Class %p 'summaryImpl->setStatus(convert_status)' called", (void*)this);
 
     if (mImpl->truncateIsError && convert_status == CONVERT_STATUS_TRUNCATED)
     {
+		mcsdebug_advanced("if (error) procedure entered", (void*)this);
         std::string errmsg = "Column " + std::to_string(columnNumber) + " truncated";
+		mcsdebug_advanced("Class %p error message built", (void*)this);
         throw ColumnStoreDataError(errmsg);
     }
 
+	mcsdebug("Class %p setColumn int64_t called", (void*)this);
     return this;
 }
 
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, double value, columnstore_data_convert_status_t* status)
 {
+	mcsdebug("Class %p setColumn double call", (void*)this);
     mImpl->runChecks(columnNumber);
     columnstore_data_convert_status_t convert_status;
     ColumnStoreSystemCatalogColumn column = mImpl->tbl->getColumn(columnNumber);
@@ -158,11 +176,13 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, d
         throw ColumnStoreDataError(errmsg);
     }
 
+	mcsdebug("Class %p setColumn double called", (void*)this);
     return this;
 }
 
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, ColumnStoreDateTime& value, columnstore_data_convert_status_t* status)
 {
+	mcsdebug("Class %p setColumn ColumnStoreDateTime& call", (void*)this);
     mImpl->runChecks(columnNumber);
     columnstore_data_convert_status_t convert_status;
     ColumnStoreSystemCatalogColumn column = mImpl->tbl->getColumn(columnNumber);
@@ -181,11 +201,13 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, C
         throw ColumnStoreDataError(errmsg);
     }
 
+	mcsdebug("Class %p setColumn ColumnStoreDateTime& called", (void*)this);
     return this;
 }
 
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, ColumnStoreDecimal& value, columnstore_data_convert_status_t* status)
 {
+	mcsdebug("Class %p setColumn ColumnStoreDecimal& call", (void*)this);
     mImpl->runChecks(columnNumber);
     columnstore_data_convert_status_t convert_status;
     ColumnStoreSystemCatalogColumn column = mImpl->tbl->getColumn(columnNumber);
@@ -204,11 +226,13 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, C
         throw ColumnStoreDataError(errmsg);
     }
 
+	mcsdebug("Class %p setColumn ColumnStoreDecimal& called", (void*)this);
     return this;
 }
 
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::setNull(uint16_t columnNumber, columnstore_data_convert_status_t* status)
 {
+	mcsdebug("Class %p setNull call", (void*)this);
     mImpl->runChecks(columnNumber);
     columnstore_data_convert_status_t convert_status;
     ColumnStoreSystemCatalogColumn column = mImpl->tbl->getColumn(columnNumber);
@@ -221,6 +245,7 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setNull(uint16_t columnNumber, col
     ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
     summaryImpl->setStatus(convert_status);
 
+	mcsdebug("Class %p setNull called", (void*)this);
     return this;
 }
 
@@ -237,6 +262,7 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::resetRow()
 
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::writeRow()
 {
+	mcsdebug("Class %p writeRow call", (void*)this);
     if (mImpl->transactionClosed)
     {
         std::string errmsg = "Bulk insert has been committed or rolled back and cannot be reused";
@@ -269,11 +295,13 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::writeRow()
     }
     mImpl->row = mImpl->tableData.getRow();
 
+	mcsdebug("Class %p writeRow called", (void*)this);
     return this;
 }
 
 void ColumnStoreBulkInsert::commit()
 {
+	mcsdebug("Class %p commit call", (void*)this);
     ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
 
     if (mImpl->transactionClosed)
@@ -310,6 +338,7 @@ void ColumnStoreBulkInsert::commit()
     mImpl->autoRollback = false;
     mImpl->transactionClosed = true;
     summaryImpl->stopTimer();
+	mcsdebug("Class %p writeRow called", (void*)this);
 }
 
 bool ColumnStoreBulkInsert::isActive()
@@ -319,6 +348,7 @@ bool ColumnStoreBulkInsert::isActive()
 
 void ColumnStoreBulkInsert::rollback()
 {
+	mcsdebug("Class %p rollback call", (void*)this);
     ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
 
     if (mImpl->transactionClosed)
@@ -345,6 +375,7 @@ void ColumnStoreBulkInsert::rollback()
     mImpl->autoRollback = false;
     mImpl->transactionClosed = true;
     summaryImpl->stopTimer();
+	mcsdebug("Class %p rollback called", (void*)this);
 }
 
 ColumnStoreSummary& ColumnStoreBulkInsert::getSummary()
@@ -441,3 +472,5 @@ void ColumnStoreBulkInsertImpl::connect()
 }
 
 }
+
+

@@ -77,6 +77,12 @@ void ColumnStoreDriver::setDebug(bool enabled)
     mcsdebug("mcsapi debugging enabled, version %s", this->getVersion());
 }
 
+void ColumnStoreDriver::setDebugAdvanced(bool enabled)
+{
+    mcsdebug_advanced_set(enabled);
+    mcsdebug_advanced("advanced debugging enabled");
+}
+
 ColumnStoreBulkInsert* ColumnStoreDriver::createBulkInsert(const std::string& db,
     const std::string& table, uint8_t mode, uint16_t pm)
 {

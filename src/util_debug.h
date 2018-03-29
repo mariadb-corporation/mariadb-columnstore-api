@@ -22,4 +22,9 @@ void mcsdebug_set(bool enabled);
 
 void mcsdebug(const char* MSG, ...);
 
+void mcsdebug_advanced_set(bool enabled);
+
+void mcsdebug_advanced(const char* MSG, ...);
+
 void mcsdebug_hex(const char* DATA, size_t LEN);
+

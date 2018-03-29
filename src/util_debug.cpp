@@ -22,6 +22,7 @@
 #include <stdarg.h>
 
 static bool debugging_enabled = false;
+static bool advanced_debugging_enabled = false;
 
 void mcsdebug_set(bool enabled)
 {
@@ -31,6 +32,35 @@ void mcsdebug_set(bool enabled)
 void mcsdebug(const char* MSG, ...)
 {
     if (!debugging_enabled)
+    {
+        return;
+    }
+    struct timeval tv;
+    time_t nowtime;
+    struct tm *nowtm;
+    char tmpdbuf[64], dbuf[64];
+    gettimeofday(&tv, NULL);
+    nowtime = tv.tv_sec;
+    nowtm = localtime(&nowtime);
+    strftime(tmpdbuf, sizeof tmpdbuf, "%H:%M:%S", nowtm);
+    snprintf(dbuf, sizeof dbuf, "%s.%06ld", tmpdbuf, tv.tv_usec);
+    va_list argptr;
+    va_start(argptr, MSG);
+    fprintf(stderr, "[mcsapi][%s] %s:%d ", dbuf,  __FILENAME__, __LINE__);
+    vfprintf(stderr, MSG, argptr);
+    fprintf(stderr, "\n");
+    va_end(argptr);
+}
+
+
+void mcsdebug_advanced_set(bool enabled)
+{
+    advanced_debugging_enabled = enabled;
+}
+
+void mcsdebug_advanced(const char* MSG, ...)
+{
+    if (!advanced_debugging_enabled)
     {
         return;
     }
@@ -88,3 +118,4 @@ void mcsdebug_hex(const char* DATA, size_t LEN)
     }
     fprintf(stderr, "\n");
 }
+
