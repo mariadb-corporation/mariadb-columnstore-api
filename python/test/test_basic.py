@@ -236,9 +236,9 @@ def i1_common(datatype, ch_len):
     d = pymcsapi.ColumnStoreDriver()
     b = d.createBulkInsert(DB_NAME, tablename, 0, 0)
     try:
-        b.setColumn(0,1).setColumn(1, 'ABC').writeRow()
-        b.setColumn(0,2).setColumn(1, 'A').writeRow()
-        b.setColumn(0,3).setColumn(1, 'XYZ').writeRow()
+        b.setColumn(0,1)[0].setColumn(1, 'ABC')[0].writeRow()
+        b.setColumn(0,2)[0].setColumn(1, 'A')[0].writeRow()
+        b.setColumn(0,3)[0].setColumn(1, 'XYZ')[0].writeRow()
         b.commit()
     except RuntimeError as err:
         b.rollback()
