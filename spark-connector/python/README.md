@@ -1,11 +1,13 @@
 # MariaDB ColumnStore API Python Spark Connector
 This provides a connector between the MariaDB ColumnStore API Python Wrapper and Spark.
 
-Currently there is only one function.
+Currently there are two functions:
 ```python
 columnStoreExporter.export("database", "table", DataFrame, [path to Columnstore.xml])
+columnStoreExporter.generateTableStatement(dataFrame, ["database", "table", determineTypeLengths])
 ```
-that exports a DataFrame to an existing table.
+export() exports a DataFrame to an existing table, and
+generateTableStatement() generates a CREATE TABLE SQL statement based on the schema of the dataFrame to export.
 
 ### Testing dependencies
 Python's testing dependencies can be found in test/requirements.txt and can be installed via:
