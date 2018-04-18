@@ -1,3 +1,4 @@
+# coding=utf-8
 # Copyright (c) 2018, MariaDB Corporation. All rights reserved.
 #
 # This library is free software; you can redistribute it and/or
