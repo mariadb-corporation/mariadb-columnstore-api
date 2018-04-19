@@ -88,7 +88,7 @@ object ColumnStoreExporter {
     
     //if the resulting output is a reserved word, add a suffix
     if(reservedWords.contains(output.toString().toLowerCase())){
-      if(output.toString.length > MAX_TABLE_COLUMN_NAME_LENGTH){
+      if((output.toString.length + CS_TABLE_COLUMN_NAMING_CONVENTION_SUFFIX.length) > MAX_TABLE_COLUMN_NAME_LENGTH){
           output.delete(MAX_TABLE_COLUMN_NAME_LENGTH-CS_TABLE_COLUMN_NAMING_CONVENTION_SUFFIX.length,output.toString.length)
       }
       output.append(CS_TABLE_COLUMN_NAMING_CONVENTION_SUFFIX)
