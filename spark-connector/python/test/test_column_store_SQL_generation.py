@@ -48,8 +48,23 @@ def test_reserved_word_parsing():
 
 #invalid characters will be exchanged with prefix or _
 def test_invalid_word_parsing():
-    reservedWords = ["öl", "roHöl", "_hello*&@PKJEk", "lksf3823DMO[]", "l3mo()ntree", "An@ther"]
-    for tableColumnName in reservedWords:
+    invalidWords = ["öl", "roHöl", "_hello*&@PKJEk", "lksf3823DMO[]", "l3mo()ntree", "An@ther"]
+    for tableColumnName in invalidWords:
+        parsed = columnStoreExporter.parseTableColumnNameToCSConvention(tableColumnName)
+        try:
+            assert not parsed == tableColumnName
+        except AssertionError as e:
+             pytest.fail("Original reserved table/column name: '%s' does match parsed table name: '%s'" % (tableColumnName, parsed))
+        doubleParsed = columnStoreExporter.parseTableColumnNameToCSConvention(parsed)
+        try:
+            assert parsed == doubleParsed
+        except AssertionError as e:
+             pytest.fail("Parsed valid table/column name: '%s' doesn't match double parsed table name: '%s'" % (parsed, doubleParsed))
+
+#too long name truncation test
+def test_too_long_word_parsing():
+    tooLongWords = ["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab","ööööööööööööööööööööööööööööööööööööööööööööööööööööööööööööööö"]
+    for tableColumnName in tooLongWords:
         parsed = columnStoreExporter.parseTableColumnNameToCSConvention(tableColumnName)
         try:
             assert not parsed == tableColumnName

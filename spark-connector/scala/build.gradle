@@ -42,3 +42,10 @@ task benchmark(type: JavaExec, dependsOn: classes){
         classpath sourceSets.test.runtimeClasspath
         classpath configurations.runtime
 }
+
+compileJava.dependsOn 'copyFiles'
+
+task copyFiles(type: Copy) {
+    from "${project.projectDir}/../python/mcsapi_reserved_words.txt"
+    into "${project.projectDir}/src/main/resources/com/mariadb/columnstore/api/connector/resources"
+}

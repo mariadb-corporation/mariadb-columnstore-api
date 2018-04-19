@@ -93,13 +93,14 @@ def parseTableColumnNameToCSConvention(tableColumnName):
     import re, os
     firstCharPattern = re.compile("[a-zA-Z0-9]")
     otherCharPattern = re.compile("[a-zA-Z0-9_]")
+    maxTableColumnLength = 64
     prefix = "p_"
     postfix = "_rw"
     try:
-        reservedWordsFile = os.path.join(os.path.dirname(__file__),"reserved_words.txt")
+        reservedWordsFile = os.path.join(os.path.dirname(__file__),"mcsapi_reserved_words.txt")
     except NameError:
-        reservedWordsFile = "reserved_words.txt"
-    
+        reservedWordsFile = "mcsapi_reserved_words.txt"
+
     out_str = []
     
     if firstCharPattern.match(tableColumnName[0:1]):
@@ -113,9 +114,13 @@ def parseTableColumnNameToCSConvention(tableColumnName):
         else:
             out_str.append("_")
     
+    #check if the length is below maxTableColumnLength
     tableColumnName = ''.join(out_str)
-    reservedWords = set()
+    if len(tableColumnName) > maxTableColumnLength:
+        tableColumnName = tableColumnName[:maxTableColumnLength]
     
+    #check if the name is a reserved word
+    reservedWords = set()
     try:
         f = open(reservedWordsFile, "r")
         for l in f:
@@ -126,7 +131,10 @@ def parseTableColumnNameToCSConvention(tableColumnName):
         print(e)
     
     if tableColumnName.lower() in reservedWords:
-        return tableColumnName + postfix
+        if (len(tableColumnName) + len(postfix)) > maxTableColumnLength:
+            return tableColumnName[:maxTableColumnLength-len(postfix)] + postfix
+        else:
+            return tableColumnName + postfix
     else:
         return tableColumnName
 

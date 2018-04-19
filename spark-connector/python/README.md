@@ -7,7 +7,7 @@ columnStoreExporter.export("database", "table", DataFrame, [path to Columnstore.
 columnStoreExporter.generateTableStatement(dataFrame, ["database", "table", determineTypeLengths])
 ```
 export() exports a DataFrame to an existing table, and
-generateTableStatement() generates a CREATE TABLE SQL statement based on the schema of the dataFrame to export.
+generateTableStatement() generates a CREATE TABLE SQL statement based on the schema of the DataFrame to export.
 
 ### Testing dependencies
 Python's testing dependencies can be found in test/requirements.txt and can be installed via:

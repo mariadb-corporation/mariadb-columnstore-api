@@ -23,7 +23,7 @@ import org.apache.spark.sql.types
 import java.math.BigInteger
 import java.math.BigDecimal
 import java.util.regex.Pattern
-import scala.io.Source
+import java.io.{InputStream,BufferedReader,IOException,InputStreamReader}
 
 object ColumnStoreExporter {
 
@@ -35,47 +35,69 @@ object ColumnStoreExporter {
   def parseTableColumnNameToCSConvention(input: String) : String = {
     //set of reserved words that can't be used for table or column names
     var reservedWords: Set[String] = Set()
-    val RESERVED_WORDS_FILENAME = "reserved_words.txt";
-    val CS_TABLE_COLUMN_NAMING_CONVENTION_PREFIX = "p_";
-    val CS_TABLE_COLUMN_NAMING_CONVENTION_SUFFIX = "_rw";
-    
-    //container for the output  
-    val output: StringBuilder = new StringBuilder();
+    val RESERVED_WORDS_FILENAME = "resources/mcsapi_reserved_words.txt"
+    val CS_TABLE_COLUMN_NAMING_CONVENTION_PREFIX = "p_"
+    val CS_TABLE_COLUMN_NAMING_CONVENTION_SUFFIX = "_rw"
+    val MAX_TABLE_COLUMN_NAME_LENGTH = 64  
   
+    //container for the output
+    val output: StringBuilder = new StringBuilder()
+
     if(input == null){
-      output.append("null");
+      output.append("null")
     }else{
       //if the first character is lowercase [a-z] or uppercase [A-Z] use it
       if(Pattern.matches("[a-zA-Z]", input.substring(0,1))){
-        output.append(input.substring(0,1));
+        output.append(input.substring(0,1))
       }else{ //otherwise add a prefix and discard the first character
-        output.append(CS_TABLE_COLUMN_NAMING_CONVENTION_PREFIX);
+        output.append(CS_TABLE_COLUMN_NAMING_CONVENTION_PREFIX)
       }
-  
+
       //if the following characters match the allowed character set use them, otherwise use _
       for(e <- 2 to input.length()){
         if(Pattern.matches("[a-zA-Z0-9_]", input.substring(e-1,e))){
-          output.append(input.substring(e-1,e));
+          output.append(input.substring(e-1,e))
         } else{
-          output.append("_");
+          output.append("_")
         }
       }
     }
-  
-    // Fill the set of reserved words from file reserved_words.txt
-    for (line <- Source.fromFile(RESERVED_WORDS_FILENAME).getLines) {
-      reservedWords += line.toLowerCase()
+
+    //check if the length is below maxTableColumnLength
+    if(output.toString.length > MAX_TABLE_COLUMN_NAME_LENGTH){
+        output.delete(MAX_TABLE_COLUMN_NAME_LENGTH,output.toString.length)
     }
-      
+    
+    // Fill the set of reserved words from file reserved_words.txt
+    if(getClass().getResource(RESERVED_WORDS_FILENAME) == null){
+        println("warning: can't access the reserved words file: " + RESERVED_WORDS_FILENAME)
+    }else{
+        try{
+            val is: InputStream = getClass().getResourceAsStream(RESERVED_WORDS_FILENAME)
+            val reader: BufferedReader = new BufferedReader(new InputStreamReader(is))
+            var line: String = null
+            while ({line = reader.readLine; line != null}) {
+              reservedWords += line.toLowerCase()
+            }
+            reader.close()
+            is.close()
+        } catch {
+            case ex: IOException => println("error while processing the reserved words file: " + RESERVED_WORDS_FILENAME)
+        }
+    }
+    
     //if the resulting output is a reserved word, add a suffix
     if(reservedWords.contains(output.toString().toLowerCase())){
-      output.append(CS_TABLE_COLUMN_NAMING_CONVENTION_SUFFIX);
+      if(output.toString.length > MAX_TABLE_COLUMN_NAME_LENGTH){
+          output.delete(MAX_TABLE_COLUMN_NAME_LENGTH-CS_TABLE_COLUMN_NAMING_CONVENTION_SUFFIX.length,output.toString.length)
+      }
+      output.append(CS_TABLE_COLUMN_NAMING_CONVENTION_SUFFIX)
     }
   
     return output.toString();
   }
 
-  def splitDecimalGetLength(decimal :BigDecimal) : (Integer, Integer, Integer) = {
+  def splitDecimalGetLength(decimal :BigDecimal) : (Integer, Integer, Short) = {
       var lengthBeforePoint = 0
       var lengthAfterPoint = 0
       if (decimal.signum == -1){
@@ -89,7 +111,7 @@ object ColumnStoreExporter {
       } else{
           lengthBeforePoint += split(0).size
       }
-      return (lengthBeforePoint: Integer, lengthAfterPoint: Integer, decimal.signum: Integer)
+      return (lengthBeforePoint: Integer, lengthAfterPoint: Integer, decimal.signum.toShort: Short)
   }
 
   def generateTableStatement(dataFrame: DataFrame, database: String = null, table: String = "spark_export", determineTypeLengths: Boolean = false) : String = {
@@ -114,17 +136,17 @@ object ColumnStoreExporter {
                       val splitDecimalLengthType = org.apache.spark.sql.types.StructType(
                           org.apache.spark.sql.types.StructField("lengthBeforePoint", org.apache.spark.sql.types.IntegerType, false) ::
                           org.apache.spark.sql.types.StructField("lengthAfterPoint", org.apache.spark.sql.types.IntegerType, false) ::
-                          org.apache.spark.sql.types.StructField("signum", org.apache.spark.sql.types.IntegerType, false) :: Nil
+                          org.apache.spark.sql.types.StructField("signum", org.apache.spark.sql.types.ShortType, false) :: Nil
                       )
                       
                       //get the maximal lengths for the column and check if it is negative
                       val udf_splitDecimalGetLength = org.apache.spark.sql.functions.udf(splitDecimalGetLength(_: BigDecimal), splitDecimalLengthType)
                       val tmp = dataFrame.withColumn("splitDecimal", udf_splitDecimalGetLength(dataFrame.col(column.name)))
-                      val max = tmp.agg(org.apache.spark.sql.functions.max("splitDecimal.lengthBeforePoint"), org.apache.spark.sql.functions.max("splitDecimal.lengthAfterPoint"), org.apache.spark.sql.functions.max("splitDecimal.signum")).head(1)  
+                      val max = tmp.agg(org.apache.spark.sql.functions.max("splitDecimal.lengthBeforePoint"), org.apache.spark.sql.functions.max("splitDecimal.lengthAfterPoint"), org.apache.spark.sql.functions.max("splitDecimal.signum")).head(1)
                       
                       val maxLengthBeforePoint: Integer = max(0)(0).asInstanceOf[Integer]
                       var maxLengthAfterPoint: Integer = max(0)(1).asInstanceOf[Integer]
-                      val signum: Integer = max(0)(2).asInstanceOf[Integer]
+                      val signum: Short = max(0)(2).asInstanceOf[Short]
   
                       if (maxLengthBeforePoint + maxLengthAfterPoint <= 18){
                           output.append("DECIMAL(" + (maxLengthBeforePoint + maxLengthAfterPoint) + "," + maxLengthAfterPoint + ") ")
@@ -162,8 +184,19 @@ object ColumnStoreExporter {
                   case org.apache.spark.sql.types.ShortType => output.append("SMALLINT ")
                   case org.apache.spark.sql.types.StringType => 
                   if (determineTypeLengths){
-                      val length = dataFrame.agg(org.apache.spark.sql.functions.max(org.apache.spark.sql.functions.length(dataFrame.col(column.name)))).first.asInstanceOf[Integer]
-                      output.append("VARCHAR(" + length + ") ")
+                      val lengthRow = dataFrame.agg(org.apache.spark.sql.functions.max(org.apache.spark.sql.functions.length(dataFrame.col(column.name)))).first
+                      val length = lengthRow(0).asInstanceOf[Integer]
+                      if (length <= 64){
+                          output.append("VARCHAR(" + length + ") ")
+                      }else if (length <= 255){
+                          output.append("TINYTEXT ")
+                      }else if (length <= 65536){
+                          output.append("TEXT ")
+                      }else if (length <= 16777216){
+                          output.append("MEDIUMTEXT ")
+                      }else{
+                          output.append("LONGTEXT ")
+                      }
                   } else{
                       output.append("TINYTEXT ")
                   }
@@ -185,7 +218,7 @@ object ColumnStoreExporter {
       return output.toString();
   }
 
-  def export( database: String, table: String, df: DataFrame, configuration: String) : Unit = {
+  def export( database: String, table: String, df: DataFrame, configuration: String = "") : Unit = {
     val rows = df.collect()
     var driver: ColumnStoreDriver = null
     if (configuration == ""){
@@ -252,9 +285,4 @@ object ColumnStoreExporter {
       println("Invalid count: " + summary.getInvalidCount)
     }
   }
-  
-  def export( database: String, table: String, df: DataFrame) : Unit = {
-    export(database, table, df, "")
-  }
 }
-
