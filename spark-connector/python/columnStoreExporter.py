@@ -211,7 +211,12 @@ def generateTableStatement(dataFrame, database=None, table="spark_export", deter
                             else:
                                 columnType = "BIGINT UNSIGNED"
                 else:
-                    if column.dataType.precision <= 18 and column.dataType.scale <= 18 and column.dataType.scale <= column.dataType.precision:
+                    if column.dataType.scale == 0:
+                        if column.dataType.precision <= 18:
+                            columnType = "DECIMAL(" + str(column.dataType.precision) + "," + str(column.dataType.scale) + ")"
+                        else:
+                            columnType = "DECIMAL(18,0)"
+                    elif column.dataType.precision <= 18 and column.dataType.scale <= 18 and column.dataType.scale <= column.dataType.precision:
                         columnType = "DECIMAL(" + str(column.dataType.precision) + "," + str(column.dataType.scale) + ")"
                     else:
                         columnType = "DECIMAL(18,9)"
