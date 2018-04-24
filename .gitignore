@@ -1,6 +1,7 @@
 .gradle
 *.pyc
 .cache
+spark-connector/scala/src/main/resources/com/mariadb/columnstore/api/connector/resources/mcsapi_reserved_words.txt
 spark-connector/python/spark-warehouse
 spark-connector/python/test/.cache
 spark-connector/python/sparkPythonMcsapiConnector.pyc

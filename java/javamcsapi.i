@@ -61,9 +61,28 @@
       jenv->ThrowNew( eclass, e.what() );
     }
   }
+  catch ( std::bad_alloc & er ) {
+    jclass eclass = jenv->FindClass("com/mariadb/columnstore/api/ColumnStoreException");
+    if ( eclass ) {
+      jenv->ThrowNew( eclass, er.what() );
+    }
+  }
 }
 
 %module javamcsapi
+
+/* simplyfing enums without initializer */
+%include "enums.swg"
+
+%typemap(javain) enum SWIGTYPE "$javainput.ordinal()"
+%typemap(javaout) enum SWIGTYPE {
+    return $javaclassname.class.getEnumConstants()[$jnicall];
+  }
+%typemap(javabody) enum SWIGTYPE ""
+
+/* MCOL-1321 */
+%include "typemaps.i"
+%apply int *OUTPUT { mcsapi::columnstore_data_convert_status_t* status };
  
 /* swig includes for standard types / exceptions */
 %include <std_except.i>
@@ -87,8 +106,7 @@
     try {
       System.loadLibrary("javamcsapi");
     } catch (UnsatisfiedLinkError e) {
-      System.err.println("Native code library failed to load. \n" + e);
-      System.exit(1);
+      System.err.println("Native code library failed to load by parent classloader. \nEnsure that it is loaded by a child classloader\n" + e);
     }
   }
 %}

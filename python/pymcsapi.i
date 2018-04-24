@@ -22,14 +22,22 @@
   } catch (mcsapi::ColumnStoreError &e) {
     PyErr_SetString(PyExc_RuntimeError, const_cast<char*>(e.what()));
     SWIG_fail;
+  } catch (std::bad_alloc &er) {
+    PyErr_SetString(PyExc_RuntimeError, const_cast<char*>(er.what()));
+    SWIG_fail;
   }
 }
 
 %module pymcsapi
- 
+
 %{
 #include "libmcsapi/mcsapi.h"
 %}
+
+/* MCOL-1321 */
+%include "typemaps.i"
+%apply int *OUTPUT { mcsapi::columnstore_data_convert_status_t* status };
+/* MCOL-1321 */
 
 /* swig includes for standard types / exceptions */
 %include <std_except.i>
@@ -42,3 +50,4 @@
 %include "libmcsapi/mcsapi_exception.h"
 %include "libmcsapi/mcsapi_driver.h"
 %include "libmcsapi/mcsapi_bulk.h"
+

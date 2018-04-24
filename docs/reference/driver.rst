@@ -133,6 +133,39 @@ Example
        return 0;
    }
 
+setDebug()
+----------
+
+.. cpp:function:: void ColumnStoreDriver::setDebug(bool enabled)
+
+   Enables/disables verbose debugging output which is sent to stderr upon execution.
+
+   .. note::
+      This is a global setting which will apply to all instances of all of the API's classes after it is set until it is turned off.
+
+   :param enabled: Set to ``true`` to enable and ``false`` to disable.
+
+Example
+^^^^^^^
+.. code-block:: cpp
+   :linenos:
+
+   #include <iostream>
+   #include <libmcsapi/mcsapi.h>
+
+   int main(void)
+   {
+       try {
+           mcsapi::ColumnStoreDriver* driver = new mcsapi::ColumnStoreDriver();
+           driver->setDebug(true);
+           // Debugging output is now enabled
+       } catch (mcsapi::ColumnStoreError &e) {
+           std::cout << "Error caught: " << e.what() << std::endl;
+       }
+       return 0;
+   }
+
+
 getSystemCatalog()
 ------------------
 
