@@ -43,32 +43,39 @@ def export(database, table, df, configuration=None):
         for row in rows:
             for columnId in range(0, len(row)):
                 if columnId < dbTableColumnCount:
-                    if isinstance(row[columnId], bool):
-                        if row[columnId]:
-                            bulkInsert.setColumn(columnId, 1)
+                    if row.get(columnId) is None:
+                        if dbTable.getColumn(columnId).isNullable():
+                            bulkInsert.setNull(columnId)
                         else:
-                            bulkInsert.setColumn(columnId, 0)
-                    
-                    elif isinstance(row[columnId], datetime.date):
-                        bulkInsert.setColumn(columnId, row[columnId].strftime('%Y-%m-%d %H:%M:%S'))
-                    
-                    elif isinstance(row[columnId], decimal.Decimal):
-                        dbColumn = dbTable.getColumn(columnId)
-                        #DATA_TYPE_DECIMAL, DATA_TYPE_UDECIMAL, DATA_TYPE_FLOAT, DATA_TYPE_UFLOAT, DATA_TYPE_DOUBLE, DATA_TYPE_UDOUBLE
-                        if dbColumn.getType() == 4 or dbColumn.getType() == 18 or dbColumn.getType() == 7 or dbColumn.getType() == 21 or dbColumn.getType() == 10 or dbColumn.getType() == 23:
-                            s = '{0:f}'.format(row[columnId])
-                            bulkInsert.setColumn(columnId, pymcsapi.ColumnStoreDecimal(s))
-                        #ANY OTHER DATA TYPE
-                        else:
-                            bulkInsert.setColumn(columnId, long(row[columnId]))
-    
-                    #handle python2 unicode strings
-                    elif python2 and isinstance(row[columnId], unicode):
-                        bulkInsert.setColumn(columnId, row[columnId].encode('utf-8'))
-
-                    #any other datatype is inserted without parsing
+                            print("warning: column %d is not nullable. Using default value instead." % (columnId,))
+                            bulkInsert.setColumn(columnId, dbTable.getColumn(columnId).getDefaultValue())
                     else:
-                        bulkInsert.setColumn(columnId, row[columnId])
+                        if isinstance(row[columnId], bool):
+                            if row[columnId]:
+                                bulkInsert.setColumn(columnId, 1)
+                            else:
+                                bulkInsert.setColumn(columnId, 0)
+                    
+                        elif isinstance(row[columnId], datetime.date):
+                            bulkInsert.setColumn(columnId, row[columnId].strftime('%Y-%m-%d %H:%M:%S'))
+                    
+                        elif isinstance(row[columnId], decimal.Decimal):
+                            dbColumn = dbTable.getColumn(columnId)
+                            #DATA_TYPE_DECIMAL, DATA_TYPE_UDECIMAL, DATA_TYPE_FLOAT, DATA_TYPE_UFLOAT, DATA_TYPE_DOUBLE, DATA_TYPE_UDOUBLE
+                            if dbColumn.getType() == 4 or dbColumn.getType() == 18 or dbColumn.getType() == 7 or dbColumn.getType() == 21 or dbColumn.getType() == 10 or dbColumn.getType() == 23:
+                                s = '{0:f}'.format(row[columnId])
+                                bulkInsert.setColumn(columnId, pymcsapi.ColumnStoreDecimal(s))
+                            #ANY OTHER DATA TYPE
+                            else:
+                                bulkInsert.setColumn(columnId, long(row[columnId]))
+    
+                        #handle python2 unicode strings
+                        elif python2 and isinstance(row[columnId], unicode):
+                            bulkInsert.setColumn(columnId, row[columnId].encode('utf-8'))
+
+                        #any other datatype is inserted without parsing
+                        else:
+                            bulkInsert.setColumn(columnId, row[columnId])
             bulkInsert.writeRow()
         bulkInsert.commit()
     except Exception as e:
@@ -250,3 +257,4 @@ def generateTableStatement(dataFrame, database=None, table="spark_export", deter
             raise TypeError("unsupported datatype %s in dataframe" % (type(column),))
         
     return prefix + ''.join(column_list)[:-2] + postfix
+

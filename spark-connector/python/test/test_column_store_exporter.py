@@ -112,7 +112,9 @@ def test_all_types():
     else:
         testCase2 = TestRowStructure(long(0), long(-9223372036854775806), long(0), int(-2147483646), int(0), int(-32766), int(0), int(-126), float(1.234), float(2.34567), "A", "B", datetime.date(1000,1,1), datetime.datetime(1000,1,1,0,0,0), decimal.Decimal(-123), "C", False, decimal.Decimal("18446744073709551613"), decimal.Decimal("100000000.999999999"))
     testCase3 = TestRowStructure(long(9223372036854775807), long(9223372036854775807), long(4294967293), int(2147483647), int(65533), int(32767), int(253), int(127), float(1.234), float(2.34567), "ZYXW", "012345678901234567890123456789", datetime.date(9999,12,31), datetime.datetime(9999,12,31,23,59,59), decimal.Decimal(123), "012345678901234567890123456789", True, decimal.Decimal("2342"), decimal.Decimal("23.42"))
-    testCaseSeq = [testCase1, testCase2, testCase3]
+    testCase4 = TestRowStructure(42, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None)
+
+    testCaseSeq = [testCase1, testCase2, testCase3, testCase4]
     testDF = spark.createDataFrame(testCaseSeq)
     
     #write the test dataframe into columnstore
@@ -129,6 +131,7 @@ def test_all_types():
         else:
             verifyAllTypes(connection, table, 0, "0, -9223372036854775806, 0, -2147483646, 0, -32766, 0, -126, 1.234, 2.34567, A, B, 1000-01-01, 1000-01-01 00:00:00, -123, C, 0, 18446744073709551613, 100000000.999999999")
         verifyAllTypes(connection, table, 9223372036854775807, "9223372036854775807, 9223372036854775807, 4294967293, 2147483647, 65533, 32767, 253, 127, 1.234, 2.34567, ZYXW, 012345678901234567890123456789, 9999-12-31, 9999-12-31 23:59:59, 123, 012345678901234567890123456789, 1, 2342, 23.420000000")
+        verifyAllTypes(connection, table, 42, "42, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null")
     
     #drop the test tables
     cursor = connection.cursor()
@@ -136,4 +139,5 @@ def test_all_types():
     cursor.execute("DROP TABLE IF EXISTS pythontest2")
     cursor.close()
     connection.close()
+
 
