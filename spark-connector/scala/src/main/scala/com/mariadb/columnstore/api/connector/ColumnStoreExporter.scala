@@ -219,7 +219,9 @@ object ColumnStoreExporter {
   }
 
   def export( database: String, table: String, df: DataFrame, configuration: String = "") : Unit = {
-    val rows = df.collect()
+    println("number of partitions: " + df.rdd.getNumPartitions)
+    df.foreachPartition{ partition =>
+
     var driver: ColumnStoreDriver = null
     if (configuration == ""){
       driver = new ColumnStoreDriver()
@@ -236,7 +238,7 @@ object ColumnStoreExporter {
     
     // insert row by row into table
     try {
-      for (row <- rows){
+      partition.foreach{ row =>
         for (columnId <- 0 until row.size){
           if (columnId < dbTableColumnCount){
             if (row.get(columnId) == null){
@@ -296,6 +298,7 @@ object ColumnStoreExporter {
       println("Saturated count: " + summary.getSaturatedCount)
       println("Invalid count: " + summary.getInvalidCount)
     }
+  }
   }
 }
 
