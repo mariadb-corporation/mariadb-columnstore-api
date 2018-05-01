@@ -23,6 +23,7 @@ namespace mcsapi
 
 
 class ColumnStoreDateTimeImpl;
+class ColumnStoreTimeImpl;
 class ColumnStoreDecimalImpl;
 class ColumnStoreSummaryImpl;
 class ColumnStoreSystemCatalogImpl;
@@ -43,6 +44,22 @@ public:
     bool set(const std::string& dateTime, const std::string& format);
 private:
     ColumnStoreDateTimeImpl* mImpl;
+};
+
+class MCS_API ColumnStoreTime
+{
+    friend class ColumnStoreDataConvert;
+public:
+    ColumnStoreTime();
+    ColumnStoreTime(tm& time);
+    ColumnStoreTime(int32_t hour, uint32_t minute, uint32_t second, uint32_t microsecond = 0, bool is_negative = false);
+    ColumnStoreTime(const std::string& time, const std::string& format);
+
+    ~ColumnStoreTime();
+    bool set(tm& time);
+    bool set(const std::string& time, const std::string& format);
+private:
+    ColumnStoreTimeImpl* mImpl;
 };
 
 class MCS_API ColumnStoreDecimal
@@ -107,7 +124,8 @@ enum MCS_API columnstore_data_types_t
     DATA_TYPE_UFLOAT,
     DATA_TYPE_UBIGINT,
     DATA_TYPE_UDOUBLE,
-    DATA_TYPE_TEXT
+    DATA_TYPE_TEXT,
+    DATA_TYPE_TIME
 };
 
 class MCS_API ColumnStoreSystemCatalogColumn

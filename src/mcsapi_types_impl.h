@@ -56,13 +56,47 @@ public:
         this->second = p_second;
         this->microsecond = p_microsecond;
     }
-    
+
     uint32_t getDateInt();
     uint64_t getDateTimeInt();
+    uint64_t getTimeInt();
     void getDateTimeStr(std::string& sDateTime);
     columnstore_data_convert_status_t setFromString(const std::string& dateStr);
     bool validateDate();
 };
+
+class ColumnStoreTimeImpl
+{
+public:
+    bool is_neg;
+    int16_t hour;
+    uint8_t minute;
+    uint8_t second;
+    uint32_t microsecond; // Unused, for a later date
+    ColumnStoreTimeImpl() :
+        is_neg(false),
+        hour(0),
+        minute(0),
+        second(0),
+        microsecond(0)
+    { }
+
+    ColumnStoreTimeImpl(bool p_is_neg, int16_t p_hour, uint8_t p_minute, uint8_t p_second, uint32_t p_microsecond)
+    {
+        this->is_neg = p_is_neg;
+        this->hour = p_hour;
+        this->minute = p_minute;
+        this->second = p_second;
+        this->microsecond = p_microsecond;
+    }
+
+    uint64_t getDateTimeInt();
+    uint64_t getTimeInt();
+    void getTimeStr(std::string& sTime);
+    columnstore_data_convert_status_t setFromString(const std::string& timeStr);
+    bool validateTime();
+};
+
 
 class ColumnStoreDecimalImpl
 {
