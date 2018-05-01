@@ -158,6 +158,22 @@ ColumnStoreDateTime()
    :param format: The format specifier for the date/time string. This uses the `strptime format <http://pubs.opengroup.org/onlinepubs/9699919799/functions/strptime.html>`_.
    :raises ColumnStoreDataError: When an invalid date or time is supplied
 
+.. cpp:function:: ColumnStoreDateTime::ColumnStoreDateTime(uint32_t year, uint32_t month, uint32_t day, uint32_t hour, uint32_t minute, uint32_t second, uint32_t microsecond)
+
+   Sets the date/time based on a given set of intergers
+
+   .. note::
+      Microseconds are for future usage, they are not currently supported in ColumnStore.
+
+   :param year: The year
+   :param month: The month of year
+   :param day: The day of month
+   :param hour: The hour
+   :param minute: The minute
+   :param second: The second
+   :param microsecond: The microseconds
+   :raises ColumnStoreDataError: When an invalid date or time is supplied
+
 set()
 -----
 
@@ -264,6 +280,9 @@ ColumnStoreSystemCatalog Class
 
    A class which contains the ColumnStore system catalog of tables and columns. It should be instantiated using :cpp:func:`ColumnStoreDriver::getSystemCatalog`.
 
+   .. note::
+      The system catalog stores schema, table and column names as lower case and therefore the functions only return lower case names. Since version 1.1.4 we make case insensitive matches.
+
 getTable()
 ----------
 
@@ -283,10 +302,14 @@ ColumnStoreSystemCatalogTable Class
 
    A class which contains the system catalog information for a specific table. It should be instantiated using :cpp:func:`ColumnStoreSystemCatalog::getTable`.
 
+   .. note::
+      The system catalog stores schema, table and column names as lower case and therefore the functions only return lower case names. Since version 1.1.4 we make case insensitive matches.
+
+
 getSchemaName()
 ---------------
 
-.. cpp:function:: std::string& ColumnStoreSystemCatalogTable::getSchemaName()
+.. cpp:function:: const std::string& ColumnStoreSystemCatalogTable::getSchemaName()
 
    Retrieves the database schema name for the table
 
@@ -295,7 +318,7 @@ getSchemaName()
 getTableName()
 --------------
 
-.. cpp:function:: std::string& ColumnStoreSystemCatalogTable::getTableName()
+.. cpp:function:: const std::string& ColumnStoreSystemCatalogTable::getTableName()
 
    Retrieves the table name for the table
 
@@ -346,6 +369,10 @@ ColumnStoreSystemCatalogColumn Class
 
    A class containing information about a specific column in the system catalog. Should be instantiated using :cpp:func:`ColumnStoreSystemCatalogTable::getColumn`.
 
+   .. note::
+      The system catalog stores schema, table and column names as lower case and therefore the functions only return lower case names. Since version 1.1.4 we make case insensitive matches.
+
+
 getOID()
 --------
 
@@ -358,7 +385,7 @@ getOID()
 getColumnName()
 ---------------
 
-.. cpp:function:: std::string& ColumnStoreSystemCatalogColumn::getColumnName()
+.. cpp:function:: const std::string& ColumnStoreSystemCatalogColumn::getColumnName()
 
    Retrieves the name of the column
 
@@ -403,7 +430,7 @@ getPosition()
 getDefaultValue()
 -----------------
 
-.. cpp:function:: std::string& ColumnStoreSystemCatalogColumn::getDefaultValue()
+.. cpp:function:: const std::string& ColumnStoreSystemCatalogColumn::getDefaultValue()
 
    Retrieves the default value for the column in text. The value is empty for no default.
 

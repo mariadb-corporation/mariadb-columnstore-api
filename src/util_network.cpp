@@ -204,8 +204,7 @@ void ColumnStoreNetwork::onReadData(uv_stream_t* tcp, ssize_t read_size, const u
     }
     mcsdebug_hex(buf->base, (size_t)read_size);
     This->dataInBuffer += read_size;
-    // TODO: need a better way of tracking this
-    This->messageOut->setDataSize(This->dataInBuffer);
+    This->messageOut->setBufferUsedSize(This->dataInBuffer);
     if (This->messageOut->isCompletePacket())
     {
         // TODO: move to readDataStop?
@@ -256,10 +255,10 @@ void ColumnStoreNetwork::uncompressData(size_t result_length)
     uint32_t headerData = messageOut->getHeader();
     memcpy(uncompressedHeader, &headerData, 4);
     memcpy(uncompressedHeader+4, &result_length, 4);
-    messageOut->setDataSize(result_length+8);
+    messageOut->setBufferUsedSize(result_length+8);
     // Copy so that the pointers are OK
     *compressedMessageOut = *messageOut;
-    delete messageOut;
+    deleteReadMessage();
 }
 
 void ColumnStoreNetwork::onWriteData(uv_write_t* req, int status)
@@ -270,7 +269,7 @@ void ColumnStoreNetwork::onWriteData(uv_write_t* req, int status)
     delete req;
     delete[] This->buf;
     This->buf = nullptr;
-    delete This->compressedBuffer;
+    delete[] This->compressedBuffer;
     This->compressedBuffer = nullptr;
     if (status < 0)
     {
@@ -404,11 +403,11 @@ void ColumnStoreNetwork::readDataStop()
 void ColumnStoreNetwork::onAlloc(uv_handle_t *client, size_t suggested_size, uv_buf_t *buf)
 {
     ColumnStoreNetwork* This = (ColumnStoreNetwork*)client->data;
-    mcsdebug("Class %p increasing read buffer to %zu bytes", (void*)This, suggested_size);
-    std::vector<unsigned char> *packet_data = This->messageOut->getDataPtr();
+    mcsdebug("Class %p request to increase read buffer to %zu bytes", (void*)This, suggested_size);
     This->messageOut->allocateDataSize(suggested_size);
-    buf->base = reinterpret_cast<char*>(packet_data->data());
-    buf->len = suggested_size;
+    mcsdebug("Class %p read buffer is now %zu bytes", (void*)This, This->messageOut->getBufferFreeSize());
+    buf->base = reinterpret_cast<char*>(This->messageOut->getBufferEmptyPos());
+    buf->len = This->messageOut->getBufferFreeSize();
 }
 
 }

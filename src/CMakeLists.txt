@@ -1,13 +1,22 @@
-include_directories(${LIBXML2_INCLUDE_DIR})
+if (Boost_VERSION VERSION_LESS 105800)
+    include_directories(${LIBXML2_INCLUDE_DIR} ../boost/multiprecision/include ../boost/type_traits/include ../boost/config/include ../boost/lexical_cast/include)
+else()
+    include_directories(${LIBXML2_INCLUDE_DIR})
+endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__FILENAME__='\"$(subst ${CMAKE_SOURCE_DIR}/,,$(abspath $<))\"'")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBUILDING_MCSAPI")
 
+if (HAVE_GET_TIME)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAVE_GET_TIME=1")
+endif()
+
 set(SOURCE_FILES
     mcsapi_driver.cpp
     mcsapi_types.cpp
     mcsapi_bulk.cpp
+    util_debug.cpp
     util_dataconvert.cpp
     util_messaging.cpp
     util_network.cpp

@@ -11,14 +11,14 @@ Ubuntu
 
 .. code-block:: console
 
-   sudo apt-get install libsnappy1v5 libuv1 libxml2 g++ gcc pkg-config
+   sudo apt-get install libsnappy1v5 libuv1 libxml2 g++ gcc pkg-config libbost-dev
 
 CentOS 7
 ^^^^^^^^
 
 .. code-block:: console
 
-   sudo yum install snappy libuv libxml2 pkgconfig
+   sudo yum install snappy libuv libxml2 pkgconfig boost-devel
    sudo yum install centos-release-scl
    sudo yum install devtoolset-4-gcc*
    scl enable devtoolset-4 bash
@@ -32,5 +32,5 @@ The following is a basic example of how to do compile an example c++ application
 
 .. code-block:: console
 
-   g++ example.cpp -o example `pkg-config libmcsapi --cflags --libs
+   g++ example.cpp -o example -std=c++11 `pkg-config libmcsapi --cflags --libs`
 

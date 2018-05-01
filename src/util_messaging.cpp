@@ -31,7 +31,7 @@ ColumnStoreMessaging& ColumnStoreMessaging::operator =(const ColumnStoreMessagin
     lengths = obj.lengths;
     networkData = obj.networkData;
     position = obj.position;
-    current_size = obj.current_size;
+    buffer_used = obj.buffer_used;
 
     return *this;
 }
@@ -97,7 +97,7 @@ ColumnStoreMessaging& ColumnStoreMessaging::operator >>(uint8_t& data)
         position += 8;
     }
 
-    if (position+1 <= current_size)
+    if (position+1 <= buffer_used)
     {
         data = networkData[position];
         position++;
@@ -117,7 +117,7 @@ ColumnStoreMessaging& ColumnStoreMessaging::operator >>(uint16_t& data)
         position += 8;
     }
 
-    if (position+2 <= current_size)
+    if (position+2 <= buffer_used)
     {
         memcpy(&data, &(networkData[position]), 2);
         position += 2;
@@ -137,7 +137,7 @@ ColumnStoreMessaging& ColumnStoreMessaging::operator >>(uint32_t& data)
         position += 8;
     }
 
-    if (position+4 <= current_size)
+    if (position+4 <= buffer_used)
     {
         memcpy(&data, &(networkData[position]), 4);
         position += 4;
@@ -157,7 +157,7 @@ ColumnStoreMessaging& ColumnStoreMessaging::operator >>(uint64_t& data)
         position += 8;
     }
 
-    if (position+8 <= current_size)
+    if (position+8 <= buffer_used)
     {
         memcpy(&data, &(networkData[position]), 8);
         position += 8;
@@ -179,7 +179,7 @@ ColumnStoreMessaging& ColumnStoreMessaging::operator >>(std::string& data)
 
     // 4 bytes for length, then data
     uint32_t length;
-    if (position+4 <= current_size)
+    if (position+4 <= buffer_used)
     {
         memcpy(&length, &(networkData[position]), 4);
         position += 4;
@@ -190,7 +190,7 @@ ColumnStoreMessaging& ColumnStoreMessaging::operator >>(std::string& data)
         throw ColumnStoreBufferError(err);
     }
 
-    if (position+length <= current_size)
+    if (position+length <= buffer_used)
     {
         data.assign((const char*)&(networkData[position]), (size_t)length);
         position += length;
@@ -220,7 +220,7 @@ size_t ColumnStoreMessaging::getDataLength()
 bool ColumnStoreMessaging::isCompletePacket()
 {
     uint32_t length = getDataLength();
-    if ((current_size > 8) && (current_size == length + 8))
+    if ((buffer_used > 8) && (buffer_used == length + 8))
     {
         return true;
     }
@@ -256,4 +256,12 @@ bool ColumnStoreMessaging::isUncompressedHeader()
     return false;
 }
 
+void ColumnStoreMessaging::allocateDataSize(size_t size)
+{
+    size_t free = networkData.size() - buffer_used;
+    if (free < size)
+    {
+        networkData.resize(size + networkData.size());
+    }
+}
 }
