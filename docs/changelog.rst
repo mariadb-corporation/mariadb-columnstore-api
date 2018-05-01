@@ -6,8 +6,10 @@ This is a version history of C++ API interface changes. It does not include inte
 +---------+---------------------------------------------------------------------------------------------------------------------------------------+
 | Version | Changes                                                                                                                               |
 +=========+=======================================================================================================================================+
+| 1.2.0   | - Add support for TIME datatype with :cpp:class:`ColumnStoreTime`                                                                     |
++---------+---------------------------------------------------------------------------------------------------------------------------------------+
 | 1.1.4   | - Make :cpp:func:`ColumnStoreSystemCatalogColumn::getColumn` and :cpp:func:`ColumnStoreSystemCatalogTable::getTable` case insensitive |
-|         | - Add :cpp:func:`ColumnStoreDriver::setDebug` to enable debugging output to stderr                                                                                                                                      |
+|         | - Add :cpp:func:`ColumnStoreDriver::setDebug` to enable debugging output to stderr                                                    |
 +---------+---------------------------------------------------------------------------------------------------------------------------------------+
 | 1.1.1   | - Add :cpp:func:`ColumnStoreBulkInsert::isActive`                                                                                     |
 |         | - Make :cpp:func:`ColumnStoreBulkInsert::rollback` fail without error                                                                 |
