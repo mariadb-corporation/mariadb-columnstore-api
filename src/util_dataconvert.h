@@ -29,6 +29,7 @@ public:
     static columnstore_data_convert_status_t convert(ColumnStoreSystemCatalogColumn* toMeta, ColumnStoreDataContainer* cont, double fromValue);
     static columnstore_data_convert_status_t convert(ColumnStoreSystemCatalogColumn* toMeta, ColumnStoreDataContainer* cont, const std::string& fromValue);
     static columnstore_data_convert_status_t convert(ColumnStoreSystemCatalogColumn* toMeta, ColumnStoreDataContainer* cont, ColumnStoreDateTime& fromValue);
+    static columnstore_data_convert_status_t convert(ColumnStoreSystemCatalogColumn* toMeta, ColumnStoreDataContainer* cont, ColumnStoreTime& fromValue);
     static columnstore_data_convert_status_t convert(ColumnStoreSystemCatalogColumn* toMeta, ColumnStoreDataContainer* cont, ColumnStoreDecimal& fromValue);
     static columnstore_data_convert_status_t getNull(ColumnStoreSystemCatalogColumn* toMeta, ColumnStoreDataContainer* cont);
 };
