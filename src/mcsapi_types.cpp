@@ -131,7 +131,7 @@ void ColumnStoreTimeImpl::getTimeStr(std::string& sTime)
 {
     char time[20];
     char* time_ptr = time;
-    if (is_neg)
+    if ((is_neg) && (hour >= 0))
     {
         time_ptr[0] = '-';
         time_ptr++;

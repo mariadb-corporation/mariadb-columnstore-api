@@ -72,7 +72,7 @@ TEST(DataConvertTime, DataConvertTime)
         sTm.tm_hour = 13;
         sTm.tm_min = 28;
         sTm.tm_sec = 47;
-        mcsapi::ColumnStoreDateTime tData;
+        mcsapi::ColumnStoreTime tData;
         tData.set(sTm);
         bulk->setColumn(0, (uint64_t) 1);
         bulk->setColumn(1, tData);
@@ -101,7 +101,8 @@ TEST(DataConvertTime, DataConvertTime)
         bulk->setColumn(1, tp1);
         bulk->setColumn(2, tp1);
         bulk->setColumn(3, tp1);
-        bulk->writeRow(); 
+        bulk->setColumn(4, tp1);
+        bulk->writeRow();
         mcsapi::ColumnStoreTime tp2(-0, 12, 12, 0, true);
         bulk->setColumn(0, (uint64_t) 5);
         bulk->setColumn(1, tp2);
@@ -114,7 +115,7 @@ TEST(DataConvertTime, DataConvertTime)
         if (bulk) bulk->rollback();
         FAIL() << "Error caught: " << e.what() << std::endl;
     }
-    if (mysql_query(my_con, "SELECT * FROM dataconvertdatetime"))
+    if (mysql_query(my_con, "SELECT * FROM dataconverttime"))
         FAIL() << "Could not run test query: " << mysql_error(my_con);
     MYSQL_RES* result = mysql_store_result(my_con);
     if (!result)
@@ -140,7 +141,7 @@ TEST(DataConvertTime, DataConvertTime)
     ASSERT_STREQ(row[4], "0000-00-00 00:00:00");
     row = mysql_fetch_row(result);
     ASSERT_STREQ(row[0], "4");
-    ASSERT_STREQ(row[1], "-838:29:29.123456");
+    ASSERT_STREQ(row[1], "-838:29:29");
     ASSERT_STREQ(row[2], "-838:29:29");
     ASSERT_STREQ(row[3], "-838:29:29.123456");
     ASSERT_STREQ(row[4], "0000-00-00 00:29:29");
