@@ -184,6 +184,29 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, C
     return this;
 }
 
+ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, ColumnStoreTime& value, columnstore_data_convert_status_t* status)
+{
+    mImpl->runChecks(columnNumber);
+    columnstore_data_convert_status_t convert_status;
+    ColumnStoreSystemCatalogColumn column = mImpl->tbl->getColumn(columnNumber);
+    ColumnStoreDataContainer* cont = &(*mImpl->row)[columnNumber];
+    convert_status = ColumnStoreDataConvert::convert(&column, cont, value);
+    if (status)
+    {
+        *status = convert_status;
+    }
+    ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
+    summaryImpl->setStatus(convert_status);
+
+    if (mImpl->truncateIsError && convert_status == CONVERT_STATUS_TRUNCATED)
+    {
+        std::string errmsg = "Column " + std::to_string(columnNumber) + " truncated";
+        throw ColumnStoreDataError(errmsg);
+    }
+
+    return this;
+}
+
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, ColumnStoreDecimal& value, columnstore_data_convert_status_t* status)
 {
     mImpl->runChecks(columnNumber);
