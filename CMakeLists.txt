@@ -16,6 +16,17 @@ if(NOT COMPILER_SUPPORTS_CXX11)
     message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
 endif()
 
+CHECK_CXX_SOURCE_COMPILES("
+#include <time.h>
+#include <sstream>
+#include <iomanip>
+int main(int argc, char** argv){
+    tm time = {};
+    std::istringstream ss(\"01-01-01 00:00:00\");
+    ss >> std::get_time(&time, \"%Y\");
+    return 0;
+}" HAVE_GET_TIME)
+
 include(cmake/version.cmake)
 
 # use, i.e. don't skip the full RPATH for the build tree
@@ -64,7 +75,19 @@ if (NOT SNAPPY_FOUND)
     MESSAGE(FATAL_ERROR "Could not find a usable snappy development environment!")
 endif()
 
+find_package(Boost REQUIRED)
+
+if (Boost_VERSION VERSION_LESS 105800)
+    find_path(BOOST_SUB_DIR "boost/multiprecision/include")
+
+    if ((NOT BOOST_SUB_DIR) OR (NOT EXISTS ${BOOST_SUB_DIR}))
+        execute_process(COMMAND git submodule update --init
+                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    endif()
+endif()
+
 include_directories(${CMAKE_SOURCE_DIR})
+include_directories(${CMAKE_BINARY_DIR})
 
 OPTION(RUN_CPPCHECK "Run cppcheck" OFF)
 
@@ -87,11 +110,30 @@ add_subdirectory(libmcsapi)
 add_subdirectory(src)
 add_subdirectory(example)
 
-OPTION(PYTHON "Build Python bindings" OFF)
+option(DEB "Build a DEB" OFF)
+option(RPM "Build an RPM" OFF)
+OPTION(PYTHON "Build Python bindings" ON)
 
 IF(PYTHON)
   add_subdirectory(python)
 ENDIF(PYTHON)
+
+OPTION(JAVA "Build Java bindings" ON)
+
+IF(JAVA)
+    add_subdirectory(java)
+ENDIF(JAVA)
+
+OPTION(SPARK_CONNECTOR "Build spark connector" ON)
+
+IF(SPARK_CONNECTOR)
+  IF(JAVA)
+    add_subdirectory(spark-connector/scala)
+  ENDIF(JAVA)
+  IF(PYTHON)
+    add_subdirectory(spark-connector/python)
+  ENDIF(PYTHON)
+ENDIF(SPARK_CONNECTOR)  
 
 option(BUILD_DOCS "Build the documentation" OFF)
 #option(PDFLATEX_COMPILER "Build the pdf documentation (requires latex)" OFF)
@@ -113,8 +155,6 @@ install(FILES "README.md"
     DESTINATION "${CMAKE_INSTALL_DOCDIR}" COMPONENT libs
 )
 
-option(RPM "Build an RPM" OFF)
-
 if (RPM)
     SET(CPACK_GENERATOR "RPM")
     SET(CPACK_RPM_PACKAGE_VERSION ${VERSION_SHORT})
@@ -126,16 +166,15 @@ if (RPM)
     include(CPack)
 endif()
 
-option(DEB "Build a DEB" OFF)
-
 if (DEB)
     SET(CPACK_GENERATOR "DEB")
     SET(CPACK_DEBIAN_PACKAGE_VERSION ${VERSION_SHORT})
     SET(CPACK_DEBIAN_PACKAGE_RELEASE "1")
     SET(CPACK_DEBIAN_PACKAGE_NAME "mariadb-columnstore-api")
     SET(CPACK_PACKAGE_CONTACT "MariaDB Corporation")
-    SET(ENGINE_ARCH "x86_64")
-    SET(CPACK_PACKAGE_FILE_NAME "${CPACK_DEBIAN_PACKAGE_NAME}-${CPACK_DEBIAN_PACKAGE_VERSION}-${CPACK_DEBIAN_PACKAGE_RELEASE}-${ENGINE_ARCH}-${DEB}")
+    SET(ENGINE_ARCH "amd64")
+    SET(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+    SET(CPACK_PACKAGE_FILE_NAME "${CPACK_DEBIAN_PACKAGE_NAME}-${CPACK_DEBIAN_PACKAGE_VERSION}-${CPACK_DEBIAN_PACKAGE_RELEASE}-${DEB}.${ENGINE_ARCH}")
     include(CPack)
 endif()
 
@@ -155,6 +194,8 @@ MESSAGE(STATUS "TEST_RUNNER = ${TEST_RUNNER}")
 MESSAGE(STATUS "RUN_CPPCHECK = ${RUN_CPPCHECK}")
 MESSAGE(STATUS "BUILD_DOCS = ${BUILD_DOCS}")
 MESSAGE(STATUS "PYTHON = ${PYTHON}")
+MESSAGE(STATUS "JAVA = ${JAVA}")
+MESSAGE(STATUS "SPARK_CONNECTOR = ${SPARK_CONNECTOR}")
 MESSAGE(STATUS "RPM = ${RPM}")
 MESSAGE(STATUS "DEB = ${DEB}")
 #MESSAGE(STATUS "PDFLATEX_COMPILER = ${PDFLATEX_COMPILER}")

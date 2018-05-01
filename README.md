@@ -1,11 +1,8 @@
 # MariaDB ColumnStore API
 
-**WARNING**
-This is a work-in-progress tree for the MariaDB ColumnStore API. *It should currently be considered alpha quality.*
+The API requires MariaDB ColumnStore 1.2 (current develop branch) to operate.
 
-It requires MariaDB ColumnStore 1.2 (current develop branch) to operate.
-
-This C++ API currently provides access to bulk write to ColumnStore in a similar way to the cpimport using.
+This C++, Python and Java API currently provides access to bulk write to ColumnStore in a similar way to the cpimport using.
 
 ## Bugs
 
@@ -16,12 +13,12 @@ Please file bugs using the [MariaDB ColumnStore Jira](https://jira.mariadb.org/b
 **NOTE**
 CentOS 6 is not currently supported and it is not expected that the API will build on this platform.
 
-### Ubuntu 16.04 (Xenial)
+### Ubuntu 16.04 (Xenial) / Debian 9 (Stretch)
 
 For the main build you need:
 
 ```shell
-sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config
+sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config swig python-dev python3-dev default-jdk libboost-dev
 ```
 
 For the documentation:
@@ -33,7 +30,7 @@ sudo apt-get install python-sphinx texlive-latex-recommended texlive-latex-extra
 For test test suite:
 
 ```shell
-sudo apt-get install libgtest-dev cppcheck
+sudo apt-get install libgtest-dev cppcheck default-libmysqlclient-dev
 cd /usr/src/gtest
 sudo cmake . -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_SHARED_LIBS=ON
 sudo make
@@ -41,7 +38,7 @@ sudo mv libg* /usr/lib/
 ```
 ### Debian 8 (Jessie)
 
-Debian Jessie will only compile if the latest CLang is along with LLVM's libc++, it also requires packages that are not in the main repositories. First of all you need Debian's Jessie backports repository enabled, edit the file `/etc/apt/sources.list` and add the following line:
+Debian Jessie requires packages that are not in the main repositories. First of all you need Debian's Jessie backports repository enabled, edit the file `/etc/apt/sources.list` and add the following line:
 
 ```
 deb http://httpredir.debian.org/debian jessie-backports main contrib non-free
@@ -50,27 +47,29 @@ deb http://httpredir.debian.org/debian jessie-backports main contrib non-free
 Then install the following:
 
 ```shell
-sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config clang-3.8 libc++-dev
+sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config libc++-dev swig python-dev python3-dev libboost-dev
 ```
 
-Now set the following environment variables so that CLang is used to compile:
-
+A JavaSDK >= 8 is required to run properly. If not installed do the following:
 ```shell
-export CC=clang-3.8
-export CXX=clang++-3.8
-export CXXFLAGS=-stdlib=libc++
+sudo apt-get install -t jessie-backports openjdk-8-jdk
+```
+If more than one JavaSDK is installed, change the default to >= 8 by:
+```shell
+sudo update-alternatives --config java
 ```
 
 For the documentation:
 
 ```shell
 sudo apt-get install python-sphinx texlive-latex-recommended texlive-latex-extra latexmk python-pip
-sudo pip install python-sphinx
+sudo pip install sphinx
 ```
 
-For the test suite make sure you still have the exported environment variables above and then do the following in a directory separate from the API:
+For the test suite do the following in a directory separate from the API:
 
 ```shell
+sudo apt-get install cppcheck libmysqlclient-dev
 git clone https://github.com/google/googletest
 cd googletest
 cmake . -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_SHARED_LIBS=ON
@@ -87,19 +86,23 @@ sudo yum install epel-release
 sudo yum install cmake libuv-devel libxml2-devel snappy-devel
 sudo yum install centos-release-scl
 sudo yum install devtoolset-4-gcc*
+sudo yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel swig python-devel python34-devel boost-devel
 scl enable devtoolset-4 bash
 ```
+
+**NOTE** Corresponding to your python3 installation, the correct devel packets need to be installed.
 
 For the documentation:
 
 ```shell
 sudo yum install python-sphinx texlive-scheme-full latexmk
+
 ```
 
 For the test suite:
 
 ```shell
-sudo yum install gtest-devel cppcheck
+sudo yum install gtest-devel cppcheck mariadb-devel
 ```
 
 ### SUSE Enterprise Linux 12
@@ -107,7 +110,7 @@ sudo yum install gtest-devel cppcheck
 For the main build you need GCC5 minimum. For this example we are using GCC6, you will need the SDK and Toolchain modules enabled in Yast first:
 
 ```shell
-sudo zypper install gcc6 gcc6-c++ cmake libxml2-devel snappy-devel git
+sudo zypper install gcc6 gcc6-c++ cmake libxml2-devel snappy-devel git boost-devel
 
 export CC=/usr/bin/gcc-6
 export CXX=/usr/bin/g++-6
@@ -158,6 +161,9 @@ The options are as follows:
 | ``BUILD_DOCS`` | ``OFF`` | Build the PDF documentation |
 | ``RPM`` | ``OFF`` | Build a RPM (and the OS name for the package) |
 | ``DEB`` | ``OFF`` | Build a DEB (and the OS name for the package) |
+| ``PYTHON`` | ``ON`` | Build the Python library |
+| ``JAVA`` | ``ON`` | Build the Java library |
+| ``SPRK_CONNECTOR`` | ``ON`` | Build the spark-connector library for Python and Scala |
 | ``RUN_CPPCHECK`` | ``OFF`` | Run cppcheck during ``make test`` or ``make all_cppcheck``|
 
 ### Compiling
@@ -166,6 +172,21 @@ After running CMake as described above you simple need to run ``make`` and then 
 To run the test suite you can run ``make check``.
 
 ## Building a Package
+
+In addition to the normal dependencies, the following packages need to be
+installed for packaging.
+
+### CentOS/RHEL and SLES
+
+```
+sudo yum -y install rpm-build
+```
+
+### Debian and Ubuntu (all versions)
+
+```
+sudo apt-get -y install dpkg-dev
+```
 
 To build an RPM or DEB package you first need to specify the OS you want to build for, for example:
 
@@ -180,5 +201,6 @@ cmake . -DDEB=xenial
 You should of course add options as above to this as required. Then you can build the package using:
 
 ```shell
-make package
+sudo make package
 ```
+

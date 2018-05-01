@@ -54,7 +54,7 @@ class TestEnvironment : public ::testing::Environment {
 };
 
 
-/* Test that we can insert 1,000,000 rows */
+/* Test that we can insert 10,000,000 rows */
 TEST(MillionRow, MillionRow)
 {
     std::string table("millionrow");
@@ -64,10 +64,10 @@ TEST(MillionRow, MillionRow)
     try {
         driver = new mcsapi::ColumnStoreDriver();
         bulk = driver->createBulkInsert(db, table, 0, 0);
-        for (int i = 0; i < 1000000; i++)
+        for (int i = 0; i < 10000000; i++)
         {
         	bulk->setColumn(0, (uint32_t)i);
-            bulk->setColumn(1, (uint32_t)1000000 - i);
+            bulk->setColumn(1, (uint32_t)10000000 - i);
         	bulk->writeRow();
         }
         bulk->commit();
@@ -80,7 +80,17 @@ TEST(MillionRow, MillionRow)
     if (!result)
         FAIL() << "Could not get result data: " << mysql_error(my_con);
     MYSQL_ROW row = mysql_fetch_row(result);
-    ASSERT_STREQ(row[0], "1000000");
+    ASSERT_STREQ(row[0], "10000000");
+    mysql_free_result(result);
+    // MCOL-1176 Test past extent boundary but still part of a single
+    // batch (within 11392 past extent end)
+    if (mysql_query(my_con, "SELECT * FROM millionrow WHERE b=8388610"))
+        FAIL() << "Could not run test query: " << mysql_error(my_con);
+    result = mysql_store_result(my_con);
+    if (!result)
+        FAIL() << "Could not get result data: " << mysql_error(my_con);
+    row = mysql_fetch_row(result);
+    ASSERT_STREQ(row[0], "1611390");
     mysql_free_result(result);
     if (mysql_query(my_con, "DROP TABLE millionrow"))
         FAIL() << "Could not drop table: " << mysql_error(my_con);

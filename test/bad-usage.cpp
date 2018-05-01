@@ -185,6 +185,37 @@ TEST(BadUsage, SecondCommit)
     delete driver;
 }
 
+/* Test that write after reset fails */
+TEST(BadUsage, WriteAfterReset)
+{
+    std::string table("badusage");
+    std::string db("mcsapi");
+    mcsapi::ColumnStoreDriver* driver;
+    mcsapi::ColumnStoreBulkInsert* bulk;
+    driver = new mcsapi::ColumnStoreDriver();
+    bulk = driver->createBulkInsert(db, table, 0, 0);
+    bulk->setColumn(0, (uint32_t)1);
+    bulk->setColumn(1, (uint32_t)1000);
+    bulk->resetRow();
+    ASSERT_THROW(bulk->writeRow(), mcsapi::ColumnStoreUsageError);
+    delete bulk;
+    delete driver;
+}
+
+/* Test assert on table lock */
+TEST(BadUsage, AssertTableLock)
+{
+    std::string table("badusage");
+    std::string db("mcsapi");
+    mcsapi::ColumnStoreDriver* driver;
+    mcsapi::ColumnStoreBulkInsert* bulk;
+    driver = new mcsapi::ColumnStoreDriver();
+    bulk = driver->createBulkInsert(db, table, 0, 0);
+    ASSERT_THROW(driver->createBulkInsert(db, table, 0, 0), mcsapi::ColumnStoreServerError);
+    delete bulk;
+    delete driver;
+}
+
 
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);

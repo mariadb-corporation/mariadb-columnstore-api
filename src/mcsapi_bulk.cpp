@@ -224,6 +224,17 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setNull(uint16_t columnNumber, col
     return this;
 }
 
+ColumnStoreBulkInsert* ColumnStoreBulkInsert::resetRow()
+{
+    if (mImpl->transactionClosed)
+    {
+        std::string errmsg = "Bulk insert has been committed or rolled back and cannot be reused";
+        throw ColumnStoreUsageError(errmsg);
+    }
+    mImpl->row->clear();
+    return this;
+}
+
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::writeRow()
 {
     if (mImpl->transactionClosed)
@@ -265,6 +276,12 @@ void ColumnStoreBulkInsert::commit()
 {
     ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
 
+    if (mImpl->transactionClosed)
+    {
+        std::string errmsg = "Bulk insert has been already been committed or rolled back";
+        throw ColumnStoreUsageError(errmsg);
+    }
+
     if (mImpl->tableData.row_number > 0)
     {
         uint16_t pm = mImpl->pmList[mImpl->currentPm];
@@ -278,8 +295,6 @@ void ColumnStoreBulkInsert::commit()
         std::vector<uint64_t> lbids;
         std::vector<ColumnStoreHWM> hwms;
         mImpl->commands->weGetWrittenLbids(pmit, mImpl->uniqueId, mImpl->txnId, lbids);
-        mImpl->commands->weClose(pmit);
-        mImpl->commands->weKeepAlive(pmit);
         mImpl->commands->weBulkCommit(pmit, mImpl->uniqueId, mImpl->sessionId, mImpl->txnId, mImpl->tbl->getOID(), hwms);
         mImpl->commands->brmSetHWMAndCP(hwms, lbids, mImpl->txnId);
     }
@@ -297,9 +312,19 @@ void ColumnStoreBulkInsert::commit()
     summaryImpl->stopTimer();
 }
 
+bool ColumnStoreBulkInsert::isActive()
+{
+    return !mImpl->transactionClosed;
+}
+
 void ColumnStoreBulkInsert::rollback()
 {
     ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
+
+    if (mImpl->transactionClosed)
+    {
+        return;
+    }
 
     for (auto& pmit: mImpl->pmList)
     {
@@ -315,6 +340,7 @@ void ColumnStoreBulkInsert::rollback()
         mImpl->commands->weRemoveMeta(pmit, mImpl->uniqueId, mImpl->tbl->getOID());
         mImpl->commands->weClose(pmit);
     }
+    mImpl->commands->brmRolledback(mImpl->txnId);
     mImpl->commands->brmReleaseTableLock(mImpl->tblLock);
     mImpl->autoRollback = false;
     mImpl->transactionClosed = true;
@@ -344,7 +370,6 @@ ColumnStoreBulkInsertImpl::ColumnStoreBulkInsertImpl(const std::string& iDb, con
     uniqueId(0),
     tblLock(0),
     txnId(0),
-    sessionId(65535), // Maybe change this later?
     row(nullptr),
     batchSize(10000),
     autoRollback(true),
@@ -352,6 +377,7 @@ ColumnStoreBulkInsertImpl::ColumnStoreBulkInsertImpl(const std::string& iDb, con
     truncateIsError(false),
     currentPm(0)
 {
+    sessionId = rand() % 65535 + 65535;
     summary = new ColumnStoreSummary();
     if (iMode == 1)
     {
