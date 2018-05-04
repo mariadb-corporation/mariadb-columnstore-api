@@ -86,15 +86,15 @@ public class BasicTest extends Common {
 
     private void verifyAllTypes(Connection conn, long id, String expected) {
         String QUERY_ALL_TYPES = "select uint64, int64, uint32, int32, uint16, int16, uint8, `int8`, " +
-                "f, d, ch4, vch30, dt, dtm, dc, tx from all_types where uint64 = ?";
+                "f, d, ch4, vch30, dt, dtm, ti, ti6, dc, tx from all_types where uint64 = ?";
         PreparedStatement stmt = null;
         ResultSet rs = null;
+        StringBuffer str = new StringBuffer();
         try {
            stmt = conn.prepareStatement(QUERY_ALL_TYPES);
            stmt.setLong(1, id);
            rs = stmt.executeQuery();
            assertTrue(rs.next());
-           StringBuffer str = new StringBuffer();
            int colCount = stmt.getMetaData().getColumnCount();
            for (int i=1; i<=colCount; i++) {
                if (i>1) str.append(", ");
@@ -104,6 +104,8 @@ public class BasicTest extends Common {
         }
         catch (SQLException e) {
             fail("Error while validating all_types results for id: " + id + ", error:" + e);
+        } catch (org.junit.ComparisonFailure f){
+            fail(f + "\n\nInjected data doesn't match expected data.\nexpected: " + expected + "\nactual:   " + str.toString());
         }
         finally {
             close(rs);
@@ -128,6 +130,8 @@ public class BasicTest extends Common {
                 "vch30 varchar(30), " +
                 "dt date, " +
                 "dtm datetime, " +
+                "ti time, " +
+                "ti6 time(6), " +
                 "dc decimal(18), " +
                 "tx text " +
                 ") engine=columnstore";
@@ -151,8 +155,10 @@ public class BasicTest extends Common {
             b.setColumn(11, "Hello World");
             b.setColumn(12, new ColumnStoreDateTime(2017, 9, 8));
             b.setColumn(13, new ColumnStoreDateTime(2017, 9, 8, 13, 58, 23));
-            b.setColumn(14, new ColumnStoreDecimal(123));
-            b.setColumn(15, "Hello World Longer");
+            b.setColumn(14, new ColumnStoreTime());
+            b.setColumn(15, new ColumnStoreTime());
+            b.setColumn(16, new ColumnStoreDecimal(123));
+            b.setColumn(17, "Hello World Longer");
             b.writeRow();
 
             // min values
@@ -170,8 +176,10 @@ public class BasicTest extends Common {
             b.setColumn(11, "B");
             b.setColumn(12, new ColumnStoreDateTime(1000, 1, 1));
             b.setColumn(13, new ColumnStoreDateTime(1000, 1, 1, 0, 0, 0));
-            b.setColumn(14, new ColumnStoreDecimal(-123));
-            b.setColumn(15, "C");
+            b.setColumn(14, new ColumnStoreTime(-23,59,59));
+            b.setColumn(15, new ColumnStoreTime(-23,59,59,999999));
+            b.setColumn(16, new ColumnStoreDecimal(-123));
+            b.setColumn(17, "C");
             b.writeRow();
 
             // max values
@@ -189,8 +197,10 @@ public class BasicTest extends Common {
             b.setColumn(11, "012345678901234567890123456789");
             b.setColumn(12, new ColumnStoreDateTime(9999, 12, 31));
             b.setColumn(13, new ColumnStoreDateTime(9999, 12, 31, 23, 59, 59));
-            b.setColumn(14, new ColumnStoreDecimal(123));
-            b.setColumn(15, "012345678901234567890123456789");
+            b.setColumn(14, new ColumnStoreTime(23,59,59));
+            b.setColumn(15, new ColumnStoreTime(23,59,59,999999));
+            b.setColumn(16, new ColumnStoreDecimal(123));
+            b.setColumn(17, "012345678901234567890123456789");
             b.writeRow();
 
             b.commit();
@@ -200,9 +210,9 @@ public class BasicTest extends Common {
         }
 
         // verify data
-        verifyAllTypes(conn, 1L, "1, 2, 3, 4, 5, 6, 7, 8, 1.234, 2.345669984817505, ABCD, Hello World, 2017-09-08, 2017-09-08 13:58:23.0, 123, Hello World Longer");
-        verifyAllTypes(conn, 0L, "0, -9223372036854775806, 0, -2147483646, 0, -32766, 0, -126, 1.234, 2.345669984817505, A, B, 1000-01-01, 1000-01-01 00:00:00.0, -123, C");
-        verifyAllTypes(conn, 9223372036854775807L, "9223372036854775807, 9223372036854775807, 4294967293, 2147483647, 65533, 32767, 253, 127, 1.234, 2.345669984817505, ZYXW, 012345678901234567890123456789, 9999-12-31, 9999-12-31 23:59:59.0, 123, 012345678901234567890123456789");
+        verifyAllTypes(conn, 1L, "1, 2, 3, 4, 5, 6, 7, 8, 1.234, 2.345669984817505, ABCD, Hello World, 2017-09-08, 2017-09-08 13:58:23.0, 00:00:00, 00:00:00, 123, Hello World Longer");
+        verifyAllTypes(conn, 0L, "0, -9223372036854775806, 0, -2147483646, 0, -32766, 0, -126, 1.234, 2.345669984817505, A, B, 1000-01-01, 1000-01-01 00:00:00.0, 01:59:59, 01:59:59, -123, C");
+        verifyAllTypes(conn, 9223372036854775807L, "9223372036854775807, 9223372036854775807, 4294967293, 2147483647, 65533, 32767, 253, 127, 1.234, 2.345669984817505, ZYXW, 012345678901234567890123456789, 9999-12-31, 9999-12-31 23:59:59.0, 23:59:59, 23:59:59, 123, 012345678901234567890123456789");
 
         // drop test table
         executeStmt(conn, "DROP TABLE IF EXISTS " + TABLE_NAME);

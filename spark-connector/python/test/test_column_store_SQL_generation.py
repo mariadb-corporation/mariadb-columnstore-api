@@ -124,14 +124,14 @@ def test_sql_generation():
         cursor.execute("DROP TABLE IF EXISTS pythontest_gen_1")
         cursor.execute("DROP TABLE IF EXISTS pythontest_gen_2")
         createSQL1 = columnStoreExporter.generateTableStatement(testDF, "test", "pythontest_gen_1", True)
-        createSQL2 = columnStoreExporter.generateTableStatement(testDF, "test", "pythontest_gen_2")
+        print("executing create table statement: %s" % (createSQL1,))
         cursor.execute(createSQL1)
+        createSQL2 = columnStoreExporter.generateTableStatement(testDF, "test", "pythontest_gen_2")
+        print("executing create table statement: %s" % (createSQL2,))
         cursor.execute(createSQL2)
     
     except mariadb.Error as err:
         print(err)
-        print(createSQL1)
-        print(createSQL2)
         pytest.fail("Error creating table pythontest_gen_1 or pythontest_gen_2")
     finally:
         if cursor: cursor.close()
