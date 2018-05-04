@@ -117,8 +117,14 @@ class ColumnStoreSQLGenerationTest {
       ).toDF("uint64", "int64", "uint32", "int32", "uint16", "int16", "uint8", "int8", "f", "d", "ch4", "vch30", "dt", "dtm", "dc", "tx", "bit", "mathInt", "dc2")
 
       //create the tables using generateTableStatement()
-      statement.executeQuery(ColumnStoreExporter.generateTableStatement(testDF, "test", "scalatest_gen_1", true))
-      statement.executeQuery(ColumnStoreExporter.generateTableStatement(testDF, "test", "scalatest_gen_2"))
+      val statement1 = ColumnStoreExporter.generateTableStatement(testDF, "test", "scalatest_gen_1", true)
+      println("executing create table statement: ")
+      println(statement1)
+      statement.executeQuery(statement1)
+      val statement2 = ColumnStoreExporter.generateTableStatement(testDF, "test", "scalatest_gen_2")
+      println("executing create table statement: ")
+      println(statement2)
+      statement.executeQuery(statement2)
       
       //write the test dataframe into columnstore
       ColumnStoreExporter.export("test", "scalatest_gen_1", testDF)

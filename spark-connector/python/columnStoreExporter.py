@@ -166,9 +166,9 @@ def generateTableStatement(dataFrame, database=None, table="spark_export", deter
         from pyspark.sql.functions import udf
     
     if database == None:
-        prefix = "CREATE TABLE `" + parseTableColumnNameToCSConvention(table) + "` ("
+        prefix = "CREATE TABLE " + parseTableColumnNameToCSConvention(table) + " ("
     else:
-        prefix = "CREATE TABLE `" + database + "`.`" + parseTableColumnNameToCSConvention(table) +"` ("
+        prefix = "CREATE TABLE " + database + "." + parseTableColumnNameToCSConvention(table) +" ("
     postfix = ") ENGINE=columnstore;"
     
     column_list = []
