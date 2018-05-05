@@ -273,6 +273,68 @@ set()
    :param scale: The scale for the number
    :returns: ``true`` if the conversion was successful or ``false`` if it failed
 
+
+ColumnStoreTime Class
+=====================
+
+.. cpp:class:: ColumnStoreTime
+
+   A class which is used to contain a date/time used to set ``TIME`` columns using :cpp:func:`ColumnStoreBulkInsert::setColumn`
+
+ColumnStoreTime()
+-----------------
+
+.. cpp:function:: ColumnStoreTime::ColumnStoreTime()
+
+   Sets the date/time to ``00:00:00``.
+
+.. cpp:function:: ColumnStoreTime::ColumnStoreTime(tm& time)
+
+   Sets the time value of the :cpp:type:`tm` struct.
+
+   :param time: The time to set
+   :raises ColumnStoreDataError: When an invalid date or time is supplied
+
+.. cpp:function:: ColumnStoreTime::ColumnStoreTime(const std::string& time, const std::string& format)
+
+   Sets the time based on a given string and format.
+
+   :param time: A string containing the time to set
+   :param format: The format specifier for the time string. This uses the `strptime format <http://pubs.opengroup.org/onlinepubs/9699919799/functions/strptime.html>`_.
+   :raises ColumnStoreDataError: When an invalid date or time is supplied
+
+.. cpp:function:: ColumnStoreTime::ColumnStoreTime(int32_t hour, uint32_t minute, uint32_t second, uint32_t microsecond = 0, bool is_negative = false)
+
+   Sets the time based on a given set of intergers
+
+   .. note::
+      If the the time is a negative and the hours are zero then ``is_negative`` should be set. Otherwise the driver will automatically set this for you.
+
+   :param hour: The hour
+   :param minute: The minute
+   :param second: The second
+   :param microsecond: The microseconds
+   :param is_negative: A zero hour time that is negative
+   :raises ColumnStoreDataError: When an invalid date or time is supplied
+
+set()
+-----
+
+.. cpp:function:: bool ColumnStoreTime::set(tm& time)
+
+   Sets the time using the value of the :cpp:type:`tm` struct.
+
+   :param time: The time to set
+   :returns: ``true`` if the time is valid, ``false`` if it is not
+
+.. cpp:function:: bool ColumnStoreTime::set(const std::string& time, const std::string& format)
+
+   Sets the time based on a given string and format.
+
+   :param time: A string containing the time to set
+   :param format: The format specifier for the time string. This uses the `strptime format <http://pubs.opengroup.org/onlinepubs/9699919799/functions/strptime.html>`_.
+   :returns: ``true`` if the time is valid, ``false`` if it is not
+
 ColumnStoreSystemCatalog Class
 ==============================
 

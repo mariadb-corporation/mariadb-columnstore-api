@@ -27,6 +27,154 @@
 
 namespace mcsapi
 {
+ColumnStoreTime::ColumnStoreTime()
+{
+    mImpl = new ColumnStoreTimeImpl();
+}
+
+ColumnStoreTime::ColumnStoreTime(tm& time)
+{
+    mImpl = new ColumnStoreTimeImpl();
+    if (!set(time))
+    {
+        std::string errmsg("Invalid time provided in the time struct");
+        throw ColumnStoreDataError(errmsg);
+    }
+}
+
+ColumnStoreTime::ColumnStoreTime(int32_t hour, uint32_t minute, uint32_t second, uint32_t microsecond, bool is_negative)
+{
+    mImpl = new ColumnStoreTimeImpl(is_negative, (int16_t)hour, (uint8_t)minute, (uint8_t)second, microsecond);
+    if (hour < 0)
+        mImpl->is_neg = true;
+
+    if (!mImpl->validateTime())
+    {
+        std::string errmsg("A valid time could not be extracted from the time parameters");
+        throw ColumnStoreDataError(errmsg);
+    }
+}
+
+ColumnStoreTime::ColumnStoreTime(const std::string& time, const std::string& format)
+{
+    mImpl = new ColumnStoreTimeImpl();
+    if (!set(time, format))
+    {
+        std::string errmsg("A valid time could not be extracted from the following string with the supplied format: ");
+        errmsg.append(time);
+        throw ColumnStoreDataError(errmsg);
+    }
+}
+
+ColumnStoreTime::~ColumnStoreTime()
+{
+    delete mImpl;
+}
+
+bool ColumnStoreTime::set(tm& time)
+{
+    mImpl->hour = time.tm_hour;
+    mImpl->minute = time.tm_min;
+    mImpl->second = time.tm_sec;
+
+    return mImpl->validateTime();
+}
+
+bool ColumnStoreTime::set(const std::string& time, const std::string& format)
+{
+    tm time_st = tm();
+#ifdef HAVE_GET_TIME
+    std::istringstream ss(time);
+    ss >> std::get_time(&time_st, format.c_str());
+    if (ss.fail())
+    {
+        return false;
+    }
+#else
+    strptime(time.c_str(), format.c_str(), &time_st);
+#endif
+    return set(time_st);
+}
+
+uint64_t ColumnStoreTimeImpl::getDateTimeInt()
+{
+    uint64_t ret = 0;
+    uint8_t hour_out;
+    if (hour < 0)
+        hour_out = 0;
+    else if (hour > 23)
+        hour_out = 23;
+    else
+        hour_out = hour;
+    ret = ((uint64_t)hour_out << 32);
+    ret |= ((uint64_t)minute << 26);
+    ret |= ((uint64_t)second << 20);
+    ret |= microsecond & 0xFFFFF;
+
+    return ret;
+}
+
+uint64_t ColumnStoreTimeImpl::getTimeInt()
+{
+    uint64_t ret = 0;
+    ret = ((uint64_t)is_neg << 63);
+    ret |= ((uint64_t)0x7ff << 52);
+    ret |= ((int64_t)hour << 40);
+    ret |= ((uint64_t)minute << 32);
+    ret |= ((uint64_t)second << 24);
+    ret |= microsecond & 0xFFFFFF;
+
+    return ret;
+}
+
+void ColumnStoreTimeImpl::getTimeStr(std::string& sTime)
+{
+    char time[20];
+    char* time_ptr = time;
+    if ((is_neg) && (hour >= 0))
+    {
+        time_ptr[0] = '-';
+        time_ptr++;
+    }
+
+    snprintf(time_ptr, 19, "%.2" PRId16 ":%.2" PRIu8 ":%.2" PRIu8, hour, minute, second);
+    sTime = time;
+}
+
+columnstore_data_convert_status_t ColumnStoreTimeImpl::setFromString(const std::string& timeStr)
+{
+    int resLen;
+
+    if (timeStr[0] == '-')
+        is_neg = true;
+
+    resLen = sscanf(timeStr.c_str(), "%" SCNd16 ":%" SCNu8 ":%" SCNu8 ".%" SCNu32, &hour, &minute, &second, &microsecond);
+    if ((resLen != 3) && (resLen != 4))
+    {
+        return CONVERT_STATUS_INVALID;
+    }
+
+    if (!validateTime())
+        return CONVERT_STATUS_INVALID;
+
+    return CONVERT_STATUS_NONE;
+}
+
+bool ColumnStoreTimeImpl::validateTime()
+{
+    if ((hour > 838) || (hour < -838))
+        return false;
+
+    if (minute > 59)
+        return false;
+
+    // We don't support leap seconds
+    if (second > 59)
+        return false;
+
+    return true;
+}
+
 ColumnStoreDateTime::ColumnStoreDateTime()
 {
     mImpl = new ColumnStoreDateTimeImpl();
@@ -120,6 +268,19 @@ uint64_t ColumnStoreDateTimeImpl::getDateTimeInt()
     ret |= ((uint64_t)minute << 26);
     ret |= ((uint64_t)second << 20);
     ret |= microsecond & 0xFFFFF;
+
+    return ret;
+}
+
+uint64_t ColumnStoreDateTimeImpl::getTimeInt()
+{
+    uint64_t ret = 0;
+    ret = ((uint64_t)0 << 63);
+    ret |= ((uint64_t)0x7ff << 52);
+    ret |= ((uint64_t)hour << 40);
+    ret |= ((uint64_t)minute << 32);
+    ret |= ((uint64_t)second << 24);
+    ret |= microsecond & 0xFFFFFF;
 
     return ret;
 }
