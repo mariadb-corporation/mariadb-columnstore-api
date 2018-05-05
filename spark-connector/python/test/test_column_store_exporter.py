@@ -31,9 +31,7 @@ def verifyAllTypes(conn, table, rowid, expected):
     except mariadb.Error as err:
         pytest.fail("Error executing query: %s, error: %s" %(verifyAllTypes,err))
     except AssertionError as e:
-        print(rowStr)
-        print(expected)
-        pytest.fail("Error executing query: %s, error: %s" %(verifyAllTypes,e))
+        pytest.fail("%s\nInjected doesn't match expetations.\nexpected: %s\nactual:   %s" % (e,expected,rowStr))
     finally:
         if cursor: cursor.close()
 

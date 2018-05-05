@@ -116,12 +116,12 @@ object ColumnStoreExporter {
 
   def generateTableStatement(dataFrame: DataFrame, database: String = null, table: String = "spark_export", determineTypeLengths: Boolean = false) : String = {
       
-      val output: StringBuilder = new StringBuilder("CREATE TABLE `")
+      val output: StringBuilder = new StringBuilder("CREATE TABLE ")
       
       if (database != null){
-          output.append(database).append("`.`")
+          output.append(database).append(".")
       }
-      output.append(parseTableColumnNameToCSConvention(table)).append("` (")
+      output.append(parseTableColumnNameToCSConvention(table)).append(" (")
       
       //iterate through the dataFrame schema
       for (column <- dataFrame.schema){
