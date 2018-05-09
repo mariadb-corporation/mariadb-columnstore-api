@@ -69,11 +69,12 @@ ENDIF ()
 swig_link_libraries(javamcsapi mcsapi)
 
 ADD_CUSTOM_COMMAND(TARGET javamcsapi POST_BUILD
-    COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/gradlew" -p ${CMAKE_CURRENT_SOURCE_DIR} jar
+    COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/gradlew" -p ${CMAKE_CURRENT_SOURCE_DIR} -Pversion=${MCSAPI_VERSION_STRING} -Plibjavamcsapi.so.path=$<TARGET_FILE:javamcsapi> -Plibmcsapi.so.path=$<TARGET_FILE:mcsapi> jar
 )
-INSTALL(TARGETS javamcsapi DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libs)
-IF(TEST_RUNNER)
-    add_test(NAME Java_BasicTest COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/gradlew" -p ${CMAKE_CURRENT_SOURCE_DIR} -Pjava.library.path=${CMAKE_CURRENT_BINARY_DIR} test)
-ENDIF(TEST_RUNNER)
 
+INSTALL(TARGETS javamcsapi DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libs)
 INSTALL(FILES build/libs/javamcsapi.jar DESTINATION  ${CMAKE_INSTALL_LIBDIR})
+
+IF(TEST_RUNNER)
+    add_test(NAME Java_BasicTest COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/gradlew" -p ${CMAKE_CURRENT_SOURCE_DIR} -Pversion=${MCSAPI_VERSION_STRING} -Pjava.library.path=${CMAKE_CURRENT_BINARY_DIR} -Plibjavamcsapi.so.path=$<TARGET_FILE:javamcsapi> -Plibmcsapi.so.path=$<TARGET_FILE:mcsapi> test)
+ENDIF(TEST_RUNNER)

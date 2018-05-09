@@ -6,6 +6,9 @@
  * user guide available at https://docs.gradle.org/4.2.1/userguide/java_library_plugin.html
  */
 
+import java.security.MessageDigest;
+import java.security.DigestInputStream;
+
 // Apply the java-library plugin to add support for Java Library
 apply plugin: 'java-library'
 
@@ -34,3 +37,40 @@ tasks.withType(Test) {
     systemProperty "java.library.path","${project.hasProperty('java.library.path') ? project.property('java.library.path') : default_lib_path}"
 }
 
+def getGitHash = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-parse', '--short', 'HEAD'
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+
+def generateMD5(File file) {
+   file.withInputStream {
+      new DigestInputStream(it, MessageDigest.getInstance('MD5')).withStream {
+         it.eachByte {}
+         it.messageDigest.digest().encodeHex() as String
+      }
+   }
+}
+
+jar {
+    archiveName = "javamcsapi.jar"
+    manifest {
+        if (project.hasProperty('version')){
+             attributes "build-version": project.property('version')
+        }
+        attributes "build-revision": getGitHash()
+        if (project.hasProperty('libjavamcsapi.so.path')){
+            if(!project.property('libjavamcsapi.so.path').equals('NOTFOUND')){
+                attributes([ "MD5-Digest": generateMD5(new File(project.property('libjavamcsapi.so.path'))) ], "libjavamcsapi.so");
+            }
+        }
+        if (project.hasProperty('libmcsapi.so.path')){ 
+            if(!project.property('libmcsapi.so.path').equals('NOTFOUND')){
+                attributes([ "MD5-Digest": generateMD5(new File(project.property('libmcsapi.so.path'))) ], "libmcsapi.so");
+            }
+        }
+    }
+}
