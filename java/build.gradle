@@ -56,7 +56,6 @@ def generateMD5(File file) {
 }
 
 jar {
-    archiveName = "javamcsapi.jar"
     manifest {
         if (project.hasProperty('version')){
              attributes "build-version": project.property('version')
