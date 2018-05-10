@@ -69,14 +69,19 @@ ENDIF ()
 swig_link_libraries(javamcsapi mcsapi)
 
 ADD_CUSTOM_COMMAND(TARGET javamcsapi POST_BUILD
-    COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/gradlew" -p ${CMAKE_CURRENT_SOURCE_DIR} -Pversion=${MCSAPI_VERSION_STRING} -Plibjavamcsapi.so.path=$<TARGET_FILE:javamcsapi> -Plibmcsapi.so.path=$<TARGET_FILE:mcsapi> jar
+    COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/gradlew" -p ${CMAKE_CURRENT_SOURCE_DIR} -Pversion=${MCSAPI_VERSION_STRING} jar
+)
+
+set_target_properties(javamcsapi PROPERTIES CXX_VISIBILITY_PRESET hidden
+    VERSION ${MCSAPI_VERSION_STRING}
+    SOVERSION ${MCSAPI_VERSION_MAJOR}
 )
 
 INSTALL(TARGETS javamcsapi DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libs)
 INSTALL(FILES build/libs/javamcsapi-${MCSAPI_VERSION_STRING}.jar DESTINATION  ${CMAKE_INSTALL_LIBDIR})
-INSTALL(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/javamcsapi-${MCSAPI_VERSION_STRING}.jar ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/javamcsapi.jar)")
-INSTALL(CODE "message(\"-- Created symlink: ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/javamcsapi.jar -> ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/javamcsapi-${MCSAPI_VERSION_STRING}.jar\")")
+INSTALL(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink javamcsapi-${MCSAPI_VERSION_STRING}.jar ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/javamcsapi.jar)")
+INSTALL(CODE "message(\"-- Created symlink: ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/javamcsapi.jar -> javamcsapi-${MCSAPI_VERSION_STRING}.jar\")")
 
 IF(TEST_RUNNER)
-    add_test(NAME Java_BasicTest COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/gradlew" -p ${CMAKE_CURRENT_SOURCE_DIR} -Pversion=${MCSAPI_VERSION_STRING} -Pjava.library.path=${CMAKE_CURRENT_BINARY_DIR} -Plibjavamcsapi.so.path=$<TARGET_FILE:javamcsapi> -Plibmcsapi.so.path=$<TARGET_FILE:mcsapi> test)
+    add_test(NAME Java_BasicTest COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/gradlew" -p ${CMAKE_CURRENT_SOURCE_DIR} -Pversion=${MCSAPI_VERSION_STRING} test)
 ENDIF(TEST_RUNNER)
