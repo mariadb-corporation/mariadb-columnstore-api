@@ -70,6 +70,7 @@ swig_link_libraries(javamcsapi mcsapi)
 
 ADD_CUSTOM_COMMAND(TARGET javamcsapi POST_BUILD
     COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/gradlew" -p ${CMAKE_CURRENT_SOURCE_DIR} -Pversion=${MCSAPI_VERSION_STRING} jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink javamcsapi-${MCSAPI_VERSION_STRING}.jar "${CMAKE_CURRENT_SOURCE_DIR}/build/libs/javamcsapi.jar"
 )
 
 set_target_properties(javamcsapi PROPERTIES CXX_VISIBILITY_PRESET hidden
