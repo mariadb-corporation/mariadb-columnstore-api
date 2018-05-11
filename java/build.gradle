@@ -34,3 +34,20 @@ tasks.withType(Test) {
     systemProperty "java.library.path","${project.hasProperty('java.library.path') ? project.property('java.library.path') : default_lib_path}"
 }
 
+def getGitHash = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-parse', '--short', 'HEAD'
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+
+jar {
+    manifest {
+        if (project.hasProperty('version')){
+             attributes "build-version": project.property('version')
+        }
+        attributes "build-revision": getGitHash()
+    }
+}

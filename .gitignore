@@ -75,12 +75,11 @@ mariadb-*.deb
 java/.gradle/
 java/build/
 java/javamcsapiJAVA_wrap.cxx
-java/lib_javamcsapi.so
 java/src/main/
 !java/src/main/java/com/mariadb/columnstore/api/ColumnStoreException.java
 python/pybind11/
 build/
-java/libjavamcsapi.so
+java/libjavamcsapi.so*
 docs/example
 
 # QtCreator files
