@@ -68,21 +68,21 @@ swig_add_module_java(javamcsapi java javamcsapi.i)
 ENDIF ()
 swig_link_libraries(javamcsapi mcsapi)
 
+set_target_properties(javamcsapi PROPERTIES 
+    SUFFIX ".so.${MCSAPI_VERSION_STRING}"
+)
+
 ADD_CUSTOM_COMMAND(TARGET javamcsapi POST_BUILD
     COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/gradlew" -p ${CMAKE_CURRENT_SOURCE_DIR} -Pversion=${MCSAPI_VERSION_STRING} jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink javamcsapi-${MCSAPI_VERSION_STRING}.jar "${CMAKE_CURRENT_SOURCE_DIR}/build/libs/javamcsapi.jar"
-)
-
-set_target_properties(javamcsapi PROPERTIES CXX_VISIBILITY_PRESET hidden
-    VERSION ${MCSAPI_VERSION_STRING}
-    SOVERSION ${MCSAPI_VERSION_MAJOR}
+    COMMAND ${CMAKE_COMMAND} -E create_symlink libjavamcsapi.so.${MCSAPI_VERSION_STRING} "${CMAKE_CURRENT_BINARY_DIR}/libjavamcsapi.so"
 )
 
 INSTALL(TARGETS javamcsapi DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libs)
+INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/libjavamcsapi.so" DESTINATION ${CMAKE_INSTALL_LIBDIR})
 INSTALL(FILES build/libs/javamcsapi-${MCSAPI_VERSION_STRING}.jar DESTINATION  ${CMAKE_INSTALL_LIBDIR})
-INSTALL(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink javamcsapi-${MCSAPI_VERSION_STRING}.jar ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/javamcsapi.jar)")
-INSTALL(CODE "message(\"-- Created symlink: ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/javamcsapi.jar -> javamcsapi-${MCSAPI_VERSION_STRING}.jar\")")
+INSTALL(FILES build/libs/javamcsapi.jar DESTINATION  ${CMAKE_INSTALL_LIBDIR})
 
 IF(TEST_RUNNER)
-    add_test(NAME Java_BasicTest COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/gradlew" -p ${CMAKE_CURRENT_SOURCE_DIR} -Pversion=${MCSAPI_VERSION_STRING} test)
+    add_test(NAME Java_BasicTest COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/gradlew" -p ${CMAKE_CURRENT_SOURCE_DIR} -Pversion=${MCSAPI_VERSION_STRING} -Pjava.library.path=${CMAKE_CURRENT_BINARY_DIR} test)
 ENDIF(TEST_RUNNER)

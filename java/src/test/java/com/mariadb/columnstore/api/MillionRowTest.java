@@ -33,6 +33,7 @@ public class MillionRowTest extends Common {
         // create test table
         Connection conn = getConnection();
         String TABLE_NAME = "jmcsapi_million_row";
+        executeStmt(conn, "DROP TABLE IF EXISTS " + TABLE_NAME );
         executeStmt(conn, "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "(a int, b int) engine=columnstore");
 
         // simple 1 row test
