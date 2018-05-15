@@ -587,7 +587,7 @@ ColumnStoreSystemCatalogColumn& ColumnStoreSystemCatalogTable::getColumn(const s
 
 ColumnStoreSystemCatalogColumn& ColumnStoreSystemCatalogTable::getColumn(uint16_t columnNumber)
 {
-    if (columnNumber > mImpl->columns.size())
+    if (columnNumber >= mImpl->columns.size())
     {
         std::string errmsg = "Column number " + std::to_string(columnNumber) + " not found";
         throw ColumnStoreNotFound(errmsg);

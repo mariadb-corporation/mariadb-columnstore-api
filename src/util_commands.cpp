@@ -566,10 +566,8 @@ void ColumnStoreCommands::weBulkInsert(uint32_t pm, uint64_t uniqueId, uint32_t 
     *messageOut >> errMsg;
     if (response != 0)
     {
-        std::string errmsg;
-        *messageOut >> errmsg;
         connection->deleteReadMessage();
-        throw ColumnStoreServerError(errmsg);
+        throw ColumnStoreServerError(errMsg);
     }
 
     connection->deleteReadMessage();
