@@ -313,6 +313,11 @@ bool ColumnStoreDecimal::set(int64_t number, uint8_t scale)
 uint64_t ColumnStoreDecimalImpl::getDecimalInt(uint32_t scale)
 {
     uint64_t result;
+    // MCOL-1444 Boost 1.65 does something weird with zero, so we shortcut
+    if (decNum == 0)
+    {
+        return 0;
+    }
     int64_t decimalScale = boost::multiprecision::ilogb(decNum);
     boost::multiprecision::cpp_dec_float_50 converted = decNum * pow(10, 18 - decimalScale);
     decimalScale = 18 - decimalScale;
