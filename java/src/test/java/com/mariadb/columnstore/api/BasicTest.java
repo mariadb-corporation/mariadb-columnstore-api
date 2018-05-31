@@ -29,6 +29,7 @@ public class BasicTest extends Common {
         // create test table
         Connection conn = getConnection();
         String TABLE_NAME = "i1";
+        executeStmt(conn, "DROP TABLE IF EXISTS " + TABLE_NAME );
         executeStmt(conn, "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "(i int, c char(3)) ENGINE=columnstore");
 
         // simple 1 row test
@@ -136,6 +137,7 @@ public class BasicTest extends Common {
                 "tx text " +
                 ") engine=columnstore";
         Connection conn = getConnection();
+        executeStmt(conn, "DROP TABLE IF EXISTS " + TABLE_NAME );
         executeStmt(conn, CREATE_ALL_TYPES);
 
         ColumnStoreDriver d = new ColumnStoreDriver();
