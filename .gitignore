@@ -57,6 +57,7 @@ test/summary
 test/system-catalog
 test/char4
 test/mcol1160
+test/mcol1408
 version.h
 docs/conf.py
 docs/sources.cmake

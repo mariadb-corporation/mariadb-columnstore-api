@@ -86,9 +86,9 @@ void ColumnStoreNetwork::onResolved(uv_getaddrinfo_t* resolver,
     {
         mcsdebug("Class %p failed resolving: %s", (void*)This, uv_err_name(status));
         This->con_status = CON_STATUS_CONNECT_ERROR;
-        std::string err("Could not resolve host: ");
-        err.append(uv_err_name(status));
-        throw ColumnStoreNetworkError(err);
+        This->errMsg = "Could not resolve host: ";
+        This->errMsg.append(uv_err_name(status));
+        return;
     }
     char addr[17] = {'\0'};
 
@@ -113,9 +113,9 @@ void ColumnStoreNetwork::onConnect(uv_connect_t* req, int status)
     {
         mcsdebug("Class %p connection failure: %s", (void*)This, uv_err_name(status));
         This->con_status = CON_STATUS_CONNECT_ERROR;
-        std::string err("Connection failure: ");
-        err.append(uv_err_name(status));
-        throw ColumnStoreNetworkError(err);
+        This->errMsg = "Connection failure: ";
+        This->errMsg.append(uv_err_name(status));
+        return;
     }
     mcsdebug("Class %p connection succeeded", (void*)This);
     This->con_status = CON_STATUS_CONNECTED;
@@ -128,9 +128,9 @@ void ColumnStoreNetwork::onConnect(uv_connect_t* req, int status)
     {
         mcsdebug("Class %p instant fail reading data: %s", (void*)This, uv_err_name(ret));
         This->con_status = CON_STATUS_CONNECT_ERROR;
-        std::string err("Could not read data: ");
-        err.append(uv_err_name(ret));
-        throw ColumnStoreNetworkError(err);
+        This->errMsg = "Could not read data: ";
+        This->errMsg.append(uv_err_name(ret));
+        return;
     }
 
     // "Check" is something that runs once per loop so we can see if there if
@@ -150,17 +150,17 @@ void ColumnStoreNetwork::onConnectReadData(uv_stream_t* tcp, ssize_t read_size, 
     {
         mcsdebug("Class %p fail reading data: %s", (void*)This, uv_err_name(read_size));
         This->con_status = CON_STATUS_CONNECT_ERROR;
-        std::string err("Could not read data: ");
-        err.append(uv_err_name(read_size));
-        throw ColumnStoreNetworkError(err);
+        This->errMsg = "Could not read data: ";
+        This->errMsg.append(uv_err_name(read_size));
+        return;
     }
 
     if ((read_size != 1) || (buf->base[0] != 'A'))
     {
         delete[] buf->base;
         This->con_status = CON_STATUS_CONNECT_ERROR;
-        std::string err("Incorrect read data during handshake");
-        throw ColumnStoreNetworkError(err);
+        This->errMsg = "Incorrect read data during handshake";
+        return;
     }
     This->con_status = CON_STATUS_IDLE;
     delete[] buf->base;
@@ -198,9 +198,9 @@ void ColumnStoreNetwork::onReadData(uv_stream_t* tcp, ssize_t read_size, const u
     {
         mcsdebug("Class %p fail reading data: %s", (void*)This, uv_err_name(read_size));
         This->con_status = CON_STATUS_NET_ERROR;
-        std::string err("Could not read data: ");
-        err.append(uv_err_name(read_size));
-        throw ColumnStoreNetworkError(err);
+        This->errMsg = "Could not read data: ";
+        This->errMsg.append(uv_err_name(read_size));
+        return;
     }
     mcsdebug_hex(buf->base, (size_t)read_size);
     This->dataInBuffer += read_size;
@@ -223,9 +223,8 @@ void ColumnStoreNetwork::onReadData(uv_stream_t* tcp, ssize_t read_size, const u
         else if (!This->messageOut->isUncompressedHeader())
         {
             mcsdebug ("Class %p bad packet from server", (void*)This);
-            std::string err("Bad packet from server");
+            This->errMsg = "Bad packet from server";
             This->con_status = CON_STATUS_NET_ERROR;
-            throw ColumnStoreNetworkError(err);
         }
     }
 }
@@ -275,9 +274,9 @@ void ColumnStoreNetwork::onWriteData(uv_write_t* req, int status)
     {
         mcsdebug("Class %p write failure: %s", (void*)This, uv_err_name(status));
         This->con_status = CON_STATUS_NET_ERROR;
-        std::string err("Write failure: ");
-        err.append(uv_err_name(status));
-        throw ColumnStoreNetworkError(err);
+        This->errMsg = "Write failure: ";
+        This->errMsg.append(uv_err_name(status));
+        return;
     }
     This->con_status = CON_STATUS_IDLE;
 }
