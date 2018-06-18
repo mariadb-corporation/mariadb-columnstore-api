@@ -48,7 +48,7 @@ class ColumnStoreExporterTest {
       statement.executeQuery("""DROP TABLE IF EXISTS scalatest2""")
       statement.executeQuery(
         """
-		CREATE TABLE scalatest (
+        CREATE TABLE scalatest (
         uint64 bigint unsigned,
         int64 bigint,
         uint32 int unsigned,
@@ -69,9 +69,9 @@ class ColumnStoreExporterTest {
         mathInt bigint unsigned,
         dc2 decimal(18,9))
         ENGINE=columnstore""")
-		
-	statement.executeQuery(
-        """	
+        
+    statement.executeQuery(
+        """    
         CREATE TABLE scalatest2 (
         uint64 bigint unsigned,
         int64 bigint,
@@ -96,9 +96,10 @@ class ColumnStoreExporterTest {
 
       //create the test dataframe
       val testDF = Seq(
-        (1L, 2L, 3L, 4, 5, 6, 7, 8, 1.234F, 2.34567F, "ABCD", "Hello World", Date.valueOf("2017-09-08"), Timestamp.valueOf("2017-09-08 13:58:23"), new BigDecimal(123), "Hello World Longer", true, new BigInteger("9223372036854775807"), new BigDecimal("-0.000000001", MathContext.UNLIMITED)),
-        (0L, -9223372036854775806L, 0L, -2147483646, 0, -32766, 0, -126, 1.234F, 2.34567F, "A", "B", Date.valueOf("1000-01-01"), Timestamp.valueOf("1000-01-01 00:00:00"), new BigDecimal(-123), "C", false, new BigInteger("18446744073709551613"), new BigDecimal("100000000.999999999", MathContext.UNLIMITED)),
-        (9223372036854775807L, 9223372036854775807L, 4294967293L, 2147483647, 65533, 32767, 253, 127, 1.234F, 2.34567F, "ZYXW", "012345678901234567890123456789", Date.valueOf("9999-12-31"), Timestamp.valueOf("9999-12-31 23:59:59"), new BigDecimal(123), "012345678901234567890123456789", true, new BigInteger("2342"), new BigDecimal("23.42"))
+        (1L, 2L, 3L, new Integer(4), new Integer(5), new Integer(6), new Integer(7), new Integer(8), 1.234F, 2.34567F, "ABCD", "Hello World", Date.valueOf("2017-09-08"), Timestamp.valueOf("2017-09-08 13:58:23"), new BigDecimal(123), "Hello World Longer", true, new BigInteger("9223372036854775807"), new BigDecimal("-0.000000001", MathContext.UNLIMITED)),
+        (0L, -9223372036854775806L, 0L, new Integer(-2147483646), new Integer(0), new Integer(-32766), new Integer(0), new Integer(-126), 1.234F, 2.34567F, "A", "B", Date.valueOf("1000-01-01"), Timestamp.valueOf("1000-01-01 00:00:00"), new BigDecimal(-123), "C", false, new BigInteger("18446744073709551613"), new BigDecimal("100000000.999999999", MathContext.UNLIMITED)),
+        (9223372036854775807L, 9223372036854775807L, 4294967293L, new Integer(2147483647), new Integer(65533), new Integer(32767), new Integer(253), new Integer(127), 1.234F, 2.34567F, "ZYXW", "012345678901234567890123456789", Date.valueOf("9999-12-31"), Timestamp.valueOf("9999-12-31 23:59:59"), new BigDecimal(123), "012345678901234567890123456789", true, new BigInteger("2342"), new BigDecimal("23.42")),
+        (42L, 43L, 44L, null.asInstanceOf[Integer], null.asInstanceOf[Integer], null.asInstanceOf[Integer], null.asInstanceOf[Integer], null.asInstanceOf[Integer], 3.45F, 556.3F, null, null, null, null, null, null, false, null, null)
       ).toDF("uint64", "int64", "uint32", "int32", "uint16", "int16", "uint8", "int8", "f", "d", "ch4", "vch30", "dt", "dtm", "dc", "tx", "bit", "mathInt", "dc2")
 
       //write the test dataframe into columnstore
@@ -108,9 +109,11 @@ class ColumnStoreExporterTest {
       verifyAllTypes(connection, 1L, "1, 2, 3, 4, 5, 6, 7, 8, 1.234, 2.345669984817505, ABCD, Hello World, 2017-09-08, 2017-09-08 13:58:23.0, 123, Hello World Longer, true, 9223372036854775807, -1E-9")
       verifyAllTypes(connection, 0L, "0, -9223372036854775806, 0, -2147483646, 0, -32766, 0, -126, 1.234, 2.345669984817505, A, B, 1000-01-01, 1000-01-01 00:00:00.0, -123, C, false, 18446744073709551613, 100000000.999999999")
       verifyAllTypes(connection, 9223372036854775807L, "9223372036854775807, 9223372036854775807, 4294967293, 2147483647, 65533, 32767, 253, 127, 1.234, 2.345669984817505, ZYXW, 012345678901234567890123456789, 9999-12-31, 9999-12-31 23:59:59.0, 123, 012345678901234567890123456789, true, 2342, 23.420000000")
-	  verifyAllTypes2(connection, 1L, "1, 2, 3, 4, 5, 6, 7, 8, 1.234, 2.345669984817505, ABCD, Hello World, 2017-09-08, 2017-09-08 13:58:23.0, 123, Hello World Longer, true, 9223372036854775807, -1E-9")
+      verifyAllTypes(connection, 42L, "42, 43, 44, null, null, null, null, null, 3.45, 556.2999877929688, null, null, null, null, null, null, false, null, null")
+      verifyAllTypes2(connection, 1L, "1, 2, 3, 4, 5, 6, 7, 8, 1.234, 2.345669984817505, ABCD, Hello World, 2017-09-08, 2017-09-08 13:58:23.0, 123, Hello World Longer, true, 9223372036854775807, -1E-9")
       verifyAllTypes2(connection, 0L, "0, -9223372036854775806, 0, -2147483646, 0, -32766, 0, -126, 1.234, 2.345669984817505, A, B, 1000-01-01, 1000-01-01 00:00:00.0, -123, C, false, 18446744073709551613, 100000000.999999999")
       verifyAllTypes2(connection, 9223372036854775807L, "9223372036854775807, 9223372036854775807, 4294967293, 2147483647, 65533, 32767, 253, 127, 1.234, 2.345669984817505, ZYXW, 012345678901234567890123456789, 9999-12-31, 9999-12-31 23:59:59.0, 123, 012345678901234567890123456789, true, 2342, 23.420000000")
+      verifyAllTypes(connection, 42L, "42, 43, 44, null, null, null, null, null, 3.45, 556.2999877929688, null, null, null, null, null, null, false, null, null")
  
       //drop the test table
       statement.executeQuery("""DROP TABLE IF EXISTS scalatest""")
@@ -188,4 +191,5 @@ class ColumnStoreExporterTest {
     }
   }
 }
+
 

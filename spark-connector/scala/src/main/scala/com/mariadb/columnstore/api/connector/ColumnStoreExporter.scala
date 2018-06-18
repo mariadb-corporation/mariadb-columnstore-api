@@ -116,12 +116,12 @@ object ColumnStoreExporter {
 
   def generateTableStatement(dataFrame: DataFrame, database: String = null, table: String = "spark_export", determineTypeLengths: Boolean = false) : String = {
       
-      val output: StringBuilder = new StringBuilder("CREATE TABLE `")
+      val output: StringBuilder = new StringBuilder("CREATE TABLE ")
       
       if (database != null){
-          output.append(database).append("`.`")
+          output.append(database).append(".")
       }
-      output.append(parseTableColumnNameToCSConvention(table)).append("` (")
+      output.append(parseTableColumnNameToCSConvention(table)).append(" (")
       
       //iterate through the dataFrame schema
       for (column <- dataFrame.schema){
@@ -233,39 +233,51 @@ object ColumnStoreExporter {
     val dbCatalog = driver.getSystemCatalog
     val dbTable = dbCatalog.getTable(database, table)
     val dbTableColumnCount = dbTable.getColumnCount
-
+    
     // insert row by row into table
     try {
       for (row <- rows){
         for (columnId <- 0 until row.size){
           if (columnId < dbTableColumnCount){
-            row.get(columnId) match {
-              case input:Boolean => if (input) bulkInsert.setColumn(columnId, 1)
-              else bulkInsert.setColumn(columnId, 0);
-              case input:Byte => bulkInsert.setColumn(columnId, input)
-              case input:java.sql.Date => bulkInsert.setColumn(columnId, input.toString)
-              case input:java.math.BigDecimal =>
-                val dbColumn = dbTable.getColumn(columnId)
-                if (dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_DECIMAL) ||
-                  dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_UDECIMAL) ||
-                  dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_FLOAT) ||
-                  dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_UFLOAT) ||
-                  dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_DOUBLE) ||
-                  dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_UDOUBLE)){
-                  
-                  bulkInsert.setColumn(columnId, new ColumnStoreDecimal(input.toPlainString))
+            if (row.get(columnId) == null){
+              if(dbTable.getColumn(columnId).isNullable){
+                  bulkInsert.setNull(columnId)
+              } else{
+                  System.err.println("warning: column " + columnId + " is not nullable. Using default value instead.")
+                  bulkInsert.setColumn(columnId, dbTable.getColumn(columnId).getDefaultValue())
+              }
+            } else{
+              row.get(columnId) match {
+                case input:Boolean => 
+                if (input){
+                  bulkInsert.setColumn(columnId, 1)
+                } else{
+                  bulkInsert.setColumn(columnId, 0)
                 }
-                else {
-                  bulkInsert.setColumn(columnId, input.toBigInteger)
-                }
-              case input:Double => bulkInsert.setColumn(columnId, input)
-              case input:Float => bulkInsert.setColumn(columnId, input)
-              case input:Integer => bulkInsert.setColumn(columnId, input)
-              case input:Long => bulkInsert.setColumn(columnId, input)
-              case input:Short => bulkInsert.setColumn(columnId, input)
-              case input:String => bulkInsert.setColumn(columnId, input)
-              case input:java.sql.Timestamp => bulkInsert.setColumn(columnId, input.toString)
-              case _ => throw new Exception("Parsing error, can't convert " +  row.get(columnId).getClass + ".")
+                case input:Byte => bulkInsert.setColumn(columnId, input)
+                case input:java.sql.Date => bulkInsert.setColumn(columnId, input.toString)
+                case input:java.math.BigDecimal =>
+                  val dbColumn = dbTable.getColumn(columnId)
+                  if (dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_DECIMAL) ||
+                    dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_UDECIMAL) ||
+                    dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_FLOAT) ||
+                    dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_UFLOAT) ||
+                    dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_DOUBLE) ||
+                    dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_UDOUBLE)){
+                      bulkInsert.setColumn(columnId, new ColumnStoreDecimal(input.toPlainString))
+                  }
+                  else {
+                    bulkInsert.setColumn(columnId, input.toBigInteger)
+                  }
+                case input:Double => bulkInsert.setColumn(columnId, input)
+                case input:Float => bulkInsert.setColumn(columnId, input)
+                case input:Integer => bulkInsert.setColumn(columnId, input)
+                case input:Long => bulkInsert.setColumn(columnId, input)
+                case input:Short => bulkInsert.setColumn(columnId, input)
+                case input:String => bulkInsert.setColumn(columnId, input)
+                case input:java.sql.Timestamp => bulkInsert.setColumn(columnId, input.toString)
+                case _ => throw new Exception("Parsing error, can't convert " +  row.get(columnId).getClass + ".")
+              }
             }
           }
         }
@@ -286,3 +298,4 @@ object ColumnStoreExporter {
     }
   }
 }
+
