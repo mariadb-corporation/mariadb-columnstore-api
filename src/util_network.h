@@ -56,6 +56,7 @@ public:
     void deleteReadMessage() { delete messageOut; messageOut = nullptr; };
     size_t getDataInBuffer() { return dataInBuffer; };
     void uncompressData(size_t result_length);
+    const std::string& getErrMsg() { return errMsg; };
 
     ~ColumnStoreNetwork();
 private:
@@ -74,6 +75,7 @@ private:
     ColumnStoreMessaging* compressedMessageOut;
     size_t dataInBuffer;
     bool isLocalhost;
+    std::string errMsg;
 
     void writeData(size_t buffer_count);
     void sendCompressedData(ColumnStoreMessaging& message);
