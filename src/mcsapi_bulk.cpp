@@ -455,7 +455,18 @@ void ColumnStoreBulkInsertImpl::connect()
     }
     txnId = commands->brmGetTxnID(sessionId);
     uniqueId = commands->brmGetUniqueId();
-    tblLock = commands->brmGetTableLock(tbl->getOID(), sessionId, txnId, dbRoots);
+    try
+    {
+        tblLock = commands->brmGetTableLock(tbl->getOID(), sessionId, txnId, dbRoots);
+    }
+    catch (ColumnStoreError& cError)
+    {
+        // If we can't get table lock only rollback the txnID and rethrow
+        commands->brmRolledback(txnId);
+        autoRollback = false;
+        transactionClosed = true;
+        throw;
+    }
     for (auto& pmit: pmList)
     {
         commands->weKeepAlive(pmit);

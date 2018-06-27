@@ -85,7 +85,14 @@ int ColumnStoreCommands::runSoloLoop(ColumnStoreNetwork* connection)
         }
     }
     while ((connection->getStatus() != CON_STATUS_CONNECT_ERROR) &&
+           (connection->getStatus() != CON_STATUS_NET_ERROR) &&
            (connection->getStatus() != CON_STATUS_IDLE));
+
+    if ((connection->getStatus() == CON_STATUS_CONNECT_ERROR) ||
+        (connection->getStatus() == CON_STATUS_NET_ERROR))
+    {
+        throw ColumnStoreNetworkError(connection->getErrMsg());
+    }
 
     return status;
 }
@@ -104,10 +111,16 @@ int ColumnStoreCommands::runLoop()
         for (auto& it: weConnections)
         {
             ColumnStoreNetwork* connection = it.second;
-            if ((connection->getStatus() == CON_STATUS_CONNECT_ERROR) ||
-                (connection->getStatus() == CON_STATUS_IDLE))
+            if (connection->getStatus() == CON_STATUS_IDLE)
             {
                 completed = true;
+            }
+            else if ((connection->getStatus() == CON_STATUS_CONNECT_ERROR) ||
+                     (connection->getStatus() == CON_STATUS_NET_ERROR))
+            {
+                completed = true;
+                throw ColumnStoreNetworkError(connection->getErrMsg());
+                break;
             }
             else
             {
@@ -394,11 +407,29 @@ void ColumnStoreCommands::weBulkCommit(uint32_t pm, uint64_t uniqueId, uint32_t 
     uint32_t hwm;
     for (uint64_t i=0; i < bulk_hwm_count; i++)
     {
+        bool found = false;
         *messageOut >> oid;
         *messageOut >> partNum;
         *messageOut >> segNum;
         *messageOut >> hwm;
-        hwms.push_back(ColumnStoreHWM(oid, partNum, segNum, hwm));
+
+        // De-duplication if there are two extents for a segment in this commit
+        for (auto& itHWM : hwms)
+        {
+            if ((itHWM.oid == oid) && (itHWM.partNum == partNum) && (itHWM.segNum == segNum))
+            {
+                found = true;
+                if (itHWM.hwm < hwm)
+                {
+                    itHWM.hwm = hwm;
+                }
+                break;
+            }
+        }
+        if (!found)
+        {
+            hwms.push_back(ColumnStoreHWM(oid, partNum, segNum, hwm));
+        }
     }
     connection->deleteReadMessage();
 }
