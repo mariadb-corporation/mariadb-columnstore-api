@@ -51,6 +51,42 @@
       }
   }
 
+%typemap(javaimports) mcsapi::ColumnStoreDriver %{
+  //MCOL-1521 imports begin
+  import java.net.URLClassLoader;
+  import java.net.URL;
+  import java.util.jar.Manifest;
+  import java.io.IOException;
+  //MCOL-1521 imports end
+%}
+
+%typemap(javacode) mcsapi::ColumnStoreDriver %{
+  //MCOL-1521 add a function to display the javamcsapi version which not necessarily needs to be the same than the one of mcsapi
+  public String getJavaMcsapiVersion(){
+    URLClassLoader cl = (URLClassLoader) getClass().getClassLoader();
+    try {
+      URL url = cl.findResource("META-INF/MANIFEST.MF");
+      Manifest manifest = new Manifest(url.openStream());
+      String version = manifest.getMainAttributes().getValue("build-version");
+      String revision = manifest.getMainAttributes().getValue("build-revision");
+      String rtn = "";
+      if (version != null){
+        rtn += version + "-";
+      }
+      if (revision != null){
+        rtn += revision;
+      }
+      if (rtn.equals("")){
+        return "unknown";
+      } else{
+        return rtn;
+      }
+    } catch (IOException e) {
+      return "error: " + e.getMessage();
+    }
+  }
+%}
+
 %javaexception("com.mariadb.columnstore.api.ColumnStoreException") {
   try {
     $action
