@@ -17,7 +17,7 @@
  */
 
 // Bulk insert example from docs, requires the table in
-// basic_bulk_insert.cpp to be created in the test database
+// basic_bulk_insert.sql to be created in the test database
 //
 // NOTE: if you edit this file please update the line numbers in
 // basic_bulk_insert.rst

@@ -17,7 +17,7 @@
  */
 
 // Advanced insert example from docs, requires the table in
-// advanced_bulk_insert.cpp to be created in the test database
+// advanced_bulk_insert.sql to be created in the test database
 //
 // NOTE: if you edit this file please update the line numbers in
 // advanced_bulk_insert.rst
