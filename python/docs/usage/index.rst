@@ -1,5 +1,5 @@
-Using mcsapi
-============
+Using pymcsapi
+==============
 
 .. toctree::
    

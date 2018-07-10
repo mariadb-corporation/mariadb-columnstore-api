@@ -1,10 +1,7 @@
 pymcsapi Module
 ===============
 
-.. py:module:: pymcsapi
-
    This is the main wrapper module that invoces functions of the base C++ library mcsapi.
-
 
 ColumnStoreDriver Class
 =======================

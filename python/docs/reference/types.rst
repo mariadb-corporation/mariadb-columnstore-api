@@ -1,130 +1,126 @@
-columnstore_data_convert_status_t Type
-======================================
+columnstore_data_convert_status constants
+=========================================
 
-.. cpp:type:: columnstore_data_convert_status_t
+   These are the constants for the status values used in :py:meth:`ColumnStoreBulkInsert.setColumn` and :py:meth:`ColumnStoreBulkInsert.setNull` to signify the status of any data conversion that occurred during setting.
 
-   The status value used in :cpp:func:`ColumnStoreBulkInsert::setColumn` and :cpp:func:`ColumnStoreBulkInsert::setNull` to signify the status of any data conversion that occurred during setting.
-
-.. cpp:type:: CONVERT_STATUS_NONE
+.. py:data:: pymcsapi.CONVERT_STATUS_NONE
 
    There was no problems during the conversion or no conversion.
 
-.. cpp:type:: CONVERT_STATUS_SATURATED
+.. py:data:: pymcsapi.CONVERT_STATUS_SATURATED
 
    The value was saturated during the conversion, the maximum/minimum was used instead.
 
-.. cpp:type:: CONVERT_STATUS_INVALID
+.. py:data:: pymcsapi.CONVERT_STATUS_INVALID
 
    The value was invalid during the conversion, 0 or empty string was used instead.
 
-.. cpp:type:: CONVERT_STATUS_TRUNCATED
+.. py:data:: pymcapi.CONVERT_STATUS_TRUNCATED
 
    The value was truncated.
 
-columnstore_data_types_t Type
-=============================
+columnstore_data_type constants
+===============================
 
-.. cpp:type:: columnstore_data_types_t
+   These are the constants for the data types as returned by :py:meth:`ColumnStoreSystemCatalogColumn.getType`.
 
-   The data type as returned by :cpp:func:`ColumnStoreSystemCatalogColumn::getType`.
-
-.. cpp:type:: DATA_TYPE_BIT
+.. py:data:: pymcsapi.DATA_TYPE_BIT
 
    BIT data type
 
-.. cpp:type:: DATA_TYPE_TINYINT
+.. py:data:: pymcsapi.DATA_TYPE_TINYINT
 
    TINYINT data type
 
-.. cpp:type:: DATA_TYPE_CHAR
+.. py:data:: pymcsapi.DATA_TYPE_CHAR
 
    CHAR data type
 
-.. cpp:type:: DATA_TYPE_SMALLINT
+.. py:data:: pymcsapi.DATA_TYPE_SMALLINT
 
    SMALLINT data type
 
-.. cpp:type:: DATA_TYPE_DECIMAL
+.. py:data:: pymcsapi.DATA_TYPE_DECIMAL
 
    DECIMAL data type
 
-.. cpp:type:: DATA_TYPE_MEDINT
+.. py:data:: pymcsapi.DATA_TYPE_MEDINT
 
    MEDIUMINT data type
 
-.. cpp:type:: DATA_TYPE_INT
+.. py:data:: pymcsapi.DATA_TYPE_INT
 
    INT data type
 
-.. cpp:type:: DATA_TYPE_FLOAT
+.. py:data:: pymcsapi.DATA_TYPE_FLOAT
 
    FLOAT data type
 
-.. cpp:type:: DATA_TYPE_DATE
+.. py:data:: pymcsapi.DATA_TYPE_DATE
 
    DATE data type
 
-.. cpp:type:: DATA_TYPE_BIGINT
+.. py:data:: pymcsapi.DATA_TYPE_BIGINT
 
    BIGINT data type
 
-.. cpp:type:: DATA_TYPE_DOUBLE
+.. py:data:: pymcsapi.DATA_TYPE_DOUBLE
 
    DOUBLE data type
 
-.. cpp:type:: DATA_TYPE_DATETIME
+.. py:data:: pymcsapi.DATA_TYPE_DATETIME
 
    DATETIME data type
 
-.. cpp:type:: DATA_TYPE_VARCHAR
+.. py:data:: pymcsapi.DATA_TYPE_VARCHAR
 
    VARCHAR data type
 
-.. cpp:type:: DATA_TYPE_VARBINARY
+.. py:data:: pymcsapi.DATA_TYPE_VARBINARY
 
    VARBINARY data type
 
-.. cpp:type:: DATA_TYPE_CLOB
+.. py:data:: pymcsapi.DATA_TYPE_CLOB
 
    Unused
 
-.. cpp:type:: DATA_TYPE_BLOB
+.. py:data:: pymcsapi.DATA_TYPE_BLOB
 
    BLOB data type
 
-.. cpp:type:: DATA_TYPE_UTINYINT
+.. py:data:: pymcsapi.DATA_TYPE_UTINYINT
 
    UNSIGNED TINYINT data type
 
-.. cpp:type:: DATA_TYPE_USMALLINT
+.. py:data:: pymcsapi.DATA_TYPE_USMALLINT
 
    UNSIGNED SMALLINT data type
 
-.. cpp:type:: DATA_TYPE_UDECIMAL
+.. py:data:: pymcsapi.DATA_TYPE_UDECIMAL
 
    UNSIGNED DECIMAL data type
 
-.. cpp:type:: DATA_TYPE_UMEDINT
+.. py:data:: pymcsapi.DATA_TYPE_UMEDINT
 
    UNSIGNED MEDIUMINT data type
 
-.. cpp:type:: DATA_TYPE_UINT
+.. py:data:: pymcsapi.DATA_TYPE_UINT
 
    UNSIGNED INT data type
 
-.. cpp:type:: DATA_TYPE_UFLOAT
+.. py:data:: pymcsapi.DATA_TYPE_UFLOAT
 
    UNSIGNED FLOAT data type
 
-.. cpp:type:: DATA_TYPE_UBIGINT
+.. py:data:: pymcsapi.DATA_TYPE_UBIGINT
 
    UNSIGNED BIGINT data type
 
-.. cpp:type:: DATA_TYPE_UDOUBLE
+.. py:data:: pymcsapi.DATA_TYPE_UDOUBLE
 
    UNSIGNED DOUBLE data type
 
-.. cpp:type:: DATA_TYPE_TEXT
+.. py:data:: pymcsapi.DATA_TYPE_TEXT
 
    TEXT data type
 
@@ -132,33 +128,33 @@ columnstore_data_types_t Type
 ColumnStoreDateTime Class
 =========================
 
-.. cpp:class:: ColumnStoreDateTime
+.. py:class:: ColumnStoreDateTime
 
-   A class which is used to contain a date/time used to set ``DATE`` or ``DATETIME`` columns using :cpp:func:`ColumnStoreBulkInsert::setColumn`
+   A class which is used to contain a date/time used to set ``DATE`` or ``DATETIME`` columns using :py:meth:`ColumnStoreBulkInsert.setColumn`
 
 ColumnStoreDateTime()
 ---------------------
 
-.. cpp:function:: ColumnStoreDateTime::ColumnStoreDateTime()
+.. py:method:: pymcsapi.ColumnStoreDateTime()
 
    Sets the date/time to ``0000-00-00 00:00:00``.
 
-.. cpp:function:: ColumnStoreDateTime::ColumnStoreDateTime(tm& time)
+.. py:method:: pymcsapi.ColumnStoreDateTime(time)
 
-   Sets the date/time the value of the :cpp:type:`tm` struct.
+   Sets the date/time the value of the input string.
 
    :param time: The date/time to set
-   :raises ColumnStoreDataError: When an invalid date or time is supplied
+   :raises RuntimeError: When an invalid date or time is supplied
 
-.. cpp:function:: ColumnStoreDateTime::ColumnStoreDateTime(const std::string& dateTime, const std::string& format)
+.. py:method:: pymcsapi.ColumnStoreDateTime(dateTime, format)
 
    Sets the date/time based on a given string and format.
 
    :param dateTime: A string containing the date/time to set
    :param format: The format specifier for the date/time string. This uses the `strptime format <http://pubs.opengroup.org/onlinepubs/9699919799/functions/strptime.html>`_.
-   :raises ColumnStoreDataError: When an invalid date or time is supplied
+   :raises RuntimeError: When an invalid date or time is supplied
 
-.. cpp:function:: ColumnStoreDateTime::ColumnStoreDateTime(uint32_t year, uint32_t month, uint32_t day, uint32_t hour, uint32_t minute, uint32_t second, uint32_t microsecond)
+.. py:method:: pymcsapi.ColumnStoreDateTime(year, month, day, hour, minute, second, microsecond)
 
    Sets the date/time based on a given set of intergers
 
@@ -172,113 +168,113 @@ ColumnStoreDateTime()
    :param minute: The minute
    :param second: The second
    :param microsecond: The microseconds
-   :raises ColumnStoreDataError: When an invalid date or time is supplied
+   :raises RuntimeError: When an invalid date or time is supplied
 
 set()
 -----
 
-.. cpp:function:: bool ColumnStoreDateTime::set(tm& time)
+.. py:method:: ColumnStoreDateTime.set(time)
 
-   Sets the date/time using the value of the :cpp:type:`tm` struct.
+   Sets the date/time using the value of the input string.
 
    :param time: The date/time to set
-   :returns: ``true`` if the date/time is valid, ``false`` if it is not
+   :returns: ``True`` if the date/time is valid, ``False`` if it is not
 
-.. cpp:function:: bool ColumnStoreDateTime::set(const std::string& dateTime, const std::string& format)
+.. py:method:: ColumnStoreDateTime.set(dateTime, format)
 
    Sets the date/time based on a given string and format.
 
    :param dateTime: A string containing the date/time to set
    :param format: The format specifier for the date/time string. This uses the `strptime format <http://pubs.opengroup.org/onlinepubs/9699919799/functions/strptime.html>`_.
-   :returns: ``true`` if the date/time is valid, ``false`` if it is not
+   :returns: ``True`` if the date/time is valid, ``False`` if it is not
 
 ColumnStoreDecimal Class
 ========================
 
-.. cpp:class:: ColumnStoreDecimal
+.. py:class:: ColumnStoreDecimal
 
-   A class which is used to contain a non-lossy decimal format used to set ``DECIMAL`` columns using :cpp:func:`ColumnStoreBulkInsert::setColumn`.
+   A class which is used to contain a non-lossy decimal format used to set ``DECIMAL`` columns using :py:meth:`ColumnStoreBulkInsert.setColumn`.
 
 ColumnStoreDecimal()
 --------------------
 
-.. cpp:function:: ColumnStoreDecimal::ColumnStoreDecimal()
+.. py:method:: pymcsapi.ColumnStoreDecimal()
 
    Sets the decimal to ``0``.
 
-.. cpp:function:: ColumnStoreDecimal::ColumnStoreDecimal(int64_t value)
+.. py:method:: pymcsapi.ColumnStoreDecimal(value)
 
    Sets the decimal to an supplied integer value.
 
    :param value: The value to set
-   :raises ColumnStoreDataError: When an invalid value is supplied
+   :raises RuntimeError: When an invalid value is supplied
 
-.. cpp:function:: ColumnStoreDecimal::ColumnStoreDecimal(const std::string& value)
+.. py:method:: pymcsapi.ColumnStoreDecimal(value)
 
-   Sets the decimal to the contents of a supplied :cpp:type:`std::string` value (such as ``"3.14159"``).
+   Sets the decimal to the contents of a supplied string value (such as ``"3.14159"``).
 
    :param value: The value to set
-   :raises ColumnStoreDataError: When an invalid value is supplied
+   :raises RuntimeError: When an invalid value is supplied
 
-.. cpp:function:: ColumnStoreDecimal::ColumnStoreDecimal(double value)
+.. py:method:: pymcsapi::ColumnStoreDecimal(value)
 
-   Sets the decimal to the contents of a supplied :c:type:`double` value.
+   Sets the decimal to the contents of a supplied double value.
 
    .. note::
-      The internally this uses the :cpp:type:`std::string` method so the performance may be lower than expected.
+      In the internally this uses the string method so the performance may be lower than expected.
 
    :param value: The value to set
-   :raises ColumnStoreDataError: When an invalid value is supplied
+   :raises RuntimeError: When an invalid value is supplied
 
-.. cpp:function:: ColumnStoreDecimal::ColumnStoreDecimal(int64_t number, uint8_t scale)
+.. py:method:: pymcsapi.ColumnStoreDecimal(number, scale)
 
    Sets the decimal to a given number and scale. For example for the value 3.14159 you would set the number to ``314159`` and the scale to ``5``.
 
    :param number: The number to set
    :param scale: The scale for the number
-   :raises ColumnStoreDataError: When an invalid number/scale is supplied
+   :raises RuntimeError: When an invalid number/scale is supplied
 
 set()
 -----
 
-.. cpp:function:: bool ColumnStoreDecimal::set(int64_t value)
+.. py:method:: ColumnStoreDecimal::set(value)
 
    Sets the decimal to an supplied integer value.
 
    :param value: The value to set
-   :returns: Always returns ``true``
+   :returns: Always returns ``True``
 
-.. cpp:function:: bool ColumnStoreDecimal::set(const std::string& value)
+.. py:method:: ColumnStoreDecimal.set(value)
 
-   Sets the decimal to the contents of a supplied :cpp:type:`std::string` value (such as ``"3.14159"``).
+   Sets the decimal to the contents of a supplied string value (such as ``"3.14159"``).
 
    :param value: The value to set
-   :returns: ``true`` if the conversion was successful or ``false`` if it failed
+   :returns: ``True`` if the conversion was successful or ``False`` if it failed
 
-.. cpp:function:: bool ColumnStoreDecimal::set(double value)
+.. py:method:: ColumnStoreDecimal.set(value)
 
-   Sets the decimal to the contents of a supplied :cpp:type:`std::string` value (such as ``"3.14159"``).
+   Sets the decimal to the contents of a supplied double value.
 
    .. note::
-      The internally this uses the :cpp:type:`std::string` method so the performance may be lower than expected.
+      In the internally this uses the string method so the performance may be lower than expected.
 
    :param value: The value to set
-   :returns: ``true`` if the conversion was successful or ``false`` if it failed
+   :returns: ``True`` if the conversion was successful or ``False`` if it failed
 
-.. cpp:function:: bool ColumnStoreDecimal::set(int64_t number, uint8_t scale)
+.. py:method:: ColumnStoreDecimal.set(number, scale)
 
    Sets the decimal to a given number and scale. For example for the value 3.14159 you would set the number to ``314159`` and the scale to ``5``.
 
    :param number: The number to set
    :param scale: The scale for the number
-   :returns: ``true`` if the conversion was successful or ``false`` if it failed
+   :returns: ``True`` if the conversion was successful or ``False`` if it failed
 
 ColumnStoreSystemCatalog Class
 ==============================
 
-.. cpp:class:: ColumnStoreSystemCatalog
+.. py:class:: ColumnStoreSystemCatalog
 
-   A class which contains the ColumnStore system catalog of tables and columns. It should be instantiated using :cpp:func:`ColumnStoreDriver::getSystemCatalog`.
+   A class which contains the ColumnStore system catalog of tables and columns. It should be instantiated using :py:meth:`ColumnStoreDriver.getSystemCatalog`.
 
    .. note::
       The system catalog stores schema, table and column names as lower case and therefore the functions only return lower case names. Since version 1.1.4 we make case insensitive matches.
@@ -286,21 +282,21 @@ ColumnStoreSystemCatalog Class
 getTable()
 ----------
 
-.. cpp:function:: ColumnStoreSystemCatalogTable& ColumnStoreSystemCatalog::getTable(const std::string& schemaName, const std::string& tableName)
+.. py:method:: ColumnStoreSystemCatalog.getTable(schemaName, tableName)
 
    Gets the table information for a specific table.
 
    :param schemaName: The schema the table is in
    :param tableName: The name of the table
    :returns: The table information
-   :raises ColumnStoreNotFound: If the table is not found in the system catalog
+   :raises RuntimeError: If the table is not found in the system catalog
 
 ColumnStoreSystemCatalogTable Class
 ===================================
 
-.. cpp:class:: ColumnStoreSystemCatalogTable
+.. py:class:: ColumnStoreSystemCatalogTable
 
-   A class which contains the system catalog information for a specific table. It should be instantiated using :cpp:func:`ColumnStoreSystemCatalog::getTable`.
+   A class which contains the system catalog information for a specific table. It should be instantiated using :py:meth:`ColumnStoreSystemCatalog.getTable`.
 
    .. note::
       The system catalog stores schema, table and column names as lower case and therefore the functions only return lower case names. Since version 1.1.4 we make case insensitive matches.
@@ -309,7 +305,7 @@ ColumnStoreSystemCatalogTable Class
 getSchemaName()
 ---------------
 
-.. cpp:function:: const std::string& ColumnStoreSystemCatalogTable::getSchemaName()
+.. py:method:: ColumnStoreSystemCatalogTable.getSchemaName()
 
    Retrieves the database schema name for the table
 
@@ -318,7 +314,7 @@ getSchemaName()
 getTableName()
 --------------
 
-.. cpp:function:: const std::string& ColumnStoreSystemCatalogTable::getTableName()
+.. py:method:: ColumnStoreSystemCatalogTable.getTableName()
 
    Retrieves the table name for the table
 
@@ -327,7 +323,7 @@ getTableName()
 getOID()
 --------
 
-.. cpp:function:: uint32_t ColumnStoreSystemCatalogTable::getOID()
+.. py:method:: ColumnStoreSystemCatalogTable::getOID()
 
    Retrieves the ColumnStore object ID for the table.
 
@@ -336,7 +332,7 @@ getOID()
 getColumnCount()
 ----------------
 
-.. cpp:function:: uint16_t ColumnStoreSystemCatalogTable::getColumnCount()
+.. py:method:: ColumnStoreSystemCatalogTable.getColumnCount()
 
    Retrieves the number of columns in the table
 
@@ -345,29 +341,29 @@ getColumnCount()
 getColumn()
 -----------
 
-.. cpp:function:: ColumnStoreSystemCatalogColumn& ColumnStoreSystemCatalogTable::getColumn(const std::string& columnName)
+.. py:method:: ColumnStoreSystemCatalogTable.getColumn(columnName)
 
    Retrieves the column information for a specified column by name
 
    :param columnName: The name of the column to retrieve
    :returns: The column information
-   :raises ColumnStoreNotFound: If the column is not found
+   :raises RuntimeError: If the column is not found
 
-.. cpp:function:: ColumnStoreSystemCatalogColumn& ColumnStoreSystemCatalogTable::getColumn(uint16_t columnNumber)
+.. py:method:: ColumnStoreSystemCatalogTable.getColumn(columnNumber)
 
    Retrieves the column information for a specified column by number starting at zero
 
    :param columnNumber: The number of the column to retrieve starting at ``0``
    :returns: The column information
-   :raises ColumnStoreNotFound: If the column is not found
+   :raises RuntimeError: If the column is not found
 
 
 ColumnStoreSystemCatalogColumn Class
 ====================================
 
-.. cpp:class:: ColumnStoreSystemCatalogColumn
+.. py:class:: ColumnStoreSystemCatalogColumn
 
-   A class containing information about a specific column in the system catalog. Should be instantiated using :cpp:func:`ColumnStoreSystemCatalogTable::getColumn`.
+   A class containing information about a specific column in the system catalog. Should be instantiated using :py:meth:`ColumnStoreSystemCatalogTable.getColumn`.
 
    .. note::
       The system catalog stores schema, table and column names as lower case and therefore the functions only return lower case names. Since version 1.1.4 we make case insensitive matches.
@@ -376,7 +372,7 @@ ColumnStoreSystemCatalogColumn Class
 getOID()
 --------
 
-.. cpp:function:: uint32_t ColumnStoreSystemCatalogColumn::getOID()
+.. py:method:: ColumnStoreSystemCatalogColumn.getOID()
 
    Retrieves the ColumnStore object ID for the column
 
@@ -385,7 +381,7 @@ getOID()
 getColumnName()
 ---------------
 
-.. cpp:function:: const std::string& ColumnStoreSystemCatalogColumn::getColumnName()
+.. py:method:: ColumnStoreSystemCatalogColumn.getColumnName()
 
    Retrieves the name of the column
 
@@ -394,7 +390,7 @@ getColumnName()
 getDictionaryOID()
 ------------------
 
-.. cpp:function:: uint32_t ColumnStoreSystemCatalogColumn::getDictionaryOID()
+.. py:method:: ColumnStoreSystemCatalogColumn.getDictionaryOID()
 
    Retrieves the dictionary object ID for the column (or ``0`` if there is no dictionary)
 
@@ -403,7 +399,7 @@ getDictionaryOID()
 getType()
 ---------
 
-.. cpp:function:: columnstore_data_types_t ColumnStoreSystemCatalogColumn::getType()
+.. py:method:: ColumnStoreSystemCatalogColumn.getType()
 
    Retrieves the data type for the column
 
@@ -412,7 +408,7 @@ getType()
 getWidth()
 ----------
 
-.. cpp:function:: uint32_t ColumnStoreSystemCatalogColumn::getWidth()
+.. py:method:: ColumnStoreSystemCatalogColumn.getWidth()
 
    Retrieves the width in bytes for the column
 
@@ -421,7 +417,7 @@ getWidth()
 getPosition()
 -------------
 
-.. cpp:function:: uint32_t ColumnStoreSystemCatalogColumn::getPosition()
+.. py:method:: ColumnStoreSystemCatalogColumn.getPosition()
 
    Retrieves the column's position in the table. The sequence of columns in the table is sorted on object ID, columns may be out-of-order if an ALTER TABLE has inserted one in the middle of the table.
 
@@ -430,7 +426,7 @@ getPosition()
 getDefaultValue()
 -----------------
 
-.. cpp:function:: const std::string& ColumnStoreSystemCatalogColumn::getDefaultValue()
+.. py:method:: ColumnStoreSystemCatalogColumn.getDefaultValue()
 
    Retrieves the default value for the column in text. The value is empty for no default.
 
@@ -439,7 +435,7 @@ getDefaultValue()
 isAutoincrement()
 -----------------
 
-.. cpp:function:: bool ColumnStoreSystemCatalogColumn::isAutoincrement()
+.. py:method:: ColumnStoreSystemCatalogColumn.isAutoincrement()
 
    Retrieves whether or not this column is an autoincrement column.
 
@@ -448,7 +444,7 @@ isAutoincrement()
 getPrecision()
 --------------
 
-.. cpp:function:: uint32_t ColumnStoreSystemCatalogColumn::getPrecision()
+.. py:method:: ColumnStoreSystemCatalogColumn.getPrecision()
 
    Retrieves the decimal precision for the column.
 
@@ -457,7 +453,7 @@ getPrecision()
 getScale()
 ----------
 
-.. cpp:function:: uint32_t ColumnStoreSystemCatalogColumn::getScale()
+.. py:method:: ColumnStoreSystemCatalogColumn.getScale()
 
    Retrieves the decimal scale for the column.
 
@@ -466,16 +462,16 @@ getScale()
 isNullable()
 ------------
 
-.. cpp:function:: bool ColumnStoreSystemCatalogColumn::isNullable()
+.. py:method:: ColumnStoreSystemCatalogColumn.isNullable()
 
    Retrieves whether or not the column can be set to ``NULL``
 
-   :returns: ``true`` if the column can be ``NULL`` or ``false`` if it can not
+   :returns: ``True`` if the column can be ``NULL`` or ``False`` if it can not
 
 compressionType()
 -----------------
 
-.. cpp:function:: uint8_t ColumnStoreSystemCatalogColumn::compressionType()
+.. py:method:: ColumnStoreSystemCatalogColumn.compressionType()
 
    Retrieves the compression type for the column. ``0`` means no compression and ``2`` means Snappy compression
 

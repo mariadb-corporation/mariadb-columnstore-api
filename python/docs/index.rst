@@ -1,5 +1,5 @@
 Welcome to pymcsapi's documentation
-====================================
+===================================
 
 .. toctree::
    :maxdepth: 2
