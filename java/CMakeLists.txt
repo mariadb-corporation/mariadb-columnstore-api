@@ -84,5 +84,9 @@ INSTALL(FILES build/libs/javamcsapi-${MCSAPI_VERSION_STRING}.jar DESTINATION  ${
 INSTALL(FILES build/libs/javamcsapi.jar DESTINATION  ${CMAKE_INSTALL_LIBDIR})
 
 IF(TEST_RUNNER)
+    option(JAVA_COMPATIBILITY_TEST "Run the Java mcsapi compatibility test" ON)
     add_test(NAME Java_BasicTest COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/gradlew" -p ${CMAKE_CURRENT_SOURCE_DIR} -Pversion=${MCSAPI_VERSION_STRING} -Pjava.library.path=${CMAKE_CURRENT_BINARY_DIR} test)
+    IF(JAVA_COMPATIBILITY_TEST)
+        add_test(NAME JavaMcsapi_mcsapi_compatibility_test COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/test/compatibility_test.sh" ${VERSION_MAJOR} ${VERSION_MINOR} ${VERSION_PATCH})
+    ENDIF(JAVA_COMPATIBILITY_TEST)
 ENDIF(TEST_RUNNER)
