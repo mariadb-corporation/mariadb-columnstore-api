@@ -32,7 +32,7 @@ This example can be used inside the try...except blocks in the :py:class:`Column
    :linenos:
 
    ...
-   pymcsapi.ColumnStoreDriver()
+   driver = pymcsapi.ColumnStoreDriver()
    bulkInsert = driver.createBulkInsert(db, table, 0, 0)
    # columnCount will now contain the number of columns in the table
    columnCount = bulkInsert.getColumnCount()
@@ -61,7 +61,7 @@ This example can be used inside the try...except blocks in the :py:class:`Column
    :linenos:
 
    ...
-   driver = pymcapi.ColumnStoreDriver()
+   driver = pymcsapi.ColumnStoreDriver()
    bulkInsert = driver.createBulkInsert(db, table, 0, 0)
 
    # Create a decimal value
@@ -74,24 +74,24 @@ This example can be used inside the try...except blocks in the :py:class:`Column
    strVal = "Hello World"
 
    # Finally a date/time values
-   dateTime = pymcsapi.ColumnStoreDateTime("1999-01-01 23:23:23")
+   dateTime = pymcsapi.ColumnStoreDateTime("1999-01-01 23:23:23", "%Y-%m-%d %H:%M:%S")
 
    nxt, status = bulkInsert.setColumn(0, intVal)
    # Check conversion status
-   if (status != CONVERT_STATUS_NONE):
-       return 1
+   if status != pymcsapi.CONVERT_STATUS_NONE:
+       exit(1)
    nxt, status = bulkInsert.setColumn(1, decimalVal)
    # Check conversion status
-   if (status != CONVERT_STATUS_NONE):
-       return 1
+   if status != pymcsapi.CONVERT_STATUS_NONE:
+       exit(1)
    nxt, status = bulkInsert.setColumn(2, strVal)
    # Check conversion status
-   if (status != CONVERT_STATUS_NONE):
-   	   return 1
+   if status != pymcsapi.CONVERT_STATUS_NONE:
+       exit(1)
    nxt, status = bulkInsert.setColumn(3, dateTime)
    # Check conversion status
-   if (status != CONVERT_STATUS_NONE):
-       return 1
+   if status != pymcsapi.CONVERT_STATUS_NONE:
+       exit(1)
 
    # Write this row ready to start another
    bulkInsert.writeRow()
@@ -99,7 +99,7 @@ This example can be used inside the try...except blocks in the :py:class:`Column
    decimalVal.set("1.41421")
    intVal = 654321
    strVal = "dlroW olleH"
-   dateTime.set("2017-07-05 22:00:43")
+   dateTime.set("2017-07-05 22:00:43", "%Y-%m-%d %H:%M:%S")
 
    # A chained example
    bulkInsert.setColumn(0, intVal)[0].setColumn(1, decimalVal)[0].setColumn(2, strVal)[0].setColumn(3, dateTime)[0].writeRow()
@@ -127,7 +127,7 @@ This example can be used inside the try...except blocks in the :py:class:`Column
    :linenos:
 
    ...
-   driver = pymcapi.ColumnStoreDriver()
+   driver = pymcsapi.ColumnStoreDriver()
    bulkInsert = driver.createBulkInsert(db, table, 0, 0)
 
    # Set an whole row of NULLs
@@ -141,6 +141,7 @@ resetRow()
 
    Resets everything that has been set for the current row. This method should be used to clear the row memory without using :py:meth:`ColumnStoreBulkInsert.writeRow`.
 
+   :returns: A pointer to the :py:class:`ColumnStoreBulkInsert` class so that calls can be chained
    :raises RuntimeError: If the transaction has already been closed
 
 writeRow()
@@ -153,6 +154,7 @@ writeRow()
    .. note::
       The row may not be written at this stage. The library will batch an amount of rows together before sending them, by default data is only sent to the server every 100,000 rows or :py:meth:`ColumnStoreBulkInsert.commit` is called. Data is not committed with ``writeRow()``, it has to be explicitly committed at the end of the transaction. 
 
+   :returns: A pointer to the :py:class:`ColumnStoreBulkInsert` class so that calls can be chained
    :raises RuntimeError: If there has been an error during the write at the network level
    :raises RuntimeError: If there has been an error during the write at the remote server level
    :raises RuntimeError: If the transaction has already been closed
@@ -166,12 +168,12 @@ This example can be used inside the try...except blocks in the :py:class:`Column
    :linenos:
 
    ...
-   driver = pymcapi.ColumnStoreDriver()
+   driver = pymcsapi.ColumnStoreDriver()
    bulkInsert = driver.createBulkInsert(db, table, 0, 0)
 
    # Set values for a 2 int column table
-   bulkInsert.setValue(0, 123456)
-   bulkInsert->setValue(1, 654321)
+   bulkInsert.setColumn(0, 123456)
+   bulkInsert.setColumn(1, 654321)
 
    # Write the row
    bulkInsert.writeRow()
@@ -204,12 +206,12 @@ This example can be used inside the try...except blocks in the :py:class:`Column
    :linenos:
 
    ...
-   driver = pymcapi.ColumnStoreDriver()
+   driver = pymcsapi.ColumnStoreDriver()
    bulkInsert = driver.createBulkInsert(db, table, 0, 0)
 
    # Set values for a 2 int column table
-   bulkInsert.setValue(0, 123456)
-   bulkInsert.setValue(1, 654321)
+   bulkInsert.setColumn(0, 123456)
+   bulkInsert.setColumn(1, 654321)
 
    # Write the row
    bulkInsert.writeRow()
@@ -218,7 +220,7 @@ This example can be used inside the try...except blocks in the :py:class:`Column
    bulkInsert.commit()
 
    # This WILL throw an exception if uncommented
-   # bulkInsert.setValue(0, 99999)
+   # bulkInsert.setColumn(0, 99999)
    ...
 
 
@@ -244,12 +246,12 @@ This example can be used inside the try...except blocks in the :py:class:`Column
    :linenos:
 
    ...
-   driver = pymcapi.ColumnStoreDriver()
+   driver = pymcsapi.ColumnStoreDriver()
    bulkInsert = driver.createBulkInsert(db, table, 0, 0)
 
    # Set values for a 2 int column table
-   bulkInsert.setValue(0, 123456)
-   bulkInsert.setValue(1, 654321)
+   bulkInsert.setColumn(0, 123456)
+   bulkInsert.setColumn(1, 654321)
 
    # Write the row
    bulkInsert.writeRow()
@@ -258,7 +260,7 @@ This example can be used inside the try...except blocks in the :py:class:`Column
    bulkInsert.rollback()
 
    # This WILL throw an exception if uncommented
-   # bulkInsert.setValue(0, 99999)
+   # bulkInsert.setColumn(0, 99999)
    ...
 
 
@@ -289,12 +291,12 @@ This example can be used inside the try...except blocks in the :py:class:`Column
    :linenos:
 
    ...
-   driver = pymcapi.ColumnStoreDriver()
+   driver = pymcsapi.ColumnStoreDriver()
    bulkInsert = driver.createBulkInsert(db, table, 0, 0)
 
    # Set values for a 2 int column table
-   bulkInsert.setValue(0, 123456)
-   bulkInsert.setValue(1, 654321)
+   bulkInsert.setColumn(0, 123456)
+   bulkInsert.setColumn(1, 654321)
 
    # Write the row
    bulkInsert.writeRow()
@@ -328,14 +330,16 @@ This example can be used inside the try...except blocks in the :py:class:`Column
    :linenos:
 
    ...
-   driver = pymcapi.ColumnStoreDriver()
+   driver = pymcsapi.ColumnStoreDriver()
    bulkInsert = driver.createBulkInsert(db, table, 0, 0)
 
+   bulkInsert.setTruncateIsError(True)
+
    # A short string that will insert fine
-   bulkInsert.setValue(0, "Short string")
+   bulkInsert.setColumn(0, "Short string")
 
    # This long string will truncate on my VARCHAR(20) and throw an exception
-   bulkInsert.setValue(1, "This is a long string test to demonstrate setTruncateIsError()")
+   bulkInsert.setColumn(1, "This is a long string test to demonstrate setTruncateIsError()")
    ...
 
 setBatchSize()

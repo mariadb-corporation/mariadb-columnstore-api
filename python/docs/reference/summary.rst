@@ -23,12 +23,12 @@ This example can be used inside the try...except blocks in the :py:class:`Column
    :linenos:
 
    ...
-   driver = pymcapi.ColumnStoreDriver()
+   driver = pymcsapi.ColumnStoreDriver()
    bulkInsert = driver.createBulkInsert(db, table, 0, 0)
 
    # Set values for a 2 int column table
-   bulkInsert.setValue(0, 123456)
-   bulkInsert.setValue(1, 654321)
+   bulkInsert.setColumn(0, 123456)
+   bulkInsert.setColumn(1, 654321)
 
    # Write the row
    bulkInsert.writeRow()
@@ -61,12 +61,12 @@ This example can be used inside the try...except blocks in the :py:class:`Column
    :linenos:
 
    ...
-   driver = pymcapi.ColumnStoreDriver()
+   driver = pymcsapi.ColumnStoreDriver()
    bulkInsert = driver.createBulkInsert(db, table, 0, 0)
 
    # Set values for a 2 int column table
-   bulkInsert.setValue(0, 123456)
-   bulkInsert.setValue(1, 654321)
+   bulkInsert.setColumn(0, 123456)
+   bulkInsert.setColumn(1, 654321)
 
    # Write the row
    bulkInsert.writeRow()
@@ -99,12 +99,12 @@ This example can be used inside the try...except blocks in the :py:class:`Column
    :linenos:
 
    ...
-   driver = pymcapi.ColumnStoreDriver()
+   driver = pymcsapi.ColumnStoreDriver()
    bulkInsert = driver.createBulkInsert(db, table, 0, 0)
 
    # Set values for a 2 int column table
-   bulkInsert.setValue(0, 123456)
-   bulkInsert.setValue(1, 654321)
+   bulkInsert.setColumn(0, 123456)
+   bulkInsert.setColumn(1, 654321)
 
    # Write the row
    bulkInsert.writeRow()
@@ -137,12 +137,12 @@ This example can be used inside the try...except blocks in the :py:class:`Column
    :linenos:
 
    ...
-   driver = pymcapi.ColumnStoreDriver()
+   driver = pymcsapi.ColumnStoreDriver()
    bulkInsert = driver.createBulkInsert(db, table, 0, 0)
 
    # Set values for a 2 int column table
-   bulkInsert.setValue(0, 123456)
-   bulkInsert.setValue(1, 2147483650)
+   bulkInsert.setColumn(0, 123456)
+   bulkInsert.setColumn(1, 2147483650)
 
    # Write the row
    bulkInsert.writeRow()
@@ -179,15 +179,15 @@ This example can be used inside the try...except blocks in the :py:class:`Column
    :linenos:
 
    ...
-   driver = pymcapi.ColumnStoreDriver()
+   driver = pymcsapi.ColumnStoreDriver()
    bulkInsert = driver.createBulkInsert(db, table, 0, 0)
 
    # Set values for a 2 int column table
-   bulkInsert.setValue(0, 123456);
+   bulkInsert.setColumn(0, 123456);
    # This is a DATE column, which is invalid to set as a date.
    # The result will be the date set to '0000-00-00'
    # and a invalid counter increment
-   bulkInsert.setValue(1, 123456)
+   bulkInsert.setColumn(1, 123456)
 
    # Write the row
    bulkInsert.writeRow()

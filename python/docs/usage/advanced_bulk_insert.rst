@@ -35,11 +35,11 @@ This demonstrates setting several different data types using strings of data. Th
    :lineno-start: 37
    :caption: example/advanced_bulk_insert.py
 
+Many of the :py:class:`ColumnStoreBulkInsert` methods return a pointer to the class and a return status which means multiple calls can be chained together in a similar way to ORM APIs. Here we use additional datatypes :py:class:`ColumnStoreDateTime` and :py:class:`ColumnStoreDecimal`.
+
 :py:class:`ColumnStoreDateTime` is used to create an entry for a ``DATE`` or ``DATETIME`` column. It can be used to define custom formats for dates and times using the `strptime format <http://pubs.opengroup.org/onlinepubs/9699919799/functions/strptime.html>`_.
 
 A decimal is created using the :py:class:`ColumnStoreDecimal` class. It can be set using a string, :c:type:`double` or a pair of integers. The first integer is the precision and the second integer is the scale. So this number becomes ``23476.23``.
-
-Many of the :py:class:`ColumnStoreBulkInsert` methods return a pointer to the class which means multiple calls can be chained together in a similar way to ORM APIs. Here we can also see the dates and decimal we set earlier are applied.
 
 .. literalinclude:: ../../example/advanced_bulk_insert.py
    :linenos:

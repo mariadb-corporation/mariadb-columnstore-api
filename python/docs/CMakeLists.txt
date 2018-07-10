@@ -104,7 +104,7 @@ if(GENERATE_DOC)
     #    add_dependencies(doc_pdf
     #  doc_html
     #)
-    install(FILES "${SPHINX_PDF_DIR}/libpymcsapi_usage.pdf"
+    install(FILES "${SPHINX_PDF_DIR}/pymcsapi_usage.pdf"
       DESTINATION "${CMAKE_INSTALL_DOCDIR}"
       COMPONENT libs
     )

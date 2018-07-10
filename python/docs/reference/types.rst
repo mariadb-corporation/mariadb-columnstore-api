@@ -216,7 +216,7 @@ ColumnStoreDecimal()
    :param value: The value to set
    :raises RuntimeError: When an invalid value is supplied
 
-.. py:method:: pymcsapi::ColumnStoreDecimal(value)
+.. py:method:: pymcsapi.ColumnStoreDecimal(value)
 
    Sets the decimal to the contents of a supplied double value.
 
@@ -237,7 +237,7 @@ ColumnStoreDecimal()
 set()
 -----
 
-.. py:method:: ColumnStoreDecimal::set(value)
+.. py:method:: ColumnStoreDecimal.set(value)
 
    Sets the decimal to an supplied integer value.
 

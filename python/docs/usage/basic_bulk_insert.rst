@@ -17,7 +17,7 @@ You will need the following table in the test database to execute this:
    :lineno-start: 26
    :caption: example/basic_bulk_insert.py
 
-We need to include :py:mod:`pymcsapi` which is the main include file for pymcsapi. This will pull in all the required includes to use mcsapi.
+We need to import :py:mod:`pymcsapi` which is the main module to use mcsapi.
 
 .. literalinclude:: ../../example/basic_bulk_insert.py
    :linenos:
