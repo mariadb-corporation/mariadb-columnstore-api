@@ -44,7 +44,7 @@ A decimal is created using the :py:class:`ColumnStoreDecimal` class. It can be s
 .. literalinclude:: ../../example/advanced_bulk_insert.py
    :linenos:
    :language: python
-   :lines: 38-43
+   :lines: 38-44
    :lineno-start: 38
    :caption: example/advanced_bulk_insert.py
 
@@ -53,8 +53,8 @@ After a commit or rollback we can obtain summary information from the bulk inser
 .. literalinclude:: ../../example/advanced_bulk_insert.py
    :linenos:
    :language: python
-   :lines: 44-45
-   :lineno-start: 44
+   :lines: 45-46
+   :lineno-start: 45
    :caption: example/advanced_bulk_insert.py
 
 At the end we clean up in the same was as the basic bulk insert example.

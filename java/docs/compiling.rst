@@ -4,33 +4,41 @@ Compiling with javamcsapi
 Pre-requisites
 --------------
 
-To link mcsapi to your application you first need install the following pre-requisites:
+To link javamcsapi to your application and to execute it you first need install the following mcsapi pre-requisites:
 
 Ubuntu
 ^^^^^^
 
 .. code-block:: console
 
-   sudo apt-get install libsnappy1v5 libuv1 libxml2 g++ gcc pkg-config libbost-dev
+   sudo apt-get install libuv1
 
 CentOS 7
 ^^^^^^^^
 
 .. code-block:: console
 
-   sudo yum install snappy libuv libxml2 pkgconfig boost-devel
-   sudo yum install centos-release-scl
-   sudo yum install devtoolset-4-gcc*
-   scl enable devtoolset-4 bash
+   sudo yum install epel-release
+   sudo yum install libuv
 
 Compiling
 ---------
 
-The easiest way to compile is to use pkg-config to provide the required compile options.
+To compile a Java program from command line you have to explicitly state where to find javamcsapi.jar. Its path can differ depending on your operating system.
 
-The following is a basic example of how to do compile an example c++ application with mcsapi:
+Ubuntu
+^^^^^^
 
 .. code-block:: console
 
-   g++ example.cpp -o example -std=c++11 `pkg-config libmcsapi --cflags --libs`
+   javac -classpath ".:/usr/lib/javamcsapi.jar" Basic_bulk_insert.java
+   java -classpath ".:/usr/lib/javamcsapi.jar" Basic_bulk_insert
+
+CentOS 7
+^^^^^^^^
+
+.. code-block:: console
+
+   javac -classpath ".:/usr/lib64/javamcsapi.jar" Basic_bulk_insert.java
+   java -classpath ".:/usr/lib64/javamcsapi.jar" Basic_bulk_insert
 

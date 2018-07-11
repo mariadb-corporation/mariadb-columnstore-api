@@ -19,8 +19,8 @@ This is a version history of Java API interface changes. It does not include int
 | 1.1.1   | - Add :java:meth:`ColumnStoreBulkInsert.isActive`                                                                                     |
 |         | - Make :java:meth:`ColumnStoreBulkInsert.rollback` fail without error                                                                 |
 |         | - Add :java:meth:`ColumnStoreBulkInsert.resetRow`                                                                                     |
-|         | - :java:class:`ColumnStoreDateTime` now uses uint32_t for every parameter                                                             |
-|         | - :java:class:`ColumnStoreSystemCatalog` now uses const for the sub-class strings                                                     |
+|         | - :java:type:`ColumnStoreDateTime` now uses uint32_t for every parameter                                                              |
+|         | - :java:type:`ColumnStoreSystemCatalog` now uses const for the sub-class strings                                                      |
 +---------+---------------------------------------------------------------------------------------------------------------------------------------+
 | 1.1.0β  | - First beta release                                                                                                                  |
 +---------+---------------------------------------------------------------------------------------------------------------------------------------+
