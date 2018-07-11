@@ -26,6 +26,7 @@ For the documentation:
 ```shell
 sudo apt-get install python3 python-pip3 texlive-latex-recommended texlive-latex-extra latexmk
 pip3 install -U Sphinx
+pip3 install javasphinx
 ```
 
 For test test suite:
@@ -65,6 +66,7 @@ For the documentation:
 ```shell
 sudo apt-get install python3 python-pip3 texlive-latex-recommended texlive-latex-extra latexmk
 pip3 install -U Sphinx
+pip3 install javasphinx
 ```
 
 For the test suite do the following in a directory separate from the API:
@@ -95,6 +97,7 @@ For the documentation:
 ```shell
 sudo yum install python34 texlive-scheme-full latexmk python34-pip
 pip3 install -U Sphinx
+pip3 install javasphinx
 ```
 
 For the test suite:

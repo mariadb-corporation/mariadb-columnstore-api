@@ -1,5 +1,5 @@
-Welcome to pymcsapi's documentation
-===================================
+Welcome to javamcsapi's documentation
+=====================================
 
 .. toctree::
    :maxdepth: 2
@@ -7,4 +7,5 @@ Welcome to pymcsapi's documentation
    license
    changelog
    usage/index
+   compiling
    reference/index
