@@ -85,14 +85,7 @@ int ColumnStoreCommands::runSoloLoop(ColumnStoreNetwork* connection)
         }
     }
     while ((connection->getStatus() != CON_STATUS_CONNECT_ERROR) &&
-           (connection->getStatus() != CON_STATUS_NET_ERROR) &&
            (connection->getStatus() != CON_STATUS_IDLE));
-
-    if ((connection->getStatus() == CON_STATUS_CONNECT_ERROR) ||
-        (connection->getStatus() == CON_STATUS_NET_ERROR))
-    {
-        throw ColumnStoreNetworkError(connection->getErrMsg());
-    }
 
     return status;
 }
@@ -111,16 +104,10 @@ int ColumnStoreCommands::runLoop()
         for (auto& it: weConnections)
         {
             ColumnStoreNetwork* connection = it.second;
-            if (connection->getStatus() == CON_STATUS_IDLE)
+            if ((connection->getStatus() == CON_STATUS_CONNECT_ERROR) ||
+                (connection->getStatus() == CON_STATUS_IDLE))
             {
                 completed = true;
-            }
-            else if ((connection->getStatus() == CON_STATUS_CONNECT_ERROR) ||
-                     (connection->getStatus() == CON_STATUS_NET_ERROR))
-            {
-                completed = true;
-                throw ColumnStoreNetworkError(connection->getErrMsg());
-                break;
             }
             else
             {
@@ -247,7 +234,12 @@ uint64_t ColumnStoreCommands::brmGetTableLock(uint32_t tableOID, uint32_t sessio
 
     uint8_t command = COMMAND_DBRM_GET_TABLE_LOCK;
     uint64_t id = 0;
+#ifdef __linux__
     pid_t PID = getpid();
+#endif
+#ifdef _WIN32
+    uint32_t PID = getpid();
+#endif
     time_t now = time(NULL);
     std::string ownerName("mcsapi");
     messageIn << command;
@@ -853,10 +845,10 @@ void ColumnStoreCommands::brmSetHWMAndCP(std::vector<ColumnStoreHWM>& hwms, std:
         messageIn << it;
         // min int64
         messageIn << (uint64_t) 0x8000000000000000;
-        messageIn << (uint64_t) std::numeric_limits<int64_t>::max();
+        messageIn << (uint64_t) (std::numeric_limits<int64_t>::max)();
         // int32_t -1 with 4 byte struct padding which is the same as uint64_t
         // max for our purposes;
-        messageIn << std::numeric_limits<uint64_t>::max();
+        messageIn << (std::numeric_limits<uint64_t>::max)();
     }
 
     messageIn << tmp64; // Unused vector
@@ -896,10 +888,10 @@ void ColumnStoreCommands::brmSetExtentsMaxMin(std::vector<uint64_t>& lbids)
         messageIn << it;
         // min int64
         messageIn << (uint64_t) 0x8000000000000000;
-        messageIn << (uint64_t) std::numeric_limits<int64_t>::max();
+        messageIn << (uint64_t) (std::numeric_limits<int64_t>::max)();
         // int32_t -1 with 4 byte struct padding which is the same as uint64_t
         // max for our purposes;
-        messageIn << std::numeric_limits<uint64_t>::max();
+        messageIn << (std::numeric_limits<uint64_t>::max)();
     }
 
     connection->sendData(messageIn);
