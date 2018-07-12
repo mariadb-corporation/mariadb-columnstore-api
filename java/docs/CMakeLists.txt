@@ -21,8 +21,6 @@ if(GENERATE_DOC)
 
   # generated ReST documentation sources
   set(REF_SOURCES_DIR "${SOURCES_DIR}/reference")
-  # master document with modules index
-  set(REF_MASTER_DOC "modules")
 
   # substitute variables in configuration and scripts
   foreach(file
@@ -40,14 +38,10 @@ if(GENERATE_DOC)
     "${BINARY_BUILD_DIR}/html"
   )
 
-  add_custom_target(ALL
-    DEPENDS "${REF_SOURCES_DIR}/${REF_MASTER_DOC}.rst"
-  )
-
   # Sphinx requires all sources in the same directory tree. As we wish
   # to include generated reference documention from the build tree, we
   # copy static ReST documents to the build tree before calling Sphinx.
-  add_custom_target(doc_sources ALL
+  add_custom_target(doc_sources_JAVAMCSAPI ALL
     "${CMAKE_COMMAND}" -P "${BINARY_BUILD_DIR}/sources.cmake"
   )
   list(APPEND CLEAN_FILES
@@ -55,35 +49,30 @@ if(GENERATE_DOC)
     "${PDF_SOURCES_DIR}"
   )
 
-  # note the trailing slash to exclude directory name
-  #install(DIRECTORY "${SOURCES_DIR}/"
-  #    DESTINATION "${CMAKE_INSTALL_DOCDIR}/html"
-  #)
-
   # Sphinx cache with pickled ReST documents
   set(SPHINX_CACHE_DIR "${CMAKE_CURRENT_BINARY_DIR}/_doctrees")
   # HTML output directory
   set(SPHINX_HTML_DIR "${CMAKE_CURRENT_BINARY_DIR}/html")
 
   # This target builds HTML documentation using Sphinx.
-    add_custom_target(doc_html ALL
+    add_custom_target(doc_html_JAVAMCSAPI ALL
     ${SPHINX_EXECUTABLE}
       -b html
       -c "${BINARY_BUILD_DIR}"
       -d "${SPHINX_CACHE_DIR}"
       "${SOURCES_DIR}"
       "${SPHINX_HTML_DIR}"
-    COMMENT "Building HTML documentation with Sphinx"
+    COMMENT "Building Java HTML documentation with Sphinx"
   )
   list(APPEND CLEAN_FILES
     "${SPHINX_CACHE_DIR}"
     "${SPHINX_HTML_DIR}"
   )
-  add_dependencies(doc_html
-    doc_sources
+  add_dependencies(doc_html_JAVAMCSAPI
+    doc_sources_JAVAMCSAPI
   )
   install(DIRECTORY "${SPHINX_HTML_DIR}"
-    DESTINATION "${CMAKE_INSTALL_DOCDIR}/html"
+    DESTINATION "${CMAKE_INSTALL_DOCDIR}/html_javamcsapi"
     COMPONENT libs
   )
 
@@ -92,31 +81,30 @@ if(GENERATE_DOC)
     # PDF output directory
     set(SPHINX_PDF_DIR "${CMAKE_CURRENT_BINARY_DIR}/pdf")
 
-    add_custom_target(doc_pdf ALL
+    add_custom_target(doc_pdf_JAVAMCSAPI ALL
       ${SPHINX_EXECUTABLE}
 	-Q -b latex
 	-c "${BINARY_BUILD_DIR}"
 	-d "${SPHINX_CACHE_DIR}"
     "${PDF_SOURCES_DIR}"
 	"${SPHINX_PDF_DIR}"
-      COMMENT "Building PDF documentation with Sphinx"
+      COMMENT "Building Java PDF documentation with Sphinx"
     )
-    add_custom_command(TARGET doc_pdf POST_BUILD
+    add_custom_command(TARGET doc_pdf_JAVAMCSAPI POST_BUILD
       COMMAND ${CMAKE_MAKE_PROGRAM} LATEXOPTS=-interaction=batchmode
       WORKING_DIRECTORY "${SPHINX_PDF_DIR}"
     )
     list(APPEND CLEAN_FILES
       "${SPHINX_PDF_DIR}"
     )
-    add_dependencies(doc_pdf
-      doc_sources
+    add_dependencies(doc_pdf_JAVAMCSAPI
+      doc_sources_JAVAMCSAPI
     )
     # serialize Sphinx targets to avoid cache conflicts in parallel builds
     #    add_dependencies(doc_pdf
     #  doc_html
     #)
-    install(FILES "${SPHINX_PDF_DIR}/libmcsapi_building.pdf"
-      "${SPHINX_PDF_DIR}/libmcsapi_usage.pdf"
+    install(FILES "${SPHINX_PDF_DIR}/javamcsapi_usage.pdf"
       DESTINATION "${CMAKE_INSTALL_DOCDIR}"
       COMPONENT libs
     )
@@ -128,5 +116,5 @@ if(GENERATE_DOC)
   )
 
 else(GENERATE_DOC)
-  message(WARNING "Missing python-sphinx documentation tools, docs will not be built")
+  message(WARNING "Missing java-sphinx documentation tools, docs will not be built")
 endif(GENERATE_DOC)

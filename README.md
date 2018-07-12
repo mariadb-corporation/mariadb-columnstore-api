@@ -24,7 +24,9 @@ sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config s
 For the documentation:
 
 ```shell
-sudo apt-get install python-sphinx texlive-latex-recommended texlive-latex-extra latexmk
+sudo apt-get install python3 python-pip3 texlive-latex-recommended texlive-latex-extra latexmk
+pip3 install -U Sphinx
+pip3 install javasphinx
 ```
 
 For test test suite:
@@ -62,8 +64,9 @@ sudo update-alternatives --config java
 For the documentation:
 
 ```shell
-sudo apt-get install python-sphinx texlive-latex-recommended texlive-latex-extra latexmk python-pip
-sudo pip install sphinx
+sudo apt-get install python3 python-pip3 texlive-latex-recommended texlive-latex-extra latexmk
+pip3 install -U Sphinx
+pip3 install javasphinx
 ```
 
 For the test suite do the following in a directory separate from the API:
@@ -92,8 +95,9 @@ sudo yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel swig python-devel p
 For the documentation:
 
 ```shell
-sudo yum install python-sphinx texlive-scheme-full latexmk
-
+sudo yum install python34 texlive-scheme-full latexmk python34-pip
+pip3 install -U Sphinx
+pip3 install javasphinx
 ```
 
 For the test suite:
