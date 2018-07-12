@@ -4,13 +4,19 @@ else()
     include_directories(${LIBXML2_INCLUDE_DIR})
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__FILENAME__='\"$(subst ${CMAKE_SOURCE_DIR}/,,$(abspath $<))\"'")
+IF(UNIX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__FILENAME__='\"$(subst ${CMAKE_SOURCE_DIR}/,,$(abspath $<))\"'")
+ENDIF(UNIX)
+IF(WIN32)
+    #TODO find a way to define the __FILENAME__ in Windows so that the debug output doesn't contain the whole path.
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__FILENAME__=\"$(notdir $<)\"")
+ENDIF(WIN32)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBUILDING_MCSAPI")
 
 if (HAVE_GET_TIME)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAVE_GET_TIME=1")
-endif()
+endif(HAVE_GET_TIME)
 
 set(SOURCE_FILES
     mcsapi_driver.cpp
@@ -23,6 +29,13 @@ set(SOURCE_FILES
     util_commands.cpp
     util_structures.cpp
 )
+
+if(WIN32)
+    set(SOURCE_FILES
+        ${SOURCE_FILES}
+        WIN32/time.cpp
+    )
+endif(WIN32)
 
 add_library(mcsapi SHARED ${SOURCE_FILES})
 add_library(mcsapi_static STATIC ${SOURCE_FILES})
