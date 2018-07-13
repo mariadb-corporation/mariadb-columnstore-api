@@ -116,13 +116,13 @@ int ColumnStoreCommands::runLoop()
                 completed = true;
             }
             else if ((connection->getStatus() == CON_STATUS_CONNECT_ERROR) ||
-                (connection->getStatus() == CON_STATUS_NET_ERROR))
+                    (connection->getStatus() == CON_STATUS_NET_ERROR))
             {
                 completed = true;
                 throw ColumnStoreNetworkError(connection->getErrMsg());
                 break;
-            } 
-        else
+            }
+            else
             {
                 completed = false;
                 break;
@@ -132,6 +132,7 @@ int ColumnStoreCommands::runLoop()
     while (completed == false);
 
     return status;
+
 }
 
 ColumnStoreSystemCatalog* ColumnStoreCommands::brmGetSystemCatalog()
