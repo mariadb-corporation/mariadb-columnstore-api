@@ -85,8 +85,15 @@ int ColumnStoreCommands::runSoloLoop(ColumnStoreNetwork* connection)
         }
     }
     while ((connection->getStatus() != CON_STATUS_CONNECT_ERROR) &&
+           (connection->getStatus() != CON_STATUS_NET_ERROR) &&
            (connection->getStatus() != CON_STATUS_IDLE));
-
+    
+     if ((connection->getStatus() == CON_STATUS_CONNECT_ERROR) ||
+         (connection->getStatus() == CON_STATUS_NET_ERROR))
+     {
+         throw ColumnStoreNetworkError(connection->getErrMsg());
+     }
+ 
     return status;
 }
 
@@ -104,12 +111,18 @@ int ColumnStoreCommands::runLoop()
         for (auto& it: weConnections)
         {
             ColumnStoreNetwork* connection = it.second;
-            if ((connection->getStatus() == CON_STATUS_CONNECT_ERROR) ||
-                (connection->getStatus() == CON_STATUS_IDLE))
+        if (connection->getStatus() == CON_STATUS_IDLE)
             {
                 completed = true;
             }
-            else
+        else if ((connection->getStatus() == CON_STATUS_CONNECT_ERROR) ||
+                (connection->getStatus() == CON_STATUS_NET_ERROR))
+             {
+                 completed = true;
+                 throw ColumnStoreNetworkError(connection->getErrMsg());
+                 break;
+             } 
+        else
             {
                 completed = false;
                 break;
