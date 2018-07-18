@@ -1,11 +1,14 @@
 #!/bin/bash
 
-if [ $# -ge 3 ]; then
+set -e                          #Exit as soon as any line in the bash script fails
+
+if [ $# -ge 4 ]; then
     MAJOR_VERSION=$1
     MINOR_VERSION=$2
     PATCH_LEVEL=$3
+    LIBJAVAMCSAPIBINARYDIR=$4
 else
-    echo $0 MAJOR_VERSION MINOR_VERSION PATCH_LEVEL
+    echo $0 MAJOR_VERSION MINOR_VERSION PATCH_LEVEL LIB_JAVA_MCSAPI_BINARY_DIR
     exit -1
 fi
 
@@ -30,13 +33,15 @@ for tag in $( git tag -l columnstore-$MAJOR_VERSION.$MINOR_VERSION.* ); do
         cp -r $tag{,.backward}
         rm -f $DIR/$tag.backward/java/build/libs/javamcsapi*.jar
         cp $DIR/../build/libs/javamcsapi*.jar $DIR/$tag.backward/java/build/libs
+        sed -i -e "s/$tag/$tag.backward/g" $DIR/$tag.backward/java/CTestTestfile.cmake
 
         # prepare the forward compatibility test
         cp -r $tag{,.forward}
         rm -f $DIR/$tag.forward/java/libjavamcsapi.so*
-        cp $DIR/../libjavamcsapi.so* $DIR/$tag.forward/java
+        cp $LIBJAVAMCSAPIBINARYDIR/libjavamcsapi.so* $DIR/$tag.forward/java
         rm -f $DIR/$tag.forward/src/libmcsapi.so*
-        cp $DIR/../../src/libmcsapi.so* $DIR/$tag.forward/src
+        cp $LIBJAVAMCSAPIBINARYDIR/../src/libmcsapi.so* $DIR/$tag.forward/src
+        sed -i -e "s/$tag/$tag.forward/g" $DIR/$tag.forward/java/CTestTestfile.cmake
     fi
 done
 
@@ -47,6 +52,8 @@ echo ""
 
 cd $DIR
 failed=0
+
+set +e                          #stop exiting as soon as any line in the bash script fails
 
 for tag in $( git tag -l columnstore-$MAJOR_VERSION.$MINOR_VERSION.* ); do
     #filter versions prior 1.1.3 as these are unstable and use _javamcsapi.so instead of javamcsapi.so
