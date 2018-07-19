@@ -43,7 +43,9 @@ set_target_properties(mcsapi PROPERTIES CXX_VISIBILITY_PRESET hidden
     VERSION ${MCSAPI_VERSION_STRING}
     SOVERSION ${MCSAPI_VERSION_MAJOR}
 )
-set_target_properties(mcsapi_static PROPERTIES OUTPUT_NAME mcsapi)
+IF(UNIX)
+    set_target_properties(mcsapi_static PROPERTIES OUTPUT_NAME mcsapi)
+ENDIF(UNIX)
 target_link_libraries(mcsapi ${SNAPPY_LIBRARIES} ${LIBXML2_LIBRARIES} ${LIBUV_LIBRARIES})
 target_link_libraries(mcsapi_static ${SNAPPY_LIBRARIES} ${LIBXML2_LIBRARIES} ${LIBUV_LIBRARIES})
 
