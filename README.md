@@ -267,7 +267,7 @@ mkdir build && cd build
 cmake -DJAVA=OFF -DPYTHON=OFF -DTEST_RUNNER=ON -G "Visual Studio 15 2017 Win64" ..
 cmake --build . --config RelWithDebInfo
 ```
-2) Add the shared libraries (gtest.dll, test_main.dll, libiconv.dll, libmysql.dll, libuv.dll, libxml2.dll, and mcsapi.dll) to the ``test/RelWithDebInfo`` folder
+2) Add the shared libraries (gtest.dll, gtest_main.dll, libiconv.dll, libmysql.dll, libuv.dll, libxml2.dll, and mcsapi.dll) to the ``test/RelWithDebInfo`` folder
 3) Create a Columnstore.xml file according to our [Knowledge Base](https://mariadb.com/kb/en/library/columnstore-bulk-write-sdk/#environment-configuration) pointing to the ColumnStore instance you want to use for testing and place it into an ``etc`` directory
 4) Set the environment variable ``COLUMNSTORE_INSTALL_DIR`` to the folder holding the ``etc`` directory
 5) Create a remote user and grant him access to the mcsapi and infinidb_vtable databases on the ColumnStore instance you want to use for testing
