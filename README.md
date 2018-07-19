@@ -205,3 +205,72 @@ You should of course add options as above to this as required. Then you can buil
 sudo make package
 ```
 
+## Windows 10 (x64) [EXPERIMENTAL]
+
+Currently only the C++ API mcsapi can be built on Windows.
+
+### Build dependencies
+
+For the main build you need:
+
+- Microsoft Visual Studio 2017 (the Community Edition is sufficient)
+- [pkg-config](https://www.freedesktop.org/wiki/Software/pkg-config/)
+- [cmake](https://cmake.org/)
+- [boost](https://www.boost.org/) > 1.58.0.0
+- [libiconv](https://savannah.gnu.org/projects/libiconv/)
+- [libxml2](https://gitlab.gnome.org/GNOME/libxml2/)
+- [libuv](https://github.com/libuv/libuv)
+- [snappy](https://github.com/google/snappy)
+
+For the test suite you need in addition:
+- [googletest](https://github.com/google/googletest)
+- [libmysql](https://dev.mysql.com/downloads/connector/c/)
+
+And for the package build you need to install:
+
+- [WiX toolset](http://wixtoolset.org/)
+- Set the environment variable ``WIX`` to the WiX installation directory
+
+**Compile all libraries for 64bit and add them to your Visual Studio installation.**
+
+### Compiling
+
+To compile mcsapi enter following commands in x64 Native Tools Command Prompt for VS 2017.
+
+```
+git clone https://github.com/mariadb-corporation/mariadb-columnstore-api.git
+cd mariadb-columnstore-api
+git checkout MCOL-1281
+mkdir build && cd build
+cmake -DJAVA=OFF -DPYTHON=OFF -G "Visual Studio 15 2017 Win64" ..
+cmake --build . --config RelWithDebInfo
+```
+
+To create a msi install package use following commands:
+```
+git clone https://github.com/mariadb-corporation/mariadb-columnstore-api.git
+cd mariadb-columnstore-api
+git checkout MCOL-1281
+mkdir build && cd build
+cmake -DJAVA=OFF -DPYTHON=OFF -G "Visual Studio 15 2017 Win64" ..
+cmake --build . --config RelWithDebInfo --target package
+```
+
+### Testing
+
+1) Compile mcsapi as described above with the additional ``TEST_RUNNER`` option
+```
+git clone https://github.com/mariadb-corporation/mariadb-columnstore-api.git
+cd mariadb-columnstore-api
+git checkout MCOL-1281
+mkdir build && cd build
+cmake -DJAVA=OFF -DPYTHON=OFF -DTEST_RUNNER=ON -G "Visual Studio 15 2017 Win64" ..
+cmake --build . --config RelWithDebInfo
+```
+2) Add the shared libraries (gtest.dll, test_main.dll, libiconv.dll, libmysql.dll, libuv.dll, libxml2.dll, and mcsapi.dll) to the ``test/RelWithDebInfo`` folder
+3) Create a Columnstore.xml file according to our [Knowledge Base](https://mariadb.com/kb/en/library/columnstore-bulk-write-sdk/#environment-configuration) pointing to the ColumnStore instance you want to use for testing and place it into an ``etc`` directory
+4) Set the environment variable ``COLUMNSTORE_INSTALL_DIR`` to the folder holding the ``etc`` directory
+5) Create a remote user and grant him access to the mcsapi and infinidb_vtable databases on the ColumnStore instance you want to use for testing
+6) Set the environment variable ``MCSAPI_CS_TEST_IP`` to the IP address of the ColumnStore instance you want to use for testing (on the Windows machine)
+7) Set the environment variables ``MCSAPI_CS_TEST_USER`` and ``MCSAPI_CS_TEST_PASSWORD`` to hold the credentials of the newly created remote user (on the Windows machine)
+8) Execute ``ctest`` from the build folder
