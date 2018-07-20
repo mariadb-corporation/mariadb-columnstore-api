@@ -8,7 +8,7 @@ IF(UNIX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__FILENAME__='\"$(subst ${CMAKE_SOURCE_DIR}/,,$(abspath $<))\"'")
 ENDIF(UNIX)
 IF(WIN32)
-    #TODO find a way to define the __FILENAME__ in Windows so that the debug output doesn't contain the whole path.
+    #TODO find a way to define the __FILENAME__ in Windows so that the debug output doesn't contain the absolute path.
     #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__FILENAME__=\"$(notdir $<)\"")
 ENDIF(WIN32)
 
@@ -56,3 +56,12 @@ ENDIF(RUN_CPPCHECK)
 
 INSTALL(TARGETS mcsapi DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libs)
 INSTALL(TARGETS mcsapi_static DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libs)
+
+# On Windows install in addition the dependent shared libraries (libuv, libxml and libiconv) used during building
+IF(WIN32)
+    INSTALL(FILES ${LIBXML2_RUNTIME_LIBRARY} DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libs)
+    INSTALL(FILES ${LIBICONV_RUNTIME_LIBRARY} DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libs)
+    INSTALL(FILES ${LIBUV_RUNTIME_LIBRARY} DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libs)
+    # also place mcsapi.dll into the examples directory to get basic_bulk_insert.exe and advanced_bulk_insert.exe executable
+    INSTALL(TARGETS mcsapi RUNTIME DESTINATION "${CMAKE_INSTALL_DOCDIR}/example" COMPONENT devel)
+ENDIF(WIN32)

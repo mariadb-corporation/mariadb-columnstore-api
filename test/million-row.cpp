@@ -30,15 +30,15 @@ class TestEnvironment : public ::testing::Environment {
   virtual void SetUp()
   {
     std::string cs_ip = "127.0.0.1";
-	std::string cs_user = "root";
-	std::string cs_password = "";
+    std::string cs_user = "root";
+    std::string cs_password = "";
     if(std::getenv("MCSAPI_CS_TEST_IP")){
         cs_ip = std::getenv("MCSAPI_CS_TEST_IP");
     }
-	if(std::getenv("MCSAPI_CS_TEST_USER")){
+    if(std::getenv("MCSAPI_CS_TEST_USER")){
         cs_user = std::getenv("MCSAPI_CS_TEST_USER");
     }
-	if(std::getenv("MCSAPI_CS_TEST_PASSWORD")){
+    if(std::getenv("MCSAPI_CS_TEST_PASSWORD")){
         cs_password = std::getenv("MCSAPI_CS_TEST_PASSWORD");
     }
     my_con = mysql_init(NULL);
@@ -78,9 +78,9 @@ TEST(MillionRow, MillionRow)
         bulk = driver->createBulkInsert(db, table, 0, 0);
         for (int i = 0; i < 10000000; i++)
         {
-        	bulk->setColumn(0, (uint32_t)i);
+            bulk->setColumn(0, (uint32_t)i);
             bulk->setColumn(1, (uint32_t)10000000 - i);
-        	bulk->writeRow();
+            bulk->writeRow();
         }
         bulk->commit();
     } catch (mcsapi::ColumnStoreError &e) {
