@@ -142,6 +142,13 @@
 /* let the parent class load the system library to avoid exceptions if it is otherwise loaded by a child class, i.e. in jupyter scala notebooks*/
 %pragma(java) jniclasscode=%{
   static {
+    //On Windows try to load javamcsapi.dll's dependent libraries libiconv.dll, libxml2.dll, libuv.dll and mcsapi.dll from java_library_path as Windows only loads them from %PATH% and the directory of the executable.
+    if(System.getProperty("os.name").startsWith("Windows")){
+        try{ System.loadLibrary("libiconv"); } catch(UnsatisfiedLinkError e){}
+        try{ System.loadLibrary("libxml2"); } catch(UnsatisfiedLinkError e){}
+        try{ System.loadLibrary("libuv"); } catch(UnsatisfiedLinkError e){}
+        try{ System.loadLibrary("mcsapi"); } catch(UnsatisfiedLinkError e){}
+    }
     try {
       System.loadLibrary("javamcsapi");
     } catch (UnsatisfiedLinkError e) {
