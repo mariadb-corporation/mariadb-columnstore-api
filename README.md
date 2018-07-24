@@ -207,7 +207,7 @@ sudo make package
 
 ## Windows 10 (x64) [EXPERIMENTAL]
 
-Currently only the C++ API mcsapi and Java API javamcsapi can be built on Windows.
+Currently only the C++ API mcsapi, the Java API javamcsapi, and the Python API pymcsapi can be built on Windows.
 
 ### Build dependencies
 
@@ -227,6 +227,15 @@ For the Java API you need in addition:
 - [Java SDK 8 (x64)](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 - [swig](http://www.swig.org/download.html)
 
+For the Python API you need in addition:
+
+- [Python 2.7 (x64)](https://www.python.org/downloads/windows/)
+- [Python 3 (x64)](https://www.python.org/downloads/windows/)
+- [swig](http://www.swig.org/download.html)
+
+In order to build packets for Python 2 and Python 3, Python 3's executable needs to be manually renamed from ``python.exe`` to ``python3.exe``.
+For testing it is required to install the modules ``pytest`` and ``mysql-connector``.
+
 For the test suite you need in addition:
 
 - [googletest](https://github.com/google/googletest)
@@ -239,6 +248,8 @@ And for the package build you need in addition:
 
 **Compile all libraries for 64bit and add them to your Visual Studio installation. Don't forget to add the runtime libraries (dlls) as well.**
 
+**NOTE** Please ensure that all tools are executable from command line and have a valid ``Path`` entry.
+
 ### Compiling
 
 To compile mcsapi enter following commands in x64 Native Tools Command Prompt for VS 2017.
@@ -248,7 +259,7 @@ git clone https://github.com/mariadb-corporation/mariadb-columnstore-api.git
 cd mariadb-columnstore-api
 git checkout MCOL-1281
 mkdir build && cd build
-cmake -DPYTHON=OFF -DSPARK_CONNECTOR=OFF -G "Visual Studio 15 2017 Win64" ..
+cmake -DSPARK_CONNECTOR=OFF -G "Visual Studio 15 2017 Win64" ..
 cmake --build . --config RelWithDebInfo
 ```
 
@@ -260,7 +271,7 @@ git clone https://github.com/mariadb-corporation/mariadb-columnstore-api.git
 cd mariadb-columnstore-api
 git checkout MCOL-1281
 mkdir build && cd build
-cmake -DPYTHON=OFF -DSPARK_CONNECTOR=OFF -G "Visual Studio 15 2017 Win64" ..
+cmake -DSPARK_CONNECTOR=OFF -G "Visual Studio 15 2017 Win64" ..
 cmake --build . --config RelWithDebInfo --target package
 ```
 
@@ -276,10 +287,11 @@ git clone https://github.com/mariadb-corporation/mariadb-columnstore-api.git
 cd mariadb-columnstore-api
 git checkout MCOL-1281
 mkdir build && cd build
-cmake -DPYTHON=OFF -DSPARK_CONNECTOR=OFF -DTEST_RUNNER=ON -G "Visual Studio 15 2017 Win64" ..
+cmake -DSPARK_CONNECTOR=OFF -DTEST_RUNNER=ON -G "Visual Studio 15 2017 Win64" ..
 cmake --build . --config RelWithDebInfo
 ctest -C RelWithDebInfo
 ```
 
 ### Known limitations
-- Javamcsapi's test suite can currently only be built by a user without special characters. Users with special characters need to execute ctest manually from the build/java directory to test javamcsapi.
+- Javamcsapi's test suite can currently only be executed from the top level ctest by a user without special characters. Users whose names contain special characters need to execute ctest manually from the build/java directory to test javamcsapi.
+- The debug build contains the whole path of the debug file instead of only its file name.

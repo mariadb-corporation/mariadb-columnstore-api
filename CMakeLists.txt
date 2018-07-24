@@ -84,7 +84,7 @@ IF(WIN32)
     find_library(
     LIBXML2_RUNTIME_LIBRARY
     NAMES LIBXML2 libxml2
-    hintS $ENV{LIBXML2_RUNTIME_DIRECTORY}
+    HINTS $ENV{LIBXML2_RUNTIME_DIRECTORY}
     )
     if (${LIBXML2_RUNTIME_LIBRARY} STREQUAL "LIBXML2_RUNTIME_LIBRARY-NOTFOUND")
         MESSAGE(FATAL_ERROR "Could not find a usable LibXml2 runtime library libxml2.dll!\nYou can hint cmake by setting the environment variable LIBXML2_RUNTIME_DIRECTORY.")
@@ -94,7 +94,7 @@ IF(WIN32)
     find_library(
         LIBICONV_RUNTIME_LIBRARY
         NAMES LIBICONV libiconv
-        hintS $ENV{LIBICONV_RUNTIME_DIRECTORY}
+        HINTS $ENV{LIBICONV_RUNTIME_DIRECTORY}
     )
     if (${LIBICONV_RUNTIME_LIBRARY} STREQUAL "LIBICONV_RUNTIME_LIBRARY-NOTFOUND")
         MESSAGE(FATAL_ERROR "Could not find a usable libiconv runtime library libiconv.dll!\nYou can hint cmake by setting the environment variable LIBICONV_RUNTIME_DIRECTORY.")
@@ -116,7 +116,7 @@ IF(WIN32)
     find_library(
         LIBUV_RUNTIME_LIBRARY
         NAMES LIBUV libuv
-        hintS $ENV{LIBUV_RUNTIME_DIRECTORY}
+        HINTS $ENV{LIBUV_RUNTIME_DIRECTORY}
     )
     if (${LIBUV_RUNTIME_LIBRARY} STREQUAL "LIBUV_RUNTIME_LIBRARY-NOTFOUND")
         MESSAGE(FATAL_ERROR "Could not find a usable LIBUV runtime library libuv.dll!\nYou can hint cmake by setting the environment variable LIBUV_RUNTIME_DIRECTORY.")
@@ -160,7 +160,7 @@ if (TEST_RUNNER)
     find_library(
     GETST_RUNTIME_LIBRARY_1
     NAMES GTEST gtest
-    hintS $ENV{GTEST_RUNTIME_DIRECTORY}
+    HINTS $ENV{GTEST_RUNTIME_DIRECTORY}
     )
     if (${GETST_RUNTIME_LIBRARY_1} STREQUAL "GETST_RUNTIME_LIBRARY_1-NOTFOUND")
         MESSAGE(FATAL_ERROR "Could not find a usable GTest runtime library gtest.dll!\nYou can hint cmake by setting the environment variable GTEST_RUNTIME_DIRECTORY.")
@@ -170,7 +170,7 @@ if (TEST_RUNNER)
     find_library(
     GETST_RUNTIME_LIBRARY_2
     NAMES GTEST_MAIN gtest_main
-    hintS $ENV{GTEST_RUNTIME_DIRECTORY}
+    HINTS $ENV{GTEST_RUNTIME_DIRECTORY}
     )
     if (${GETST_RUNTIME_LIBRARY_2} STREQUAL "GETST_RUNTIME_LIBRARY_2-NOTFOUND")
         MESSAGE(FATAL_ERROR "Could not find a usable GTest runtime library gtest_main.dll!\nYou can hint cmake by setting the environment variable GTEST_RUNTIME_DIRECTORY.")
