@@ -19,14 +19,26 @@
 
 import pytest, datetime
 import mysql.connector as mariadb
-import pymcsapi
+import pymcsapi, os
 from six.moves import range
 
 DB_NAME = 'mcsapi'
 
+def initialize_connection_variables():
+    global user
+    user = "root"
+    global host
+    host = "localhost"
+    if os.environ.get("MCSAPI_CS_TEST_IP") is not None:
+        host=os.environ.get("MCSAPI_CS_TEST_IP")
+    if os.environ.get("MCSAPI_CS_TEST_USER") is not None:
+        user=os.environ.get("MCSAPI_CS_TEST_USER")
+    global password
+    password = os.environ.get("MCSAPI_CS_TEST_PASSWORD")
+
 def create_db():
     try:
-        conn = mariadb.connect(user='root')
+        conn = mariadb.connect(user=user, password=password, host=host)
         cursor = conn.cursor();
         cursor.execute("CREATE DATABASE IF NOT EXISTS %s" %(DB_NAME,))
     except mariadb.Error as err:
@@ -36,9 +48,10 @@ def create_db():
         if conn: conn.close()
 
 def create_conn():
+    initialize_connection_variables()
     create_db()    
     try:
-        return mariadb.connect(user='root', database=DB_NAME)
+        return mariadb.connect(user=user, password=password, host=host, database=DB_NAME)
     except mariadb.Error as err:
         pytest.fail("Error connecting to mcsapi database %s" %(err,))        
 
