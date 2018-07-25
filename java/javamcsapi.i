@@ -45,7 +45,7 @@
       if (cPtr == 0){
         return null;
       } else {
-        ColumnStoreBulkInsert b = new ColumnStoreBulkInsert(cPtr, false);
+        ColumnStoreBulkInsert b = new ColumnStoreBulkInsert(cPtr, true);
         b.addReference(this);
         return b;
       }
