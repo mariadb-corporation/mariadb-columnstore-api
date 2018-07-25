@@ -220,7 +220,7 @@ sudo make package
 
 ## Windows 10 (x64) [EXPERIMENTAL]
 
-Currently only the C++ API mcsapi, the Java API javamcsapi, and the Python API pymcsapi can be built on Windows.
+Currently only the documentation can't be built on Windows.
 
 ### Build dependencies
 
@@ -247,7 +247,7 @@ For the Python API you need in addition:
 - [swig](http://www.swig.org/download.html)
 
 In order to build packets for Python 2 and Python 3, Python 3's executable needs to be manually renamed from ``python.exe`` to ``python3.exe``.
-For testing it is required to install the modules ``pytest`` and ``mysql-connector``.
+For testing it is required to install the modules ``pytest``, ``pyspark`` and ``mysql-connector``.
 
 For the test suite you need in addition:
 
@@ -270,9 +270,9 @@ To compile mcsapi enter following commands in x64 Native Tools Command Prompt fo
 ```
 git clone https://github.com/mariadb-corporation/mariadb-columnstore-api.git
 cd mariadb-columnstore-api
-git checkout MCOL-1281
+git checkout develop-1.1
 mkdir build && cd build
-cmake -DSPARK_CONNECTOR=OFF -G "Visual Studio 15 2017 Win64" ..
+cmake -G "Visual Studio 15 2017 Win64" ..
 cmake --build . --config RelWithDebInfo
 ```
 
@@ -282,9 +282,9 @@ To create a msi install package use following commands:
 ```
 git clone https://github.com/mariadb-corporation/mariadb-columnstore-api.git
 cd mariadb-columnstore-api
-git checkout MCOL-1281
+git checkout develop-1.1
 mkdir build && cd build
-cmake -DSPARK_CONNECTOR=OFF -G "Visual Studio 15 2017 Win64" ..
+cmake -G "Visual Studio 15 2017 Win64" ..
 cmake --build . --config RelWithDebInfo --target package
 ```
 
@@ -298,9 +298,9 @@ cmake --build . --config RelWithDebInfo --target package
 ```
 git clone https://github.com/mariadb-corporation/mariadb-columnstore-api.git
 cd mariadb-columnstore-api
-git checkout MCOL-1281
+git checkout develop-1.1
 mkdir build && cd build
-cmake -DSPARK_CONNECTOR=OFF -DTEST_RUNNER=ON -G "Visual Studio 15 2017 Win64" ..
+cmake -DTEST_RUNNER=ON -G "Visual Studio 15 2017 Win64" ..
 cmake --build . --config RelWithDebInfo
 ctest -C RelWithDebInfo
 ```

@@ -34,12 +34,25 @@ class ColumnStoreExporterTest {
     //initialize the spark session
     lazy val spark: SparkSession = SparkSession.builder.master("local").appName("spark-scala-connector-test").getOrCreate
     import spark.implicits._
+    
+    //get connection data
+    var host = "127.0.0.1"
+    var user = "root"
+    if (sys.env.get("MCSAPI_CS_TEST_IP") != None){
+        host = sys.env.get("MCSAPI_CS_TEST_IP").get
+    }
+    if (sys.env.get("MCSAPI_CS_TEST_USER") != None){
+        user = sys.env.get("MCSAPI_CS_TEST_USER").get
+    }
 
     //create the test table
-    val url = "jdbc:mysql://127.0.0.1:3306/test"
+    val url = "jdbc:mysql://"+host+":3306/test"
     val connectionProperties = new Properties()
-    connectionProperties.put("user", "root")
+    connectionProperties.put("user", user)
     connectionProperties.put("driver", "org.mariadb.jdbc.Driver")
+    if (sys.env.get("MCSAPI_CS_TEST_PASSWORD") != None){
+        connectionProperties.put("password",sys.env.get("MCSAPI_CS_TEST_PASSWORD").get)
+    }
     var connection: Connection = null
     try {
       connection = DriverManager.getConnection(url, connectionProperties)
@@ -104,7 +117,11 @@ class ColumnStoreExporterTest {
 
       //write the test dataframe into columnstore
       ColumnStoreExporter.export("test", "scalatest", testDF)
-      ColumnStoreExporter.export("test", "scalatest2", testDF, "/usr/local/mariadb/columnstore/etc/Columnstore.xml")
+      if (sys.env.get("COLUMNSTORE_INSTALL_DIR") != None){
+        ColumnStoreExporter.export("test", "scalatest2", testDF, sys.env.get("COLUMNSTORE_INSTALL_DIR").get+"/etc/Columnstore.xml")
+      }else{
+        ColumnStoreExporter.export("test", "scalatest2", testDF, "/usr/local/mariadb/columnstore/etc/Columnstore.xml")
+      }
       
       verifyAllTypes(connection, 1L, "1, 2, 3, 4, 5, 6, 7, 8, 1.234, 2.345669984817505, ABCD, Hello World, 2017-09-08, 2017-09-08 13:58:23.0, 123, Hello World Longer, true, 9223372036854775807, -1E-9")
       verifyAllTypes(connection, 0L, "0, -9223372036854775806, 0, -2147483646, 0, -32766, 0, -126, 1.234, 2.345669984817505, A, B, 1000-01-01, 1000-01-01 00:00:00.0, -123, C, false, 18446744073709551613, 100000000.999999999")

@@ -2,7 +2,7 @@
 
 if [ "$#" -ne 2 ]; then
     echo "$0 python_executable_path pyspark_driver_python"
-	exit 666
+    exit 666
 fi
 
 SCRIPT=$(readlink -f "$0")
