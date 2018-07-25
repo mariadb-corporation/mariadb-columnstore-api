@@ -1,5 +1,13 @@
 apply plugin: 'scala'
 
+if (project.property('version').equals('unspecified')){
+    version '1.1.6'
+} else{
+    version project.property('version')
+}
+
+project.ext.mcsapi_dependency_version = version
+
 sourceSets {
     main {
         scala {
@@ -21,7 +29,7 @@ repositories{
 }
 
 dependencies{
-	compile name: 'javamcsapi'
+	compile name: "javamcsapi-${project.ext.mcsapi_dependency_version}"
 	compile 'org.scala-lang:scala-library:2.11.12'
 	compile 'org.apache.spark:spark-sql_2.11:2.2.1'
 	testCompile 'junit:junit:4.12'

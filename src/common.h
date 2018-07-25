@@ -23,13 +23,22 @@
 #include <string>
 #include <limits>
 #include <map>
-#include <sys/time.h>
 #include <cstring>
 #include <sys/types.h>
-#include <unistd.h>
 #include <inttypes.h>
 #include <cmath>
 #include <ctime>
+
+#ifdef __linux__
+#include <sys/time.h>
+#include <unistd.h>
+#endif
+
+#ifdef _WIN32
+#include "WIN32/time.h"
+#include <io.h>
+#include <process.h>
+#endif
 
 #include <uv.h>
 #include <snappy.h>

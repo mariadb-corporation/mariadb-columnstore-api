@@ -97,10 +97,23 @@ class ColumnStoreSQLGenerationTest {
     lazy val spark: SparkSession = SparkSession.builder.master("local").appName("spark-scala-connector-sql-generation-test").getOrCreate
     import spark.implicits._
 
+    //get connection data
+    var host = "127.0.0.1"
+    var user = "root"
+    if (sys.env.get("MCSAPI_CS_TEST_IP") != None){
+        host = sys.env.get("MCSAPI_CS_TEST_IP").get
+    }
+    if (sys.env.get("MCSAPI_CS_TEST_USER") != None){
+        user = sys.env.get("MCSAPI_CS_TEST_USER").get
+    }
+    
     //create the test table
-    val url = "jdbc:mysql://127.0.0.1:3306/test"
+    val url = "jdbc:mysql://"+host+":3306/test"
     val connectionProperties = new Properties()
-    connectionProperties.put("user", "root")
+    connectionProperties.put("user", user)
+    if (sys.env.get("MCSAPI_CS_TEST_PASSWORD") != None){
+        connectionProperties.put("password",sys.env.get("MCSAPI_CS_TEST_PASSWORD").get)
+    }
     connectionProperties.put("driver", "org.mariadb.jdbc.Driver")
     var connection: Connection = null
     try {
@@ -136,7 +149,7 @@ class ColumnStoreSQLGenerationTest {
       verifyAllTypes2(connection, 1L, "1, 2, 3, 4, 5, 6, 7, 8, 1.234, 2.34567, ABCD, Hello World, 2017-09-08, 2017-09-08 13:58:23.0, 123.000000000, Hello World Longer, true, 999999999999999999, -1E-9")
       verifyAllTypes2(connection, 0L, "0, -9223372036854775806, 0, -2147483646, 0, -32766, 0, -126, 1.234, 2.34567, A, B, 1000-01-01, 1000-01-01 00:00:00.0, -123.000000000, C, false, 999999999999999999, 100000000.999999999")
       verifyAllTypes2(connection, 9223372036854775807L, "9223372036854775807, 9223372036854775807, 4294967293, 2147483647, 65533, 32767, 253, 127, 1.234, 2.34567, ZYXW, 012345678901234567890123456789, 9999-12-31, 9999-12-31 23:59:59.0, 123.000000000, 012345678901234567890123456789, true, 2342, 23.420000000")
- 
+      
       //drop the test table
       statement.executeQuery("""DROP TABLE IF EXISTS scalatest_gen_1""")
       statement.executeQuery("""DROP TABLE IF EXISTS scalatest_gen_2""")

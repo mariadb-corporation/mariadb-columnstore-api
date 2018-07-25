@@ -29,10 +29,22 @@ class TestEnvironment : public ::testing::Environment {
   // Override this to define how to set up the environment.
   virtual void SetUp()
   {
+    std::string cs_ip = "127.0.0.1";
+    std::string cs_user = "root";
+    std::string cs_password = "";
+    if(std::getenv("MCSAPI_CS_TEST_IP")){
+        cs_ip = std::getenv("MCSAPI_CS_TEST_IP");
+    }
+    if(std::getenv("MCSAPI_CS_TEST_USER")){
+        cs_user = std::getenv("MCSAPI_CS_TEST_USER");
+    }
+    if(std::getenv("MCSAPI_CS_TEST_PASSWORD")){
+        cs_password = std::getenv("MCSAPI_CS_TEST_PASSWORD");
+    }
     my_con = mysql_init(NULL);
     if (!my_con)
         FAIL() << "Could not init MariaDB connection";
-    if (!mysql_real_connect(my_con, "127.0.0.1", "root", "", NULL, 3306, NULL, 0))
+    if (!mysql_real_connect(my_con, cs_ip.c_str(), cs_user.c_str(), cs_password.c_str(), NULL, 3306, NULL, 0))
         FAIL() << "Could not connect to MariaDB: " << mysql_error(my_con);
     if (mysql_query(my_con, "CREATE DATABASE IF NOT EXISTS mcsapi"))
         FAIL() << "Error creating database: " << mysql_error(my_con);
@@ -99,7 +111,7 @@ TEST(mcol1408, mcol1408)
             tm *now = localtime(&t);
             tData.set(*now);
             bulk->setColumn(3, tData);
-	        bulk->writeRow();
+            bulk->writeRow();
         }
         bulk->commit();
         delete bulk;
@@ -124,7 +136,7 @@ TEST(mcol1408, mcol1408)
     MYSQL_RES* result = mysql_store_result(my_con);
     if (!result)
         FAIL() << "Could not get result data: " << mysql_error(my_con);
-	mysql_free_result(result);
+    mysql_free_result(result);
 }
 
 TEST(mcol1408, BRM)
@@ -171,7 +183,7 @@ TEST(mcol1408, BRM)
             tm *now = localtime(&t);
             tData.set(*now);
             bulk->setColumn(3, tData);
-	        bulk->writeRow();
+            bulk->writeRow();
         }
         bulk->commit();
     } catch (mcsapi::ColumnStoreError &e) {
@@ -185,7 +197,7 @@ TEST(mcol1408, BRM)
     MYSQL_RES* result = mysql_store_result(my_con);
     if (!result)
         FAIL() << "Could not get result data: " << mysql_error(my_con);
-	mysql_free_result(result);
+    mysql_free_result(result);
 }
 
 int main(int argc, char** argv) {
