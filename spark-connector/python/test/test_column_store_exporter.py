@@ -15,7 +15,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301  USA
 
-import pytest, sys, datetime, decimal, columnStoreExporter
+import pytest, sys, os, datetime, decimal, columnStoreExporter, platform
 from pyspark.sql import SparkSession, Row
 import mysql.connector as mariadb
 
@@ -42,12 +42,21 @@ def test_all_types():
     if sys.version_info[0] == 3:
         long = int
     
+    #Get connection parameter
+    user = "root"
+    host = "localhost"
+    if os.environ.get("MCSAPI_CS_TEST_IP") is not None:
+        host=os.environ.get("MCSAPI_CS_TEST_IP")
+    if os.environ.get("MCSAPI_CS_TEST_USER") is not None:
+        user=os.environ.get("MCSAPI_CS_TEST_USER")
+    password = os.environ.get("MCSAPI_CS_TEST_PASSWORD")
+    
     #Create the spark session
     spark = SparkSession.builder.getOrCreate()
     
     #create the test table
     try:
-        conn = mariadb.connect(user='root', database='test', host='127.0.0.1')
+        conn = mariadb.connect(user=user, database='test', host=host, password=password)
         cursor = conn.cursor()
         cursor.execute("DROP TABLE IF EXISTS pythontest")
         cursor.execute(" \
@@ -105,11 +114,14 @@ def test_all_types():
     # create the test dataframe
     TestRowStructure = Row("uint64", "int64", "uint32", "int32", "uint16", "int16", "uint8", "int8", "f", "d", "ch4", "vch30", "dt", "dtm", "dc", "tx", "bit", "mathInt", "dc2")
     testCase1 = TestRowStructure(long(1), long(2), long(3), int(4), int(5), int(6), int(7), int(8), float(1.234), float(2.34567), "ABCD", "Hello World", datetime.date(2017,9,8), datetime.datetime(2017,9,8,13,58,23), decimal.Decimal(123), "Hello World Longer", True, decimal.Decimal("9223372036854775807"), decimal.Decimal("-0.000000001"))
-    if sys.version_info[0] == 2:
+    if sys.version_info[0] == 2 or platform.system() == "Windows":
         testCase2 = TestRowStructure(long(0), long(-9223372036854775806), long(0), int(-2147483646), int(0), int(-32766), int(0), int(-126), float(1.234), float(2.34567), "A", "B", datetime.date(2000,1,1), datetime.datetime(2000,1,1,0,0,0), decimal.Decimal(-123), "C", False, decimal.Decimal("18446744073709551613"), decimal.Decimal("100000000.999999999"))
     else:
         testCase2 = TestRowStructure(long(0), long(-9223372036854775806), long(0), int(-2147483646), int(0), int(-32766), int(0), int(-126), float(1.234), float(2.34567), "A", "B", datetime.date(1000,1,1), datetime.datetime(1000,1,1,0,0,0), decimal.Decimal(-123), "C", False, decimal.Decimal("18446744073709551613"), decimal.Decimal("100000000.999999999"))
-    testCase3 = TestRowStructure(long(9223372036854775807), long(9223372036854775807), long(4294967293), int(2147483647), int(65533), int(32767), int(253), int(127), float(1.234), float(2.34567), "ZYXW", "012345678901234567890123456789", datetime.date(9999,12,31), datetime.datetime(9999,12,31,23,59,59), decimal.Decimal(123), "012345678901234567890123456789", True, decimal.Decimal("2342"), decimal.Decimal("23.42"))
+    if platform.system() == "Windows":
+        testCase3 = TestRowStructure(long(9223372036854775807), long(9223372036854775807), long(4294967293), int(2147483647), int(65533), int(32767), int(253), int(127), float(1.234), float(2.34567), "ZYXW", "012345678901234567890123456789", datetime.date(9999,12,31), datetime.datetime(2048,12,31,23,59,59), decimal.Decimal(123), "012345678901234567890123456789", True, decimal.Decimal("2342"), decimal.Decimal("23.42"))
+    else:
+        testCase3 = TestRowStructure(long(9223372036854775807), long(9223372036854775807), long(4294967293), int(2147483647), int(65533), int(32767), int(253), int(127), float(1.234), float(2.34567), "ZYXW", "012345678901234567890123456789", datetime.date(9999,12,31), datetime.datetime(9999,12,31,23,59,59), decimal.Decimal(123), "012345678901234567890123456789", True, decimal.Decimal("2342"), decimal.Decimal("23.42"))
     testCase4 = TestRowStructure(42, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None)
 
     testCaseSeq = [testCase1, testCase2, testCase3, testCase4]
@@ -117,18 +129,24 @@ def test_all_types():
     
     #write the test dataframe into columnstore
     columnStoreExporter.export("test","pythontest",testDF)
-    columnStoreExporter.export("test","pythontest2",testDF,"/usr/local/mariadb/columnstore/etc/Columnstore.xml")
+    if os.environ.get("COLUMNSTORE_INSTALL_DIR") is not None:
+        columnStoreExporter.export("test","pythontest2",testDF,os.environ.get("COLUMNSTORE_INSTALL_DIR")+"/etc/Columnstore.xml")
+    else:
+        columnStoreExporter.export("test","pythontest2",testDF,"/usr/local/mariadb/columnstore/etc/Columnstore.xml")
     
     #verify that the dataframe was stored correctly
     tables = ['pythontest', 'pythontest2']
     for table in tables:
-        connection = mariadb.connect(user='root', database='test', host='127.0.0.1')
+        connection = mariadb.connect(user=user, database='test', host=host, password=password)
         verifyAllTypes(connection, table, 1, "1, 2, 3, 4, 5, 6, 7, 8, 1.234, 2.34567, ABCD, Hello World, 2017-09-08, 2017-09-08 13:58:23, 123, Hello World Longer, 1, 9223372036854775807, -1E-9")
-        if sys.version_info[0] == 2:
+        if sys.version_info[0] == 2 or platform.system() == "Windows":
             verifyAllTypes(connection, table, 0, "0, -9223372036854775806, 0, -2147483646, 0, -32766, 0, -126, 1.234, 2.34567, A, B, 2000-01-01, 2000-01-01 00:00:00, -123, C, 0, 18446744073709551613, 100000000.999999999")
         else:
             verifyAllTypes(connection, table, 0, "0, -9223372036854775806, 0, -2147483646, 0, -32766, 0, -126, 1.234, 2.34567, A, B, 1000-01-01, 1000-01-01 00:00:00, -123, C, 0, 18446744073709551613, 100000000.999999999")
-        verifyAllTypes(connection, table, 9223372036854775807, "9223372036854775807, 9223372036854775807, 4294967293, 2147483647, 65533, 32767, 253, 127, 1.234, 2.34567, ZYXW, 012345678901234567890123456789, 9999-12-31, 9999-12-31 23:59:59, 123, 012345678901234567890123456789, 1, 2342, 23.420000000")
+        if platform.system() == "Windows":
+            verifyAllTypes(connection, table, 9223372036854775807, "9223372036854775807, 9223372036854775807, 4294967293, 2147483647, 65533, 32767, 253, 127, 1.234, 2.34567, ZYXW, 012345678901234567890123456789, 9999-12-31, 2048-12-31 23:59:59, 123, 012345678901234567890123456789, 1, 2342, 23.420000000")
+        else:
+            verifyAllTypes(connection, table, 9223372036854775807, "9223372036854775807, 9223372036854775807, 4294967293, 2147483647, 65533, 32767, 253, 127, 1.234, 2.34567, ZYXW, 012345678901234567890123456789, 9999-12-31, 9999-12-31 23:59:59, 123, 012345678901234567890123456789, 1, 2342, 23.420000000")
         verifyAllTypes(connection, table, 42, "42, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null")
     
     #drop the test tables
