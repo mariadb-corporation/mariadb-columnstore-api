@@ -81,7 +81,7 @@ def export(database, table, df, configuration=None):
     except Exception as e:
         bulkInsert.rollback()
         print("An exception occured. The bulk insert was rolled back.")
-        print("row: %d, ingest type: %s, ingest value: %s" % (row[columnId], type(row[columnId]), row[columnId]))
+        print("row: %s, ingest type: %s, ingest value: %s" % (row[columnId], type(row[columnId]), row[columnId]))
         print(type(e), str(e))
        
     #print a short summary of the insertion process
