@@ -21,7 +21,6 @@ import mysql.connector as mariadb
 
 #verify that the dataframe was stored correctly
 def verifyAllTypes(conn, table, rowid, expected):
-    print("verifyAllTypes called")
     query_all_types = "select uint64, int64, uint32, int32, uint16, int16, uint8, `int8`, f, d, ch4, vch30, dt, dtm, dc, tx, bit, mathInt, dc2 from %s where uint64 = %s" % (table, rowid)
     try:
         cursor = conn.cursor()
@@ -30,16 +29,12 @@ def verifyAllTypes(conn, table, rowid, expected):
         for (uint64, int64, uint32, int32, uint16, int16, uint8, int8, f, d, ch4, vch30, dt, dtm, dc, tx, bit, mathInt, dc2) in cursor:
             resultsFound = True
             rowStr = "{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}".format(uint64, int64, uint32, int32, uint16, int16, uint8, int8, f, d, ch4, vch30, dt, dtm, dc, tx, bit, mathInt, dc2)
-            print("rowStr: %s expected: %s" % (rowStr, expected))
             assert rowStr == expected
     except mariadb.Error as err:
-        print("Error executing query")
         pytest.fail("Error executing query: %s, error: %s" %(verifyAllTypes,err))
     except AssertionError as e:
-        print("Injected doesn't match expetations")
         pytest.fail("%s\nInjected doesn't match expetations.\nexpected: %s\nactual:   %s" % (e,expected,rowStr))
     finally:
-        print("finally")
         if cursor: cursor.close()
     if not resultsFound:
         pytest.fail("no data was injected into columnstore")
