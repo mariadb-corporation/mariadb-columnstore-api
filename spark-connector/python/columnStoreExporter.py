@@ -43,7 +43,7 @@ def export(database, table, df, configuration=None):
         for row in rows:
             for columnId in range(0, len(row)):
                 if columnId < dbTableColumnCount:
-                    if row.get(columnId) is None:
+                    if row[columnId] is None:
                         if dbTable.getColumn(columnId).isNullable():
                             bulkInsert.setNull(columnId)
                         else:
@@ -80,9 +80,9 @@ def export(database, table, df, configuration=None):
         bulkInsert.commit()
     except Exception as e:
         bulkInsert.rollback()
-        print(row[columnId], type(row[columnId]))
-        print(type(e))
-        print(e)
+        print("An exception occured. The bulk insert was rolled back.")
+        print("row: %d, ingest type: %s, ingest value: %s" % (row[columnId], type(row[columnId]), row[columnId]))
+        print(type(e), str(e))
        
     #print a short summary of the insertion process
     summary = bulkInsert.getSummary()
