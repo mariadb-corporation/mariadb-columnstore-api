@@ -30,7 +30,7 @@ file(GLOB SOURCES_2
 foreach(source ${SOURCES_2})
   configure_file(
     "@CMAKE_SOURCE_DIR@/example/${source}"
-    "@CMAKE_CURRENT_SOURCE_DIR@/example/${source}"
+    "@SOURCES_DIR@/../example/${source}"
     COPYONLY
   )
 endforeach(source)
