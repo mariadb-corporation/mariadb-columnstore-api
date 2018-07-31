@@ -218,7 +218,7 @@ You should of course add options as above to this as required. Then you can buil
 sudo make package
 ```
 
-## Windows 10 (x64) [EXPERIMENTAL]
+## Windows 10 (x64) [Alpha]
 
 Currently only the documentation can't be built on Windows.
 
@@ -285,6 +285,18 @@ cd mariadb-columnstore-api
 git checkout develop-1.1
 mkdir build && cd build
 cmake -G "Visual Studio 15 2017 Win64" ..
+cmake --build . --config RelWithDebInfo --target package
+```
+
+### Signed package build
+
+To create a signed msi install package you first need to import MariaDB private sign certificate. Afterwards you can use following commands:
+```
+git clone https://github.com/mariadb-corporation/mariadb-columnstore-api.git
+cd mariadb-columnstore-api
+git checkout develop-1.1
+mkdir build && cd build
+cmake -DSIGNCODE=ON -G "Visual Studio 15 2017 Win64" ..
 cmake --build . --config RelWithDebInfo --target package
 ```
 

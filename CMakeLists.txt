@@ -219,6 +219,8 @@ IF(SPARK_CONNECTOR)
   ENDIF(PYTHON)
 ENDIF(SPARK_CONNECTOR)  
 
+OPTION(SIGNCODE "Sign the MSI installer" OFF)
+
 option(BUILD_DOCS "Build the documentation" OFF)
 #option(PDFLATEX_COMPILER "Build the pdf documentation (requires latex)" OFF)
 
@@ -264,7 +266,10 @@ endif()
 if (WIN32)
     SET(CPACK_GENERATOR "WIX")
     SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt")
-    SET(CPACK_PACKAGE_NAME "mariadb-columnstore-api")
+    SET(CPACK_WIX_UI_BANNER "${CMAKE_CURRENT_SOURCE_DIR}/resources/WixUIBannerBmp.jpg")
+    SET(CPACK_WIX_UI_DIALOG "${CMAKE_CURRENT_SOURCE_DIR}/resources/WixUIDialogBmp.jpg")
+    SET(CPACK_WIX_PRODUCT_ICON "${CMAKE_CURRENT_SOURCE_DIR}/resources/mariadb.ico")
+    SET(CPACK_PACKAGE_NAME "MariaDB ColumnStore Bulk Write SDK")
     set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "MariaDB ColumnStore Bulk Write SDK")
     set(CPACK_PACKAGE_VENDOR "MariaDB Corporation")
     SET(CPACK_PACKAGE_CONTACT "MariaDB Corporation")
@@ -273,7 +278,57 @@ if (WIN32)
     set(CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
     set(CPACK_PACKAGE_VERSION_MINOR ${VERSION_MINOR})
     set(CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH})
-    include(CPack)
+    set(CPACK_WIX_UPGRADE_GUID "CDE3BE0F-EAFE-417C-A8CF-4A5F14451845")
+    set(CPACK_WIX_CMAKE_PACKAGE_REGISTRY ON)
+    set(CPACK_PACKAGE_INSTALL_DIRECTORY "MariaDB/ColumnStore Bulk Write SDK")
+    set(CPACK_COMPONENT_LIBS_DISPLAY_NAME "libraries")
+    set(CPACK_COMPONENT_LIBS_DESCRIPTION "Installs the C++, Python, Java, and Spark connector libraries")
+    set(CPACK_COMPONENT_DEVEL_DISPLAY_NAME "development")
+    set(CPACK_COMPONENT_DEVEL_DESCRIPTION "Installs the C++ header files and examples")
+    if(SIGNCODE)
+        SET( CPACK_OUTPUT_CONFIG_FILE "${CMAKE_BINARY_DIR}/WinPackageConfig.cmake" )
+        include(CPack)
+        ADD_CUSTOM_TARGET ( package
+            COMMAND "${CMAKE_CPACK_COMMAND}" 
+                "-C" "$<CONFIGURATION>"
+                "--config" "${CMAKE_BINARY_DIR}/WinPackageConfig.cmake"
+            COMMENT "-- Running CPack..."
+        )
+        add_dependencies(package mcsapi mcsapi_static basic_bulk_insert advanced_bulk_insert)
+        IF(JAVA)
+            add_dependencies(package javamcsapi)
+        ENDIF()
+        IF(PYTHON)
+            IF(${PYTHON2_AVAILABLE})
+                add_dependencies(package _pymcsapi)
+            ENDIF()
+            IF(${PYTHON3_AVAILABLE})
+                add_dependencies(package _pymcsapi3)
+            ENDIF()
+        ENDIF()
+        IF(SPARK_CONNECTOR)
+            IF(JAVA)
+                add_dependencies(package spark-scala-mcsapi-connector)
+            ENDIF()
+            IF(PYTHON)
+                #nothing to do as this are static files only
+            ENDIF()
+        ENDIF()
+        # sign the msi installer
+        # https://www.digicert.com/code-signing/signcode-signtool-command-line.htm
+        add_custom_command(
+            TARGET package
+            POST_BUILD
+            COMMAND signtool.exe sign 
+            /tr http://timestamp.digicert.com 
+            /td sha256 
+            /fd sha256 
+            /a "${CPACK_PACKAGE_FILE_NAME}.msi" 
+            COMMENT "-- Signing package..."
+        )
+    else(SIGNCODE)
+        include(CPack)
+    endif(SIGNCODE)
 endif(WIN32)
 
 # uninstall target
