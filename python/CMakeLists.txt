@@ -65,7 +65,7 @@ ENDIF(DEB OR RPM)
 
 
 #Checking for SWIG
-find_package(SWIG REQUIRED)
+find_package(SWIG 3 REQUIRED)
 
 #Compiling the shared library
 IF(PYTHON2_AVAILABLE OR PYTHON3_AVAILABLE)
