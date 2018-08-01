@@ -9,6 +9,7 @@ This is a version history of Java API interface changes. It does not include int
 | 1.1.6   | - Java documentation added                                                                                                            |
 |         | - Added :java:meth:`ColumnStoreDriver.getJavaMcsapiVersion` to return version information about the java wrapper library              |
 |         |   javamcsapi.jar                                                                                                                      |
+|         | - Windows support added (Alpha)                                                                                                       |
 +---------+---------------------------------------------------------------------------------------------------------------------------------------+
 | 1.1.5   | - Added overloaded functions of :java:meth:`ColumnStoreBulkInsert.setColumn` and :java:meth:`ColumnStoreBulkInsert.setNull`           |
 |         |   to return additional status information                                                                                             |

@@ -18,10 +18,7 @@ CentOS 7
 
 .. code-block:: console
 
-   sudo yum install snappy libuv libxml2 pkgconfig boost-devel
-   sudo yum install centos-release-scl
-   sudo yum install devtoolset-4-gcc*
-   scl enable devtoolset-4 bash
+   sudo yum install snappy libuv libxml2 pkgconfig boost-devel gcc gcc-c++
 
 Compiling
 ---------
