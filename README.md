@@ -82,7 +82,7 @@ sudo make install
 
 ### CentOS 7
 
-For the main build you need the following, the devtoolset is because GCC5 minimum is required for full C++11 support:
+For the main build you need the following:
 
 ```shell
 sudo yum install epel-release
@@ -95,9 +95,22 @@ sudo yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel swig python-devel p
 For the documentation:
 
 ```shell
-sudo yum install python34 texlive-scheme-full latexmk python34-pip
+sudo yum install python34 python34-pip perl
 sudo pip3 install -U Sphinx
 sudo pip3 install javasphinx
+# As CentOS's LaTeX is broken we install texlive from ctan
+curl -L -O http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
+tar -xf install-tl-unx.tar.gz
+cd install-tl-*
+sudo ./install-tl << EOF
+O
+L
+
+
+
+R
+I
+EOF
 ```
 
 For the test suite:
