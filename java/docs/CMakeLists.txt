@@ -87,7 +87,7 @@ if(GENERATE_DOC)
 	-c "${BINARY_BUILD_DIR}"
 	-d "${SPHINX_CACHE_DIR}"
     "${PDF_SOURCES_DIR}"
-	"${SPHINX_PDF_DIR}"
+      "${SPHINX_PDF_DIR}"
       COMMENT "Building Java PDF documentation with Sphinx"
     )
     add_custom_command(TARGET doc_pdf_JAVAMCSAPI POST_BUILD
