@@ -87,7 +87,14 @@ For the main build you need the following:
 ```shell
 sudo yum install epel-release
 sudo yum install cmake libuv-devel libxml2-devel snappy-devel
-sudo yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel swig python-devel python34-devel boost-devel
+sudo yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel python-devel python34-devel boost-devel
+# As CentOS'es swig is too old and causes errors we need to install swig from source
+curl -O https://iweb.dl.sourceforge.net/project/swig/swig/swig-3.0.12/swig-3.0.12.tar.gz
+tar -xf swig-3.0.12.tar.gz
+cd swig-3.0.12/
+./configure
+make
+sudo make install
 ```
 
 **NOTE** Corresponding to your python3 installation, the correct devel packets need to be installed.
@@ -98,7 +105,7 @@ For the documentation:
 sudo yum install python34 python34-pip perl
 sudo pip3 install -U Sphinx
 sudo pip3 install javasphinx
-# As CentOS's LaTeX is broken we install texlive from ctan
+# As CentOS'es LaTeX is broken we need to install texlive from ctan
 curl -L -O http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
 tar -xf install-tl-unx.tar.gz
 cd install-tl-*
