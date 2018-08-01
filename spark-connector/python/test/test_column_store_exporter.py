@@ -25,7 +25,9 @@ def verifyAllTypes(conn, table, rowid, expected):
     try:
         cursor = conn.cursor()
         cursor.execute(query_all_types)
+        resultsFound = False
         for (uint64, int64, uint32, int32, uint16, int16, uint8, int8, f, d, ch4, vch30, dt, dtm, dc, tx, bit, mathInt, dc2) in cursor:
+            resultsFound = True
             rowStr = "{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}".format(uint64, int64, uint32, int32, uint16, int16, uint8, int8, f, d, ch4, vch30, dt, dtm, dc, tx, bit, mathInt, dc2)
             assert rowStr == expected
     except mariadb.Error as err:
@@ -34,7 +36,8 @@ def verifyAllTypes(conn, table, rowid, expected):
         pytest.fail("%s\nInjected doesn't match expetations.\nexpected: %s\nactual:   %s" % (e,expected,rowStr))
     finally:
         if cursor: cursor.close()
-
+    if not resultsFound:
+        pytest.fail("no data was injected into columnstore")
 
 def test_all_types():
     #Datatype settings
@@ -129,7 +132,7 @@ def test_all_types():
         else:
             verifyAllTypes(connection, table, 0, "0, -9223372036854775806, 0, -2147483646, 0, -32766, 0, -126, 1.234, 2.34567, A, B, 1000-01-01, 1000-01-01 00:00:00, -123, C, 0, 18446744073709551613, 100000000.999999999")
         verifyAllTypes(connection, table, 9223372036854775807, "9223372036854775807, 9223372036854775807, 4294967293, 2147483647, 65533, 32767, 253, 127, 1.234, 2.34567, ZYXW, 012345678901234567890123456789, 9999-12-31, 9999-12-31 23:59:59, 123, 012345678901234567890123456789, 1, 2342, 23.420000000")
-        verifyAllTypes(connection, table, 42, "42, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null")
+        verifyAllTypes(connection, table, 42, "42, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None")
     
     #drop the test tables
     cursor = connection.cursor()

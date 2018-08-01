@@ -84,7 +84,9 @@ def verifyAllTypes(conn, table, rowid, expected):
     try:
         cursor = conn.cursor()
         cursor.execute(query_all_types)
+        rowsInjected = False
         for (uint64, int64, uint32, int32, uint16, int16, uint8, int8_rw, f, d, ch4, vch30, dt, dtm, dc, tx, bit_rw, mathInt, dc2) in cursor:
+            rowsInjected = True
             rowStr = "{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}".format(uint64, int64, uint32, int32, uint16, int16, uint8, int8_rw, f, d, ch4, vch30, dt, dtm, dc, tx, bit_rw, mathInt, dc2)
             assert rowStr == expected
     except mariadb.Error as err:
@@ -95,6 +97,8 @@ def verifyAllTypes(conn, table, rowid, expected):
         pytest.fail("Error executing query: %s, error: %s" %(verifyAllTypes,e))
     finally:
         if cursor: cursor.close()
+    if not rowsInjected:
+        pytest.fail("no data injected into columnstore")
 
 #test the sql generation by repeating the test_all case with the generated table
 def test_sql_generation():
