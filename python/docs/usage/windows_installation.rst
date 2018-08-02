@@ -5,6 +5,8 @@ After installing the MariaDB Bulk Write SDK in Windows 10 you have to manually a
 
 Following variables will be used to represent the program installation paths needed:
 
+.. tabularcolumns:: |p{3.8cm}|p{6cm}|p{6.2cm}|
+
 +-------------------------+-----------------------------------------------------------+-----------------------------------------------------------+
 | Variable                | Description                                               | Example                                                   |
 +=========================+===========================================================+===========================================================+
