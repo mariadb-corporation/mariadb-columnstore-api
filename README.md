@@ -58,7 +58,6 @@ cd swig-3.0.12/
 make
 sudo make install
 ```
-```
 
 A JavaSDK >= 8 is required to run properly. If not installed do the following:
 ```shell
