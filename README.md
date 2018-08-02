@@ -296,8 +296,9 @@ git clone https://github.com/mariadb-corporation/mariadb-columnstore-api.git
 cd mariadb-columnstore-api
 git checkout develop-1.1
 mkdir build && cd build
-cmake -DSIGNCODE=ON -G "Visual Studio 15 2017 Win64" ..
+cmake -G "Visual Studio 15 2017 Win64" ..
 cmake --build . --config RelWithDebInfo --target package
+signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /a "MariaDB ColumnStore Bulk Write SDK-*-x64.msi"
 ```
 
 ### Testing

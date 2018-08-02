@@ -31,7 +31,7 @@ def verifyAllTypes(conn, table, rowid, expected):
             rowStr = "{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}".format(uint64, int64, uint32, int32, uint16, int16, uint8, int8, f, d, ch4, vch30, dt, dtm, dc, tx, bit, mathInt, dc2)
             assert rowStr == expected
     except mariadb.Error as err:
-        pytest.fail("Error executing query: %s, error: %s" %(verifyAllTypes,err))
+        pytest.fail("Error during test verification: %s" %(err))
     except AssertionError as e:
         pytest.fail("%s\nInjected doesn't match expetations.\nexpected: %s\nactual:   %s" % (e,expected,rowStr))
     finally:
