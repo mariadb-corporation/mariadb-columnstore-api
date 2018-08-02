@@ -115,8 +115,7 @@ if(GENERATE_DOC)
     #    add_dependencies(doc_pdf
     #  doc_html
     #)
-    install(FILES "${SPHINX_PDF_DIR}/libmcsapi_building.pdf"
-      "${SPHINX_PDF_DIR}/libmcsapi_usage.pdf"
+    install(FILES "${SPHINX_PDF_DIR}/libmcsapi_usage.pdf"
       DESTINATION "${CMAKE_INSTALL_DOCDIR}"
       COMPONENT libs
     )
