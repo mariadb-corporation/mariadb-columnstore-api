@@ -95,7 +95,7 @@ sudo yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel swig python-devel p
 For the documentation:
 
 ```shell
-sudo yum install python34 python34-pip perl
+sudo yum install python34 python34-pip perl perl-Digest-MD5
 sudo pip3 install -U Sphinx
 sudo pip3 install javasphinx
 # As CentOS's LaTeX is broken we install texlive from ctan
@@ -105,7 +105,7 @@ cd install-tl-*
 sudo ./install-tl << EOF
 O
 L
-
+/usr/sbin
 
 
 R
