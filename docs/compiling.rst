@@ -20,8 +20,17 @@ CentOS 7
 
    sudo yum install snappy libuv libxml2 pkgconfig boost-devel gcc gcc-c++
 
+
+Windows 10 (x64)
+^^^^^^^^^^^^^^^^
+
+On Windows you have to install Visual Studio 2017 to compile .cpp files using mcsapi.
+
 Compiling
 ---------
+
+Linux
+^^^^^
 
 The easiest way to compile is to use pkg-config to provide the required compile options.
 
@@ -31,3 +40,15 @@ The following is a basic example of how to do compile an example c++ application
 
    g++ example.cpp -o example -std=c++11 `pkg-config libmcsapi --cflags --libs`
 
+
+Windows 10 (x64)
+^^^^^^^^^^^^^^^^
+Here is an basic example using Visual Studio's x64 Native Tools Command Prompt:
+
+.. code-block:: console
+
+   cl example.cpp %mcsapiInstallDir%\lib\mcsapi.lib /I %mcsapiInstallDir%\include
+
+The variable ``%mcsapiInstallDir%`` represents the base installation directory of the Bulk Write SDK. (e.g. C:\\Program Filesi\\MariaDBi\\ColumnStore Bulk Write SDK)
+
+To run the built executable you have to copy mcapi's DLLs ``libiconv.dll``, ``libuv.dll``, ``libxml2.dll`` and ``mcsapi.dll`` from ``%mcsapiInstallDir%\lib`` to the directory of the built executable.

@@ -42,3 +42,15 @@ CentOS 7
    javac -classpath ".:/usr/lib64/javamcsapi.jar" Basic_bulk_insert.java
    java -classpath ".:/usr/lib64/javamcsapi.jar" Basic_bulk_insert
 
+
+Windows 10 (x64)
+^^^^^^^^^^^^^^^^
+
+.. code-block:: console
+
+   javac -classpath ".;%mcsapiInstallDir%\lib\java\javamcsapi-1.1.6.jar" Basic_bulk_insert.java
+   java -classpath ".;%mcsapiInstallDir%\lib\java\javamcsapi-1.1.6.jar" -Djava.library.path="%mcsapiInstallDir%\lib" Basic_bulk_insert
+
+The variable ``%mcsapiInstallDir%`` represents the base installation directory of the Bulk Write SDK. (e.g. C:\\Program Files\\MariaDB\\ColumnStore Bulk Write SDK)
+
+If you don't want to change the ``java.library.path`` you can copy javamcapi's DLLs ``libiconv.dll``, ``libuv.dll``, ``libxml2.dll``, ``mcsapi.dll`` and ``javamcsapi.dll`` from ``%mcsapiInstallDir%\lib`` to the directory of the Java class to execute.
