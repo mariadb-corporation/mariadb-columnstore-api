@@ -24,7 +24,9 @@ sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config s
 For the documentation:
 
 ```shell
-sudo apt-get install python3 python3-pip texlive-latex-recommended texlive-latex-extra latexmk
+sudo apt-get install python python-pip python3 python3-pip texlive-latex-recommended texlive-latex-extra latexmk
+pip install -U Sphinx
+pip install javasphinx
 pip3 install -U Sphinx
 pip3 install javasphinx
 ```
@@ -64,7 +66,9 @@ sudo update-alternatives --config java
 For the documentation:
 
 ```shell
-sudo apt-get install python3 python3-pip texlive-latex-recommended texlive-latex-extra latexmk
+sudo apt-get install python python-pip python3 python3-pip texlive-latex-recommended texlive-latex-extra latexmk
+pip install -U Sphinx
+pip install javasphinx
 pip3 install -U Sphinx
 pip3 install javasphinx
 ```
@@ -95,7 +99,7 @@ sudo yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel swig python-devel p
 For the documentation:
 
 ```shell
-sudo yum install python34 python34-pip perl perl-Digest-MD5
+sudo yum install python python-pip python34 python34-pip perl perl-Digest-MD5
 sudo pip3 install -U Sphinx
 sudo pip3 install javasphinx
 # As CentOS's LaTeX is broken we install texlive from ctan
