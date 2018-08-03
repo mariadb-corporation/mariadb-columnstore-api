@@ -100,7 +100,7 @@ For the main build you need the following:
 
 ```shell
 sudo yum install epel-release
-sudo yum install cmake libuv-devel libxml2-devel snappy-devel
+sudo yum install cmake libuv-devel libxml2-devel snappy-devel gcc-c++
 sudo yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel swig python-devel python34-devel boost-devel
 ```
 
