@@ -25,8 +25,8 @@ For the documentation:
 
 ```shell
 sudo apt-get install python python-pip python3 python3-pip texlive-latex-recommended texlive-latex-extra latexmk
-pip install -U Sphinx
-pip install javasphinx
+pip2 install -U Sphinx
+pip2 install javasphinx
 pip3 install -U Sphinx
 pip3 install javasphinx
 ```
@@ -39,6 +39,8 @@ cd /usr/src/gtest
 sudo cmake . -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_SHARED_LIBS=ON
 sudo make
 sudo mv libg* /usr/lib/
+pip2 install --no-cache-dir -r spark-connector/python/test/requirements.txt
+pip3 install --no-cache-dir -r spark-connector/python/test/requirements.txt
 ```
 ### Debian 8 (Jessie)
 
@@ -67,8 +69,8 @@ For the documentation:
 
 ```shell
 sudo apt-get install python python-pip python3 python3-pip texlive-latex-recommended texlive-latex-extra latexmk
-pip install -U Sphinx
-pip install javasphinx
+pip2 install -U Sphinx
+pip2 install javasphinx
 pip3 install -U Sphinx
 pip3 install javasphinx
 ```
@@ -82,6 +84,8 @@ cd googletest
 cmake . -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_SHARED_LIBS=ON
 make
 sudo make install
+pip2 install --no-cache-dir -r spark-connector/python/test/requirements.txt
+pip3 install --no-cache-dir -r spark-connector/python/test/requirements.txt
 ```
 
 ### CentOS 7
@@ -121,6 +125,8 @@ For the test suite:
 
 ```shell
 sudo yum install gtest-devel cppcheck mariadb-devel
+pip2 install --no-cache-dir -r spark-connector/python/test/requirements.txt
+pip3 install --no-cache-dir -r spark-connector/python/test/requirements.txt
 ```
 
 ### SUSE Enterprise Linux 12
