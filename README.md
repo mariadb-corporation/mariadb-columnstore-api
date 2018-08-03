@@ -70,6 +70,8 @@ For the documentation:
 
 ```shell
 sudo apt-get install python python-pip python3 python3-pip texlive-latex-recommended texlive-latex-extra latexmk
+sudo pip2 install --upgrade pip
+sudo pip3 install --upgrade pip
 sudo pip2 install -U Sphinx
 sudo pip2 install javasphinx
 sudo pip3 install -U Sphinx
