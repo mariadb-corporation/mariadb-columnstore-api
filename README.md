@@ -25,9 +25,9 @@ For the documentation:
 
 ```shell
 sudo apt-get install python python-pip python3 python3-pip texlive-latex-recommended texlive-latex-extra latexmk
-pip2 install -U Sphinx
+sudo pip2 install -U Sphinx
 pip2 install javasphinx
-pip3 install -U Sphinx
+sudo pip3 install -U Sphinx
 pip3 install javasphinx
 ```
 
@@ -70,9 +70,9 @@ For the documentation:
 
 ```shell
 sudo apt-get install python python-pip python3 python3-pip texlive-latex-recommended texlive-latex-extra latexmk
-pip2 install -U Sphinx
+sudo pip2 install -U Sphinx
 pip2 install javasphinx
-pip3 install -U Sphinx
+sudo pip3 install -U Sphinx
 pip3 install javasphinx
 ```
 
