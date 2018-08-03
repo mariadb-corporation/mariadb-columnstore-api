@@ -132,8 +132,12 @@ For the test suite:
 ```shell
 sudo yum install gtest-devel cppcheck mariadb-devel
 # from the cloned mariadb-columnstore-api directory
-pip2 install --no-cache-dir -r spark-connector/python/test/requirements.txt
-pip3 install --no-cache-dir -r spark-connector/python/test/requirements.txt
+sudo pip2 install --upgrade pip
+sudo pip3 install --upgrade pip
+sudo pip2 install --upgrade wheel
+sudo pip3 install --upgrade wheel
+sudo pip2 install --no-cache-dir -r spark-connector/python/test/requirements.txt
+sudo pip3 install --no-cache-dir -r spark-connector/python/test/requirements.txt
 ```
 
 ### SUSE Enterprise Linux 12
