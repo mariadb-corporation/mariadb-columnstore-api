@@ -93,8 +93,8 @@ For the main build you need the following:
 
 ```shell
 sudo yum install epel-release
-sudo yum install cmake libuv-devel libxml2-devel snappy-devel
-sudo yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel python-devel python34-devel boost-devel
+sudo yum install cmake libuv-devel libxml2-devel snappy-devel gcc-c++
+sudo yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel python-devel python34-devel boost-devel pcre-devel
 # As CentOS'es swig is too old and causes errors we need to install swig from source
 curl -O https://iweb.dl.sourceforge.net/project/swig/swig/swig-3.0.12/swig-3.0.12.tar.gz
 tar -xf swig-3.0.12.tar.gz
