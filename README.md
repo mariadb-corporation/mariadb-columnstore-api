@@ -49,9 +49,9 @@ deb http://httpredir.debian.org/debian jessie-backports main contrib non-free
 Then install the following:
 
 ```shell
-sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config libc++-dev python-dev python3-dev libboost-dev
+sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config libc++-dev python-dev python3-dev libboost-dev libpcre++-dev
 # As Debian 8's swig is too old and causes errors we need to install swig from source
-curl -O https://iweb.dl.sourceforge.net/project/swig/swig/swig-3.0.12/swig-3.0.12.tar.gz
+wget https://iweb.dl.sourceforge.net/project/swig/swig/swig-3.0.12/swig-3.0.12.tar.gz
 tar -xf swig-3.0.12.tar.gz
 cd swig-3.0.12/
 ./configure
