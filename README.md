@@ -39,6 +39,7 @@ cd /usr/src/gtest
 sudo cmake . -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_SHARED_LIBS=ON
 sudo make
 sudo mv libg* /usr/lib/
+# from the cloned mariadb-columnstore-api directory
 pip2 install --no-cache-dir -r spark-connector/python/test/requirements.txt
 pip3 install --no-cache-dir -r spark-connector/python/test/requirements.txt
 ```
@@ -84,6 +85,7 @@ cd googletest
 cmake . -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_SHARED_LIBS=ON
 make
 sudo make install
+# from the cloned mariadb-columnstore-api directory
 pip2 install --no-cache-dir -r spark-connector/python/test/requirements.txt
 pip3 install --no-cache-dir -r spark-connector/python/test/requirements.txt
 ```
@@ -125,6 +127,7 @@ For the test suite:
 
 ```shell
 sudo yum install gtest-devel cppcheck mariadb-devel
+# from the cloned mariadb-columnstore-api directory
 pip2 install --no-cache-dir -r spark-connector/python/test/requirements.txt
 pip3 install --no-cache-dir -r spark-connector/python/test/requirements.txt
 ```
