@@ -88,8 +88,10 @@ cmake . -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_SHARED_LIBS=ON
 make
 sudo make install
 # from the cloned mariadb-columnstore-api directory
-pip2 install --no-cache-dir -r spark-connector/python/test/requirements.txt
-pip3 install --no-cache-dir -r spark-connector/python/test/requirements.txt
+sudo pip2 install --upgrade wheel
+sudo pip3 install --upgrade wheel
+sudo pip2 install --no-cache-dir -r spark-connector/python/test/requirements.txt
+sudo pip3 install --no-cache-dir -r spark-connector/python/test/requirements.txt
 ```
 
 ### CentOS 7
