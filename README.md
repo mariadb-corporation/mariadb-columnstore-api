@@ -54,7 +54,14 @@ deb http://httpredir.debian.org/debian jessie-backports main contrib non-free
 Then install the following:
 
 ```shell
-sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config libc++-dev swig python-dev python3-dev libboost-dev
+sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config libc++-dev python-dev python3-dev libboost-dev libpcre++-dev
+# As Debian 8's swig is too old and causes errors we need to install swig from source
+wget https://iweb.dl.sourceforge.net/project/swig/swig/swig-3.0.12/swig-3.0.12.tar.gz
+tar -xf swig-3.0.12.tar.gz
+cd swig-3.0.12/
+./configure
+make
+sudo make install
 ```
 
 A JavaSDK >= 8 is required to run properly. If not installed do the following:
@@ -101,7 +108,14 @@ For the main build you need the following:
 ```shell
 sudo yum install epel-release
 sudo yum install cmake libuv-devel libxml2-devel snappy-devel gcc-c++
-sudo yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel swig python-devel python34-devel boost-devel
+sudo yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel python-devel python34-devel boost-devel pcre-devel
+# As CentOS'es swig is too old and causes errors we need to install swig from source
+curl -O https://iweb.dl.sourceforge.net/project/swig/swig/swig-3.0.12/swig-3.0.12.tar.gz
+tar -xf swig-3.0.12.tar.gz
+cd swig-3.0.12/
+./configure
+make
+sudo make install
 ```
 
 **NOTE** Corresponding to your python3 installation, the correct devel packets need to be installed.
@@ -112,7 +126,7 @@ For the documentation:
 sudo yum install python python-pip python34 python34-pip perl perl-Digest-MD5
 sudo pip3 install -U Sphinx
 sudo pip3 install javasphinx
-# As CentOS's LaTeX is broken we install texlive from ctan
+# As CentOS'es LaTeX is broken we need to install texlive from ctan
 curl -L -O http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
 tar -xf install-tl-unx.tar.gz
 cd install-tl-*
