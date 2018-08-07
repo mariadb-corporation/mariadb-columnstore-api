@@ -8,7 +8,6 @@ file(GLOB SOURCES
   "@CMAKE_CURRENT_SOURCE_DIR@/index.rst"
   "@CMAKE_CURRENT_SOURCE_DIR@/license.rst"
   "@CMAKE_CURRENT_SOURCE_DIR@/index.rst"
-  "@CMAKE_CURRENT_SOURCE_DIR@/building.rst"
   "@CMAKE_CURRENT_SOURCE_DIR@/changelog.rst"
   "@CMAKE_CURRENT_SOURCE_DIR@/compiling.rst"
   "@CMAKE_CURRENT_SOURCE_DIR@/reference/*.rst"

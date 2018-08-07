@@ -24,9 +24,11 @@ sudo apt-get install cmake g++ libuv1-dev libxml2-dev libsnappy-dev pkg-config s
 For the documentation:
 
 ```shell
-sudo apt-get install python3 python3-pip texlive-latex-recommended texlive-latex-extra latexmk
-pip3 install -U Sphinx
-pip3 install javasphinx
+sudo apt-get install python python-pip python3 python3-pip texlive-latex-recommended texlive-latex-extra latexmk
+sudo pip2 install -U Sphinx
+sudo pip2 install javasphinx
+sudo pip3 install -U Sphinx
+sudo pip3 install javasphinx
 ```
 
 For test test suite:
@@ -37,6 +39,9 @@ cd /usr/src/gtest
 sudo cmake . -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_SHARED_LIBS=ON
 sudo make
 sudo mv libg* /usr/lib/
+# from the cloned mariadb-columnstore-api directory
+pip2 install --no-cache-dir -r spark-connector/python/test/requirements.txt
+pip3 install --no-cache-dir -r spark-connector/python/test/requirements.txt
 ```
 ### Debian 8 (Jessie)
 
@@ -71,9 +76,13 @@ sudo update-alternatives --config java
 For the documentation:
 
 ```shell
-sudo apt-get install python3 python3-pip texlive-latex-recommended texlive-latex-extra latexmk
-pip3 install -U Sphinx
-pip3 install javasphinx
+sudo apt-get install python python-pip python3 python3-pip texlive-latex-recommended texlive-latex-extra latexmk
+sudo pip2 install --upgrade pip
+sudo pip3 install --upgrade pip
+sudo pip2 install -U Sphinx
+sudo pip2 install javasphinx
+sudo pip3 install -U Sphinx
+sudo pip3 install javasphinx
 ```
 
 For the test suite do the following in a directory separate from the API:
@@ -85,6 +94,11 @@ cd googletest
 cmake . -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_SHARED_LIBS=ON
 make
 sudo make install
+# from the cloned mariadb-columnstore-api directory
+sudo pip2 install --upgrade wheel
+sudo pip3 install --upgrade wheel
+sudo pip2 install --no-cache-dir -r spark-connector/python/test/requirements.txt
+sudo pip3 install --no-cache-dir -r spark-connector/python/test/requirements.txt
 ```
 
 ### CentOS 7
@@ -109,7 +123,7 @@ sudo make install
 For the documentation:
 
 ```shell
-sudo yum install python34 python34-pip perl
+sudo yum install python python-pip python34 python34-pip perl perl-Digest-MD5
 sudo pip3 install -U Sphinx
 sudo pip3 install javasphinx
 # As CentOS'es LaTeX is broken we need to install texlive from ctan
@@ -119,7 +133,7 @@ cd install-tl-*
 sudo ./install-tl << EOF
 O
 L
-
+/usr/sbin
 
 
 R
@@ -131,6 +145,13 @@ For the test suite:
 
 ```shell
 sudo yum install gtest-devel cppcheck mariadb-devel
+# from the cloned mariadb-columnstore-api directory
+sudo pip2 install --upgrade pip
+sudo pip3 install --upgrade pip
+sudo pip2 install --upgrade wheel
+sudo pip3 install --upgrade wheel
+sudo pip2 install --no-cache-dir -r spark-connector/python/test/requirements.txt
+sudo pip3 install --no-cache-dir -r spark-connector/python/test/requirements.txt
 ```
 
 ### SUSE Enterprise Linux 12
@@ -232,3 +253,106 @@ You should of course add options as above to this as required. Then you can buil
 sudo make package
 ```
 
+## Windows 10 (x64) [Alpha]
+
+Currently only the documentation can't be built on Windows.
+
+### Build dependencies
+
+For the main build you need:
+
+- [Microsoft Visual Studio 2017](https://visualstudio.microsoft.com/downloads/) (the Community Edition is sufficient)
+- [pkg-config](https://www.freedesktop.org/wiki/Software/pkg-config/)
+- [cmake](https://cmake.org/)
+- [boost](https://www.boost.org/) > 1.58.0.0
+- [libiconv](https://savannah.gnu.org/projects/libiconv/)
+- [libxml2](https://gitlab.gnome.org/GNOME/libxml2/)
+- [libuv](https://github.com/libuv/libuv)
+- [snappy](https://github.com/google/snappy)
+
+For the Java API you need in addition:
+
+- [Java SDK 8 (x64)](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+- [swig](http://www.swig.org/download.html)
+
+For the Python API you need in addition:
+
+- [Python 2.7 (x64)](https://www.python.org/downloads/windows/)
+- [Python 3 (x64)](https://www.python.org/downloads/windows/)
+- [swig](http://www.swig.org/download.html)
+
+In order to build packets for Python 2 and Python 3, Python 3's executable needs to be manually renamed from ``python.exe`` to ``python3.exe``.
+For testing it is required to install the modules ``pytest``, ``pyspark`` and ``mysql-connector``.
+
+For the test suite you need in addition:
+
+- [googletest](https://github.com/google/googletest)
+- [libmysql](https://dev.mysql.com/downloads/connector/c/)
+
+And for the package build you need in addition:
+
+- [WiX toolset](http://wixtoolset.org/)
+- Set the environment variable ``WIX`` to the WiX installation directory
+
+**Compile all libraries for 64bit and add them to your Visual Studio installation. Don't forget to add the runtime libraries (dlls) as well.**
+
+**NOTE** Please ensure that all tools are executable from command line and have a valid ``Path`` entry.
+
+### Compiling
+
+To compile mcsapi enter following commands in x64 Native Tools Command Prompt for VS 2017.
+
+```
+git clone https://github.com/mariadb-corporation/mariadb-columnstore-api.git
+cd mariadb-columnstore-api
+git checkout develop-1.1
+mkdir build && cd build
+cmake -G "Visual Studio 15 2017 Win64" ..
+cmake --build . --config RelWithDebInfo
+```
+
+### Package build
+
+To create a msi install package use following commands:
+```
+git clone https://github.com/mariadb-corporation/mariadb-columnstore-api.git
+cd mariadb-columnstore-api
+git checkout develop-1.1
+mkdir build && cd build
+cmake -G "Visual Studio 15 2017 Win64" ..
+cmake --build . --config RelWithDebInfo --target package
+```
+
+### Signed package build
+
+To create a signed msi install package you first need to import MariaDB private sign certificate. Afterwards you can use following commands:
+```
+git clone https://github.com/mariadb-corporation/mariadb-columnstore-api.git
+cd mariadb-columnstore-api
+git checkout develop-1.1
+mkdir build && cd build
+cmake -G "Visual Studio 15 2017 Win64" ..
+cmake --build . --config RelWithDebInfo --target package
+signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /a "MariaDB ColumnStore Bulk Write SDK-*-x64.msi"
+```
+
+### Testing
+1) Create a Columnstore.xml file according to our [Knowledge Base](https://mariadb.com/kb/en/library/columnstore-bulk-write-sdk/#environment-configuration) pointing to the ColumnStore instance you want to use for testing and place it into an ``etc`` directory
+2) Set the environment variable ``COLUMNSTORE_INSTALL_DIR`` to the folder holding the ``etc`` directory
+3) Create a remote user and grant him access to the mcsapi and infinidb_vtable databases on the ColumnStore instance you want to use for testing
+4) Set the environment variable ``MCSAPI_CS_TEST_IP`` to the IP address of the ColumnStore instance you want to use for testing (on the Windows machine)
+5) Set the environment variables ``MCSAPI_CS_TEST_USER`` and ``MCSAPI_CS_TEST_PASSWORD`` to hold the credentials of the newly created remote user (on the Windows machine)
+6) Compile mcsapi as described below with the additional ``TEST_RUNNER`` option and invoke the tests with ``ctest``. If you would like to test pymcsapi, you have to install it in your python environment(s) before the test execution.
+```
+git clone https://github.com/mariadb-corporation/mariadb-columnstore-api.git
+cd mariadb-columnstore-api
+git checkout develop-1.1
+mkdir build && cd build
+cmake -DTEST_RUNNER=ON -G "Visual Studio 15 2017 Win64" ..
+cmake --build . --config RelWithDebInfo
+ctest -C RelWithDebInfo
+```
+
+### Known limitations
+- Javamcsapi's test suite can currently only be executed from the top level ctest by a user without special characters. Users whose names contain special characters need to execute ctest manually from the build/java directory to test javamcsapi.
+- The debug build contains the whole path of the debug file instead of only its file name.

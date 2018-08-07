@@ -6,7 +6,6 @@ Welcome to libmcsapi's documentation
 
    license
    changelog
-   building
    usage/index
    compiling
    reference/index
