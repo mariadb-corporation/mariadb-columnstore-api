@@ -49,8 +49,11 @@ IF("${isSystemDir}" STREQUAL "-1")
 ENDIF("${isSystemDir}" STREQUAL "-1")
 
 # Disable no-deprecated-declarations
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG -Wall -Wunused -Wwrite-strings -Wno-strict-aliasing -Wextra -Werror -Wno-deprecated-declarations")
-
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
+if(CMAKE_COMPILER_IS_GNUCXX)
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wunused -Wwrite-strings -Wno-strict-aliasing -Wextra -Werror -Wno-deprecated-declarations")
+endif(CMAKE_COMPILER_IS_GNUCXX)
+    
 # FORTIFY_SOURCE requires > -O0
 string(TOLOWER ${CMAKE_BUILD_TYPE} LOWERCASE_CMAKE_BUILD_TYPE)
 if (NOT LOWERCASE_CMAKE_BUILD_TYPE STREQUAL "debug")
@@ -58,17 +61,71 @@ if (NOT LOWERCASE_CMAKE_BUILD_TYPE STREQUAL "debug")
 endif()
 
 # Disable format-truncation since this triggers in mcsapi_types for something that isn't a problem
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wformat -Wformat-security -fstack-protector-all -fstack-check -Wno-format-truncation -Wno-unused-command-line-argument -Wno-unknown-warning-option -pie -fPIC")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+if(CMAKE_COMPILER_IS_GNUCXX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wformat -Wformat-security -fstack-protector-all -fstack-check -Wno-format-truncation -Wno-unused-command-line-argument -Wno-unknown-warning-option -pie -fPIC")
+endif(CMAKE_COMPILER_IS_GNUCXX)
 
-INCLUDE (FindLibXml2)
+#Find the packages and libraries
+IF(WIN32)
+    SET(FIND_LIBRARY_USE_LIB64_PATHS ON)
+    SET(CMAKE_FIND_LIBRARY_PREFIXES_BAK "${CMAKE_FIND_LIBRARY_PREFIXES}")
+    SET(CMAKE_FIND_LIBRARY_SUFFIXES_BAK "${CMAKE_FIND_LIBRARY_SUFFIXES}")
+ENDIF(WIN32)
+
+INCLUDE(FindLibXml2)
 if (NOT LIBXML2_FOUND)
     MESSAGE(FATAL_ERROR "Could not find a usable libxml2 development environment!")
 endif()
+IF(WIN32)
+    SET(CMAKE_FIND_LIBRARY_PREFIXES "")
+    SET(CMAKE_FIND_LIBRARY_SUFFIXES ".dll" ".DLL")
+
+    find_library(
+    LIBXML2_RUNTIME_LIBRARY
+    NAMES LIBXML2 libxml2
+    HINTS $ENV{LIBXML2_RUNTIME_DIRECTORY}
+    )
+    if (${LIBXML2_RUNTIME_LIBRARY} STREQUAL "LIBXML2_RUNTIME_LIBRARY-NOTFOUND")
+        MESSAGE(FATAL_ERROR "Could not find a usable LibXml2 runtime library libxml2.dll!\nYou can hint cmake by setting the environment variable LIBXML2_RUNTIME_DIRECTORY.")
+    ENDIF()
+    MESSAGE(STATUS "Found LibXml2 runtime library: ${LIBXML2_RUNTIME_LIBRARY}")
+
+    find_library(
+        LIBICONV_RUNTIME_LIBRARY
+        NAMES LIBICONV libiconv
+        HINTS $ENV{LIBICONV_RUNTIME_DIRECTORY}
+    )
+    if (${LIBICONV_RUNTIME_LIBRARY} STREQUAL "LIBICONV_RUNTIME_LIBRARY-NOTFOUND")
+        MESSAGE(FATAL_ERROR "Could not find a usable libiconv runtime library libiconv.dll!\nYou can hint cmake by setting the environment variable LIBICONV_RUNTIME_DIRECTORY.")
+    ENDIF()
+    MESSAGE(STATUS "Found libiconv runtime library: ${LIBICONV_RUNTIME_LIBRARY}")
+    
+    SET(CMAKE_FIND_LIBRARY_PREFIXES "${CMAKE_FIND_LIBRARY_PREFIXES_BAK}")
+    SET(CMAKE_FIND_LIBRARY_SUFFIXES "${CMAKE_FIND_LIBRARY_SUFFIXES_BAK}")
+ENDIF(WIN32)
 
 find_package(LibUV)
 if (NOT LIBUV_FOUND)
     MESSAGE(FATAL_ERROR "Could not find a usable libuv development environment!")
 endif()
+IF(WIN32)
+    SET(CMAKE_FIND_LIBRARY_PREFIXES "")
+    SET(CMAKE_FIND_LIBRARY_SUFFIXES ".dll" ".DLL")
+    
+    find_library(
+        LIBUV_RUNTIME_LIBRARY
+        NAMES LIBUV libuv
+        HINTS $ENV{LIBUV_RUNTIME_DIRECTORY}
+    )
+    if (${LIBUV_RUNTIME_LIBRARY} STREQUAL "LIBUV_RUNTIME_LIBRARY-NOTFOUND")
+        MESSAGE(FATAL_ERROR "Could not find a usable LIBUV runtime library libuv.dll!\nYou can hint cmake by setting the environment variable LIBUV_RUNTIME_DIRECTORY.")
+    ENDIF()
+    MESSAGE(STATUS "Found LIBUV runtime library: ${LIBUV_RUNTIME_LIBRARY}")
+    
+    SET(CMAKE_FIND_LIBRARY_PREFIXES "${CMAKE_FIND_LIBRARY_PREFIXES_BAK}")
+    SET(CMAKE_FIND_LIBRARY_SUFFIXES "${CMAKE_FIND_LIBRARY_SUFFIXES_BAK}")
+ENDIF(WIN32)
 
 find_package(Snappy)
 if (NOT SNAPPY_FOUND)
@@ -96,6 +153,33 @@ option(TEST_RUNNER "Build the test suite" OFF)
 if (TEST_RUNNER)
   include(CTest)
   find_package(GTest REQUIRED)
+  IF(WIN32)
+    SET(CMAKE_FIND_LIBRARY_PREFIXES "")
+    SET(CMAKE_FIND_LIBRARY_SUFFIXES ".dll" ".DLL")
+
+    find_library(
+    GETST_RUNTIME_LIBRARY_1
+    NAMES GTEST gtest
+    HINTS $ENV{GTEST_RUNTIME_DIRECTORY}
+    )
+    if (${GETST_RUNTIME_LIBRARY_1} STREQUAL "GETST_RUNTIME_LIBRARY_1-NOTFOUND")
+        MESSAGE(FATAL_ERROR "Could not find a usable GTest runtime library gtest.dll!\nYou can hint cmake by setting the environment variable GTEST_RUNTIME_DIRECTORY.")
+    ENDIF()
+    MESSAGE(STATUS "Found GTest runtime library: ${GETST_RUNTIME_LIBRARY_1}")
+
+    find_library(
+    GETST_RUNTIME_LIBRARY_2
+    NAMES GTEST_MAIN gtest_main
+    HINTS $ENV{GTEST_RUNTIME_DIRECTORY}
+    )
+    if (${GETST_RUNTIME_LIBRARY_2} STREQUAL "GETST_RUNTIME_LIBRARY_2-NOTFOUND")
+        MESSAGE(FATAL_ERROR "Could not find a usable GTest runtime library gtest_main.dll!\nYou can hint cmake by setting the environment variable GTEST_RUNTIME_DIRECTORY.")
+    ENDIF()
+    MESSAGE(STATUS "Found GTest runtime library: ${GETST_RUNTIME_LIBRARY_2}")
+    
+    SET(CMAKE_FIND_LIBRARY_PREFIXES "${CMAKE_FIND_LIBRARY_PREFIXES_BAK}")
+    SET(CMAKE_FIND_LIBRARY_SUFFIXES "${CMAKE_FIND_LIBRARY_SUFFIXES_BAK}")
+  ENDIF(WIN32)
   add_subdirectory(test)
 endif (TEST_RUNNER)
 
@@ -135,6 +219,8 @@ IF(SPARK_CONNECTOR)
   ENDIF(PYTHON)
 ENDIF(SPARK_CONNECTOR)  
 
+OPTION(SIGNCODE "Sign the MSI installer" OFF)
+
 option(BUILD_DOCS "Build the documentation" OFF)
 #option(PDFLATEX_COMPILER "Build the pdf documentation (requires latex)" OFF)
 
@@ -147,11 +233,11 @@ if (NOT PKG_CONFIG_FOUND)
     MESSAGE(FATAL_ERROR "Could not find a usable pkg-config development environment!")
 endif()
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/libmcsapi.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/libmcsapi.pc" @ONLY)
-install(FILES       "${CMAKE_CURRENT_BINARY_DIR}/libmcsapi.pc"
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libmcsapi.pc"
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig" COMPONENT devel)
 
 install(FILES "README.md"
-    "LICENSE"
+    "LICENSE.txt"
     DESTINATION "${CMAKE_INSTALL_DOCDIR}" COMPONENT libs
 )
 
@@ -162,7 +248,6 @@ if (RPM)
     SET(CPACK_RPM_PACKAGE_NAME "mariadb-columnstore-api")
     SET(ENGINE_ARCH "x86_64")
     SET(CPACK_PACKAGE_FILE_NAME "${CPACK_RPM_PACKAGE_NAME}-${CPACK_RPM_PACKAGE_VERSION}-${CPACK_RPM_PACKAGE_RELEASE}-${ENGINE_ARCH}-${RPM}")
-
     include(CPack)
 endif()
 
@@ -177,6 +262,77 @@ if (DEB)
     SET(CPACK_PACKAGE_FILE_NAME "${CPACK_DEBIAN_PACKAGE_NAME}-${CPACK_DEBIAN_PACKAGE_VERSION}-${CPACK_DEBIAN_PACKAGE_RELEASE}-${DEB}.${ENGINE_ARCH}")
     include(CPack)
 endif()
+
+if (WIN32)
+    SET(CPACK_GENERATOR "WIX")
+    SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt")
+    SET(CPACK_WIX_UI_BANNER "${CMAKE_CURRENT_SOURCE_DIR}/resources/WixUIBannerBmp.jpg")
+    SET(CPACK_WIX_UI_DIALOG "${CMAKE_CURRENT_SOURCE_DIR}/resources/WixUIDialogBmp.jpg")
+    SET(CPACK_WIX_PRODUCT_ICON "${CMAKE_CURRENT_SOURCE_DIR}/resources/mariadb.ico")
+    SET(CPACK_PACKAGE_NAME "MariaDB ColumnStore Bulk Write SDK")
+    set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "MariaDB ColumnStore Bulk Write SDK")
+    set(CPACK_PACKAGE_VENDOR "MariaDB Corporation Ab")
+    SET(CPACK_PACKAGE_CONTACT "MariaDB Corporation Ab")
+    SET(ENGINE_ARCH "x64")
+    SET(CPACK_PACKAGE_VERSION ${VERSION_SHORT})
+    set(CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
+    set(CPACK_PACKAGE_VERSION_MINOR ${VERSION_MINOR})
+    set(CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH})
+    set(CPACK_PACKAGE_VERSION_RELEASE "1")
+    set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_VERSION_RELEASE}-${ENGINE_ARCH}")
+    set(CPACK_PACKAGE_FILE_NAME_COPY "${CPACK_PACKAGE_FILE_NAME}")
+    set(CPACK_WIX_UPGRADE_GUID "CDE3BE0F-EAFE-417C-A8CF-4A5F14451845")
+    set(CPACK_WIX_CMAKE_PACKAGE_REGISTRY ON)
+    set(CPACK_PACKAGE_INSTALL_DIRECTORY "MariaDB/ColumnStore Bulk Write SDK")
+    set(CPACK_COMPONENT_LIBS_DISPLAY_NAME "libraries")
+    set(CPACK_COMPONENT_LIBS_DESCRIPTION "Installs the C++, Python, Java, and Spark connector libraries")
+    set(CPACK_COMPONENT_DEVEL_DISPLAY_NAME "development")
+    set(CPACK_COMPONENT_DEVEL_DESCRIPTION "Installs the C++ header files and examples")
+    if(SIGNCODE)
+        SET( CPACK_OUTPUT_CONFIG_FILE "${CMAKE_BINARY_DIR}/WinPackageConfig.cmake" )
+        include(CPack)
+        ADD_CUSTOM_TARGET ( package
+            COMMAND "${CMAKE_CPACK_COMMAND}" 
+                "-C" "$<CONFIGURATION>"
+                "--config" "${CMAKE_BINARY_DIR}/WinPackageConfig.cmake"
+            COMMENT "-- Running CPack..."
+        )
+        add_dependencies(package mcsapi mcsapi_static basic_bulk_insert advanced_bulk_insert)
+        IF(JAVA)
+            add_dependencies(package javamcsapi)
+        ENDIF()
+        IF(PYTHON)
+            IF(${PYTHON2_AVAILABLE})
+                add_dependencies(package _pymcsapi)
+            ENDIF()
+            IF(${PYTHON3_AVAILABLE})
+                add_dependencies(package _pymcsapi3)
+            ENDIF()
+        ENDIF()
+        IF(SPARK_CONNECTOR)
+            IF(JAVA)
+                add_dependencies(package spark-scala-mcsapi-connector)
+            ENDIF()
+            IF(PYTHON)
+                #nothing to do as this are static files only
+            ENDIF()
+        ENDIF()
+        # sign the msi installer
+        # https://www.digicert.com/code-signing/signcode-signtool-command-line.htm
+        add_custom_command(
+            TARGET package
+            POST_BUILD
+            COMMAND signtool.exe sign 
+            /tr http://timestamp.digicert.com 
+            /td sha256 
+            /fd sha256 
+            /a "${CPACK_PACKAGE_FILE_NAME_COPY}.msi" 
+            COMMENT "-- Signing package..."
+        )
+    else(SIGNCODE)
+        include(CPack)
+    endif(SIGNCODE)
+endif(WIN32)
 
 # uninstall target
 configure_file(
