@@ -262,13 +262,13 @@ Currently only the documentation can't be built on Windows.
 For the main build you need:
 
 - [Microsoft Visual Studio 2017](https://visualstudio.microsoft.com/downloads/) (the Community Edition is sufficient)
-- [pkg-config](https://www.freedesktop.org/wiki/Software/pkg-config/)
+- [pkg-config](https://www.freedesktop.org/wiki/Software/pkg-config/) \[[download](http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/pkg-config_0.26-1_win32.zip)\]
 - [cmake](https://cmake.org/)
-- [boost](https://www.boost.org/) > 1.58.0.0
-- [libiconv](https://savannah.gnu.org/projects/libiconv/)
-- [libxml2](https://gitlab.gnome.org/GNOME/libxml2/)
-- [libuv](https://github.com/libuv/libuv)
-- [snappy](https://github.com/google/snappy)
+- [boost](https://www.boost.org/) > 1.58.0.0 \[headers only\]
+- [libiconv](https://savannah.gnu.org/projects/libiconv/) \[shared\]
+- [libxml2](https://gitlab.gnome.org/GNOME/libxml2/) \[shared\]
+- [libuv](https://github.com/libuv/libuv) \[shared\]
+- [snappy](https://github.com/google/snappy) \[static\]
 
 For the Java API you need in addition:
 
@@ -286,15 +286,18 @@ For testing it is required to install the modules ``pytest``, ``pyspark`` and ``
 
 For the test suite you need in addition:
 
-- [googletest](https://github.com/google/googletest)
-- [libmysql](https://dev.mysql.com/downloads/connector/c/)
+- [googletest](https://github.com/google/googletest) \[static\]
+- [libmysql](https://dev.mysql.com/downloads/connector/c/) \[shared\]
 
 And for the package build you need in addition:
 
 - [WiX toolset](http://wixtoolset.org/)
 - Set the environment variable ``WIX`` to the WiX installation directory
 
-**Compile all libraries for 64bit and add them to your Visual Studio installation. Don't forget to add the runtime libraries (dlls) as well.**
+**You can either compile all dependent C++ libraries (64bit) by yourself according to our documentation further below, or can [download](https://drive.google.com/a/mariadb.com/file/d/1J9lQ_ddEKlYaReFH6hgkiLaixnBnVrdi/view?usp=sharing) a pre-compiled collection of the dependent libraries. Afterwards you have to add the libraries and include files to your Visual Studio installation.**
+
+Include path: ``C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.14.26428\include``  
+Library path: ``C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.14.26428\lib\x64``
 
 **NOTE** Please ensure that all tools are executable from command line and have a valid ``Path`` entry.
 
@@ -356,3 +359,81 @@ ctest -C RelWithDebInfo
 ### Known limitations
 - Javamcsapi's test suite can currently only be executed from the top level ctest by a user without special characters. Users whose names contain special characters need to execute ctest manually from the build/java directory to test javamcsapi.
 - The debug build contains the whole path of the debug file instead of only its file name.
+
+### Dependent C++ library compilation / acquisition
+This section describes how the dependent C++ libraries necessary for build and test were obtained and bundled into an [archive](https://drive.google.com/a/mariadb.com/file/d/1J9lQ_ddEKlYaReFH6hgkiLaixnBnVrdi/view?usp=sharing) for easy reuseability.
+
+#### Boost 1.67.0.0
+The boost headers were obtained through Visual Studio's packet manager [nuget](https://www.nuget.org/downloads).
+```
+nuget.exe --install boost
+```
+Include file location: ``boost.1.67.0.0\lib\native\include``
+
+#### libiconv 1.14.0.11 (shared)
+The shared libiconv library was also obtained through Visual Studio's packet manager [nuget](https://www.nuget.org/downloads).
+```
+nuget.exe --install libiconv
+```
+Include file location: ``libiconv.1.14.0.11\build\native\include``  
+Library location: ``libiconv.1.14.0.11\build\native\lib\v100\x64\Release\dynamic\cdecl``  
+Shared library location: ``libiconv.redist.1.14.0.11\build\native\bin\v100\x64\Release\dynamic\cdecl``
+
+#### libxml2 2.9.8 (shared)
+The shared libxml2 library was compiled with Visual Studio 2017 and needed above mentioned libiconv libraries as dependencies
+```
+git clone https://gitlab.gnome.org/GNOME/libxml2.git
+cd libxml2
+git checkout v2.9.8
+cd win32
+# copy libiconv.lib from nuget's libiconv.1.14.0.11\build\native\lib\v100\x64\Release\dynamic\cdecl into libxml2\win32 and rename it to iconv.lib
+# copy iconv.h from nuget's libiconv.1.14.0.11\build\native\include into libxml2\win32
+cscript configure.js
+nmake /f Makefile.msvc
+```
+Include file location: ``libxml2\win32``  
+Library location: ``libxml2\win32\bin.msvc``  
+Shared library location: ``libxml2\win32\bin.msvc``
+
+#### libuv 1.22.0 (shared)
+The shared libuv library was compiled with Visual Studio 2017.
+```
+git clone https://github.com/libuv/libuv.git
+cd libuv
+git checkout v1.22.0
+vcbuild.bat vs2017 release x64 shared test
+```
+Include file location: ``libuv\include``  
+Library location: ``libuv\Release``  
+Shared library location: ``libuv\Release``
+
+#### snappy 1.1.7 (static)
+The static snappy library was compiled with Visual Studio 2017.
+```
+git clone https://github.com/google/snappy.git
+cd snappy
+git checkout 1.1.7
+mkdir build && cd build
+cmake .. -G "Visual Studio 15 2017 Win64"
+cmake --build . --config RelWithDebInfo
+```
+Include file locations: ``snappy`` and ``snappy\build``  
+Library location: ``snappy\build\RelWithDebInfo``
+
+#### google test \[master\] (static)
+The static google test libraries were compiled with Visual Studio 2017.
+```
+git clone https://github.com/google/googletest.git
+cd googletest
+mkdir build && cd build
+cmake .. -G "Visual Studio 15 2017 Win64" -Dgtest_force_shared_crt=ON
+cmake --build . --config RelWithDebInfo
+```
+Include file locations: ``googletest\googlemock\include`` and ``googletest\googletest\include``  
+Library locations: ``googletest\build\googlemock\RelWithDebInfo`` and ``googletest\build\googlemock\gtest\RelWithDebInfo``
+
+#### libmysql 6.1 (shared)
+The shared libmysql libraries were obtained directly from Oracle. Using the [MySQL Installer 8.0.12](https://dev.mysql.com/downloads/installer/) the MySQL Connector C libraries of version 6.1 were installed to the system.
+
+Include file location: ``C:\Program Files\MySQL\MySQL Connector C 6.1\include``  
+Library locations: ``C:\Program Files\MySQL\MySQL Connector C 6.1\lib`` and ``C:\Program Files\MySQL\MySQL Connector C 6.1\lib\vs14``
