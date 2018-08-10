@@ -259,9 +259,9 @@ Currently only the documentation can't be built on Windows.
 
 ### Build dependencies
 
-For the main build you need:
-
-- [Microsoft Visual Studio 2017](https://visualstudio.microsoft.com/downloads/) (the Community Edition is sufficient)
+For the main build you need:  
+- [Microsoft Visual Studio 2017](https://visualstudio.microsoft.com/downloads/) (the Community Edition is sufficient)  
+  the option "Desktop development with C++" is needed
 - [pkg-config](https://www.freedesktop.org/wiki/Software/pkg-config/) \[[download](http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/pkg-config_0.26-1_win32.zip)\]
 - [cmake](https://cmake.org/)
 - [boost](https://www.boost.org/) > 1.58.0.0 \[headers only\]
@@ -270,31 +270,27 @@ For the main build you need:
 - [libuv](https://github.com/libuv/libuv) \[shared\]
 - [snappy](https://github.com/google/snappy) \[static\]
 
-For the Java API you need in addition:
-
+For the Java API you need in addition:  
 - [Java SDK 8 (x64)](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 - [swig](http://www.swig.org/download.html)
 
-For the Python API you need in addition:
-
+For the Python API you need in addition:  
 - [Python 2.7 (x64)](https://www.python.org/downloads/windows/)
 - [Python 3 (x64)](https://www.python.org/downloads/windows/)
 - [swig](http://www.swig.org/download.html)
 
-In order to build packets for Python 2 and Python 3, Python 3's executable needs to be manually renamed from ``python.exe`` to ``python3.exe``.
+In order to build packets for Python 2 and Python 3, Python 3's executable needs to be manually renamed from ``python.exe`` to ``python3.exe``.  
 For testing it is required to install the modules ``pytest``, ``pyspark`` and ``mysql-connector``.
 
-For the test suite you need in addition:
-
+For the test suite you need in addition:  
 - [googletest](https://github.com/google/googletest) \[static\]
 - [libmysql](https://dev.mysql.com/downloads/connector/c/) \[shared\]
 
-And for the package build you need in addition:
-
+And for the package build you need in addition:  
 - [WiX toolset](http://wixtoolset.org/)
 - Set the environment variable ``WIX`` to the WiX installation directory
 
-**You can either compile all dependent C++ libraries (64bit) by yourself according to our documentation further below, or can [download](https://drive.google.com/a/mariadb.com/file/d/1J9lQ_ddEKlYaReFH6hgkiLaixnBnVrdi/view?usp=sharing) a pre-compiled collection of the dependent libraries. Afterwards you have to add the libraries and include files to your Visual Studio installation.**
+**You can either compile all dependent C++ libraries (64bit) by yourself according to our documentation further below, or can [download](https://drive.google.com/a/mariadb.com/file/d/1J9lQ_ddEKlYaReFH6hgkiLaixnBnVrdi/view?usp=sharing) a pre-compiled collection of the dependent libraries. Afterwards you have to copy the libraries and include files to your Visual Studio installation.**
 
 Include path: ``C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.14.26428\include``  
 Library path: ``C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.14.26428\lib\x64``
@@ -304,7 +300,6 @@ Library path: ``C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC
 ### Compiling
 
 To compile mcsapi enter following commands in x64 Native Tools Command Prompt for VS 2017.
-
 ```
 git clone https://github.com/mariadb-corporation/mariadb-columnstore-api.git
 cd mariadb-columnstore-api
@@ -380,7 +375,7 @@ Library location: ``libiconv.1.14.0.11\build\native\lib\v100\x64\Release\dynamic
 Shared library location: ``libiconv.redist.1.14.0.11\build\native\bin\v100\x64\Release\dynamic\cdecl``
 
 #### libxml2 2.9.8 (shared)
-The shared libxml2 library was compiled with Visual Studio 2017 and needed above mentioned libiconv libraries as dependencies
+The shared libxml2 library was compiled with Visual Studio 2017 and needed above mentioned libiconv libraries as dependencies.
 ```
 git clone https://gitlab.gnome.org/GNOME/libxml2.git
 cd libxml2
@@ -396,7 +391,7 @@ Library location: ``libxml2\win32\bin.msvc``
 Shared library location: ``libxml2\win32\bin.msvc``
 
 #### libuv 1.22.0 (shared)
-The shared libuv library was compiled with Visual Studio 2017.
+The shared libuv library was compiled with Visual Studio 2017. Python 2.7 is needed for the build.
 ```
 git clone https://github.com/libuv/libuv.git
 cd libuv
