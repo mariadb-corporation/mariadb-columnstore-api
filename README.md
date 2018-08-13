@@ -257,6 +257,8 @@ sudo make package
 
 Currently only the documentation can't be built on Windows.
 
+mcsapi requires the [Visual C++ Redistributable for Visual Studio 2015](https://www.microsoft.com/en-us/download/details.aspx?id=48145) (x64) to be executable.
+
 ### Build dependencies
 
 For the main build you need:  
@@ -279,7 +281,7 @@ For the Python API you need in addition:
 - [Python 3 (x64)](https://www.python.org/downloads/windows/)
 - [swig](http://www.swig.org/download.html)
 
-In order to build packets for Python 2 and Python 3, Python 3's executable needs to be manually renamed from ``python.exe`` to ``python3.exe``.  
+In order to build packets for Python 2 and Python 3, Python 3's executable needs to be manually renamed from ``python.exe`` to ``python3.exe``. Install both Python releases directly under ``C:\``.  
 For testing it is required to install the modules ``pytest``, ``pyspark`` and ``mysql-connector``.
 
 For the test suite you need in addition:  
@@ -355,6 +357,7 @@ ctest -C RelWithDebInfo
 - Javamcsapi's test suite can currently only be executed from the top level ctest by a user without special characters. Users whose names contain special characters need to execute ctest manually from the build/java directory to test javamcsapi.
 - The debug build contains the whole path of the debug file instead of only its file name.
 - pymcsapi3 depends on the Python 3 DLL of the Python release used to compile pymcsapi3. Therefore, pymcsapi3 is unlike the Linux version not yet Python 3 release independent.
+- pymcsapi3's spark-connector tests fail if Python3 is not installed directly under ``C:\``.
 
 ### Dependent C++ library compilation / acquisition
 This section describes how the dependent C++ libraries necessary for build and test were obtained and bundled into an [archive](https://drive.google.com/a/mariadb.com/file/d/1J9lQ_ddEKlYaReFH6hgkiLaixnBnVrdi/view?usp=sharing) for easy reuseability.
@@ -366,14 +369,25 @@ nuget.exe --install boost
 ```
 Include file location: ``boost.1.67.0.0\lib\native\include``
 
-#### libiconv 1.14.0.11 (shared)
-The shared libiconv library was also obtained through Visual Studio's packet manager [nuget](https://www.nuget.org/downloads).
+#### libiconv 1.15 (shared)
+The shared libiconv library was compiled with Visual Studio 2017.
 ```
-nuget.exe --install libiconv
+git clone https://github.com/pffang/libiconv-for-Windows
+cd libiconv-for-Windows
+git checkout 837de0484f1af21517575f22652e04702e10fcdb
+msbuild /t:Clean
 ```
-Include file location: ``libiconv.1.14.0.11\build\native\include``  
-Library location: ``libiconv.1.14.0.11\build\native\lib\v100\x64\Release\dynamic\cdecl``  
-Shared library location: ``libiconv.redist.1.14.0.11\build\native\bin\v100\x64\Release\dynamic\cdecl``
+- Open LibIconv.sln with Visual Studio 2017
+- Change target from ``Debug`` to ``Release``
+- Change platform from ``Win32`` to ``x64``
+- Project --> Properties --> Windows SDK Version --> 10.0.17134.0
+- Project --> Properties --> Platform toolset --> Visual Studio 2017 (v141)
+- Apply --> OK
+- Build --> Rebuild Solution
+
+Include file location: ``libiconv-for-Windows\include``  
+Library location: ``libiconv-for-Windows\lib64``  
+Shared library location: ``libiconv-for-Windows\lib64``
 
 #### libxml2 2.9.8 (shared)
 The shared libxml2 library was compiled with Visual Studio 2017 and needed above mentioned libiconv libraries as dependencies.
@@ -421,6 +435,7 @@ The static google test libraries were compiled with Visual Studio 2017.
 ```
 git clone https://github.com/google/googletest.git
 cd googletest
+git checkout 6b6be9457bcec4540bd9533c9c282dfc2de1e81d
 mkdir build && cd build
 cmake .. -G "Visual Studio 15 2017 Win64" -Dgtest_force_shared_crt=ON
 cmake --build . --config RelWithDebInfo
