@@ -354,6 +354,7 @@ ctest -C RelWithDebInfo
 ### Known limitations
 - Javamcsapi's test suite can currently only be executed from the top level ctest by a user without special characters. Users whose names contain special characters need to execute ctest manually from the build/java directory to test javamcsapi.
 - The debug build contains the whole path of the debug file instead of only its file name.
+- pymcsapi3 depends on the Python 3 DLL of the Python release used to compile pymcsapi3. Therefore, pymcsapi3 is unlike the Linux version not yet Python 3 release independent.
 
 ### Dependent C++ library compilation / acquisition
 This section describes how the dependent C++ libraries necessary for build and test were obtained and bundled into an [archive](https://drive.google.com/a/mariadb.com/file/d/1J9lQ_ddEKlYaReFH6hgkiLaixnBnVrdi/view?usp=sharing) for easy reuseability.
