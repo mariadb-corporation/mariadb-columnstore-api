@@ -396,8 +396,8 @@ git clone https://gitlab.gnome.org/GNOME/libxml2.git
 cd libxml2
 git checkout v2.9.8
 cd win32
-# copy libiconv.lib from nuget's libiconv.1.14.0.11\build\native\lib\v100\x64\Release\dynamic\cdecl into libxml2\win32 and rename it to iconv.lib
-# copy iconv.h from nuget's libiconv.1.14.0.11\build\native\include into libxml2\win32
+# copy libiconv.lib from libiconv-for-Windows\lib64 into libxml2\win32 and rename it to iconv.lib
+# copy iconv.h from libiconv-for-Windows\include into libxml2\win32
 cscript configure.js
 nmake /f Makefile.msvc
 ```
