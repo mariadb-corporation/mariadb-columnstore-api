@@ -8,7 +8,7 @@ This is a version history of C++ API interface changes. It does not include inte
 +=========+=======================================================================================================================================+
 | 1.1.6   | - Windows support added (Alpha)                                                                                                       |
 +---------+---------------------------------------------------------------------------------------------------------------------------------------+
-| 1.1.4   | - Make :cpp:func:`ColumnStoreSystemCatalogColumn::getColumn` and :cpp:func:`ColumnStoreSystemCatalogTable::getTable` case insensitive |
+| 1.1.4   | - Make :cpp:func:`ColumnStoreSystemCatalog::getTable` and :cpp:func:`ColumnStoreSystemCatalogTable::getColumn` case insensitive |
 |         | - Add :cpp:func:`ColumnStoreDriver::setDebug` to enable debugging output to stderr                                                    |
 +---------+---------------------------------------------------------------------------------------------------------------------------------------+
 | 1.1.1   | - Add :cpp:func:`ColumnStoreBulkInsert::isActive`                                                                                     |
