@@ -50,7 +50,7 @@ Here is an basic example using Visual Studio's x64 Native Tools Command Prompt:
 
    cl example.cpp %mcsapiInstallDir%\lib\mcsapi.lib /I %mcsapiInstallDir%\include
 
-The variable ``%mcsapiInstallDir%`` represents the base installation directory of the Bulk Write SDK. (e.g. C:\\Program Filesi\\MariaDBi\\ColumnStore Bulk Write SDK)
+The variable ``%mcsapiInstallDir%`` represents the base installation directory of the Bulk Write SDK. (e.g. ``C:\Program Files\MariaDB\ColumnStore Bulk Write SDK``)
 
 To run the built executable you have to copy mcapi's DLLs ``libiconv.dll``, ``libuv.dll``, ``libxml2.dll`` and ``mcsapi.dll`` from ``%mcsapiInstallDir%\lib`` to the directory of the built executable.
 
