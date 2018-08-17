@@ -28,3 +28,5 @@ Python 3.x
 - copy ``libiconv.dll``, ``libuv.dll``, ``libxml2.dll`` and ``mcsapi.dll`` from ``%mcsapiInstallDir%\lib`` into ``%Python3InstallDir%\DLLs``
 - copy ``_pymcsapi.pyd`` from  ``%mcsapiInstallDir%\lib\python3`` into ``%Python3InstallDir%\DLLs``
 - copy ``columnStoreExporter.py``, ``mcsapi_reserved_words.txt`` and ``pymcsapi.py`` from ``%mcsapiInstallDir%\lib\python3`` into ``%Python3InstallDir%\Lib``
+
+**Note:** Unlike the Linux version of pymcsapi3 the Windows version of pymcsapi3 can only be used with the Python 3 release it was compiled with. Swig for Windows compiles against the Python3x.lib and not the main Python3.lib. Therefore, you might have to recompile pymcsapi3 from scratch if you need to use a specific Python 3 release.

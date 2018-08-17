@@ -257,51 +257,51 @@ sudo make package
 
 Currently only the documentation can't be built on Windows.
 
+mcsapi requires the [Visual C++ Redistributable for Visual Studio 2015](https://www.microsoft.com/en-us/download/details.aspx?id=48145) (x64) to be executable.
+
 ### Build dependencies
 
-For the main build you need:
-
-- [Microsoft Visual Studio 2017](https://visualstudio.microsoft.com/downloads/) (the Community Edition is sufficient)
-- [pkg-config](https://www.freedesktop.org/wiki/Software/pkg-config/)
+For the main build you need:  
+- [Microsoft Visual Studio 2017](https://visualstudio.microsoft.com/downloads/) (the Community Edition is sufficient)  
+  the option "Desktop development with C++" is needed
+- [pkg-config](https://www.freedesktop.org/wiki/Software/pkg-config/) \[[download](http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/pkg-config_0.26-1_win32.zip)\]
 - [cmake](https://cmake.org/)
-- [boost](https://www.boost.org/) > 1.58.0.0
-- [libiconv](https://savannah.gnu.org/projects/libiconv/)
-- [libxml2](https://gitlab.gnome.org/GNOME/libxml2/)
-- [libuv](https://github.com/libuv/libuv)
-- [snappy](https://github.com/google/snappy)
+- [boost](https://www.boost.org/) > 1.58.0.0 \[headers only\]
+- [libiconv](https://savannah.gnu.org/projects/libiconv/) \[shared\]
+- [libxml2](https://gitlab.gnome.org/GNOME/libxml2/) \[shared\]
+- [libuv](https://github.com/libuv/libuv) \[shared\]
+- [snappy](https://github.com/google/snappy) \[static\]
 
-For the Java API you need in addition:
-
+For the Java API you need in addition:  
 - [Java SDK 8 (x64)](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 - [swig](http://www.swig.org/download.html)
 
-For the Python API you need in addition:
-
+For the Python API you need in addition:  
 - [Python 2.7 (x64)](https://www.python.org/downloads/windows/)
 - [Python 3 (x64)](https://www.python.org/downloads/windows/)
 - [swig](http://www.swig.org/download.html)
 
-In order to build packets for Python 2 and Python 3, Python 3's executable needs to be manually renamed from ``python.exe`` to ``python3.exe``.
+In order to build packets for Python 2 and Python 3, Python 3's executable needs to be manually renamed from ``python.exe`` to ``python3.exe``. Install both Python releases directly under ``C:\``.  
 For testing it is required to install the modules ``pytest``, ``pyspark`` and ``mysql-connector``.
 
-For the test suite you need in addition:
+For the test suite you need in addition:  
+- [googletest](https://github.com/google/googletest) \[static\]
+- [libmysql](https://dev.mysql.com/downloads/connector/c/) \[shared\]
 
-- [googletest](https://github.com/google/googletest)
-- [libmysql](https://dev.mysql.com/downloads/connector/c/)
-
-And for the package build you need in addition:
-
+And for the package build you need in addition:  
 - [WiX toolset](http://wixtoolset.org/)
 - Set the environment variable ``WIX`` to the WiX installation directory
 
-**Compile all libraries for 64bit and add them to your Visual Studio installation. Don't forget to add the runtime libraries (dlls) as well.**
+**You can either compile all dependent C++ libraries (64bit) by yourself according to our documentation further below, or can [download](https://drive.google.com/a/mariadb.com/file/d/1J9lQ_ddEKlYaReFH6hgkiLaixnBnVrdi/view?usp=sharing) a pre-compiled collection of the dependent libraries. Afterwards you have to copy the libraries and include files to your Visual Studio installation.**
+
+Include path: ``C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.14.26428\include``  
+Library path: ``C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.14.26428\lib\x64``
 
 **NOTE** Please ensure that all tools are executable from command line and have a valid ``Path`` entry.
 
 ### Compiling
 
 To compile mcsapi enter following commands in x64 Native Tools Command Prompt for VS 2017.
-
 ```
 git clone https://github.com/mariadb-corporation/mariadb-columnstore-api.git
 cd mariadb-columnstore-api
@@ -356,3 +356,95 @@ ctest -C RelWithDebInfo
 ### Known limitations
 - Javamcsapi's test suite can currently only be executed from the top level ctest by a user without special characters. Users whose names contain special characters need to execute ctest manually from the build/java directory to test javamcsapi.
 - The debug build contains the whole path of the debug file instead of only its file name.
+- pymcsapi3 depends on the Python 3 DLL of the Python release used to compile pymcsapi3. Therefore, pymcsapi3 is unlike the Linux version not yet Python 3 release independent.
+- pymcsapi3's spark-connector tests fail if Python3 is not installed directly under ``C:\``.
+
+### Dependent C++ library compilation / acquisition
+This section describes how the dependent C++ libraries necessary for build and test were obtained and bundled into an [archive](https://drive.google.com/a/mariadb.com/file/d/1J9lQ_ddEKlYaReFH6hgkiLaixnBnVrdi/view?usp=sharing) for easy reuseability.
+
+#### Boost 1.67.0.0
+The boost headers were obtained through Visual Studio's packet manager [nuget](https://www.nuget.org/downloads).
+```
+nuget.exe --install boost
+```
+Include file location: ``boost.1.67.0.0\lib\native\include``
+
+#### libiconv 1.15 (shared)
+The shared libiconv library was compiled with Visual Studio 2017.
+```
+git clone https://github.com/pffang/libiconv-for-Windows
+cd libiconv-for-Windows
+git checkout 837de0484f1af21517575f22652e04702e10fcdb
+msbuild /t:Clean
+```
+- Open LibIconv.sln with Visual Studio 2017
+- Change target from ``Debug`` to ``Release``
+- Change platform from ``Win32`` to ``x64``
+- Project --> Properties --> Windows SDK Version --> 10.0.17134.0
+- Project --> Properties --> Platform toolset --> Visual Studio 2017 (v141)
+- Apply --> OK
+- Build --> Rebuild Solution
+
+Include file location: ``libiconv-for-Windows\include``  
+Library location: ``libiconv-for-Windows\lib64``  
+Shared library location: ``libiconv-for-Windows\lib64``
+
+#### libxml2 2.9.8 (shared)
+The shared libxml2 library was compiled with Visual Studio 2017 and needed above mentioned libiconv libraries as dependencies.
+```
+git clone https://gitlab.gnome.org/GNOME/libxml2.git
+cd libxml2
+git checkout v2.9.8
+cd win32
+# copy libiconv.lib from libiconv-for-Windows\lib64 into libxml2\win32 and rename it to iconv.lib
+# copy iconv.h from libiconv-for-Windows\include into libxml2\win32
+cscript configure.js
+nmake /f Makefile.msvc
+```
+Include file location: ``libxml2\win32``  
+Library location: ``libxml2\win32\bin.msvc``  
+Shared library location: ``libxml2\win32\bin.msvc``
+
+#### libuv 1.22.0 (shared)
+The shared libuv library was compiled with Visual Studio 2017. Python 2.7 is needed for the build.
+```
+git clone https://github.com/libuv/libuv.git
+cd libuv
+git checkout v1.22.0
+vcbuild.bat vs2017 release x64 shared test
+```
+Include file location: ``libuv\include``  
+Library location: ``libuv\Release``  
+Shared library location: ``libuv\Release``
+
+#### snappy 1.1.7 (static)
+The static snappy library was compiled with Visual Studio 2017.
+```
+git clone https://github.com/google/snappy.git
+cd snappy
+git checkout 1.1.7
+mkdir build && cd build
+cmake .. -G "Visual Studio 15 2017 Win64"
+cmake --build . --config RelWithDebInfo
+```
+Include file locations: ``snappy`` and ``snappy\build``  
+Library location: ``snappy\build\RelWithDebInfo``
+
+#### google test \[master\] (static)
+The static google test libraries were compiled with Visual Studio 2017.
+```
+git clone https://github.com/google/googletest.git
+cd googletest
+git checkout 6b6be9457bcec4540bd9533c9c282dfc2de1e81d
+mkdir build && cd build
+cmake .. -G "Visual Studio 15 2017 Win64" -Dgtest_force_shared_crt=ON
+cmake --build . --config RelWithDebInfo
+```
+Include file locations: ``googletest\googlemock\include`` and ``googletest\googletest\include``  
+Library locations: ``googletest\build\googlemock\RelWithDebInfo`` and ``googletest\build\googlemock\gtest\RelWithDebInfo``
+
+#### libmysql 6.1 (shared)
+The shared libmysql libraries were obtained directly from Oracle. Using the [MySQL Installer 8.0.12](https://dev.mysql.com/downloads/installer/) the MySQL Connector C libraries of version 6.1 were installed to the system.
+
+Include file location: ``C:\Program Files\MySQL\MySQL Connector C 6.1\include``  
+Library locations: ``C:\Program Files\MySQL\MySQL Connector C 6.1\lib`` and ``C:\Program Files\MySQL\MySQL Connector C 6.1\lib\vs14``

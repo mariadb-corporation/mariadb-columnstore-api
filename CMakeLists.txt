@@ -153,33 +153,6 @@ option(TEST_RUNNER "Build the test suite" OFF)
 if (TEST_RUNNER)
   include(CTest)
   find_package(GTest REQUIRED)
-  IF(WIN32)
-    SET(CMAKE_FIND_LIBRARY_PREFIXES "")
-    SET(CMAKE_FIND_LIBRARY_SUFFIXES ".dll" ".DLL")
-
-    find_library(
-    GETST_RUNTIME_LIBRARY_1
-    NAMES GTEST gtest
-    HINTS $ENV{GTEST_RUNTIME_DIRECTORY}
-    )
-    if (${GETST_RUNTIME_LIBRARY_1} STREQUAL "GETST_RUNTIME_LIBRARY_1-NOTFOUND")
-        MESSAGE(FATAL_ERROR "Could not find a usable GTest runtime library gtest.dll!\nYou can hint cmake by setting the environment variable GTEST_RUNTIME_DIRECTORY.")
-    ENDIF()
-    MESSAGE(STATUS "Found GTest runtime library: ${GETST_RUNTIME_LIBRARY_1}")
-
-    find_library(
-    GETST_RUNTIME_LIBRARY_2
-    NAMES GTEST_MAIN gtest_main
-    HINTS $ENV{GTEST_RUNTIME_DIRECTORY}
-    )
-    if (${GETST_RUNTIME_LIBRARY_2} STREQUAL "GETST_RUNTIME_LIBRARY_2-NOTFOUND")
-        MESSAGE(FATAL_ERROR "Could not find a usable GTest runtime library gtest_main.dll!\nYou can hint cmake by setting the environment variable GTEST_RUNTIME_DIRECTORY.")
-    ENDIF()
-    MESSAGE(STATUS "Found GTest runtime library: ${GETST_RUNTIME_LIBRARY_2}")
-    
-    SET(CMAKE_FIND_LIBRARY_PREFIXES "${CMAKE_FIND_LIBRARY_PREFIXES_BAK}")
-    SET(CMAKE_FIND_LIBRARY_SUFFIXES "${CMAKE_FIND_LIBRARY_SUFFIXES_BAK}")
-  ENDIF(WIN32)
   add_subdirectory(test)
 endif (TEST_RUNNER)
 

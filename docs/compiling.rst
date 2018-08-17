@@ -24,7 +24,7 @@ CentOS 7
 Windows 10 (x64)
 ^^^^^^^^^^^^^^^^
 
-On Windows you need to install the `Visual C++ Redistributable for Visual Studio 2012`_ in the x64 version in order to use mcsapi.
+On Windows you need to install the `Visual C++ Redistributable for Visual Studio 2015`_ in the x64 version in order to use mcsapi.
 You have to install Visual Studio 2017 to compile .cpp files that use mcsapi.
 
 Compiling
@@ -50,8 +50,8 @@ Here is an basic example using Visual Studio's x64 Native Tools Command Prompt:
 
    cl example.cpp %mcsapiInstallDir%\lib\mcsapi.lib /I %mcsapiInstallDir%\include
 
-The variable ``%mcsapiInstallDir%`` represents the base installation directory of the Bulk Write SDK. (e.g. C:\\Program Filesi\\MariaDBi\\ColumnStore Bulk Write SDK)
+The variable ``%mcsapiInstallDir%`` represents the base installation directory of the Bulk Write SDK. (e.g. ``C:\Program Files\MariaDB\ColumnStore Bulk Write SDK``)
 
 To run the built executable you have to copy mcapi's DLLs ``libiconv.dll``, ``libuv.dll``, ``libxml2.dll`` and ``mcsapi.dll`` from ``%mcsapiInstallDir%\lib`` to the directory of the built executable.
 
-.. _`Visual C++ Redistributable for Visual Studio 2012`: https://www.microsoft.com/en-us/download/details.aspx?id=30679
+.. _`Visual C++ Redistributable for Visual Studio 2015`: https://www.microsoft.com/en-us/download/details.aspx?id=48145
