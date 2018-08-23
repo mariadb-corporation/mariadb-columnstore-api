@@ -1,0 +1,10 @@
+<CPackWiXPatch>
+  <CPackWiXFragment Id="#PRODUCT">
+	<DirectoryRef Id="TARGETDIR">
+		<Merge Id="VCRedist141" SourceFile="C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Redist\MSVC\14.14.26405\MergeModules\Microsoft_VC141_CRT_x64.msm" DiskId="1" Language="0"/>
+	</DirectoryRef>
+	<Feature Id="VCRedist141" Title="Visual C++ Redistributable for Visual Studio 2017 (x64)" Description="3rd party library necessary for operation" Display="expand" Level="1">
+		<MergeRef Id="VCRedist141"/>
+	</Feature>
+  </CPackWiXFragment>
+</CPackWiXPatch>
