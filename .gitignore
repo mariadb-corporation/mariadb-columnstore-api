@@ -1,4 +1,4 @@
-cmake/redist.patch
+cmake/cpack_windows/redist.patch
 java/test/columnstore-*
 .pytest_cache
 .gradle

@@ -265,11 +265,13 @@ if (WIN32)
     SET(CPACK_WIX_UI_BANNER "${CMAKE_CURRENT_SOURCE_DIR}/resources/WixUIBannerBmp.jpg")
     SET(CPACK_WIX_UI_DIALOG "${CMAKE_CURRENT_SOURCE_DIR}/resources/WixUIDialogBmp.jpg")
     SET(CPACK_WIX_PRODUCT_ICON "${CMAKE_CURRENT_SOURCE_DIR}/resources/mariadb.ico")
+    SET(WIX_PATCH_FILES)
     configure_file(
-        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/redist.patch.in"
-        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/redist.patch"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/redist.patch.in"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/redist.patch"
         IMMEDIATE @ONLY)
-    SET(CPACK_WIX_PATCH_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/redist.patch")
+    LIST(APPEND WIX_PATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/redist.patch")
+    SET(CPACK_WIX_PATCH_FILE ${WIX_PATCH_FILES})
     SET(CPACK_PACKAGE_NAME "MariaDB ColumnStore Bulk Write SDK")
     set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "MariaDB ColumnStore Bulk Write SDK")
     set(CPACK_PACKAGE_VENDOR "MariaDB Corporation Ab")
