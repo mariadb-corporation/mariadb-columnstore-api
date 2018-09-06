@@ -6,7 +6,7 @@ This C++, Python and Java API currently provides access to bulk write to ColumnS
 
 ## Bugs
 
-Please file bugs using the [MariaDB ColumnStore Jira](https://jira.mariadb.org/browse/MCOL) 
+Please file bugs using the [MariaDB ColumnStore Jira](https://jira.mariadb.org/browse/MCOL)
 
 ## Build Dependencies
 
@@ -118,7 +118,9 @@ make
 sudo make install
 ```
 
-**NOTE** Corresponding to your python3 installation, the correct devel packets need to be installed.
+**NOTES** -
+- If you already have the os version of swig installed, remove it first with yum remove swig.
+- Corresponding to your python3 installation, the correct devel packets need to be installed.
 
 For the documentation:
 
