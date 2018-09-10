@@ -76,7 +76,7 @@ def all_types_validate(conn, rowid, expected):
         cursor = conn.cursor()
         cursor.execute(query_all_types, (rowid,))
         rowsInjected = False
-        for (uint64, int64, uint32, int32, uint16, int16, uint8, int8, f, d, ch4, vch30, dt, dtm, dc, tx) in cursor:
+        for (uint64, int64, uint32, int32, uint16, int16, uint8, int8, f, d, ch4, vch30, dt, dtm, ti, ti6, dc, tx) in cursor:
             rowsInjected = True
             rowStr = "{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}".format(uint64, int64, uint32, int32, uint16, int16, uint8, int8, f, d, ch4, vch30, dt, dtm, ti, ti6, dc, tx)
             assert rowStr == expected
