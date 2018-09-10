@@ -16,9 +16,10 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301  USA
+
 import pymcsapi, pytest, datetime
 import mysql.connector as mariadb
-import sys
+import sys, os
 from six.moves import range
 
 DB_NAME = 'mcsapi'
@@ -26,9 +27,21 @@ DB_NAME = 'mcsapi'
 if sys.version_info[0] == 3:
         long = int
 
+def initialize_connection_variables():
+    global user
+    user = "root"
+    global host
+    host = "localhost"
+    if os.environ.get("MCSAPI_CS_TEST_IP") is not None:
+        host=os.environ.get("MCSAPI_CS_TEST_IP")
+    if os.environ.get("MCSAPI_CS_TEST_USER") is not None:
+        user=os.environ.get("MCSAPI_CS_TEST_USER")
+    global password
+    password = os.environ.get("MCSAPI_CS_TEST_PASSWORD")
+
 def create_db():
     try:
-        conn = mariadb.connect(user='root')
+        conn = mariadb.connect(user=user, password=password, host=host)
         cursor = conn.cursor();
         cursor.execute("CREATE DATABASE IF NOT EXISTS %s" %(DB_NAME,))
     except mariadb.Error as err:
@@ -38,9 +51,10 @@ def create_db():
         if conn: conn.close()
 
 def create_conn():
+    initialize_connection_variables()
     create_db()    
     try:
-        return mariadb.connect(user='root', database=DB_NAME)
+        return mariadb.connect(user=user, password=password, host=host, database=DB_NAME)
     except mariadb.Error as err:
         pytest.fail("Error connecting to mcsapi database %s" %(err,))        
 
@@ -61,15 +75,17 @@ def all_types_validate(conn, rowid, expected):
     try:
         cursor = conn.cursor()
         cursor.execute(query_all_types, (rowid,))
+        rowsInjected = False
         for (uint64, int64, uint32, int32, uint16, int16, uint8, int8, f, d, ch4, vch30, dt, dtm, ti, ti6, dc, tx) in cursor:
+            rowsInjected = True
             rowStr = "{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}".format(uint64, int64, uint32, int32, uint16, int16, uint8, int8, f, d, ch4, vch30, dt, dtm, ti, ti6, dc, tx)
             assert rowStr == expected
     except mariadb.Error as err:
         pytest.fail("Error executing query: %s, error: %s" %(query_all_types,err))
-    except AssertionError as aserr:
-        pytest.fail("%s\nInjected doesn't match expetations.\nexpected: %s\nactual:   %s" % (aserr,expected,rowStr))
     finally:
         if cursor: cursor.close()
+    if not rowsInjected:
+        pytest.fail("nothing injected into columnstore")
    
 #
 # Test all column types and min / max range values

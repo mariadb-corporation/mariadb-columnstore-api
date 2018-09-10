@@ -17,7 +17,7 @@
  */
 
 // Bulk insert example from docs, requires the table in
-// basic_bulk_insert.cpp to be created in the test database
+// basic_bulk_insert.sql to be created in the test database
 //
 // NOTE: if you edit this file please update the line numbers in
 // basic_bulk_insert.rst
@@ -34,9 +34,9 @@ int main(void)
         bulk = driver->createBulkInsert("test", "t1", 0, 0);
         for (int i = 0; i < 1000; i++)
         {
-        	bulk->setColumn(0, (uint32_t)i);
-        	bulk->setColumn(1, (uint32_t)1000 - i);
-        	bulk->writeRow();
+            bulk->setColumn(0, (uint32_t)i);
+            bulk->setColumn(1, (uint32_t)1000 - i);
+            bulk->writeRow();
         }
         bulk->commit();
     } catch (mcsapi::ColumnStoreError &e) {

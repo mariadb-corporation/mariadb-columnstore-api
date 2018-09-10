@@ -45,7 +45,12 @@ void mcsdebug(const char* MSG, ...)
     snprintf(dbuf, sizeof dbuf, "%s.%06ld", tmpdbuf, tv.tv_usec);
     va_list argptr;
     va_start(argptr, MSG);
+#ifdef _WIN32
+    fprintf(stderr, "[mcsapi][%s] %s:%d ", dbuf,  __FILE__, __LINE__);
+#endif
+#ifdef __linux__
     fprintf(stderr, "[mcsapi][%s] %s:%d ", dbuf,  __FILENAME__, __LINE__);
+#endif
     vfprintf(stderr, MSG, argptr);
     fprintf(stderr, "\n");
     va_end(argptr);
@@ -68,16 +73,26 @@ void mcsdebug_hex(const char* DATA, size_t LEN)
     strftime(tmpdbuf, sizeof tmpdbuf, "%H:%M:%S", nowtm);
     snprintf(dbuf, sizeof dbuf, "%s.%06ld", tmpdbuf, tv.tv_usec);
     size_t hex_it;
+#ifdef _WIN32
+    fprintf(stderr, "[mcsapi][%s] %s:%d packet hex: ", dbuf, __FILE__, __LINE__);
+#endif
+#ifdef __linux__
     fprintf(stderr, "[mcsapi][%s] %s:%d packet hex: ", dbuf, __FILENAME__, __LINE__);
+#endif
     for (hex_it = 0; hex_it < LEN ; hex_it++)
     {
         fprintf(stderr, "%02X ", (unsigned char)DATA[hex_it]);
     }
     fprintf(stderr, "\n");
+#ifdef _WIN32
+    fprintf(stderr, "[mcsapi][%s] %s:%d printable packet data: ", dbuf, __FILE__, __LINE__);
+#endif
+#ifdef __linux__
     fprintf(stderr, "[mcsapi][%s] %s:%d printable packet data: ", dbuf, __FILENAME__, __LINE__);
+#endif
     for (hex_it = 0; hex_it < LEN ; hex_it++)
     {
-        if (((unsigned char)DATA[hex_it] < 0x21) or (((unsigned char)DATA[hex_it] > 0x7e)))
+        if (((unsigned char)DATA[hex_it] < 0x21) || (((unsigned char)DATA[hex_it] > 0x7e)))
         {
             fprintf(stderr, ".");
         }

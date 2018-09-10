@@ -1,0 +1,94 @@
+.. java:import:: java.util Enumeration
+
+.. java:import:: java.net URL
+
+.. java:import:: java.util.jar Manifest
+
+.. java:import:: java.io IOException
+
+ColumnStoreDriver
+=================
+
+.. java:package:: com.mariadb.columnstore.api
+   :noindex:
+
+.. java:type:: public class ColumnStoreDriver
+
+Fields
+------
+swigCMemOwn
+^^^^^^^^^^^
+
+.. java:field:: protected transient boolean swigCMemOwn
+   :outertype: ColumnStoreDriver
+
+Constructors
+------------
+ColumnStoreDriver
+^^^^^^^^^^^^^^^^^
+
+.. java:constructor:: protected ColumnStoreDriver(long cPtr, boolean cMemoryOwn)
+   :outertype: ColumnStoreDriver
+
+ColumnStoreDriver
+^^^^^^^^^^^^^^^^^
+
+.. java:constructor:: public ColumnStoreDriver(String path) throws com.mariadb.columnstore.api.ColumnStoreException
+   :outertype: ColumnStoreDriver
+
+ColumnStoreDriver
+^^^^^^^^^^^^^^^^^
+
+.. java:constructor:: public ColumnStoreDriver() throws com.mariadb.columnstore.api.ColumnStoreException
+   :outertype: ColumnStoreDriver
+
+Methods
+-------
+createBulkInsert
+^^^^^^^^^^^^^^^^
+
+.. java:method:: public ColumnStoreBulkInsert createBulkInsert(String db, String table, short mode, int pm) throws com.mariadb.columnstore.api.ColumnStoreException
+   :outertype: ColumnStoreDriver
+
+delete
+^^^^^^
+
+.. java:method:: public synchronized void delete() throws com.mariadb.columnstore.api.ColumnStoreException
+   :outertype: ColumnStoreDriver
+
+finalize
+^^^^^^^^
+
+.. java:method:: protected void finalize()
+   :outertype: ColumnStoreDriver
+
+getCPtr
+^^^^^^^
+
+.. java:method:: protected static long getCPtr(ColumnStoreDriver obj)
+   :outertype: ColumnStoreDriver
+
+getJavaMcsapiVersion
+^^^^^^^^^^^^^^^^^^^^
+
+.. java:method:: public String getJavaMcsapiVersion()
+   :outertype: ColumnStoreDriver
+
+getSystemCatalog
+^^^^^^^^^^^^^^^^
+
+.. java:method:: public ColumnStoreSystemCatalog getSystemCatalog() throws com.mariadb.columnstore.api.ColumnStoreException
+   :outertype: ColumnStoreDriver
+
+getVersion
+^^^^^^^^^^
+
+.. java:method:: public String getVersion() throws com.mariadb.columnstore.api.ColumnStoreException
+   :outertype: ColumnStoreDriver
+
+setDebug
+^^^^^^^^
+
+.. java:method:: public void setDebug(boolean enabled) throws com.mariadb.columnstore.api.ColumnStoreException
+   :outertype: ColumnStoreDriver
+
