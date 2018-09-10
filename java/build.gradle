@@ -45,6 +45,7 @@ def getGitHash = { ->
 
 jar {
     manifest {
+	attributes "name": "mcsapi"
         if (project.hasProperty('version')){
              attributes "build-version": project.property('version')
         }
