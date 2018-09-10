@@ -76,9 +76,9 @@ def all_types_validate(conn, rowid, expected):
         cursor = conn.cursor()
         cursor.execute(query_all_types, (rowid,))
         rowsInjected = False
-            rowStr = "{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}".format(uint64, int64, uint32, int32, uint16, int16, uint8, int8, f, d, ch4, vch30, dt, dtm, ti, ti6, dc, tx)
-            rowsInjected = True
-            assert rowStr == expected
+        rowStr = "{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}".format(uint64, int64, uint32, int32, uint16, int16, uint8, int8, f, d, ch4, vch30, dt, dtm, ti, ti6, dc, tx)
+        rowsInjected = True
+        assert rowStr == expected
     except mariadb.Error as err:
         pytest.fail("Error executing query: %s, error: %s" %(query_all_types,err))
     finally:
