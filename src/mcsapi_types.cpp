@@ -86,16 +86,7 @@ bool ColumnStoreDateTime::set(tm& time)
 bool ColumnStoreDateTime::set(const std::string& dateTime, const std::string& format)
 {
     tm time = tm();
-#ifdef HAVE_GET_TIME
-    std::istringstream ss(dateTime);
-    ss >> std::get_time(&time, format.c_str());
-    if (ss.fail())
-    {
-        return false;
-    }
-#else
     strptime(dateTime.c_str(), format.c_str(), &time);
-#endif
     return set(time);
 }
 
