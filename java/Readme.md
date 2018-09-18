@@ -18,5 +18,9 @@ The unit tests can be run from the java directory:
 $ ./gradlew test
 ```
 
-Alternatively "make test" will run the Java tests along with the C++ API tests.
+The compatibility test between mcsapi and javamcsapi libraries can be run through:
+```sh
+$ ./test/compatibility_test.sh
+```
 
+All tests are included in our make pipeline that can be invoced through "make test".

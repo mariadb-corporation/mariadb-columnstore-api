@@ -22,11 +22,6 @@ import static org.junit.Assert.*;
 public abstract class Common {
     protected static final String DB_NAME = "mcsapi";
 
-    // load java mcsapi native library.
-    static {
-        System.loadLibrary("javamcsapi");
-    }
-
     protected void close(Connection conn) {
         if (conn != null) {
             try {
@@ -64,8 +59,19 @@ public abstract class Common {
     protected Connection getConnection() {
         Connection conn = null;
         Statement stmt = null;
+        
+        String host = System.getenv("MCSAPI_CS_TEST_IP");
+        if (host == null){
+            host = "localhost";
+        }
+        String user = System.getenv("MCSAPI_CS_TEST_USER");
+        if (user == null){
+            user = "root";
+        }
+        String password = System.getenv("MCSAPI_CS_TEST_PASSWORD");
+        
         try {
-            conn = DriverManager.getConnection("jdbc:mariadb://localhost/", "root", null);
+            conn = DriverManager.getConnection("jdbc:mariadb://"+host+"/", user, password);
             stmt = conn.createStatement();
             stmt.execute("CREATE DATABASE IF NOT EXISTS " + DB_NAME);
             stmt.execute("USE " + DB_NAME);

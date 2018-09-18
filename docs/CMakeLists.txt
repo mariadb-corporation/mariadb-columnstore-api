@@ -4,7 +4,7 @@ set(GENERATE_DOC TRUE)
 
 # We use the Sphinx documentation generator to render HTML and manual
 # pages from the user and reference documentation in ReST format.
-find_package(Sphinx QUIET)
+find_package(Sphinx 1.7.5 QUIET)
 if(NOT SPHINX_FOUND)
   message(WARNING "Unable to find Sphinx documentation generator")
   set(GENERATE_DOC FALSE)
@@ -115,8 +115,7 @@ if(GENERATE_DOC)
     #    add_dependencies(doc_pdf
     #  doc_html
     #)
-    install(FILES "${SPHINX_PDF_DIR}/libmcsapi_building.pdf"
-      "${SPHINX_PDF_DIR}/libmcsapi_usage.pdf"
+    install(FILES "${SPHINX_PDF_DIR}/libmcsapi_usage.pdf"
       DESTINATION "${CMAKE_INSTALL_DOCDIR}"
       COMPONENT libs
     )

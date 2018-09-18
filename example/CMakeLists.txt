@@ -36,6 +36,12 @@ INSTALL(FILES "advanced_bulk_insert.cpp"
     COMPONENT devel
 )
 
+# On Windows install in addition the dependent shared libraries (libuv, libxml and libiconv) used during building to get the examples executable
+IF(WIN32)
+    INSTALL(FILES ${LIBXML2_RUNTIME_LIBRARY} DESTINATION "${CMAKE_INSTALL_DOCDIR}/example" COMPONENT devel)
+    INSTALL(FILES ${LIBICONV_RUNTIME_LIBRARY} DESTINATION "${CMAKE_INSTALL_DOCDIR}/example" COMPONENT devel)
+    INSTALL(FILES ${LIBUV_RUNTIME_LIBRARY} DESTINATION "${CMAKE_INSTALL_DOCDIR}/example" COMPONENT devel)
+ENDIF(WIN32)
 
 IF(RUN_CPPCHECK)
   add_cppcheck(basic_bulk_insert FORCE)

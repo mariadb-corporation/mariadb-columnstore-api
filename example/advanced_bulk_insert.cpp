@@ -17,7 +17,7 @@
  */
 
 // Advanced insert example from docs, requires the table in
-// advanced_bulk_insert.cpp to be created in the test database
+// advanced_bulk_insert.sql to be created in the test database
 //
 // NOTE: if you edit this file please update the line numbers in
 // advanced_bulk_insert.rst
@@ -32,12 +32,12 @@ int main(void)
     try {
         driver = new mcsapi::ColumnStoreDriver();
         bulk = driver->createBulkInsert("test", "t2", 0, 0);
-       	bulk->setColumn(0, 1);
-       	bulk->setColumn(1, "Andrew");
+        bulk->setColumn(0, 1);
+        bulk->setColumn(1, "Andrew");
         bulk->setColumn(2, "1936-12-24");
         bulk->setColumn(3, "2017-07-07 15:14:12");
         bulk->setColumn(4, "15239.45");
-       	bulk->writeRow();
+        bulk->writeRow();
         mcsapi::ColumnStoreDateTime dob;
         dob.set("1972-05-23", "%Y-%m-%d");
         mcsapi::ColumnStoreDateTime added;
