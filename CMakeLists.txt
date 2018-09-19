@@ -139,9 +139,32 @@ if (Boost_VERSION VERSION_LESS 105800)
 
     if ((NOT BOOST_SUB_DIR) OR (NOT EXISTS ${BOOST_SUB_DIR}))
         execute_process(COMMAND git submodule update --init
-                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     endif()
 endif()
+
+# On Windows find the Microsoft Visual Studio 2017 C++ Redistributable merge module (x64) that is packaged with mcsapi
+IF(WIN32)
+    SET(MSM_PATHS)
+    FOREACH(VISUAL_STUDIO_REDIST_VERSION 14.15.26706 14.14.26405 14.14.25008)
+        LIST(APPEND MSM_PATHS "$ENV{ProgramFiles}/Microsoft Visual Studio/2017/Community/VC/Redist/MSVC/${VISUAL_STUDIO_REDIST_VERSION}/MergeModules")
+        LIST(APPEND MSM_PATHS "$ENV{ProgramFiles} (x86)/Microsoft Visual Studio/2017/Community/VC/Redist/MSVC/${VISUAL_STUDIO_REDIST_VERSION}/MergeModules")
+        LIST(APPEND MSM_PATHS "$ENV{ProgramFiles}/Microsoft Visual Studio/2017/Enterprise/VC/Redist/MSVC/${VISUAL_STUDIO_REDIST_VERSION}/MergeModules")
+        LIST(APPEND MSM_PATHS "$ENV{ProgramFiles} (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Redist/MSVC/${VISUAL_STUDIO_REDIST_VERSION}/MergeModules")
+        LIST(APPEND MSM_PATHS "$ENV{ProgramFiles}/Microsoft Visual Studio/2017/Professional/VC/Redist/MSVC/${VISUAL_STUDIO_REDIST_VERSION}/MergeModules")
+        LIST(APPEND MSM_PATHS "$ENV{ProgramFiles} (x86)/Microsoft Visual Studio/2017/Professional/VC/Redist/MSVC/${VISUAL_STUDIO_REDIST_VERSION}/MergeModules")
+    ENDFOREACH()
+    find_file(
+        VS_2017_REDIST_MSM
+        NAMES Microsoft_VC141_CRT_x64.msm Microsoft_VC140_CRT_x64.msm
+        HINTS $ENV{MSM_DIRECTORY}
+        PATHS ${MSM_PATHS}
+    )
+    if (${VS_2017_REDIST_MSM} STREQUAL "VS_2017_REDIST_MSM-NOTFOUND")
+        MESSAGE(FATAL_ERROR "Could not find a usable Visual Studio 2015/17 C++ Redistributable merge module Microsoft_VC141_CRT_x64.msm!\nYou can hint cmake by setting the environment variable MSM_DIRECTORY.")
+    ENDIF()
+    MESSAGE(STATUS "Found Visual Studio 2015/17 C++ Redistributable merge module: ${VS_2017_REDIST_MSM}")
+ENDIF(WIN32)
 
 include_directories(${CMAKE_SOURCE_DIR})
 include_directories(${CMAKE_BINARY_DIR})
@@ -213,6 +236,11 @@ install(FILES "README.md"
     "LICENSE.txt"
     DESTINATION "${CMAKE_INSTALL_DOCDIR}" COMPONENT libs
 )
+IF(WIN32)
+    install(FILES "resources/3rd party licenses.txt"
+        DESTINATION "${CMAKE_INSTALL_DOCDIR}" COMPONENT libs
+    )
+ENDIF(WIN32)
 
 if (RPM)
     SET(CPACK_GENERATOR "RPM")
@@ -242,6 +270,13 @@ if (WIN32)
     SET(CPACK_WIX_UI_BANNER "${CMAKE_CURRENT_SOURCE_DIR}/resources/WixUIBannerBmp.jpg")
     SET(CPACK_WIX_UI_DIALOG "${CMAKE_CURRENT_SOURCE_DIR}/resources/WixUIDialogBmp.jpg")
     SET(CPACK_WIX_PRODUCT_ICON "${CMAKE_CURRENT_SOURCE_DIR}/resources/mariadb.ico")
+    SET(WIX_PATCH_FILES)
+    configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/redist.patch.in"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/redist.patch"
+        IMMEDIATE @ONLY)
+    LIST(APPEND WIX_PATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/redist.patch")
+    SET(CPACK_WIX_PATCH_FILE ${WIX_PATCH_FILES})
     SET(CPACK_PACKAGE_NAME "MariaDB ColumnStore Bulk Write SDK")
     set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "MariaDB ColumnStore Bulk Write SDK")
     set(CPACK_PACKAGE_VENDOR "MariaDB Corporation Ab")
@@ -261,50 +296,7 @@ if (WIN32)
     set(CPACK_COMPONENT_LIBS_DESCRIPTION "Installs the C++, Python, Java, and Spark connector libraries")
     set(CPACK_COMPONENT_DEVEL_DISPLAY_NAME "development")
     set(CPACK_COMPONENT_DEVEL_DESCRIPTION "Installs the C++ header files and examples")
-    if(SIGNCODE)
-        SET( CPACK_OUTPUT_CONFIG_FILE "${CMAKE_BINARY_DIR}/WinPackageConfig.cmake" )
-        include(CPack)
-        ADD_CUSTOM_TARGET ( package
-            COMMAND "${CMAKE_CPACK_COMMAND}" 
-                "-C" "$<CONFIGURATION>"
-                "--config" "${CMAKE_BINARY_DIR}/WinPackageConfig.cmake"
-            COMMENT "-- Running CPack..."
-        )
-        add_dependencies(package mcsapi mcsapi_static basic_bulk_insert advanced_bulk_insert)
-        IF(JAVA)
-            add_dependencies(package javamcsapi)
-        ENDIF()
-        IF(PYTHON)
-            IF(${PYTHON2_AVAILABLE})
-                add_dependencies(package _pymcsapi)
-            ENDIF()
-            IF(${PYTHON3_AVAILABLE})
-                add_dependencies(package _pymcsapi3)
-            ENDIF()
-        ENDIF()
-        IF(SPARK_CONNECTOR)
-            IF(JAVA)
-                add_dependencies(package spark-scala-mcsapi-connector)
-            ENDIF()
-            IF(PYTHON)
-                #nothing to do as this are static files only
-            ENDIF()
-        ENDIF()
-        # sign the msi installer
-        # https://www.digicert.com/code-signing/signcode-signtool-command-line.htm
-        add_custom_command(
-            TARGET package
-            POST_BUILD
-            COMMAND signtool.exe sign 
-            /tr http://timestamp.digicert.com 
-            /td sha256 
-            /fd sha256 
-            /a "${CPACK_PACKAGE_FILE_NAME_COPY}.msi" 
-            COMMENT "-- Signing package..."
-        )
-    else(SIGNCODE)
-        include(CPack)
-    endif(SIGNCODE)
+    include(CPack)
 endif(WIN32)
 
 # uninstall target
