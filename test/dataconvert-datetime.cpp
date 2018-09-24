@@ -54,10 +54,20 @@ class TestEnvironment : public ::testing::Environment {
         FAIL() << "Could not drop existing table: " << mysql_error(my_con);
     if (mysql_query(my_con, "CREATE TABLE IF NOT EXISTS dataconverttime (a int, b varchar(50), c time, d time(6), e datetime) engine=columnstore"))
         FAIL() << "Could not create table: " << mysql_error(my_con);
+    if (mysql_query(my_con, "DROP TABLE IF EXISTS dataconvertdatetime2"))
+        FAIL() << "Could not drop existing table: " << mysql_error(my_con);
+    if (mysql_query(my_con, "CREATE TABLE IF NOT EXISTS dataconvertdatetime2 (d datetime) engine=columnstore"))
+        FAIL() << "Could not create table: " << mysql_error(my_con);
   }
   // Override this to define how to tear down the environment.
   virtual void TearDown()
   {
+    if (mysql_query(my_con, "DROP TABLE dataconverttime"))
+        FAIL() << "Could not drop table: " << mysql_error(my_con);
+
+    if (mysql_query(my_con, "DROP TABLE dataconvertdatetime2"))
+        FAIL() << "Could not drop table: " << mysql_error(my_con);
+
     if (my_con)
     {
         mysql_close(my_con);
@@ -65,6 +75,32 @@ class TestEnvironment : public ::testing::Environment {
   }
 };
 
+/* Test strptime compatibility */
+TEST(DataConvertDateTime, DataConvertFormats)
+{
+    //test data
+    std::string datetimes[] = { "6 Dec 2001 12:33:45" , "06.12.2001 12:33:46" , "2001-12-06 12 33 47"};
+    std::string formats[] = { "%d %b %Y %H:%M:%S" , "%d.%m.%Y %H:%M:%S" , "%Y-%m-%d %H %M %S" };
+
+    mcsapi::ColumnStoreDriver* driver = nullptr;
+    mcsapi::ColumnStoreBulkInsert* bulk = nullptr;
+    try {
+        driver = new mcsapi::ColumnStoreDriver();
+        bulk = driver->createBulkInsert("mcsapi", "dataconvertdatetime2", 0, 0);
+        for (int i=0; i<(sizeof(datetimes)/sizeof(datetimes[0])) && i<(sizeof(formats)/sizeof(formats[0])); i++){
+            std::cout << "trying to inject datetime '" << datetimes[i] << "' with format '" << formats[i] << "'" << std::endl;
+            mcsapi::ColumnStoreDateTime dt = mcsapi::ColumnStoreDateTime(datetimes[i], formats[i]);
+            bulk->setColumn(0,dt);
+            bulk->writeRow();
+            std::cout << "injection successfull" << std::endl;
+        }
+        bulk->commit();
+    } catch (std::exception &e) {
+        FAIL() << "Error caught: " << e.what() << std::endl;
+    }
+    delete bulk;
+    delete driver;
+}
 
 /* Test that dataconvert from time works */
 TEST(DataConvertTime, DataConvertTime)
@@ -164,8 +200,6 @@ TEST(DataConvertTime, DataConvertTime)
     ASSERT_STREQ(row[3], "-00:12:12.000000");
     ASSERT_STREQ(row[4], "0000-00-00 00:12:12");
     mysql_free_result(result);
-    if (mysql_query(my_con, "DROP TABLE dataconverttime"))
-        FAIL() << "Could not drop table: " << mysql_error(my_con);
     delete bulk;
     delete driver;
 }

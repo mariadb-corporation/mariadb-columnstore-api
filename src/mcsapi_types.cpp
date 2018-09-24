@@ -234,7 +234,9 @@ bool ColumnStoreDateTime::set(tm& time)
 bool ColumnStoreDateTime::set(const std::string& dateTime, const std::string& format)
 {
     tm time = tm();
-#ifdef HAVE_GET_TIME
+    // Windows doesn't support strptime but Linux's std::get_time() is
+    // inconsistent across different glibc versions
+#ifdef _WIN32
     std::istringstream ss(dateTime);
     ss >> std::get_time(&time, format.c_str());
     if (ss.fail())
