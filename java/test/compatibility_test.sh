@@ -14,7 +14,8 @@ fi
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" #get the absolute diretory of this script
 cd $DIR
-rm -rf *columnstore* #remove old mariadb-columnstore-api directories from prior tests
+rm -rf columnstore-*.*.* #remove old tagged mariadb-columnstore-api directories from prior tests
+rm -rf mariadb-columnstore-api #remove old mariadb-columnstore-api directory from prior tests
 
 # build all tagged versions mcsapi and javamcsapi with the same MAJOR and MINOR version
 for tag in $( git tag -l columnstore-$MAJOR_VERSION.$MINOR_VERSION.* ); do
