@@ -83,7 +83,9 @@ bool ColumnStoreTime::set(tm& time)
 bool ColumnStoreTime::set(const std::string& time, const std::string& format)
 {
     tm time_st = tm();
-#ifdef HAVE_GET_TIME
+    // Windows doesn't support strptime but Linux's std::get_time() is
+    // inconsistent across different glibc versions
+#ifdef _WIN32
     std::istringstream ss(time);
     ss >> std::get_time(&time_st, format.c_str());
     if (ss.fail())
