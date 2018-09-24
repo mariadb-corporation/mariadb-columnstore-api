@@ -14,10 +14,6 @@ ENDIF(WIN32)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBUILDING_MCSAPI")
 
-if (HAVE_GET_TIME)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAVE_GET_TIME=1")
-endif(HAVE_GET_TIME)
-
 set(SOURCE_FILES
     mcsapi_driver.cpp
     mcsapi_types.cpp
