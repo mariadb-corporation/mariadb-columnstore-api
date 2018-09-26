@@ -294,7 +294,7 @@ And for the package build you need in addition:
 - [WiX toolset](http://wixtoolset.org/)
 - Set the environment variable ``WIX`` to the WiX installation directory
 
-**You can either compile all dependent C++ libraries (64bit) by yourself according to our documentation further below, or can [download](https://drive.google.com/a/mariadb.com/file/d/1J9lQ_ddEKlYaReFH6hgkiLaixnBnVrdi/view?usp=sharing) a pre-compiled collection of the dependent libraries. Once you have obtained (and extracted) the dependent libraries you have to set the environment variable `MCSAPI_BUILD_DEPENDENCY_DIR` to the directory containing the `include` and `lib` sub-directories. (e.g. to `C:\mcsapi-windows-library-collection`)
+**You can either compile all dependent C++ libraries (64bit) by yourself according to our documentation further below, or can [download](https://drive.google.com/a/mariadb.com/file/d/1J9lQ_ddEKlYaReFH6hgkiLaixnBnVrdi/view?usp=sharing) a pre-compiled collection of the dependent libraries. Once you have obtained (and extracted) the dependent libraries you have to set the environment variable `MCSAPI_BUILD_DEPENDENCY_DIR` to the directory containing the `include` and `lib` sub-directories. (e.g. to `C:\mcsapi-windows-library-collection`)**
 
 **NOTE**  
 Please ensure that all tools are executable from command line and have a valid ``Path`` entry.
