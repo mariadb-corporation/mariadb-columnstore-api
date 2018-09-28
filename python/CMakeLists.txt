@@ -120,6 +120,9 @@ IF(PYTHON2_AVAILABLE OR PYTHON3_AVAILABLE)
     set_target_properties(_pymcsapi PROPERTIES OUTPUT_NAME "_pymcsapi")
     set_target_properties(_pymcsapi PROPERTIES PREFIX "")
     set_target_properties(_pymcsapi PROPERTIES LIBRARY_OUTPUT_DIRECTORY "python_build")
+    set_target_properties(_pymcsapi PROPERTIES VERSION ${MCSAPI_VERSION_STRING}
+        SOVERSION ${MCSAPI_VERSION_MAJOR}
+    )
     IF(WIN32)
       set_target_properties(_pymcsapi PROPERTIES RUNTIME_OUTPUT_DIRECTORY "python_build")
       set_target_properties(_pymcsapi PROPERTIES SUFFIX ".pyd")
@@ -159,6 +162,9 @@ IF(PYTHON2_AVAILABLE OR PYTHON3_AVAILABLE)
     set_target_properties(_pymcsapi3 PROPERTIES OUTPUT_NAME "_pymcsapi")
     set_target_properties(_pymcsapi3 PROPERTIES PREFIX "")
     set_target_properties(_pymcsapi3 PROPERTIES LIBRARY_OUTPUT_DIRECTORY "python3_build")
+    set_target_properties(_pymcsapi3 PROPERTIES VERSION ${MCSAPI_VERSION_STRING}
+        SOVERSION ${MCSAPI_VERSION_MAJOR}
+    )
     IF(WIN32)
       set_target_properties(_pymcsapi3 PROPERTIES RUNTIME_OUTPUT_DIRECTORY "python3_build")
       set_target_properties(_pymcsapi3 PROPERTIES SUFFIX ".pyd")
