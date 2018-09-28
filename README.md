@@ -288,7 +288,7 @@ For testing it is required to install the modules ``pytest``, ``pyspark`` and ``
 
 For the test suite you need in addition:  
 - [googletest](https://github.com/google/googletest) \[static\]
-- [libmysql](https://dev.mysql.com/downloads/connector/c/) \[shared\]
+- [libmariadb](https://mariadb.com/downloads/mariadb-ax/connector) \[shared\]
 
 And for the package build you need in addition:  
 - [WiX toolset](http://wixtoolset.org/)
