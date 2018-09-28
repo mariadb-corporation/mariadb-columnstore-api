@@ -443,8 +443,9 @@ cmake --build . --config RelWithDebInfo
 Include file locations: ``googletest\googlemock\include`` and ``googletest\googletest\include``  
 Library locations: ``googletest\build\googlemock\RelWithDebInfo`` and ``googletest\build\googlemock\gtest\RelWithDebInfo``
 
-#### libmysql 6.1 (shared)
-The shared libmysql libraries were obtained directly from Oracle. Using the [MySQL Installer 8.0.12](https://dev.mysql.com/downloads/installer/) the MySQL Connector C libraries of version 6.1 were installed to the system.
+#### libmariadb 3.0.6 (shared)
+The shared libmysql libraries were obtained directly from MariaDB. Using the [MariaDB Connector C (x64)](https://mariadb.com/downloads/mariadb-ax/connector) the MariaDB Connector C libraries of version 3.0.6 were installed to the system.
 
-Include file location: ``C:\Program Files\MySQL\MySQL Connector C 6.1\include``  
-Library locations: ``C:\Program Files\MySQL\MySQL Connector C 6.1\lib`` and ``C:\Program Files\MySQL\MySQL Connector C 6.1\lib\vs14``
+Include file location: ``C:\Program Files\MariaDB\MariaDB Connector C 64-bit\include``  
+Library locations: ``C:\Program Files\MariaDB\MariaDB Connector C 64-bit\lib``
+
