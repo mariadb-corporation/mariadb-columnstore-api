@@ -42,7 +42,7 @@ class TestEnvironment : public ::testing::Environment {
         FAIL() << "Could not drop existing table: " << mysql_error(my_con);
     if (mysql_query(my_con, "CREATE TABLE IF NOT EXISTS dataconvertdecimal (a int, b varchar(50), c decimal(10,4), d double) engine=columnstore"))
         FAIL() << "Could not create table: " << mysql_error(my_con);
-        if (mysql_query(my_con, "DROP TABLE IF EXISTS dataconvertdecimal2"))
+    if (mysql_query(my_con, "DROP TABLE IF EXISTS dataconvertdecimal2"))
         FAIL() << "Could not drop existing table: " << mysql_error(my_con);
     if (mysql_query(my_con, "CREATE TABLE IF NOT EXISTS dataconvertdecimal2 (a int, b varchar(50), c decimal(18,9), d double) engine=columnstore"))
         FAIL() << "Could not create table: " << mysql_error(my_con);
@@ -251,7 +251,6 @@ TEST(DataConvertDecimal, MCOL1133)
     delete bulk;
     delete driver;
 }
-
 
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
