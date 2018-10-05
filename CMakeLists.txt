@@ -56,7 +56,6 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
 # Find the packages and libraries
-
 IF(WIN32)
     SET(FIND_LIBRARY_USE_LIB64_PATHS ON)
     SET(CMAKE_FIND_LIBRARY_PREFIXES_BAK "${CMAKE_FIND_LIBRARY_PREFIXES}")
@@ -142,7 +141,6 @@ endif()
 
 # On Windows find the Microsoft Visual Studio 2017 C++ Redistributable merge module (x64) that is packaged with mcsapi
 IF(WIN32)
-
     # Macro to get the subdirectories of a given directory
     MACRO(SUBDIRLIST result curdir)
       FILE(GLOB children RELATIVE ${curdir} ${curdir}/*)
@@ -290,12 +288,46 @@ if (WIN32)
     SET(CPACK_WIX_UI_BANNER "${CMAKE_CURRENT_SOURCE_DIR}/resources/WixUIBannerBmp.jpg")
     SET(CPACK_WIX_UI_DIALOG "${CMAKE_CURRENT_SOURCE_DIR}/resources/WixUIDialogBmp.jpg")
     SET(CPACK_WIX_PRODUCT_ICON "${CMAKE_CURRENT_SOURCE_DIR}/resources/mariadb.ico")
+    SET(WIX_ADDITIONAL_FILES)
+    IF(PYTHON2_AVAILABLE)
+        # First variable substitution of @VARIABLE@ during configure time
+        configure_file(
+            "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python2.wxs.in"
+            "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python2.wxs.cf"
+            IMMEDIATE @ONLY)
+        # Second variable substitution of generate_expressions during generate time
+        file(GENERATE
+            OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python2.wxs"
+            INPUT "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python2.wxs.cf"
+            CONDITION $<CONFIG:${CMAKE_BUILD_TYPE}>
+        )
+        LIST(APPEND WIX_ADDITIONAL_FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python2.wxs")
+        # Set the variable to include defined feature to be substitued later
+        SET(PYTHON_2_FEATRUE_REF "<FeatureRef Id='Python2DirectInstallation'/>")
+    ENDIF(PYTHON2_AVAILABLE)
+    IF(PYTHON3_AVAILABLE)
+        # First variable substitution of @VARIABLE@ during configure time
+        configure_file(
+            "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python3.wxs.in"
+            "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python3.wxs.cf"
+            IMMEDIATE @ONLY)
+        # Second variable substitution of generate_expressions during generate time
+        file(GENERATE
+            OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python3.wxs"
+            INPUT "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python3.wxs.cf"
+            CONDITION $<CONFIG:${CMAKE_BUILD_TYPE}>
+        )
+        LIST(APPEND WIX_ADDITIONAL_FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python3.wxs")
+        # Set the variable to include defined feature to be substitued later
+        SET(PYTHON_3_FEATRUE_REF "<FeatureRef Id='Python3DirectInstallation'/>")
+    ENDIF(PYTHON3_AVAILABLE)
+    SET(CPACK_WIX_EXTRA_SOURCES ${WIX_ADDITIONAL_FILES})
     SET(WIX_PATCH_FILES)
     configure_file(
-        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/redist.patch.in"
-        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/redist.patch"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/product_fragment.patch.in"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/product_fragment.patch"
         IMMEDIATE @ONLY)
-    LIST(APPEND WIX_PATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/redist.patch")
+    LIST(APPEND WIX_PATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/product_fragment.patch")
     SET(CPACK_WIX_PATCH_FILE ${WIX_PATCH_FILES})
     SET(CPACK_PACKAGE_NAME "MariaDB ColumnStore Bulk Write SDK")
     set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "MariaDB ColumnStore Bulk Write SDK")
