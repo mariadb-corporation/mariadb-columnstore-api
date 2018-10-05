@@ -18,6 +18,9 @@ IF(PYTHON2_AVAILABLE)
     IF(WIN32)
         install(FILES columnStoreExporter.py DESTINATION "${CMAKE_INSTALL_LIBDIR}/python${PYTHON2_VERSION}" COMPONENT libs)
         install(FILES mcsapi_reserved_words.txt DESTINATION "${CMAKE_INSTALL_LIBDIR}/python${PYTHON2_VERSION}" COMPONENT libs)
+        # set global variables to be substituted by WIX package manager
+        set(PYTHON2_COLUMNSTORE_EXPORTER "${CMAKE_CURRENT_SOURCE_DIR}/columnStoreExporter.py" PARENT_SCOPE)
+        set(PYTHON2_RESERVED_WORDS "${CMAKE_CURRENT_SOURCE_DIR}/mcsapi_reserved_words.txt" PARENT_SCOPE)
     ENDIF(WIN32)
 ENDIF(PYTHON2_AVAILABLE)
 
@@ -37,5 +40,8 @@ IF(PYTHON3_AVAILABLE)
     IF(WIN32)
         install(FILES columnStoreExporter.py DESTINATION "${CMAKE_INSTALL_LIBDIR}/python${PYTHON3_VERSION}" COMPONENT libs)
         install(FILES mcsapi_reserved_words.txt DESTINATION "${CMAKE_INSTALL_LIBDIR}/python${PYTHON3_VERSION}" COMPONENT libs)
+        # set global variables to be substituted by WIX package manager
+        set(PYTHON3_COLUMNSTORE_EXPORTER "${CMAKE_CURRENT_SOURCE_DIR}/columnStoreExporter.py" PARENT_SCOPE)
+        set(PYTHON3_RESERVED_WORDS "${CMAKE_CURRENT_SOURCE_DIR}/mcsapi_reserved_words.txt" PARENT_SCOPE)
     ENDIF(WIN32)
 ENDIF(PYTHON3_AVAILABLE)
