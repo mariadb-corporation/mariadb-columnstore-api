@@ -2522,15 +2522,59 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::getNull(ColumnStoreSys
             }
 
             case DATA_TYPE_BIGINT:
-            case DATA_TYPE_DECIMAL:
             {
                 uval64 = 0x8000000000000000ULL;
                 cont->setData(uval64);
                 break;
             }
+            case DATA_TYPE_DECIMAL:
+            {
+                switch (toMeta->getWidth())
+                {
+                    case 1:
+                        uval8 = 0x80;
+                        cont->setData(uval8);
+                        break;
+                    case 2:
+                        uval16 = 0x8000;
+                        cont->setData(uval16);
+                        break;
+                    case 4:
+                        uval32 = 0x80000000;
+                        cont->setData(uval32);
+                        break;
+                    case 8:
+                        uval64 = 0x8000000000000000ULL;
+                        cont->setData(uval64);
+                        break;
+                }
+                break;
+            }
 
-            case DATA_TYPE_UBIGINT:
             case DATA_TYPE_UDECIMAL:
+            {
+                switch (toMeta->getWidth())
+                {
+                    case 1:
+                        uval8 = 0xFE;
+                        cont->setData(uval8);
+                        break;
+                    case 2:
+                        uval16 = 0xFFFE;
+                        cont->setData(uval16);
+                        break;
+                    case 4:
+                        uval32 = 0xFFFFFFFE;
+                        cont->setData(uval32);
+                        break;
+                    case 8:
+                        uval64 = 0xFFFFFFFFFFFFFFFEULL;
+                        cont->setData(uval64);
+                        break;
+                }
+                break;
+            }
+            case DATA_TYPE_UBIGINT:
             {
                 uval64 = 0xFFFFFFFFFFFFFFFEULL;
                 cont->setData(uval64);

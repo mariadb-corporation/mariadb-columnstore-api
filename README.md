@@ -288,18 +288,16 @@ For testing it is required to install the modules ``pytest``, ``pyspark`` and ``
 
 For the test suite you need in addition:  
 - [googletest](https://github.com/google/googletest) \[static\]
-- [libmysql](https://dev.mysql.com/downloads/connector/c/) \[shared\]
+- [libmariadb](https://mariadb.com/downloads/mariadb-ax/connector) \[shared\]
 
 And for the package build you need in addition:  
 - [WiX toolset](http://wixtoolset.org/)
 - Set the environment variable ``WIX`` to the WiX installation directory
 
-**You can either compile all dependent C++ libraries (64bit) by yourself according to our documentation further below, or can [download](https://drive.google.com/a/mariadb.com/file/d/1J9lQ_ddEKlYaReFH6hgkiLaixnBnVrdi/view?usp=sharing) a pre-compiled collection of the dependent libraries. Afterwards you have to copy the libraries and include files to your Visual Studio installation.**
+**You can either compile all dependent C++ libraries (64bit) by yourself according to our documentation further below, or can [download](https://drive.google.com/a/mariadb.com/file/d/1J9lQ_ddEKlYaReFH6hgkiLaixnBnVrdi/view?usp=sharing) a pre-compiled collection of the dependent libraries. Once you have obtained (and extracted) the dependent libraries you have to set the environment variable `MCSAPI_BUILD_DEPENDENCY_DIR` to the directory containing the `include` and `lib` sub-directories. (e.g. to `C:\mcsapi-windows-library-collection`)**
 
-Include path: ``C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.14.26428\include``  
-Library path: ``C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.14.26428\lib\x64``
-
-**NOTE** Please ensure that all tools are executable from command line and have a valid ``Path`` entry.
+**NOTE**  
+Please ensure that all tools are executable from command line and have a valid ``Path`` entry.
 
 ### Compiling
 
@@ -445,8 +443,9 @@ cmake --build . --config RelWithDebInfo
 Include file locations: ``googletest\googlemock\include`` and ``googletest\googletest\include``  
 Library locations: ``googletest\build\googlemock\RelWithDebInfo`` and ``googletest\build\googlemock\gtest\RelWithDebInfo``
 
-#### libmysql 6.1 (shared)
-The shared libmysql libraries were obtained directly from Oracle. Using the [MySQL Installer 8.0.12](https://dev.mysql.com/downloads/installer/) the MySQL Connector C libraries of version 6.1 were installed to the system.
+#### libmariadb 3.0.6 (shared)
+The shared libmysql libraries were obtained directly from MariaDB. Using the [MariaDB Connector C (x64)](https://mariadb.com/downloads/mariadb-ax/connector) the MariaDB Connector C libraries of version 3.0.6 were installed to the system.
 
-Include file location: ``C:\Program Files\MySQL\MySQL Connector C 6.1\include``  
-Library locations: ``C:\Program Files\MySQL\MySQL Connector C 6.1\lib`` and ``C:\Program Files\MySQL\MySQL Connector C 6.1\lib\vs14``
+Include file location: ``C:\Program Files\MariaDB\MariaDB Connector C 64-bit\include``  
+Library locations: ``C:\Program Files\MariaDB\MariaDB Connector C 64-bit\lib``
+
