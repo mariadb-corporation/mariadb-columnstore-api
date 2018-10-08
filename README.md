@@ -350,7 +350,7 @@ git checkout develop-1.1
 mkdir build && cd build
 cmake -DTEST_RUNNER=ON -G "Visual Studio 15 2017 Win64" ..
 cmake --build . --config RelWithDebInfo
-ctest -C RelWithDebInfo
+ctest -C RelWithDebInfo -V
 ```
 
 ### Known limitations
