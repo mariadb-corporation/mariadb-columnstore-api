@@ -1,4 +1,6 @@
-cmake/cpack_windows/redist.patch
+cmake/cpack_windows/*.wxs
+cmake/cpack_windows/*.wxs.cf
+cmake/cpack_windows/product_fragment.patch
 java/test/columnstore-*
 .pytest_cache
 test/dataconvert-time
