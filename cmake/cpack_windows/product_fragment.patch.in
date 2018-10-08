@@ -22,7 +22,13 @@
         <MergeRef Id="VCRedist141"/>
         <Condition Level="0">VCREDIST140INSTALLED_X64 OR VCREDIST140INSTALLED2_X64</Condition>
     </Feature>
-	<!--Activate other wix features from separate wxs files-->
+    <!--Set PATH entry for mcsapi-->
+    <DirectoryRef Id="TARGETDIR">
+      <Component Id="McsApiPATH" Guid="2d84819d-5f06-4aa3-9551-49ce85e46919">
+        <Environment Id="mcsPATH" Name="PATH" Value="[CM_DP_libs.lib]" Permanent="no" Part="last" Action="set" System="yes" />
+      </Component>
+    </DirectoryRef>
+    <!--Activate other wix features from separate wxs files-->
     @PYTHON_2_FEATRUE_REF@
     @PYTHON_3_FEATRUE_REF@
   </CPackWiXFragment>
