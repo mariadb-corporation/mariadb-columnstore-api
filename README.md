@@ -255,7 +255,7 @@ You should of course add options as above to this as required. Then you can buil
 sudo make package
 ```
 
-## Windows 10 (x64) [Alpha]
+## Windows 10 (x64)
 
 Currently only the documentation can't be built on Windows.
 
