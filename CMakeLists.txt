@@ -328,6 +328,11 @@ if (WIN32)
         "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/product_fragment.patch"
         IMMEDIATE @ONLY)
     LIST(APPEND WIX_PATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/product_fragment.patch")
+    configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/features.patch.in"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/features.patch"
+        IMMEDIATE @ONLY)
+    LIST(APPEND WIX_PATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/features.patch")
     SET(CPACK_WIX_PATCH_FILE ${WIX_PATCH_FILES})
     SET(CPACK_PACKAGE_NAME "MariaDB ColumnStore Bulk Write SDK")
     set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "MariaDB ColumnStore Bulk Write SDK")

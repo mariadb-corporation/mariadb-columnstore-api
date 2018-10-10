@@ -39,6 +39,7 @@
             </Component>
             <Component Id='python2columnStoreExporter' Guid='a8f2464a-7586-4359-8f42-4899a469b714'>
               <File Id='python2columnStoreExporter' Source='@PYTHON2_COLUMNSTORE_EXPORTER@' KeyPath='yes'/>
+              <RemoveFile Id='python2columnStoreExporterPyc' On='uninstall' Name='columnStoreExporter.pyc' />
             </Component>
         </Directory>
       </Directory>
