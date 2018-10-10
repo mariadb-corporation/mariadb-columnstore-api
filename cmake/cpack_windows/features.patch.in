@@ -1,0 +1,9 @@
+<CPackWiXPatch>
+  <!--Set PATH entry for mcsapi-->
+  <CPackWiXFragment Id="#PRODUCTFEATURE">
+    <Feature Id="McsApiPATH" Title="Add libs to PATH" Description="Set a PATH entry for mcsapi's and javamcsapi's shared libraries so that they can be used directly from Java without setting java.library.path">
+        <ComponentRef Id="McsApiPATH" />
+    </Feature>
+  </CPackWiXFragment>
+</CPackWiXPatch>
+
