@@ -87,7 +87,7 @@ TEST(DataConvertDateTime, DataConvertFormats)
     try {
         driver = new mcsapi::ColumnStoreDriver();
         bulk = driver->createBulkInsert("mcsapi", "dataconvertdatetime2", 0, 0);
-        for (int i=0; i<(sizeof(datetimes)/sizeof(datetimes[0])) && i<(sizeof(formats)/sizeof(formats[0])); i++){
+        for (size_t i=0; i<(sizeof(datetimes)/sizeof(datetimes[0])) && i<(sizeof(formats)/sizeof(formats[0])); i++){
             std::cout << "trying to inject datetime '" << datetimes[i] << "' with format '" << formats[i] << "'" << std::endl;
             mcsapi::ColumnStoreDateTime dt = mcsapi::ColumnStoreDateTime(datetimes[i], formats[i]);
             bulk->setColumn(0,dt);
