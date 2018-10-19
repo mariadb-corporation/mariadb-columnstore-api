@@ -6,7 +6,7 @@ set(SWIG_PYTHON3_WRAPPER_SOURCE
   "${CMAKE_CURRENT_SOURCE_DIR}/pymcsapi.py"
   "${CMAKE_CURRENT_SOURCE_DIR}/pymcsapi_wrap.cxx")
 add_custom_command(OUTPUT ${SWIG_PYTHON3_WRAPPER_SOURCE}
-  COMMAND ${SWIG_EXECUTABLE} -c++ -python -I${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/pymcsapi.i
+  COMMAND ${SWIG_EXECUTABLE} -c++ -python -py3 -I${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/pymcsapi.i
   COMMENT "Generating the Python 3 wrapper source code")
 
 add_library(_pymcsapi3 SHARED "${CMAKE_CURRENT_SOURCE_DIR}/pymcsapi_wrap.cxx")
