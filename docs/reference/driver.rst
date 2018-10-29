@@ -136,14 +136,18 @@ Example
 setDebug()
 ----------
 
-.. cpp:function:: void ColumnStoreDriver::setDebug(bool enabled)
+.. cpp:function:: void ColumnStoreDriver::setDebug(uint8_t level)
 
-   Enables/disables verbose debugging output which is sent to stderr upon execution.
+   Enables/disables verbose debugging output which is sent to stderr upon execution. Levels are as follows:
+
+   * ``0`` - Off
+   * ``1`` - Show messages and binary packets truncated at 1000 bytes
+   * ``2`` - Show full messages, full length binary packets and ASCII translations
 
    .. note::
       This is a global setting which will apply to all instances of all of the API's classes after it is set until it is turned off.
 
-   :param enabled: Set to ``true`` to enable and ``false`` to disable.
+   :param level: Set to the log level required, ``0`` = off.
 
 Example
 ^^^^^^^

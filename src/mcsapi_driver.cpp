@@ -71,10 +71,10 @@ const char* ColumnStoreDriver::getVersion()
     return version;
 }
 
-void ColumnStoreDriver::setDebug(bool enabled)
+void ColumnStoreDriver::setDebug(uint8_t level)
 {
-    mcsdebug_set(enabled);
-    mcsdebug("mcsapi debugging enabled, version %s", this->getVersion());
+    mcsdebug_set(level);
+    mcsdebug("mcsapi debugging set to level %d, version %s", level, this->getVersion());
 }
 
 ColumnStoreBulkInsert* ColumnStoreDriver::createBulkInsert(const std::string& db,

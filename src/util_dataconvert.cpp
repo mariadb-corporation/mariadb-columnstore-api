@@ -1065,14 +1065,14 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
             {
                 val64 = stoll(fromValue);
             }
-            catch (std::invalid_argument)
+            catch (std::invalid_argument&)
             {
                 status = CONVERT_STATUS_INVALID;
                 val8 = 0;
                 cont->setData(val8);
                 break;
             }
-            catch (std::out_of_range)
+            catch (std::out_of_range&)
             {
                 status = CONVERT_STATUS_INVALID;
                 val8 = 0;
@@ -1098,14 +1098,14 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
             {
                 val64 = stoll(fromValue);
             }
-            catch (std::invalid_argument)
+            catch (std::invalid_argument&)
             {
                 status = CONVERT_STATUS_INVALID;
                 val8 = 0;
                 cont->setData(val8);
                 break;
             }
-            catch (std::out_of_range)
+            catch (std::out_of_range&)
             {
                 status = CONVERT_STATUS_INVALID;
                 val8 = 0;
@@ -1137,14 +1137,14 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
             {
                 val64 = stoll(fromValue);
             }
-            catch (std::invalid_argument)
+            catch (std::invalid_argument&)
             {
                 status = CONVERT_STATUS_INVALID;
                 val16 = 0;
                 cont->setData(val16);
                 break;
             }
-            catch (std::out_of_range)
+            catch (std::out_of_range&)
             {
                 status = CONVERT_STATUS_INVALID;
                 val16 = 0;
@@ -1177,14 +1177,14 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
             {
                 valD = stod(fromValue);
             }
-            catch (std::invalid_argument)
+            catch (std::invalid_argument&)
             {
                 status = CONVERT_STATUS_INVALID;
                 val64 = 0;
                 cont->setData(val64);
                 break;
             }
-            catch (std::out_of_range)
+            catch (std::out_of_range&)
             {
                 status = CONVERT_STATUS_INVALID;
                 val64 = 0;
@@ -1259,14 +1259,14 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
             {
                 val64 = stoll(fromValue);
             }
-            catch (std::invalid_argument)
+            catch (std::invalid_argument&)
             {
                 status = CONVERT_STATUS_INVALID;
                 val32 = 0;
                 cont->setData(val32);
                 break;
             }
-            catch (std::out_of_range)
+            catch (std::out_of_range&)
             {
                 status = CONVERT_STATUS_INVALID;
                 val32 = 0;
@@ -1299,14 +1299,14 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
             {
                 val64 = stoll(fromValue);
             }
-            catch (std::invalid_argument)
+            catch (std::invalid_argument&)
             {
                 status = CONVERT_STATUS_INVALID;
                 val32 = 0;
                 cont->setData(val32);
                 break;
             }
-            catch (std::out_of_range)
+            catch (std::out_of_range&)
             {
                 status = CONVERT_STATUS_INVALID;
                 val32 = 0;
@@ -1338,14 +1338,14 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
             {
                 valF = stof(fromValue);
             }
-            catch (std::invalid_argument)
+            catch (std::invalid_argument&)
             {
                 status = CONVERT_STATUS_INVALID;
                 val32 = 0;
                 cont->setData(val32);
                 break;
             }
-            catch (std::out_of_range)
+            catch (std::out_of_range&)
             {
                 status = CONVERT_STATUS_INVALID;
                 val32 = 0;
@@ -1376,14 +1376,14 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
             {
                 val64 = stoll(fromValue);
             }
-            catch (std::invalid_argument)
+            catch (std::invalid_argument&)
             {
                 status = CONVERT_STATUS_INVALID;
                 val64 = 0;
                 cont->setData(val64);
                 break;
             }
-            catch (std::out_of_range)
+            catch (std::out_of_range&)
             {
                 status = CONVERT_STATUS_INVALID;
                 val64 = 0;
@@ -1411,14 +1411,14 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
             {
                 valD = stod(fromValue);
             }
-            catch (std::invalid_argument)
+            catch (std::invalid_argument&)
             {
                 status = CONVERT_STATUS_INVALID;
                 val64 = 0;
                 cont->setData(val64);
                 break;
             }
-            catch (std::out_of_range)
+            catch (std::out_of_range&)
             {
                 status = CONVERT_STATUS_INVALID;
                 val64 = 0;
@@ -1482,14 +1482,14 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
             {
                 uval64 = stoull(fromValue);
             }
-            catch (std::invalid_argument)
+            catch (std::invalid_argument&)
             {
                 status = CONVERT_STATUS_INVALID;
                 uval8 = 0;
                 cont->setData(uval8);
                 break;
             }
-            catch (std::out_of_range)
+            catch (std::out_of_range&)
             {
                 status = CONVERT_STATUS_INVALID;
                 uval8 = 0;
@@ -1516,14 +1516,14 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
             {
                 uval64 = stoull(fromValue);
             }
-            catch (std::invalid_argument)
+            catch (std::invalid_argument&)
             {
                 status = CONVERT_STATUS_INVALID;
                 uval16 = 0;
                 cont->setData(uval16);
                 break;
             }
-            catch (std::out_of_range)
+            catch (std::out_of_range&)
             {
                 status = CONVERT_STATUS_INVALID;
                 uval16 = 0;
@@ -1550,14 +1550,14 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
             {
                 uval64 = stoull(fromValue);
             }
-            catch (std::invalid_argument)
+            catch (std::invalid_argument&)
             {
                 status = CONVERT_STATUS_INVALID;
                 uval32 = 0;
                 cont->setData(uval32);
                 break;
             }
-            catch (std::out_of_range)
+            catch (std::out_of_range&)
             {
                 status = CONVERT_STATUS_INVALID;
                 uval32 = 0;
@@ -1584,14 +1584,14 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
             {
                 uval64 = stoull(fromValue);
             }
-            catch (std::invalid_argument)
+            catch (std::invalid_argument&)
             {
                 status = CONVERT_STATUS_INVALID;
                 uval32 = 0;
                 cont->setData(uval32);
                 break;
             }
-            catch (std::out_of_range)
+            catch (std::out_of_range&)
             {
                 status = CONVERT_STATUS_INVALID;
                 uval32 = 0;
@@ -1618,14 +1618,14 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
             {
                 uval64 = stoull(fromValue);
             }
-            catch (std::invalid_argument)
+            catch (std::invalid_argument&)
             {
                 status = CONVERT_STATUS_INVALID;
                 uval64 = 0;
                 cont->setData(uval64);
                 break;
             }
-            catch (std::out_of_range)
+            catch (std::out_of_range&)
             {
                 status = CONVERT_STATUS_INVALID;
                 uval64 = 0;
