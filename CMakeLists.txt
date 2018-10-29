@@ -55,11 +55,18 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wformat -Wformat-security -fstack-protector-all -fstack-check -Wno-format-truncation -Wno-unused-command-line-argument -Wno-unknown-warning-option -pie -fPIC")
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
-#Find the packages and libraries
+# Find the packages and libraries
 IF(WIN32)
     SET(FIND_LIBRARY_USE_LIB64_PATHS ON)
     SET(CMAKE_FIND_LIBRARY_PREFIXES_BAK "${CMAKE_FIND_LIBRARY_PREFIXES}")
     SET(CMAKE_FIND_LIBRARY_SUFFIXES_BAK "${CMAKE_FIND_LIBRARY_SUFFIXES}")
+    # Include external lib and include directory if environment variable MCSAPI_BUILD_DEPENDENCY_DIR is set
+    IF(DEFINED ENV{MCSAPI_BUILD_DEPENDENCY_DIR})
+        LIST(APPEND CMAKE_PREFIX_PATH $ENV{MCSAPI_BUILD_DEPENDENCY_DIR})
+        MESSAGE(STATUS "Added $ENV{MCSAPI_BUILD_DEPENDENCY_DIR} to CMAKE_PREFIX_PATH")
+    ELSE()
+        MESSAGE(STATUS "Notice: Set the environment variable MCSAPI_BUILD_DEPENDENCY_DIR to define an additional dependency directory to search for headers and libraries.")
+    ENDIF(DEFINED ENV{MCSAPI_BUILD_DEPENDENCY_DIR})
 ENDIF(WIN32)
 
 INCLUDE(FindLibXml2)
@@ -134,15 +141,37 @@ endif()
 
 # On Windows find the Microsoft Visual Studio 2017 C++ Redistributable merge module (x64) that is packaged with mcsapi
 IF(WIN32)
+    # Macro to get the subdirectories of a given directory
+    MACRO(SUBDIRLIST result curdir)
+      FILE(GLOB children RELATIVE ${curdir} ${curdir}/*)
+      SET(dirlist "")
+      FOREACH(child ${children})
+        IF(IS_DIRECTORY ${curdir}/${child})
+          LIST(APPEND dirlist ${child})
+        ENDIF()
+      ENDFOREACH()
+      SET(${result} ${dirlist})
+    ENDMACRO()
+
+    # Build up potential merge module paths
+    SET(VISUAL_STUDIO_PATHS)
+    LIST(APPEND VISUAL_STUDIO_PATHS "$ENV{ProgramFiles}/Microsoft Visual Studio/2017/Community/VC/Redist/MSVC")
+    LIST(APPEND VISUAL_STUDIO_PATHS "$ENV{ProgramFiles} (x86)/Microsoft Visual Studio/2017/Community/VC/Redist/MSVC")
+    LIST(APPEND VISUAL_STUDIO_PATHS "$ENV{ProgramFiles}/Microsoft Visual Studio/2017/Enterprise/VC/Redist/MSVC")
+    LIST(APPEND VISUAL_STUDIO_PATHS "$ENV{ProgramFiles} (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Redist/MSVC")
+    LIST(APPEND VISUAL_STUDIO_PATHS "$ENV{ProgramFiles}/Microsoft Visual Studio/2017/Professional/VC/Redist/MSVC")
+    LIST(APPEND VISUAL_STUDIO_PATHS "$ENV{ProgramFiles} (x86)/Microsoft Visual Studio/2017/Professional/VC/Redist/MSVC")
+    
     SET(MSM_PATHS)
-    FOREACH(VISUAL_STUDIO_REDIST_VERSION 14.15.26706 14.14.26405 14.14.25008)
-        LIST(APPEND MSM_PATHS "$ENV{ProgramFiles}/Microsoft Visual Studio/2017/Community/VC/Redist/MSVC/${VISUAL_STUDIO_REDIST_VERSION}/MergeModules")
-        LIST(APPEND MSM_PATHS "$ENV{ProgramFiles} (x86)/Microsoft Visual Studio/2017/Community/VC/Redist/MSVC/${VISUAL_STUDIO_REDIST_VERSION}/MergeModules")
-        LIST(APPEND MSM_PATHS "$ENV{ProgramFiles}/Microsoft Visual Studio/2017/Enterprise/VC/Redist/MSVC/${VISUAL_STUDIO_REDIST_VERSION}/MergeModules")
-        LIST(APPEND MSM_PATHS "$ENV{ProgramFiles} (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Redist/MSVC/${VISUAL_STUDIO_REDIST_VERSION}/MergeModules")
-        LIST(APPEND MSM_PATHS "$ENV{ProgramFiles}/Microsoft Visual Studio/2017/Professional/VC/Redist/MSVC/${VISUAL_STUDIO_REDIST_VERSION}/MergeModules")
-        LIST(APPEND MSM_PATHS "$ENV{ProgramFiles} (x86)/Microsoft Visual Studio/2017/Professional/VC/Redist/MSVC/${VISUAL_STUDIO_REDIST_VERSION}/MergeModules")
+    FOREACH(VISUAL_STUDIO_PATH ${VISUAL_STUDIO_PATHS})
+        file(TO_CMAKE_PATH ${VISUAL_STUDIO_PATH} VISUAL_STUDIO_PATH_CONV)
+        SUBDIRLIST(SUB_DIRS ${VISUAL_STUDIO_PATH_CONV})
+        FOREACH(SUB_DIR ${SUB_DIRS})
+            LIST(APPEND MSM_PATHS "${VISUAL_STUDIO_PATH}/${SUB_DIR}/MergeModules")
+        ENDFOREACH()
     ENDFOREACH()
+    
+    # Try to find the merge module
     find_file(
         VS_2017_REDIST_MSM
         NAMES Microsoft_VC141_CRT_x64.msm Microsoft_VC140_CRT_x64.msm
@@ -264,12 +293,51 @@ if (WIN32)
     SET(CPACK_WIX_UI_BANNER "${CMAKE_CURRENT_SOURCE_DIR}/resources/WixUIBannerBmp.jpg")
     SET(CPACK_WIX_UI_DIALOG "${CMAKE_CURRENT_SOURCE_DIR}/resources/WixUIDialogBmp.jpg")
     SET(CPACK_WIX_PRODUCT_ICON "${CMAKE_CURRENT_SOURCE_DIR}/resources/mariadb.ico")
+    SET(WIX_ADDITIONAL_FILES)
+    IF(PYTHON2_AVAILABLE)
+        # First variable substitution of @VARIABLE@ during configure time
+        configure_file(
+            "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python2.wxs.in"
+            "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python2.wxs.cf"
+            IMMEDIATE @ONLY)
+        # Second variable substitution of generate_expressions during generate time
+        file(GENERATE
+            OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python2.wxs"
+            INPUT "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python2.wxs.cf"
+            CONDITION $<CONFIG:${CMAKE_BUILD_TYPE}>
+        )
+        LIST(APPEND WIX_ADDITIONAL_FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python2.wxs")
+        # Set the variable to include defined feature to be substitued later
+        SET(PYTHON_2_FEATRUE_REF "<FeatureRef Id='Python2DirectInstallation'/>")
+    ENDIF(PYTHON2_AVAILABLE)
+    IF(PYTHON3_AVAILABLE)
+        # First variable substitution of @VARIABLE@ during configure time
+        configure_file(
+            "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python3.wxs.in"
+            "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python3.wxs.cf"
+            IMMEDIATE @ONLY)
+        # Second variable substitution of generate_expressions during generate time
+        file(GENERATE
+            OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python3.wxs"
+            INPUT "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python3.wxs.cf"
+            CONDITION $<CONFIG:${CMAKE_BUILD_TYPE}>
+        )
+        LIST(APPEND WIX_ADDITIONAL_FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python3.wxs")
+        # Set the variable to include defined feature to be substitued later
+        SET(PYTHON_3_FEATRUE_REF "<FeatureRef Id='Python3DirectInstallation'/>")
+    ENDIF(PYTHON3_AVAILABLE)
+    SET(CPACK_WIX_EXTRA_SOURCES ${WIX_ADDITIONAL_FILES})
     SET(WIX_PATCH_FILES)
     configure_file(
-        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/redist.patch.in"
-        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/redist.patch"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/product_fragment.patch.in"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/product_fragment.patch"
         IMMEDIATE @ONLY)
-    LIST(APPEND WIX_PATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/redist.patch")
+    LIST(APPEND WIX_PATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/product_fragment.patch")
+    configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/features.patch.in"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/features.patch"
+        IMMEDIATE @ONLY)
+    LIST(APPEND WIX_PATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/features.patch")
     SET(CPACK_WIX_PATCH_FILE ${WIX_PATCH_FILES})
     SET(CPACK_PACKAGE_NAME "MariaDB ColumnStore Bulk Write SDK")
     set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "MariaDB ColumnStore Bulk Write SDK")

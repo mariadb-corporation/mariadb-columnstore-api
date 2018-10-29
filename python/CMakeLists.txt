@@ -106,97 +106,16 @@ ENDIF(DEB OR RPM)
 #Checking for SWIG
 find_package(SWIG 3 REQUIRED)
 
-#Compiling the shared library
+# Build pymcsapi
 IF(PYTHON2_AVAILABLE OR PYTHON3_AVAILABLE)
-  set(SWIG_PYTHON_WRAPPER_SOURCE
-      "${CMAKE_CURRENT_SOURCE_DIR}/pymcsapi.py"
-      "${CMAKE_CURRENT_SOURCE_DIR}/pymcsapi_wrap.cxx")
-  add_custom_command(OUTPUT ${SWIG_PYTHON_WRAPPER_SOURCE}
-      COMMAND ${SWIG_EXECUTABLE} -c++ -python -I${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/pymcsapi.i
-      COMMENT "Generating the Python wrapper source code")
-
   IF(PYTHON2_AVAILABLE)
-    add_library(_pymcsapi SHARED "${CMAKE_CURRENT_SOURCE_DIR}/pymcsapi_wrap.cxx")
-    set_target_properties(_pymcsapi PROPERTIES OUTPUT_NAME "_pymcsapi")
-    set_target_properties(_pymcsapi PROPERTIES PREFIX "")
-    set_target_properties(_pymcsapi PROPERTIES LIBRARY_OUTPUT_DIRECTORY "python_build")
-    set_target_properties(_pymcsapi PROPERTIES VERSION ${MCSAPI_VERSION_STRING}
-        SOVERSION ${MCSAPI_VERSION_MAJOR}
-    )
-    IF(WIN32)
-      set_target_properties(_pymcsapi PROPERTIES RUNTIME_OUTPUT_DIRECTORY "python_build")
-      set_target_properties(_pymcsapi PROPERTIES SUFFIX ".pyd")
-	ENDIF(WIN32)
-    target_include_directories(_pymcsapi PRIVATE ${PYTHON2_INCLUDE_DIR})
-    IF(UNIX)
-      target_link_libraries(_pymcsapi mcsapi)
-    ENDIF(UNIX)
-    IF(WIN32)
-      target_link_libraries(_pymcsapi mcsapi ${PYTHON2_LIBRARY})
-    ENDIF(WIN32)
-
-    #Tests
-    IF(TEST_RUNNER)
-      add_test(NAME test_basic_python COMMAND ${PYTHON2_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/test/test_basic.py)
-      add_test(NAME test_million_row_python COMMAND ${PYTHON2_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/test/test_million_row.py)
-      add_test(NAME test_exception_python COMMAND ${PYTHON2_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/test/test_exception.py)
-      add_test(NAME test_status_python COMMAND ${PYTHON2_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/test/test_status.py)
-    ENDIF(TEST_RUNNER)
-
-    #Install
-    IF(UNIX)
-      execute_process(COMMAND ${PYTHON2_EXECUTABLE} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())" OUTPUT_VARIABLE PYTHON2_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE)
-      install(TARGETS _pymcsapi DESTINATION ${PYTHON2_SITE_PACKAGES} COMPONENT libs)
-      install(FILES pymcsapi.py DESTINATION ${PYTHON2_SITE_PACKAGES} COMPONENT libs)
-    ENDIF(UNIX)
-    IF(WIN32)
-      execute_process(COMMAND ${PYTHON2_EXECUTABLE} -c "import sys; print('%d.%d' % (sys.version_info[0], sys.version_info[1]))" OUTPUT_VARIABLE PYTHON2_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
-      install(TARGETS _pymcsapi DESTINATION "${CMAKE_INSTALL_LIBDIR}/python${PYTHON2_VERSION}" COMPONENT libs)
-      install(FILES pymcsapi.py DESTINATION "${CMAKE_INSTALL_LIBDIR}/python${PYTHON2_VERSION}" COMPONENT libs)
-      set(PYTHON2_VERSION ${PYTHON2_VERSION} PARENT_SCOPE)
-    ENDIF(WIN32)
+    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/pymcsapi.i" "${CMAKE_CURRENT_SOURCE_DIR}/python2/pymcsapi.i" COPYONLY)
+    add_subdirectory(python2)
   ENDIF(PYTHON2_AVAILABLE)
   
   IF(PYTHON3_AVAILABLE)
-    add_library(_pymcsapi3 SHARED "${CMAKE_CURRENT_SOURCE_DIR}/pymcsapi_wrap.cxx")
-    set_target_properties(_pymcsapi3 PROPERTIES OUTPUT_NAME "_pymcsapi")
-    set_target_properties(_pymcsapi3 PROPERTIES PREFIX "")
-    set_target_properties(_pymcsapi3 PROPERTIES LIBRARY_OUTPUT_DIRECTORY "python3_build")
-    set_target_properties(_pymcsapi3 PROPERTIES VERSION ${MCSAPI_VERSION_STRING}
-        SOVERSION ${MCSAPI_VERSION_MAJOR}
-    )
-    IF(WIN32)
-      set_target_properties(_pymcsapi3 PROPERTIES RUNTIME_OUTPUT_DIRECTORY "python3_build")
-      set_target_properties(_pymcsapi3 PROPERTIES SUFFIX ".pyd")
-	ENDIF(WIN32)
-    target_include_directories(_pymcsapi3 PRIVATE ${PYTHON3_INCLUDE_DIR})
-    IF(UNIX)
-      target_link_libraries(_pymcsapi3 mcsapi)
-    ENDIF(UNIX)
-    IF(WIN32)
-      target_link_libraries(_pymcsapi3 mcsapi ${PYTHON3_LIBRARY})
-    ENDIF(WIN32)
-    
-    #Tests
-    IF(TEST_RUNNER)
-      add_test(NAME test_basic_python3 COMMAND ${PYTHON3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/test/test_basic.py)
-      add_test(NAME test_million_row_python3 COMMAND ${PYTHON3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/test/test_million_row.py)
-      add_test(NAME test_exception_python3 COMMAND ${PYTHON3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/test/test_exception.py)
-      add_test(NAME test_status_python3 COMMAND ${PYTHON3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/test/test_status.py)
-    ENDIF(TEST_RUNNER)
-    
-    #Install
-    IF(UNIX)
-      execute_process(COMMAND ${PYTHON3_EXECUTABLE} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())" OUTPUT_VARIABLE PYTHON3_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE)
-      install(TARGETS _pymcsapi3 DESTINATION ${PYTHON3_SITE_PACKAGES} COMPONENT libs)
-      install(FILES pymcsapi.py DESTINATION ${PYTHON3_SITE_PACKAGES} COMPONENT libs)
-    ENDIF(UNIX)
-    IF(WIN32)
-      execute_process(COMMAND ${PYTHON3_EXECUTABLE} -c "import sys; print('%d.%d' % (sys.version_info[0], sys.version_info[1]))" OUTPUT_VARIABLE PYTHON3_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
-      install(TARGETS _pymcsapi3 DESTINATION "${CMAKE_INSTALL_LIBDIR}/python${PYTHON3_VERSION}" COMPONENT libs)
-      install(FILES pymcsapi.py DESTINATION "${CMAKE_INSTALL_LIBDIR}/python${PYTHON3_VERSION}" COMPONENT libs)
-      set(PYTHON3_VERSION ${PYTHON3_VERSION} PARENT_SCOPE)
-    ENDIF(WIN32)
+    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/pymcsapi.i" "${CMAKE_CURRENT_SOURCE_DIR}/python3/pymcsapi.i" COPYONLY)
+    add_subdirectory(python3)
   ENDIF(PYTHON3_AVAILABLE)
 
   #BUILD THE PYMCSAPI DOCUMENTATION
@@ -210,5 +129,14 @@ set(PYTHON2_AVAILABLE ${PYTHON2_AVAILABLE} PARENT_SCOPE)
 set(PYTHON3_AVAILABLE ${PYTHON3_AVAILABLE} PARENT_SCOPE)
 set(PYTHON2_EXECUTABLE ${PYTHON2_EXECUTABLE} PARENT_SCOPE)
 set(PYTHON3_EXECUTABLE ${PYTHON3_EXECUTABLE} PARENT_SCOPE)
-set(PYTHON2_SITE_PACKAGES ${PYTHON2_SITE_PACKAGES} PARENT_SCOPE)
-set(PYTHON3_SITE_PACKAGES ${PYTHON3_SITE_PACKAGES} PARENT_SCOPE)
+IF(UNIX)
+  set(PYTHON2_SITE_PACKAGES ${PYTHON2_SITE_PACKAGES} PARENT_SCOPE)
+  set(PYTHON3_SITE_PACKAGES ${PYTHON3_SITE_PACKAGES} PARENT_SCOPE)
+ENDIF(UNIX)
+IF(WIN32)
+  set(PYTHON2_PYMCSAPI_PY ${PYTHON2_PYMCSAPI_PY} PARENT_SCOPE)
+  set(PYTHON3_PYMCSAPI_PY ${PYTHON3_PYMCSAPI_PY} PARENT_SCOPE)
+  set(PYTHON2_VERSION ${PYTHON2_VERSION} PARENT_SCOPE)
+  set(PYTHON3_VERSION ${PYTHON3_VERSION} PARENT_SCOPE)
+ENDIF(WIN32)
+
