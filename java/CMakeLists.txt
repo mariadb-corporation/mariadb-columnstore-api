@@ -74,6 +74,10 @@ swig_add_module_java(javamcsapi java javamcsapi.i)
 ENDIF ()
 swig_link_libraries(javamcsapi mcsapi)
 
+set_target_properties(javamcsapi PROPERTIES VERSION ${MCSAPI_VERSION_STRING}
+    SOVERSION ${MCSAPI_VERSION_MAJOR}
+)
+
 IF(UNIX)
     set_target_properties(javamcsapi PROPERTIES 
         SUFFIX ".so.${MCSAPI_VERSION_STRING}"
