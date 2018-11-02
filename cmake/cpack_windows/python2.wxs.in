@@ -3,7 +3,12 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Fragment>
     <Property Id="PYTHON_2_INSTALL_LOCATION_X64" Secure="yes">
-        <RegistrySearch Id="PYTHON_2_INSTALL_LOCATION_X64"
+        <RegistrySearch Id="PYTHON_2_USER_INSTALL_LOCATION_X64"
+            Root="HKCU"
+            Key="SOFTWARE\Python\PythonCore\@PYTHON2_VERSION@\InstallPath"
+            Type="raw" 
+            Win64="yes"/>
+        <RegistrySearch Id="PYTHON_2_GLOBAL_INSTALL_LOCATION_X64"
             Root="HKLM"
             Key="SOFTWARE\Python\PythonCore\@PYTHON2_VERSION@\InstallPath"
             Type="raw" 
