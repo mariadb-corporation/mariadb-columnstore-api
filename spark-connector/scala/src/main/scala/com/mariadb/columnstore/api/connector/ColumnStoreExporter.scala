@@ -219,7 +219,6 @@ object ColumnStoreExporter {
   }
 
   def export( database: String, table: String, df: DataFrame, configuration: String = "") : Unit = {
-    val rows = df.collect()
     var driver: ColumnStoreDriver = null
     if (configuration == ""){
       driver = new ColumnStoreDriver()
@@ -236,7 +235,7 @@ object ColumnStoreExporter {
     
     // insert row by row into table
     try {
-      for (row <- rows){
+      for (row <- df.rdd.toLocalIterator){
         for (columnId <- 0 until row.size){
           if (columnId < dbTableColumnCount){
             if (row.get(columnId) == null){
