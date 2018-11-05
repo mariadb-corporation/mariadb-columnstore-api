@@ -146,11 +146,23 @@ void ColumnStoreTimeImpl::getTimeStr(std::string& sTime)
 columnstore_data_convert_status_t ColumnStoreTimeImpl::setFromString(const std::string& timeStr)
 {
     int resLen;
+    int msecLen;
+    char* sep;
 
     if (timeStr[0] == '-')
         is_neg = true;
 
-    resLen = sscanf(timeStr.c_str(), "%" SCNd16 ":%" SCNu8 ":%" SCNu8 ".%" SCNu32, &hour, &minute, &second, &microsecond);
+    resLen = sscanf(timeStr.c_str(), "%" SCNd16 ":%" SCNu8 ":%" SCNu8, &hour, &minute, &second);
+    sep = strstr((char*)timeStr.c_str(), ".");
+    if (sep)
+    {
+        resLen += sscanf(sep, ".%" SCNu32, &microsecond);
+        msecLen = strlen(sep) - 1;
+        if (msecLen < 6)
+        {
+            microsecond *= std::pow(10, 6 - msecLen);
+        }
+    }
     if ((resLen != 3) && (resLen != 4))
     {
         return CONVERT_STATUS_INVALID;
@@ -300,8 +312,20 @@ void ColumnStoreDateTimeImpl::getDateTimeStr(std::string& sDateTime)
 columnstore_data_convert_status_t ColumnStoreDateTimeImpl::setFromString(const std::string& dateStr)
 {
     int resLen;
+    int msecLen;
+    char *sep;
 
-    resLen = sscanf(dateStr.c_str(), "%" SCNu16 "-%" SCNu8 "-%" SCNu8 " %" SCNu8 ":%" SCNu8 ":%" SCNu8 ".%" SCNu32, &year, &month, &day, &hour, &minute, &second, &microsecond);
+    resLen = sscanf(dateStr.c_str(), "%" SCNu16 "-%" SCNu8 "-%" SCNu8 " %" SCNu8 ":%" SCNu8 ":%" SCNu8, &year, &month, &day, &hour, &minute, &second);
+    sep = strstr((char*)dateStr.c_str(), ".");
+    if (sep)
+    {
+        resLen += sscanf(sep, ".%" SCNu32, &microsecond);
+        msecLen = strlen(sep) - 1;
+        if (msecLen < 6)
+        {
+            microsecond *= std::pow(10, 6 - msecLen);
+        }
+    }
     if ((resLen != 3) && (resLen != 6) && (resLen != 7))
     {
         return CONVERT_STATUS_INVALID;
