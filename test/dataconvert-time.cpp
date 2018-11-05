@@ -174,7 +174,7 @@ TEST(DataConvertTime, DataConvertTime)
     ASSERT_STREQ(row[0], "6");
     ASSERT_STREQ(row[1], "00:01:15");
     ASSERT_STREQ(row[2], "00:01:15");
-    ASSERT_STREQ(row[3], "00:01:15.420000");
+    ASSERT_STREQ(row[3], "00:01:15.000042");
     ASSERT_STREQ(row[4], "0000-00-00 00:01:15");
     mysql_free_result(result);
     if (mysql_query(my_con, "DROP TABLE dataconverttime"))
