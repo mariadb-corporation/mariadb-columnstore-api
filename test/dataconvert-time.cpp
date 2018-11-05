@@ -122,6 +122,13 @@ TEST(DataConvertTime, DataConvertTime)
         bulk->setColumn(3, tp2);
         bulk->setColumn(4, tp2);
         bulk->writeRow();
+        mcsapi::ColumnStoreTime tp3(0, 1, 15, 42, false);
+        bulk->setColumn(0, (uint64_t) 6);
+        bulk->setColumn(1, tp3);
+        bulk->setColumn(2, tp3);
+        bulk->setColumn(3, tp3);
+        bulk->setColumn(4, tp3);
+        bulk->writeRow();
         bulk->commit();
     } catch (mcsapi::ColumnStoreError &e) {
         if (bulk) bulk->rollback();
@@ -132,7 +139,7 @@ TEST(DataConvertTime, DataConvertTime)
     MYSQL_RES* result = mysql_store_result(my_con);
     if (!result)
         FAIL() << "Could not get result data: " << mysql_error(my_con);
-    ASSERT_EQ(mysql_num_rows(result), 5);
+    ASSERT_EQ(mysql_num_rows(result), 6);
     MYSQL_ROW row = mysql_fetch_row(result);
     ASSERT_STREQ(row[0], "1");
     ASSERT_STREQ(row[1], "13:28:47");
@@ -163,6 +170,12 @@ TEST(DataConvertTime, DataConvertTime)
     ASSERT_STREQ(row[2], "-00:12:12");
     ASSERT_STREQ(row[3], "-00:12:12.000000");
     ASSERT_STREQ(row[4], "0000-00-00 00:12:12");
+    row = mysql_fetch_row(result);
+    ASSERT_STREQ(row[0], "6");
+    ASSERT_STREQ(row[1], "00:01:15");
+    ASSERT_STREQ(row[2], "00:01:15");
+    ASSERT_STREQ(row[3], "00:01:15.420000");
+    ASSERT_STREQ(row[4], "0000-00-00 00:01:15");
     mysql_free_result(result);
     if (mysql_query(my_con, "DROP TABLE dataconverttime"))
         FAIL() << "Could not drop table: " << mysql_error(my_con);
