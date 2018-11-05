@@ -160,7 +160,7 @@ columnstore_data_convert_status_t ColumnStoreTimeImpl::setFromString(const std::
         msecLen = strlen(sep) - 1;
         if (msecLen < 6)
         {
-            microsecond *= exp10(6 - msecLen);
+            microsecond *= std::pow(10, 6 - msecLen);
         }
     }
     if ((resLen != 3) && (resLen != 4))
@@ -323,7 +323,7 @@ columnstore_data_convert_status_t ColumnStoreDateTimeImpl::setFromString(const s
         msecLen = strlen(sep) - 1;
         if (msecLen < 6)
         {
-            microsecond *= exp10(6 - msecLen);
+            microsecond *= std::pow(10, 6 - msecLen);
         }
     }
     if ((resLen != 3) && (resLen != 6) && (resLen != 7))
