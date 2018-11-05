@@ -7,6 +7,7 @@ This is a version history of C++ API interface changes. It does not include inte
 | Version | Changes                                                                                                                         |
 +=========+=================================================================================================================================+
 | 1.2.1   | - :cpp:func:`ColumnStoreDriver::setDebug` is now an integer setting for debug level instead of boolean                          |
+|         | - :cpp:func:`ColumnStoreBulkInsert::setColumn` now has a ``bool`` method                                                        |
 +---------+---------------------------------------------------------------------------------------------------------------------------------+
 | 1.2.0   | - Add support for TIME datatype with :cpp:class:`ColumnStoreTime`                                                               |
 +---------+---------------------------------------------------------------------------------------------------------------------------------+

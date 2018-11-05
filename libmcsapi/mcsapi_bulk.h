@@ -70,6 +70,11 @@ public:
         return setColumn(columnNumber, (int64_t)value, status);
     }
 
+    ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, bool value, columnstore_data_convert_status_t* status = nullptr)
+    {
+        return setColumn(columnNumber, (uint64_t)value, status);
+    }
+
     ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, double value, columnstore_data_convert_status_t* status = nullptr);
     ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, ColumnStoreDateTime& value, columnstore_data_convert_status_t* status = nullptr);
     ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, ColumnStoreTime& value, columnstore_data_convert_status_t* status = nullptr);
