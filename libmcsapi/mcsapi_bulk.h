@@ -37,21 +37,9 @@ public:
     ~ColumnStoreBulkInsert();
 
     uint16_t getColumnCount();
-    ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, const std::string& value, columnstore_data_convert_status_t* status = nullptr)
-    {
-        boost::string_ref str_ref(value);
-        return setCharColumn(columnNumber, str_ref, status);
-    }
-    ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, const char* value, columnstore_data_convert_status_t* status = nullptr)
-    {
-        boost::string_ref str_ref(value);
-        return setCharColumn(columnNumber, str_ref, status);
-    }
-    ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, const char* value, size_t length, columnstore_data_convert_status_t* status = nullptr)
-    {
-        boost::string_ref str_ref(value, length);
-        return setCharColumn(columnNumber, str_ref, status);
-    }
+    ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, const std::string& value, columnstore_data_convert_status_t* status = nullptr);
+    ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, const char* value, columnstore_data_convert_status_t* status = nullptr);
+    ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, const char* value, size_t length, columnstore_data_convert_status_t* status = nullptr);
     ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, uint64_t value, columnstore_data_convert_status_t* status = nullptr);
     ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, int64_t value, columnstore_data_convert_status_t* status = nullptr);
     ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, uint32_t value, columnstore_data_convert_status_t* status = nullptr)
@@ -104,7 +92,6 @@ public:
     bool isActive();
 
 private:
-    ColumnStoreBulkInsert* setCharColumn(uint16_t columnNumber, const boost::string_ref& value, columnstore_data_convert_status_t* status = nullptr);
     ColumnStoreBulkInsert(ColumnStoreDriverImpl* driverInstance,
                           const std::string& db, const std::string& table,
                           uint8_t mode, uint16_t pm);

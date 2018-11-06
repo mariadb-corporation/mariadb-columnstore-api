@@ -43,6 +43,8 @@
 #include <uv.h>
 #include <snappy.h>
 
+#include <boost/utility/string_ref.hpp>
+
 #include <libmcsapi/mcsapi.h>
 
 #include "util_debug.h"

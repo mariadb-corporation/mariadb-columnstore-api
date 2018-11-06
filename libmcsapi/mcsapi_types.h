@@ -84,6 +84,7 @@ private:
 class MCS_API ColumnStoreSummary
 {
     friend class ColumnStoreBulkInsert;
+    friend class ColumnStoreBulkInsertImpl;
 public:
     ColumnStoreSummary();
     ColumnStoreSummary(const ColumnStoreSummary& summary);
