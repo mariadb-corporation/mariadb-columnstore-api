@@ -1,4 +1,4 @@
-/* Copyright (c) 2017, MariaDB Corporation. All rights reserved.
+/* Copyright (c) 2018, MariaDB Corporation. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,6 +20,7 @@
 #include <iostream>
 #include <gtest/gtest.h>
 #include <mysql.h>
+#include <limits>
 
 MYSQL* my_con;
 
@@ -50,9 +51,9 @@ class TestEnvironment : public ::testing::Environment {
         FAIL() << "Error creating database: " << mysql_error(my_con);
     if (mysql_select_db(my_con, "mcsapi"))
         FAIL() << "Could not select DB: " << mysql_error(my_con);
-    if (mysql_query(my_con, "DROP TABLE IF EXISTS dataconverttime"))
+    if (mysql_query(my_con, "DROP TABLE IF EXISTS dataconvertstatus"))
         FAIL() << "Could not drop existing table: " << mysql_error(my_con);
-    if (mysql_query(my_con, "CREATE TABLE IF NOT EXISTS dataconverttime (a int, b varchar(50), c time, d time(6), e datetime) engine=columnstore"))
+    if (mysql_query(my_con, "CREATE TABLE IF NOT EXISTS dataconvertstatus (a int, b varchar(8)) engine=columnstore"))
         FAIL() << "Could not create table: " << mysql_error(my_con);
   }
   // Override this to define how to tear down the environment.
@@ -66,105 +67,77 @@ class TestEnvironment : public ::testing::Environment {
 };
 
 
-/* Test that dataconvert from time works */
-TEST(DataConvertTime, DataConvertTime)
+/* Test that dataconvert from int works */
+TEST(DataConvertStatus, DataConvertStatus)
 {
-    std::string table("dataconverttime");
+    std::string table("dataconvertstatus");
     std::string db("mcsapi");
     mcsapi::ColumnStoreDriver* driver;
     mcsapi::ColumnStoreBulkInsert* bulk;
+    mcsapi::columnstore_data_convert_status_t status;
     try {
         driver = new mcsapi::ColumnStoreDriver();
         bulk = driver->createBulkInsert(db, table, 0, 0);
-        tm sTm;
-        sTm.tm_year = 2017;
-        // tm.mon is 0-11
-        sTm.tm_mon = 5;
-        sTm.tm_mday = 28;
-        sTm.tm_hour = 13;
-        sTm.tm_min = 28;
-        sTm.tm_sec = 47;
-        mcsapi::ColumnStoreTime tData;
-        tData.set(sTm);
-        bulk->setColumn(0, (uint64_t) 1);
-        bulk->setColumn(1, tData);
-        bulk->setColumn(2, tData);
-        bulk->setColumn(3, tData);
-        bulk->setColumn(4, tData);
+        bulk->setColumn(0, (uint64_t) 1, &status);
+        ASSERT_EQ(status, mcsapi::CONVERT_STATUS_NONE);
+        bulk->setColumn(1, (std::string) "ok", &status);
+        ASSERT_EQ(status, mcsapi::CONVERT_STATUS_NONE);
         bulk->writeRow();
-        std::string newTime("23:23:23");
-        std::string tFormat("%H:%M:%S");
-        tData.set(newTime, tFormat);
-        bulk->setColumn(0, (uint64_t) 2);
-        bulk->setColumn(1, tData);
-        bulk->setColumn(2, tData);
-        bulk->setColumn(3, tData);
-        bulk->setColumn(4, tData);
+        bulk->setColumn(0, (uint64_t) 2, &status);
+        ASSERT_EQ(status, mcsapi::CONVERT_STATUS_NONE);
+        bulk->setColumn(1, (std::string) "too long aka truncated", &status);
+        ASSERT_EQ(status, mcsapi::CONVERT_STATUS_TRUNCATED);
         bulk->writeRow();
-        mcsapi::ColumnStoreTime tDataz;
-        bulk->setColumn(0, (uint64_t) 3);
-        bulk->setColumn(1, tDataz);
-        bulk->setColumn(2, tDataz);
-        bulk->setColumn(3, tDataz);
-        bulk->setColumn(4, tDataz);
+        bulk->setColumn(0, (uint64_t) 3, &status);
+        ASSERT_EQ(status, mcsapi::CONVERT_STATUS_NONE);
+        bulk->setColumn(1, "too long aka truncated", &status);
+        ASSERT_EQ(status, mcsapi::CONVERT_STATUS_TRUNCATED);
         bulk->writeRow();
-        mcsapi::ColumnStoreTime tp1(-838, 29, 29, 123456);
-        bulk->setColumn(0, (uint64_t) 4);
-        bulk->setColumn(1, tp1);
-        bulk->setColumn(2, tp1);
-        bulk->setColumn(3, tp1);
-        bulk->setColumn(4, tp1);
+        bulk->setColumn(0, std::numeric_limits<uint64_t>::max(), &status);
+        ASSERT_EQ(status, mcsapi::CONVERT_STATUS_SATURATED);
+        bulk->setColumn(1, (std::string) "saturated", &status);
+        ASSERT_EQ(status, mcsapi::CONVERT_STATUS_TRUNCATED);
         bulk->writeRow();
-        mcsapi::ColumnStoreTime tp2(-0, 12, 12, 0, true);
-        bulk->setColumn(0, (uint64_t) 5);
-        bulk->setColumn(1, tp2);
-        bulk->setColumn(2, tp2);
-        bulk->setColumn(3, tp2);
-        bulk->setColumn(4, tp2);
+        bulk->setColumn(0, (std::string) "invalid", &status);
+        ASSERT_EQ(status, mcsapi::CONVERT_STATUS_INVALID);
+        bulk->setColumn(1, (std::string) "invalid", &status);
+        ASSERT_EQ(status, mcsapi::CONVERT_STATUS_NONE);
+        bulk->writeRow();
+        bulk->setColumn(0, "invalid", &status);
+        ASSERT_EQ(status, mcsapi::CONVERT_STATUS_INVALID);
+        bulk->setColumn(1, "invalid", &status);
+        ASSERT_EQ(status, mcsapi::CONVERT_STATUS_NONE);
         bulk->writeRow();
         bulk->commit();
     } catch (mcsapi::ColumnStoreError &e) {
-        if (bulk) bulk->rollback();
         FAIL() << "Error caught: " << e.what() << std::endl;
     }
-    if (mysql_query(my_con, "SELECT * FROM dataconverttime"))
+    if (mysql_query(my_con, "SELECT * FROM dataconvertstatus"))
         FAIL() << "Could not run test query: " << mysql_error(my_con);
     MYSQL_RES* result = mysql_store_result(my_con);
     if (!result)
         FAIL() << "Could not get result data: " << mysql_error(my_con);
-    ASSERT_EQ(mysql_num_rows(result), 5);
+    ASSERT_EQ(mysql_num_rows(result), 6);
     MYSQL_ROW row = mysql_fetch_row(result);
     ASSERT_STREQ(row[0], "1");
-    ASSERT_STREQ(row[1], "13:28:47");
-    ASSERT_STREQ(row[2], "13:28:47");
-    ASSERT_STREQ(row[3], "13:28:47.000000");
-    ASSERT_STREQ(row[4], "0000-00-00 13:28:47");
+    ASSERT_STREQ(row[1], "ok");
     row = mysql_fetch_row(result);
     ASSERT_STREQ(row[0], "2");
-    ASSERT_STREQ(row[1], "23:23:23");
-    ASSERT_STREQ(row[2], "23:23:23");
-    ASSERT_STREQ(row[3], "23:23:23.000000");
-    ASSERT_STREQ(row[4], "0000-00-00 23:23:23");
+    ASSERT_STREQ(row[1], "too long");
     row = mysql_fetch_row(result);
     ASSERT_STREQ(row[0], "3");
-    ASSERT_STREQ(row[1], "00:00:00");
-    ASSERT_STREQ(row[2], "00:00:00");
-    ASSERT_STREQ(row[3], "00:00:00.000000");
-    ASSERT_STREQ(row[4], "0000-00-00 00:00:00");
+    ASSERT_STREQ(row[1], "too long");
     row = mysql_fetch_row(result);
-    ASSERT_STREQ(row[0], "4");
-    ASSERT_STREQ(row[1], "-838:29:29");
-    ASSERT_STREQ(row[2], "-838:29:29");
-    ASSERT_STREQ(row[3], "-838:29:29.123456");
-    ASSERT_STREQ(row[4], "0000-00-00 00:29:29");
+    ASSERT_STREQ(row[0], "2147483647");
+    ASSERT_STREQ(row[1], "saturate");
     row = mysql_fetch_row(result);
-    ASSERT_STREQ(row[0], "5");
-    ASSERT_STREQ(row[1], "-00:12:12");
-    ASSERT_STREQ(row[2], "-00:12:12");
-    ASSERT_STREQ(row[3], "-00:12:12.000000");
-    ASSERT_STREQ(row[4], "0000-00-00 00:12:12");
+    ASSERT_STREQ(row[0], "0");
+    ASSERT_STREQ(row[1], "invalid");
+    row = mysql_fetch_row(result);
+    ASSERT_STREQ(row[0], "0");
+    ASSERT_STREQ(row[1], "invalid");
     mysql_free_result(result);
-    if (mysql_query(my_con, "DROP TABLE dataconverttime"))
+    if (mysql_query(my_con, "DROP TABLE dataconvertstatus"))
         FAIL() << "Could not drop table: " << mysql_error(my_con);
     delete bulk;
     delete driver;
