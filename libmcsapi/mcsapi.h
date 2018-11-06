@@ -23,6 +23,7 @@
 #include <ctime>
 #include <streambuf>
 #include <ostream>
+#include <boost/utility/string_ref.hpp>
 
 #include <libmcsapi/visibility.h>
 #include <libmcsapi/mcsapi_types.h>

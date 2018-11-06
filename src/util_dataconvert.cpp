@@ -1041,7 +1041,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
     return status;
 }
 
-columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSystemCatalogColumn* toMeta, ColumnStoreDataContainer* cont, const std::string& fromValue)
+columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSystemCatalogColumn* toMeta, ColumnStoreDataContainer* cont, const boost::string_ref& fromValue)
 {
     columnstore_data_convert_status_t status = CONVERT_STATUS_NONE;
     int8_t val8;
@@ -1056,14 +1056,14 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
     double valD;
     ColumnStoreDateTimeImpl dTime;
     ColumnStoreTimeImpl tTime;
-    std::string valStr;
+    boost::string_ref valStr;
     switch(toMeta->getType())
     {
         case DATA_TYPE_BIT:
         {
             try
             {
-                val64 = stoll(fromValue);
+                val64 = strtoll(fromValue.data(), nullptr, 0);
             }
             catch (std::invalid_argument&)
             {
@@ -1096,7 +1096,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         {
             try
             {
-                val64 = stoll(fromValue);
+                val64 = strtoll(fromValue.data(), nullptr, 0);
             }
             catch (std::invalid_argument&)
             {
@@ -1135,7 +1135,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         {
             try
             {
-                val64 = stoll(fromValue);
+                val64 = strtoll(fromValue.data(), nullptr, 0);
             }
             catch (std::invalid_argument&)
             {
@@ -1175,7 +1175,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         {
             try
             {
-                valD = stod(fromValue);
+                valD = strtod(fromValue.data(), nullptr);
             }
             catch (std::invalid_argument&)
             {
@@ -1257,7 +1257,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         {
             try
             {
-                val64 = stoll(fromValue);
+                val64 = strtoll(fromValue.data(), nullptr, 0);
             }
             catch (std::invalid_argument&)
             {
@@ -1297,7 +1297,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         {
             try
             {
-                val64 = stoll(fromValue);
+                val64 = strtoll(fromValue.data(), nullptr, 0);
             }
             catch (std::invalid_argument&)
             {
@@ -1336,7 +1336,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         {
             try
             {
-                valF = stof(fromValue);
+                valF = strtod(fromValue.data(), nullptr);
             }
             catch (std::invalid_argument&)
             {
@@ -1358,7 +1358,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         }
 
         case DATA_TYPE_DATE:
-            status = dTime.setFromString(fromValue);
+            status = dTime.setFromString(fromValue.data());
             if (status == CONVERT_STATUS_NONE)
             {
                 uval32 = dTime.getDateInt();
@@ -1374,7 +1374,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         {
             try
             {
-                val64 = stoll(fromValue);
+                val64 = strtoll(fromValue.data(), nullptr, 0);
             }
             catch (std::invalid_argument&)
             {
@@ -1409,7 +1409,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         {
             try
             {
-                valD = stod(fromValue);
+                valD = strtod(fromValue.data(), nullptr);
             }
             catch (std::invalid_argument&)
             {
@@ -1431,7 +1431,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         }
 
         case DATA_TYPE_TIME:
-            status = tTime.setFromString(fromValue);
+            status = tTime.setFromString(fromValue.data());
             if (status == CONVERT_STATUS_NONE)
             {
                 uval64 = tTime.getTimeInt();
@@ -1444,7 +1444,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
             break;
 
         case DATA_TYPE_DATETIME:
-            status = dTime.setFromString(fromValue);
+            status = dTime.setFromString(fromValue.data());
             if (status == CONVERT_STATUS_NONE)
             {
                 uval64 = dTime.getDateTimeInt();
@@ -1480,7 +1480,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         {
             try
             {
-                uval64 = stoull(fromValue);
+                uval64 = strtoull(fromValue.data(), nullptr, 0);
             }
             catch (std::invalid_argument&)
             {
@@ -1514,7 +1514,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         {
             try
             {
-                uval64 = stoull(fromValue);
+                uval64 = strtoull(fromValue.data(), nullptr, 0);
             }
             catch (std::invalid_argument&)
             {
@@ -1548,7 +1548,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         {
             try
             {
-                uval64 = stoull(fromValue);
+                uval64 = strtoull(fromValue.data(), nullptr, 0);
             }
             catch (std::invalid_argument&)
             {
@@ -1582,7 +1582,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         {
             try
             {
-                uval64 = stoull(fromValue);
+                uval64 = strtoull(fromValue.data(), nullptr, 0);
             }
             catch (std::invalid_argument&)
             {
@@ -1616,7 +1616,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         case DATA_TYPE_UBIGINT:
             try
             {
-                uval64 = stoull(fromValue);
+                uval64 = strtoull(fromValue.data(), nullptr, 0);
             }
             catch (std::invalid_argument&)
             {

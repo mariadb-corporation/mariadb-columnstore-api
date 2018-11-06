@@ -69,7 +69,7 @@ void ColumnStoreBulkInsertImpl::runChecks(uint16_t columnNumber)
 
 }
 
-ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, const std::string& value, columnstore_data_convert_status_t* status)
+ColumnStoreBulkInsert* ColumnStoreBulkInsert::setCharColumn(uint16_t columnNumber, const boost::string_ref& value, columnstore_data_convert_status_t* status)
 {
     mImpl->runChecks(columnNumber);
     columnstore_data_convert_status_t convert_status;
