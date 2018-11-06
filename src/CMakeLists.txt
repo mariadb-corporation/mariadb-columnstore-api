@@ -1,5 +1,5 @@
 if (Boost_VERSION VERSION_LESS 105800)
-    include_directories(${LIBXML2_INCLUDE_DIR} ../boost/multiprecision/include ../boost/type_traits/include ../boost/config/include ../boost/lexical_cast/include)
+    include_directories(${LIBXML2_INCLUDE_DIR} ../boost/multiprecision/include ../boost/type_traits/include ../boost/config/include ../boost/lexical_cast/include ../boost/utility/include)
 else()
     include_directories(${LIBXML2_INCLUDE_DIR})
 endif()
