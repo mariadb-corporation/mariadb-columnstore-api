@@ -38,6 +38,8 @@ public:
 
     uint16_t getColumnCount();
     ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, const std::string& value, columnstore_data_convert_status_t* status = nullptr);
+    ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, const char* value, columnstore_data_convert_status_t* status = nullptr);
+    ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, const char* value, size_t length, columnstore_data_convert_status_t* status = nullptr);
     ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, uint64_t value, columnstore_data_convert_status_t* status = nullptr);
     ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, int64_t value, columnstore_data_convert_status_t* status = nullptr);
     ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, uint32_t value, columnstore_data_convert_status_t* status = nullptr)
@@ -68,6 +70,11 @@ public:
     ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, int8_t value, columnstore_data_convert_status_t* status = nullptr)
     {
         return setColumn(columnNumber, (int64_t)value, status);
+    }
+
+    ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, bool value, columnstore_data_convert_status_t* status = nullptr)
+    {
+        return setColumn(columnNumber, (uint64_t)value, status);
     }
 
     ColumnStoreBulkInsert* setColumn(uint16_t columnNumber, double value, columnstore_data_convert_status_t* status = nullptr);

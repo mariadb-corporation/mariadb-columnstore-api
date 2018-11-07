@@ -27,7 +27,7 @@ public:
     static columnstore_data_convert_status_t convert(ColumnStoreSystemCatalogColumn* toMeta, ColumnStoreDataContainer* cont, uint64_t fromValue);
     static columnstore_data_convert_status_t convert(ColumnStoreSystemCatalogColumn* toMeta, ColumnStoreDataContainer* cont, int64_t fromValue);
     static columnstore_data_convert_status_t convert(ColumnStoreSystemCatalogColumn* toMeta, ColumnStoreDataContainer* cont, double fromValue);
-    static columnstore_data_convert_status_t convert(ColumnStoreSystemCatalogColumn* toMeta, ColumnStoreDataContainer* cont, const std::string& fromValue);
+    static columnstore_data_convert_status_t convert(ColumnStoreSystemCatalogColumn* toMeta, ColumnStoreDataContainer* cont, const boost::string_ref& fromValue);
     static columnstore_data_convert_status_t convert(ColumnStoreSystemCatalogColumn* toMeta, ColumnStoreDataContainer* cont, ColumnStoreDateTime& fromValue);
     static columnstore_data_convert_status_t convert(ColumnStoreSystemCatalogColumn* toMeta, ColumnStoreDataContainer* cont, ColumnStoreTime& fromValue);
     static columnstore_data_convert_status_t convert(ColumnStoreSystemCatalogColumn* toMeta, ColumnStoreDataContainer* cont, ColumnStoreDecimal& fromValue);

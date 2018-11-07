@@ -1041,7 +1041,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
     return status;
 }
 
-columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSystemCatalogColumn* toMeta, ColumnStoreDataContainer* cont, const std::string& fromValue)
+columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSystemCatalogColumn* toMeta, ColumnStoreDataContainer* cont, const boost::string_ref& fromValue)
 {
     columnstore_data_convert_status_t status = CONVERT_STATUS_NONE;
     int8_t val8;
@@ -1056,23 +1056,15 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
     double valD;
     ColumnStoreDateTimeImpl dTime;
     ColumnStoreTimeImpl tTime;
-    std::string valStr;
+    boost::string_ref valStr;
+    char* tmp;
     switch(toMeta->getType())
     {
         case DATA_TYPE_BIT:
         {
-            try
-            {
-                val64 = stoll(fromValue);
-            }
-            catch (std::invalid_argument&)
-            {
-                status = CONVERT_STATUS_INVALID;
-                val8 = 0;
-                cont->setData(val8);
-                break;
-            }
-            catch (std::out_of_range&)
+            errno = 0;
+            val64 = strtoll(fromValue.data(), &tmp, 0);
+            if ((errno) || (*tmp != '\0'))
             {
                 status = CONVERT_STATUS_INVALID;
                 val8 = 0;
@@ -1094,18 +1086,9 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         }
         case DATA_TYPE_TINYINT:
         {
-            try
-            {
-                val64 = stoll(fromValue);
-            }
-            catch (std::invalid_argument&)
-            {
-                status = CONVERT_STATUS_INVALID;
-                val8 = 0;
-                cont->setData(val8);
-                break;
-            }
-            catch (std::out_of_range&)
+            errno = 0;
+            val64 = strtoll(fromValue.data(), &tmp, 0);
+            if ((errno) || (*tmp != '\0'))
             {
                 status = CONVERT_STATUS_INVALID;
                 val8 = 0;
@@ -1133,18 +1116,9 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
 
         case DATA_TYPE_SMALLINT:
         {
-            try
-            {
-                val64 = stoll(fromValue);
-            }
-            catch (std::invalid_argument&)
-            {
-                status = CONVERT_STATUS_INVALID;
-                val16 = 0;
-                cont->setData(val16);
-                break;
-            }
-            catch (std::out_of_range&)
+            errno = 0;
+            val64 = strtoll(fromValue.data(), &tmp, 0);
+            if ((errno) || (*tmp != '\0'))
             {
                 status = CONVERT_STATUS_INVALID;
                 val16 = 0;
@@ -1173,18 +1147,9 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         case DATA_TYPE_UDECIMAL:
         case DATA_TYPE_DECIMAL:
         {
-            try
-            {
-                valD = stod(fromValue);
-            }
-            catch (std::invalid_argument&)
-            {
-                status = CONVERT_STATUS_INVALID;
-                val64 = 0;
-                cont->setData(val64);
-                break;
-            }
-            catch (std::out_of_range&)
+            errno = 0;
+            valD = strtod(fromValue.data(), &tmp);
+            if ((errno) || (*tmp != '\0'))
             {
                 status = CONVERT_STATUS_INVALID;
                 val64 = 0;
@@ -1255,18 +1220,9 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
 
         case DATA_TYPE_MEDINT:
         {
-            try
-            {
-                val64 = stoll(fromValue);
-            }
-            catch (std::invalid_argument&)
-            {
-                status = CONVERT_STATUS_INVALID;
-                val32 = 0;
-                cont->setData(val32);
-                break;
-            }
-            catch (std::out_of_range&)
+            errno = 0;
+            val64 = strtoll(fromValue.data(), &tmp, 0);
+            if ((errno) || (*tmp != '\0'))
             {
                 status = CONVERT_STATUS_INVALID;
                 val32 = 0;
@@ -1295,18 +1251,9 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
 
         case DATA_TYPE_INT:
         {
-            try
-            {
-                val64 = stoll(fromValue);
-            }
-            catch (std::invalid_argument&)
-            {
-                status = CONVERT_STATUS_INVALID;
-                val32 = 0;
-                cont->setData(val32);
-                break;
-            }
-            catch (std::out_of_range&)
+            errno = 0;
+            val64 = strtoll(fromValue.data(), &tmp, 0);
+            if ((errno) || (*tmp != '\0'))
             {
                 status = CONVERT_STATUS_INVALID;
                 val32 = 0;
@@ -1334,18 +1281,9 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         case DATA_TYPE_UFLOAT:
         case DATA_TYPE_FLOAT:
         {
-            try
-            {
-                valF = stof(fromValue);
-            }
-            catch (std::invalid_argument&)
-            {
-                status = CONVERT_STATUS_INVALID;
-                val32 = 0;
-                cont->setData(val32);
-                break;
-            }
-            catch (std::out_of_range&)
+            errno = 0;
+            valF = strtod(fromValue.data(), &tmp);
+            if ((errno) || (*tmp != '\0'))
             {
                 status = CONVERT_STATUS_INVALID;
                 val32 = 0;
@@ -1358,7 +1296,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         }
 
         case DATA_TYPE_DATE:
-            status = dTime.setFromString(fromValue);
+            status = dTime.setFromString(fromValue.data());
             if (status == CONVERT_STATUS_NONE)
             {
                 uval32 = dTime.getDateInt();
@@ -1372,18 +1310,9 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
 
         case DATA_TYPE_BIGINT:
         {
-            try
-            {
-                val64 = stoll(fromValue);
-            }
-            catch (std::invalid_argument&)
-            {
-                status = CONVERT_STATUS_INVALID;
-                val64 = 0;
-                cont->setData(val64);
-                break;
-            }
-            catch (std::out_of_range&)
+            errno = 0;
+            val64 = strtoll(fromValue.data(), &tmp, 0);
+            if ((errno) || (*tmp != '\0'))
             {
                 status = CONVERT_STATUS_INVALID;
                 val64 = 0;
@@ -1407,18 +1336,9 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         case DATA_TYPE_DOUBLE:
         case DATA_TYPE_UDOUBLE:
         {
-            try
-            {
-                valD = stod(fromValue);
-            }
-            catch (std::invalid_argument&)
-            {
-                status = CONVERT_STATUS_INVALID;
-                val64 = 0;
-                cont->setData(val64);
-                break;
-            }
-            catch (std::out_of_range&)
+            errno = 0;
+            valD = strtod(fromValue.data(), &tmp);
+            if ((errno) || (*tmp != '\0'))
             {
                 status = CONVERT_STATUS_INVALID;
                 val64 = 0;
@@ -1431,7 +1351,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         }
 
         case DATA_TYPE_TIME:
-            status = tTime.setFromString(fromValue);
+            status = tTime.setFromString(fromValue.data());
             if (status == CONVERT_STATUS_NONE)
             {
                 uval64 = tTime.getTimeInt();
@@ -1444,7 +1364,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
             break;
 
         case DATA_TYPE_DATETIME:
-            status = dTime.setFromString(fromValue);
+            status = dTime.setFromString(fromValue.data());
             if (status == CONVERT_STATUS_NONE)
             {
                 uval64 = dTime.getDateTimeInt();
@@ -1478,18 +1398,9 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
 
         case DATA_TYPE_UTINYINT:
         {
-            try
-            {
-                uval64 = stoull(fromValue);
-            }
-            catch (std::invalid_argument&)
-            {
-                status = CONVERT_STATUS_INVALID;
-                uval8 = 0;
-                cont->setData(uval8);
-                break;
-            }
-            catch (std::out_of_range&)
+            errno = 0;
+            uval64 = strtoull(fromValue.data(), &tmp, 0);
+            if ((errno) || (*tmp != '\0'))
             {
                 status = CONVERT_STATUS_INVALID;
                 uval8 = 0;
@@ -1512,18 +1423,9 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         }
         case DATA_TYPE_USMALLINT:
         {
-            try
-            {
-                uval64 = stoull(fromValue);
-            }
-            catch (std::invalid_argument&)
-            {
-                status = CONVERT_STATUS_INVALID;
-                uval16 = 0;
-                cont->setData(uval16);
-                break;
-            }
-            catch (std::out_of_range&)
+            errno = 0;
+            uval64 = strtoull(fromValue.data(), &tmp, 0);
+            if ((errno) || (*tmp != '\0'))
             {
                 status = CONVERT_STATUS_INVALID;
                 uval16 = 0;
@@ -1546,18 +1448,9 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         }
         case DATA_TYPE_UMEDINT:
         {
-            try
-            {
-                uval64 = stoull(fromValue);
-            }
-            catch (std::invalid_argument&)
-            {
-                status = CONVERT_STATUS_INVALID;
-                uval32 = 0;
-                cont->setData(uval32);
-                break;
-            }
-            catch (std::out_of_range&)
+            errno = 0;
+            uval64 = strtoull(fromValue.data(), &tmp, 0);
+            if ((errno) || (*tmp != '\0'))
             {
                 status = CONVERT_STATUS_INVALID;
                 uval32 = 0;
@@ -1580,18 +1473,9 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         }
         case DATA_TYPE_UINT:
         {
-            try
-            {
-                uval64 = stoull(fromValue);
-            }
-            catch (std::invalid_argument&)
-            {
-                status = CONVERT_STATUS_INVALID;
-                uval32 = 0;
-                cont->setData(uval32);
-                break;
-            }
-            catch (std::out_of_range&)
+            errno = 0;
+            uval64 = strtoull(fromValue.data(), &tmp, 0);
+            if ((errno) || (*tmp != '\0'))
             {
                 status = CONVERT_STATUS_INVALID;
                 uval32 = 0;
@@ -1614,18 +1498,10 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
         }
 
         case DATA_TYPE_UBIGINT:
-            try
-            {
-                uval64 = stoull(fromValue);
-            }
-            catch (std::invalid_argument&)
-            {
-                status = CONVERT_STATUS_INVALID;
-                uval64 = 0;
-                cont->setData(uval64);
-                break;
-            }
-            catch (std::out_of_range&)
+        {
+            errno = 0;
+            uval64 = strtoull(fromValue.data(), &tmp, 0);
+            if ((errno) || (*tmp != '\0'))
             {
                 status = CONVERT_STATUS_INVALID;
                 uval64 = 0;
@@ -1641,6 +1517,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
             }
             cont->setData(uval64);
             break;
+        }
 
     }
 
