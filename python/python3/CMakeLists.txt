@@ -12,6 +12,9 @@ add_custom_command(OUTPUT ${SWIG_PYTHON3_WRAPPER_SOURCE}
 add_library(_pymcsapi3 SHARED "${CMAKE_CURRENT_SOURCE_DIR}/pymcsapi_wrap.cxx")
 set_target_properties(_pymcsapi3 PROPERTIES OUTPUT_NAME "_pymcsapi")
 set_target_properties(_pymcsapi3 PROPERTIES PREFIX "")
+set_target_properties(_pymcsapi3 PROPERTIES VERSION ${MCSAPI_VERSION_STRING}
+    SOVERSION ${MCSAPI_VERSION_MAJOR}
+)
 IF(WIN32)
   set_target_properties(_pymcsapi3 PROPERTIES SUFFIX ".pyd")
 ENDIF(WIN32)
