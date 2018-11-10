@@ -4,7 +4,7 @@ This provides a connector between the MariaDB ColumnStore API Java Wrapper and S
 Currently there are three functions.
 ```scala
 ColumnStoreExporter.export("database", "table", DataFrame, [path to Columnstore.xml])
-ColumnStoreExporter.exportFromWorkers("database", "table", RDD, [path to Columnstore.xml])
+ColumnStoreExporter.exportFromWorkers("database", "table", RDD, [partitions], [path to Columnstore.xml])
 ColumnStoreExporter.generateTableStatement(DataFrame, ["database", "table", determineTypeLength])
 ```
 export() exports a DataFrame from the Spark Driver in one transaction to an existing table,  

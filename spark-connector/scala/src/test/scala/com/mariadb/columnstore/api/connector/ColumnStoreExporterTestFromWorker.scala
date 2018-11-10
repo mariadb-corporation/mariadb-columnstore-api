@@ -118,9 +118,9 @@ class ColumnStoreExporterTestFromWorker {
       //write the test dataframe into columnstore
       ColumnStoreExporter.exportFromWorkers("test", "scalatest_w_", testDF.rdd)
       if (sys.env.get("COLUMNSTORE_INSTALL_DIR") != None){
-        ColumnStoreExporter.exportFromWorkers("test", "scalatest_w_2", testDF.rdd, sys.env.get("COLUMNSTORE_INSTALL_DIR").get+"/etc/Columnstore.xml")
+        ColumnStoreExporter.exportFromWorkers("test", "scalatest_w_2", testDF.rdd, List.range(0,testDF.rdd.getNumPartitions), sys.env.get("COLUMNSTORE_INSTALL_DIR").get+"/etc/Columnstore.xml")
       }else{
-        ColumnStoreExporter.exportFromWorkers("test", "scalatest_w_2", testDF.rdd, "/usr/local/mariadb/columnstore/etc/Columnstore.xml")
+        ColumnStoreExporter.exportFromWorkers("test", "scalatest_w_2", testDF.rdd, List.range(0,testDF.rdd.getNumPartitions), "/usr/local/mariadb/columnstore/etc/Columnstore.xml")
       }
       
       verifyAllTypes(connection, 1L, "1, 2, 3, 4, 5, 6, 7, 8, 1.234, 2.345669984817505, ABCD, Hello World, 2017-09-08, 2017-09-08 13:58:23.0, 123, Hello World Longer, true, 9223372036854775807, -1E-9")

@@ -308,9 +308,13 @@ object ColumnStoreExporter {
   /**
   * Export function to export a RDD into an existing ColumnStore table by writing each partition as one transaction from the Spark Workers into ColumnStore.
   */
-  def exportFromWorkers[Row] (database: String, table: String, rdd: RDD[Row], configuration: String = "") : Unit = {
-    println("number of partitions: " + rdd.getNumPartitions)
-    for(p <- 0 until rdd.getNumPartitions){
+  def exportFromWorkers[Row] (database: String, table: String, rdd: RDD[Row], partitions: List[Int] = List(), configuration: String = "") : Unit = {
+    var parts = partitions
+    if(partitions.isEmpty){
+        parts = List.range(0,rdd.getNumPartitions)
+    }
+    println("Partitions to export: " + parts)
+    for(p <- parts){
         println("Exporting partition " + p)
         rdd.sparkContext.runJob(rdd,(iter: Iterator[Row]) => {
              // initialize the ColumnStore Driver on the Worker 
