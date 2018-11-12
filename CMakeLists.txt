@@ -233,8 +233,6 @@ IF(SPARK_CONNECTOR)
   ENDIF(PYTHON)
 ENDIF(SPARK_CONNECTOR)  
 
-OPTION(SIGNCODE "Sign the MSI installer" OFF)
-
 option(BUILD_DOCS "Build the documentation" OFF)
 #option(PDFLATEX_COMPILER "Build the pdf documentation (requires latex)" OFF)
 
@@ -248,15 +246,15 @@ if (NOT PKG_CONFIG_FOUND)
 endif()
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/libmcsapi.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/libmcsapi.pc" @ONLY)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libmcsapi.pc"
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig" COMPONENT devel)
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig" COMPONENT cpp_devel)
 
 install(FILES "README.md"
     "LICENSE.txt"
-    DESTINATION "${CMAKE_INSTALL_DOCDIR}" COMPONENT libs
+    DESTINATION "${CMAKE_INSTALL_DOCDIR}" COMPONENT cpp
 )
 IF(WIN32)
     install(FILES "resources/3rd party licenses.txt"
-        DESTINATION "${CMAKE_INSTALL_DOCDIR}" COMPONENT libs
+        DESTINATION "${CMAKE_INSTALL_DOCDIR}" COMPONENT cpp
     )
 ENDIF(WIN32)
 
@@ -265,9 +263,19 @@ if (RPM)
     SET(CPACK_RPM_PACKAGE_VERSION ${VERSION_SHORT})
     SET(CPACK_RPM_PACKAGE_RELEASE "1")
     SET(CPACK_RPM_PACKAGE_NAME "mariadb-columnstore-api")
-    SET(CPACK_RPM_PACKAGE_SUMMARY "MariaDB ColumnStore: A Scale out Columnar storage engine for MariaDB")
+    SET(CPACK_RPM_PACKAGE_SUMMARY "MariaDB ColumnStore API: A SDK to rapidly ingest data into MariaDB ColumnStore")
+    SET(CPACK_RPM_PACKAGE_LICENSE "GNU LESSER GENERAL PUBLIC LICENSE Version 2.1")
     SET(ENGINE_ARCH "x86_64")
     SET(CPACK_PACKAGE_FILE_NAME "${CPACK_RPM_PACKAGE_NAME}-${CPACK_RPM_PACKAGE_VERSION}-${CPACK_RPM_PACKAGE_RELEASE}-${ENGINE_ARCH}-${RPM}")
+    SET(CPACK_RPM_COMPONENT_INSTALL ON)
+    SET(CPACK_RPM_cpp_PACKAGE_REQUIRES "libuv, libxml2, snappy")
+    SET(CPACK_RPM_cpp_devel_PACKAGE_REQUIRES "mariadb-columnstore-api-cpp == ${CPACK_RPM_PACKAGE_VERSION}")
+    SET(CPACK_RPM_java_PACKAGE_REQUIRES "mariadb-columnstore-api-cpp == ${CPACK_RPM_PACKAGE_VERSION}")
+    SET(CPACK_RPM_python_PACKAGE_REQUIRES "mariadb-columnstore-api-cpp == ${CPACK_RPM_PACKAGE_VERSION}")
+    SET(CPACK_RPM_python3_PACKAGE_REQUIRES "mariadb-columnstore-api-cpp == ${CPACK_RPM_PACKAGE_VERSION}")
+    SET(CPACK_RPM_spark_PACKAGE_REQUIRES "mariadb-columnstore-api-java == ${CPACK_RPM_PACKAGE_VERSION}")
+    SET(CPACK_RPM_pyspark_PACKAGE_REQUIRES "mariadb-columnstore-api-python == ${CPACK_RPM_PACKAGE_VERSION}")
+    SET(CPACK_RPM_pyspark3_PACKAGE_REQUIRES "mariadb-columnstore-api-python3 == ${CPACK_RPM_PACKAGE_VERSION}")
     include(CPack)
 endif()
 
