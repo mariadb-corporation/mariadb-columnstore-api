@@ -73,7 +73,7 @@ if(GENERATE_DOC)
   )
   install(DIRECTORY "${SPHINX_HTML_DIR}"
     DESTINATION "${CMAKE_INSTALL_DOCDIR}/html_javamcsapi"
-    COMPONENT libs
+    COMPONENT java
   )
 
   # This target builds PDF documentation using Sphinx and LaTeX.
@@ -106,7 +106,7 @@ if(GENERATE_DOC)
     #)
     install(FILES "${SPHINX_PDF_DIR}/javamcsapi_usage.pdf"
       DESTINATION "${CMAKE_INSTALL_DOCDIR}"
-      COMPONENT libs
+      COMPONENT java
     )
 #endif(PDFLATEX_COMPILER)
 
