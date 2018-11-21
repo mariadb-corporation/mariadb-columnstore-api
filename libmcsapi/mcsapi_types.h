@@ -184,4 +184,23 @@ private:
     ColumnStoreSystemCatalogImpl* mImpl;
 };
 
+enum columnstore_lock_types_t
+{
+	LOCK_TYPE_LOADING,
+	LOCK_TYPE_CLEANUP
+};
+
+struct TableLockInfo
+{
+	uint64_t id;
+	uint32_t tableOID;
+	std::string ownerName;
+	uint32_t ownerPID;
+	uint32_t ownerSessionID;
+	uint32_t ownerTxnID;
+	columnstore_lock_types_t state;
+	time_t creationTime;
+	std::vector<uint32_t> dbrootList;
+};
+
 }

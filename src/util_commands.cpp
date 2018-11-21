@@ -1150,4 +1150,72 @@ void ColumnStoreCommands::brmReleaseTableLock(uint64_t lockId)
     connection->deleteReadMessage();
 }
 
+std::vector<TableLockInfo> ColumnStoreCommands::brmGetAllTableLocks()
+{
+	mcsdebug("calling brmGetAllTableLocks");
+	ColumnStoreMessaging messageIn;
+	ColumnStoreMessaging* messageOut;
+	ColumnStoreNetwork *connection = getBrmConnection();
+	runSoloLoop(connection);
+
+	uint8_t command = COMMAND_DBRM_GET_ALL_TABLE_LOCKS;
+	messageIn << command;
+	connection->sendData(messageIn);
+	runSoloLoop(connection);
+
+	connection->readDataStart();
+	messageOut = connection->getReadMessage();
+	runSoloLoop(connection);
+
+	uint8_t response;
+	*messageOut >> response;
+	if (response != 0)
+	{
+		std::string errmsg("Error getting all table lock information");
+		connection->deleteReadMessage();
+		throw ColumnStoreServerError(errmsg);
+	}
+	// deserialize the package data into TableLockInfo elements
+	uint64_t numberOfEntries;
+	*messageOut >> numberOfEntries;
+	mcsdebug("number of entries: %d", numberOfEntries);
+	std::vector<TableLockInfo> tableLocks;
+	TableLockInfo tableLock;
+	uint64_t tmp64;
+	uint32_t tmp32;
+	uint8_t tmp8;
+	for (uint64_t j = 0; j < numberOfEntries; j++) {
+		tableLock.dbrootList.clear();
+		*messageOut >> tableLock.id;
+		mcsdebug("table lock id: %d", tableLock.id);
+		*messageOut >> tableLock.tableOID;
+		mcsdebug("table lock oid: %d", tableLock.tableOID);
+		*messageOut >> tableLock.ownerName;
+		mcsdebug("table lock owner name: %s", tableLock.ownerName.c_str());
+		*messageOut >> tableLock.ownerPID;
+		mcsdebug("table lock owner PID: %d", tableLock.ownerPID);
+		*messageOut >> tableLock.ownerSessionID;
+		mcsdebug("table lcok owner session ID: %d", tableLock.ownerSessionID);
+		*messageOut >> tableLock.ownerTxnID;
+		mcsdebug("table lock owner Txn ID: %d", tableLock.ownerTxnID);
+		*messageOut >> tmp8;
+		tableLock.state = (columnstore_lock_types_t)tmp8;
+		mcsdebug("table lock state: %d", tableLock.state);
+		*messageOut >> tmp64;
+		tableLock.creationTime = tmp64;
+		mcsdebug("table lock creation time: %d", tmp64);
+		*messageOut >> tmp64;
+		mcsdebug("table lock number of dbroots: %d", tmp64);
+		for (uint64_t i = 0; i < tmp64; i++) {
+			*messageOut >> tmp32;
+			mcsdebug("table lock dbroot %d: %d", i, tmp32);
+			tableLock.dbrootList.push_back(tmp32);
+		}
+		tableLocks.push_back(tableLock);
+	}
+	connection->deleteReadMessage();
+	mcsdebug("brmGetAllTableLocks called");
+	return tableLocks;
+}
+
 }

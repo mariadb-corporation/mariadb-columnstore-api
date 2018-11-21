@@ -77,6 +77,52 @@ void ColumnStoreDriver::setDebug(uint8_t level)
     mcsdebug("mcsapi debugging set to level %d, version %s", level, this->getVersion());
 }
 
+std::vector<TableLockInfo> ColumnStoreDriver::listTableLocks()
+{
+	ColumnStoreCommands* commands = new ColumnStoreCommands(this->mImpl);
+	std::vector<TableLockInfo> tableLocks = commands->brmGetAllTableLocks();
+	delete commands;
+	return tableLocks;
+}
+
+bool ColumnStoreDriver::isTableLocked(const std::string& db, const std::string& table, TableLockInfo& rtn)
+{
+	uint32_t oid = this->getSystemCatalog().getTable(db,table).getOID();
+	std::vector<TableLockInfo> tableLocks = this->listTableLocks();
+	for (uint64_t i = 0; i < tableLocks.size(); i++) {
+		if (tableLocks[i].tableOID == oid) {
+			rtn = tableLocks[i];
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool ColumnStoreDriver::isTableLocked(const std::string& db, const std::string& table) {
+	mcsapi::TableLockInfo tbi;
+	return(this->isTableLocked(db, table, tbi));
+}
+
+void ColumnStoreDriver::clearTableLock(uint64_t lockId) 
+{
+	ColumnStoreCommands* commands = new ColumnStoreCommands(this->mImpl);
+	//TODO this is probably too easy! We probably have to rollback the transaction first. But what would be the difference to rollback then?
+	commands->brmReleaseTableLock(lockId);
+	delete commands;
+}
+
+void ColumnStoreDriver::clearTableLock(const std::string& db, const std::string& table)
+{
+	uint32_t oid = this->getSystemCatalog().getTable(db, table).getOID();
+	std::vector<TableLockInfo> tableLocks = this->listTableLocks();
+	for (uint64_t i = 0; i < tableLocks.size(); i++) {
+		if (tableLocks[i].tableOID == oid) {
+			clearTableLock(tableLocks[i].id);
+		}
+	}
+}
+
 ColumnStoreBulkInsert* ColumnStoreDriver::createBulkInsert(const std::string& db,
     const std::string& table, uint8_t mode, uint16_t pm)
 {

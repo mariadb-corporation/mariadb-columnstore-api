@@ -21,12 +21,6 @@
 namespace mcsapi
 {
 
-enum columnstore_lock_types_t
-{
-    LOCK_TYPE_LOADING,
-    LOCK_TYPE_CLEANUP
-};
-
 class ColumnStoreTxnID
 {
 public:
@@ -41,10 +35,10 @@ public:
 class ColumnStoreTableLock
 {
 public:
-    uint32_t ownerPID;
-    std::string ownerName;
-    uint32_t sessionID;
-    uint32_t ownerTxnID;
+	uint32_t ownerPID;
+	std::string ownerName;
+	uint32_t sessionID;
+	uint32_t ownerTxnID;
 };
 
 class ColumnStoreDataContainer
