@@ -340,6 +340,7 @@ bool ColumnStoreBulkInsert::isActive()
 
 void ColumnStoreBulkInsert::rollback()
 {
+    mcsdebug("BULK ROLLBACK CALLED");
     ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
 
     if (mImpl->transactionClosed)
@@ -350,9 +351,13 @@ void ColumnStoreBulkInsert::rollback()
     for (auto& pmit: mImpl->pmList)
     {
         std::vector<uint64_t> lbids;
+        mcsdebug("weGetWrittenLbids| pmit: %d, uniqueId: %d, txnId: %d, lbdis size: %d", pmit, mImpl->uniqueId, mImpl->txnId, lbids.size());
         mImpl->commands->weGetWrittenLbids(pmit, mImpl->uniqueId, mImpl->txnId, lbids);
+        mcsdebug("weRollbackBlocks| pmit: %d, uniqueId: %d, sessionId: %d, txnId: %d", pmit, mImpl->uniqueId, mImpl->sessionId, mImpl->txnId);
         mImpl->commands->weRollbackBlocks(pmit, mImpl->uniqueId, mImpl->sessionId, mImpl->txnId);
+        mcsdebug("brmRollback | lbids size : %d, txnId : %d", lbids.size(), mImpl->txnId);
         mImpl->commands->brmRollback(lbids, mImpl->txnId);
+        mcsdebug("weBulkRollback| pmit: %d, uniqueId: %d, tbLock: %d, tbl->OID: %d", pmit, mImpl->uniqueId, mImpl->sessionId, mImpl->tblLock, mImpl->tbl->getOID());
         mImpl->commands->weBulkRollback(pmit, mImpl->uniqueId, mImpl->sessionId, mImpl->tblLock, mImpl->tbl->getOID());
     }
     mImpl->commands->brmChangeState(mImpl->tblLock);

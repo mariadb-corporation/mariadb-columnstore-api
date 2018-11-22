@@ -130,20 +130,51 @@ TEST(tableLocks, isTableLocked)
 TEST(tableLocks, clearTableLock)
 {
     mcsapi::ColumnStoreDriver* driver = nullptr;
-    mcsapi::ColumnStoreBulkInsert* bulk = nullptr;
+    mcsapi::ColumnStoreBulkInsert* bulk1 = nullptr;
+    mcsapi::ColumnStoreBulkInsert* bulk2 = nullptr;
     try {
         driver = new mcsapi::ColumnStoreDriver();
 		// verify that tableLock1 is locked
-		bulk = driver->createBulkInsert("mcsapi", "tableLock1", 0, 0);
+		bulk1 = driver->createBulkInsert("mcsapi", "tableLock1", 0, 0);
+        for (int i = 0; i < 100001; i++) {
+            bulk1->setColumn(0, 0);
+            bulk1->setColumn(1, 1);
+            bulk1->writeRow();
+        }
 		ASSERT_EQ(true, driver->isTableLocked("mcsapi", "tableLock1"));
-		driver->clearTableLock("mcsapi","tableLock1");
-		// verify that tableLock1 is not locked after rollback
+        driver->clearTableLock("mcsapi", "tableLock1");
+		// verify that tableLock1 is not locked after clearTableLock
 		ASSERT_EQ(false, driver->isTableLocked("mcsapi", "tableLock1"));
+        bulk2 = driver->createBulkInsert("mcsapi", "tableLock1", 0, 0);
+        bulk2->setColumn(0, 23);
+        bulk2->setColumn(1, 42);
+        bulk2->writeRow();
+        bulk2->commit();
+        // verify that tableLock1 is not locked after commit of bulk2
+        ASSERT_EQ(false, driver->isTableLocked("mcsapi", "tableLock1"));
     } catch (mcsapi::ColumnStoreError &e) {
         FAIL() << "Error caught: " << e.what() << std::endl;
     }
 
-    delete bulk;
+    // verify that only one row was written from bulk2 and bulk1's write was rolled back
+    if (mysql_query(my_con, "SELECT COUNT(*) FROM tableLock1"))
+        FAIL() << "Could not run test query: " << mysql_error(my_con);
+    MYSQL_RES* result = mysql_store_result(my_con);
+    if (!result)
+        FAIL() << "Could not get result data: " << mysql_error(my_con);
+    MYSQL_ROW row = mysql_fetch_row(result);
+    ASSERT_STREQ(row[0], "1");
+    mysql_free_result(result);
+    if (mysql_query(my_con, "SELECT b FROM tableLock1 WHERE a=23"))
+        FAIL() << "Could not run test query: " << mysql_error(my_con);
+    result = mysql_store_result(my_con);
+    if (!result)
+        FAIL() << "Could not get result data: " << mysql_error(my_con);
+    row = mysql_fetch_row(result);
+    ASSERT_STREQ(row[0], "42");
+    mysql_free_result(result);
+
+    delete bulk2;
     delete driver;
 }
 
