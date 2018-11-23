@@ -106,7 +106,6 @@ bool ColumnStoreDriver::isTableLocked(const std::string& db, const std::string& 
 }
 
 void ColumnStoreDriver::clearTableLock(uint64_t lockId) {
-    mcsdebug("CLEARTABLELOCK(LOCKID) CALLED");
     ColumnStoreCommands* commands = new ColumnStoreCommands(this->mImpl);
 
     // grab the lock to clear and delete it
@@ -118,7 +117,6 @@ void ColumnStoreDriver::clearTableLock(uint64_t lockId) {
 
 void ColumnStoreDriver::clearTableLock(TableLockInfo tbi) 
 {
-    mcsdebug("CLEARTABLELOCK(TBI) CALLED");
     ColumnStoreCommands* commands = new ColumnStoreCommands(this->mImpl);
 
     // get the list of PMs to restore this transaction 
@@ -163,13 +161,9 @@ void ColumnStoreDriver::clearTableLock(TableLockInfo tbi)
     for (auto& pmit : pmList)
     {
         std::vector<uint64_t> lbids;
-        mcsdebug("weGetWrittenLbids| pmit: %d, uniqueId: %d, txnId: %d, lbdis size: %d", pmit, uniqueId, tbi.ownerTxnID, lbids.size());
         commands->weGetWrittenLbids(pmit, uniqueId, tbi.ownerTxnID, lbids);
-        mcsdebug("weRollbackBlocks| pmit: %d, uniqueId: %d, sessionId: %d, txnId: %d", pmit, uniqueId, tbi.ownerSessionID, tbi.ownerTxnID);
         commands->weRollbackBlocks(pmit, uniqueId, tbi.ownerSessionID, tbi.ownerTxnID);
-        mcsdebug("brmRollback | lbids size : %d, txnId : %d", lbids.size(), tbi.ownerTxnID);
         commands->brmRollback(lbids, tbi.ownerTxnID);
-        mcsdebug("weBulkRollback| pmit: %d, uniqueId: %d, tbLock: %d, tbl->OID: %d", pmit, uniqueId, tbi.ownerSessionID, tbi.id, tbi.tableOID);
         commands->weBulkRollback(pmit, uniqueId, tbi.ownerSessionID, tbi.id, tbi.tableOID);
     }
 
@@ -192,7 +186,6 @@ void ColumnStoreDriver::clearTableLock(TableLockInfo tbi)
 
 void ColumnStoreDriver::clearTableLock(const std::string& db, const std::string& table)
 {
-    mcsdebug("CLEARTABLELOCK(DB TABLE) CALLED");
     uint32_t oid = this->getSystemCatalog().getTable(db, table).getOID();
     std::vector<TableLockInfo> tableLocks = this->listTableLocks();
     for (auto& tableLock : tableLocks) {

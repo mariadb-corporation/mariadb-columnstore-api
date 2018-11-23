@@ -38,6 +38,10 @@
 %include "typemaps.i"
 %apply int *OUTPUT { mcsapi::columnstore_data_convert_status_t* status };
 /* MCOL-1321 */
+/* MCOL-1094 */
+%include "std_vector.i"
+%template(TableLockInfoVector) std::vector<mcsapi::TableLockInfo>; 
+/* MCOL-1094 */
 
 /* swig includes for standard types / exceptions */
 %include <std_except.i>
@@ -50,4 +54,3 @@
 %include "libmcsapi/mcsapi_exception.h"
 %include "libmcsapi/mcsapi_driver.h"
 %include "libmcsapi/mcsapi_bulk.h"
-

@@ -33,6 +33,7 @@ IF(TEST_RUNNER)
   add_test(NAME test_million_row_python COMMAND ${PYTHON2_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/../test/test_million_row.py)
   add_test(NAME test_exception_python COMMAND ${PYTHON2_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/../test/test_exception.py)
   add_test(NAME test_status_python COMMAND ${PYTHON2_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/../test/test_status.py)
+  add_test(NAME test_table_lock_python COMMAND ${PYTHON2_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/../test/test_tableLocks.py)
 ENDIF(TEST_RUNNER)
 
 #Install

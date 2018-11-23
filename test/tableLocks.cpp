@@ -1,4 +1,4 @@
-/* Copyright (c) 2017, MariaDB Corporation. All rights reserved.
+/* Copyright (c) 2018, MariaDB Corporation. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -52,12 +52,12 @@ class TestEnvironment : public ::testing::Environment {
         FAIL() << "Could not select DB: " << mysql_error(my_con);
     if (mysql_query(my_con, "DROP TABLE IF EXISTS tableLock1"))
         FAIL() << "Could not drop existing table: " << mysql_error(my_con);
-	if (mysql_query(my_con, "DROP TABLE IF EXISTS tableLock2"))
-		FAIL() << "Could not drop existing table: " << mysql_error(my_con);
+    if (mysql_query(my_con, "DROP TABLE IF EXISTS tableLock2"))
+        FAIL() << "Could not drop existing table: " << mysql_error(my_con);
     if (mysql_query(my_con, "CREATE TABLE IF NOT EXISTS tableLock1 (a int, b int) engine=columnstore"))
         FAIL() << "Could not create table: " << mysql_error(my_con);
-	if (mysql_query(my_con, "CREATE TABLE IF NOT EXISTS tableLock2 (a int, b int) engine=columnstore"))
-		FAIL() << "Could not create table: " << mysql_error(my_con);
+    if (mysql_query(my_con, "CREATE TABLE IF NOT EXISTS tableLock2 (a int, b int) engine=columnstore"))
+        FAIL() << "Could not create table: " << mysql_error(my_con);
   }
   // Override this to define how to tear down the environment.
   virtual void TearDown()
@@ -79,22 +79,22 @@ TEST(tableLocks, listTableLocks)
 {
     mcsapi::ColumnStoreDriver* driver = nullptr;
     mcsapi::ColumnStoreBulkInsert* bulk1 = nullptr;
-	mcsapi::ColumnStoreBulkInsert* bulk2 = nullptr;
+    mcsapi::ColumnStoreBulkInsert* bulk2 = nullptr;
     try {
         driver = new mcsapi::ColumnStoreDriver();
         uint64_t lockedTablesAtBeginning = driver->listTableLocks().size();
-		// verify that one additional table is locked
-		bulk1 = driver->createBulkInsert("mcsapi", "tableLock1", 0, 0);
-		ASSERT_EQ(1, driver->listTableLocks().size() - lockedTablesAtBeginning);
-		//verify that two additional tables are locked
-		bulk2 = driver->createBulkInsert("mcsapi", "tableLock2", 0, 0);
-		ASSERT_EQ(2, driver->listTableLocks().size() - lockedTablesAtBeginning);
-		// verify that one additional table is locked
-		bulk2->rollback();
-		ASSERT_EQ(1, driver->listTableLocks().size() - lockedTablesAtBeginning);
-		// verify that no additional table is locked
-		bulk1->rollback();
-		ASSERT_EQ(0, driver->listTableLocks().size() - lockedTablesAtBeginning);
+        // verify that one additional table is locked
+        bulk1 = driver->createBulkInsert("mcsapi", "tableLock1", 0, 0);
+        ASSERT_EQ(1, driver->listTableLocks().size() - lockedTablesAtBeginning);
+        //verify that two additional tables are locked
+        bulk2 = driver->createBulkInsert("mcsapi", "tableLock2", 0, 0);
+        ASSERT_EQ(2, driver->listTableLocks().size() - lockedTablesAtBeginning);
+        // verify that one additional table is locked
+        bulk2->rollback();
+        ASSERT_EQ(1, driver->listTableLocks().size() - lockedTablesAtBeginning);
+        // verify that no additional table is locked
+        bulk1->rollback();
+        ASSERT_EQ(0, driver->listTableLocks().size() - lockedTablesAtBeginning);
 
     } catch (mcsapi::ColumnStoreError &e) {
         FAIL() << "Error caught: " << e.what() << std::endl;
@@ -112,12 +112,12 @@ TEST(tableLocks, isTableLocked)
     mcsapi::ColumnStoreBulkInsert* bulk = nullptr;
     try {
         driver = new mcsapi::ColumnStoreDriver();
-		// verify that tableLock1 is locked
-		bulk = driver->createBulkInsert("mcsapi", "tableLock1", 0, 0);
-		ASSERT_EQ(true, driver->isTableLocked("mcsapi", "tableLock1"));
-		bulk->rollback();
-		// verify that tableLock1 is not locked after rollback
-		ASSERT_EQ(false, driver->isTableLocked("mcsapi", "tableLock1"));
+        // verify that tableLock1 is locked
+        bulk = driver->createBulkInsert("mcsapi", "tableLock1", 0, 0);
+        ASSERT_EQ(true, driver->isTableLocked("mcsapi", "tableLock1"));
+        bulk->rollback();
+        // verify that tableLock1 is not locked after rollback
+        ASSERT_EQ(false, driver->isTableLocked("mcsapi", "tableLock1"));
     } catch (mcsapi::ColumnStoreError &e) {
         FAIL() << "Error caught: " << e.what() << std::endl;
     }
@@ -134,17 +134,18 @@ TEST(tableLocks, clearTableLock)
     mcsapi::ColumnStoreBulkInsert* bulk2 = nullptr;
     try {
         driver = new mcsapi::ColumnStoreDriver();
-		// verify that tableLock1 is locked
-		bulk1 = driver->createBulkInsert("mcsapi", "tableLock1", 0, 0);
+        // initiate ingestion and verify that tableLock1 is locked
+        bulk1 = driver->createBulkInsert("mcsapi", "tableLock1", 0, 0);
         for (int i = 0; i < 100001; i++) {
             bulk1->setColumn(0, 0);
             bulk1->setColumn(1, 1);
             bulk1->writeRow();
         }
-		ASSERT_EQ(true, driver->isTableLocked("mcsapi", "tableLock1"));
+        ASSERT_EQ(true, driver->isTableLocked("mcsapi", "tableLock1"));
         driver->clearTableLock("mcsapi", "tableLock1");
-		// verify that tableLock1 is not locked after clearTableLock
-		ASSERT_EQ(false, driver->isTableLocked("mcsapi", "tableLock1"));
+        // verify that tableLock1 is not locked after clearTableLock
+        ASSERT_EQ(false, driver->isTableLocked("mcsapi", "tableLock1"));
+        // use bulk 2 to ingest one row
         bulk2 = driver->createBulkInsert("mcsapi", "tableLock1", 0, 0);
         bulk2->setColumn(0, 23);
         bulk2->setColumn(1, 42);
