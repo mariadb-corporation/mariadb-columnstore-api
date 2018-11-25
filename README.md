@@ -444,7 +444,7 @@ Include file locations: ``googletest\googlemock\include`` and ``googletest\googl
 Library locations: ``googletest\build\googlemock\RelWithDebInfo`` and ``googletest\build\googlemock\gtest\RelWithDebInfo``
 
 #### libmariadb 3.0.6 (shared)
-The shared libmysql libraries were obtained directly from MariaDB. Using the [MariaDB Connector C (x64)](https://mariadb.com/downloads/mariadb-ax/connector) the MariaDB Connector C libraries of version 3.0.6 were installed to the system.
+The shared libmariadb libraries were obtained directly from MariaDB. Using the [MariaDB Connector C (x64)](https://mariadb.com/downloads/mariadb-ax/connector) the MariaDB Connector C libraries of version 3.0.6 were installed to the system.
 
 Include file location: ``C:\Program Files\MariaDB\MariaDB Connector C 64-bit\include``  
 Library locations: ``C:\Program Files\MariaDB\MariaDB Connector C 64-bit\lib``

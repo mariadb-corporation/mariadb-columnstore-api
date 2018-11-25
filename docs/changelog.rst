@@ -6,6 +6,10 @@ This is a version history of C++ API interface changes. It does not include inte
 +---------+---------------------------------------------------------------------------------------------------------------------------------+
 | Version | Changes                                                                                                                         |
 +=========+=================================================================================================================================+
+| 1.2.2   | - Add :cpp:func:`ColumnStoreDriver::listTableLocks`                                                                             |
+|         | - Add :cpp:func:`ColumnStoreDriver::isTableLocked`                                                                              |
+|         | - Add :cpp:func:`ColumnStoreDriver::clearTableLock`                                                                             |
++---------+---------------------------------------------------------------------------------------------------------------------------------+
 | 1.2.1   | - :cpp:func:`ColumnStoreDriver::setDebug` is now an integer setting for debug level instead of boolean                          |
 |         | - :cpp:func:`ColumnStoreBulkInsert::setColumn` now has ``bool`` and ``char*`` methods                                           |
 +---------+---------------------------------------------------------------------------------------------------------------------------------+

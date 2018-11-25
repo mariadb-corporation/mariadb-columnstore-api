@@ -132,6 +132,10 @@
 #include "libmcsapi/mcsapi.h"
 %}
 
+/* MCOL-1094 */
+%include "std_vector.i"
+%template(TableLockInfoVector) std::vector<mcsapi::TableLockInfo>;
+
 /* include each of the mcsapi.h files and dependencies directly for swig to process */
 %include "libmcsapi/visibility.h"
 %include "libmcsapi/mcsapi_types.h"

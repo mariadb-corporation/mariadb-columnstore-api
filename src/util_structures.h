@@ -21,12 +21,6 @@
 namespace mcsapi
 {
 
-enum columnstore_lock_types_t
-{
-    LOCK_TYPE_LOADING,
-    LOCK_TYPE_CLEANUP
-};
-
 class ColumnStoreTxnID
 {
 public:

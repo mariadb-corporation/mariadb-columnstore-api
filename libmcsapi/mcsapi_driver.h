@@ -32,6 +32,12 @@ public:
 
     const char* getVersion();
     void setDebug(uint8_t level);
+    std::vector<TableLockInfo> listTableLocks();
+    bool isTableLocked(const std::string & db, const std::string & table, TableLockInfo& rtn);
+    bool isTableLocked(const std::string & db, const std::string & table);
+    void clearTableLock(uint64_t lockId);
+    void clearTableLock(TableLockInfo tbi);
+    void clearTableLock(const std::string & db, const std::string & table);
     ColumnStoreBulkInsert* createBulkInsert(const std::string& db,
             const std::string& table, uint8_t mode, uint16_t pm);
     ColumnStoreSystemCatalog& getSystemCatalog();

@@ -44,6 +44,24 @@ ColumnStoreDriver
 
 Methods
 -------
+clearTableLock
+^^^^^^^^^^^^^^
+
+.. java:method:: public void clearTableLock(java.math.BigInteger lockId) throws com.mariadb.columnstore.api.ColumnStoreException
+   :outertype: ColumnStoreDriver
+
+clearTableLock
+^^^^^^^^^^^^^^
+
+.. java:method:: public void clearTableLock(TableLockInfo tbi) throws com.mariadb.columnstore.api.ColumnStoreException
+   :outertype: ColumnStoreDriver
+
+clearTableLock
+^^^^^^^^^^^^^^
+
+.. java:method:: public void clearTableLock(String db, String table) throws com.mariadb.columnstore.api.ColumnStoreException
+   :outertype: ColumnStoreDriver
+
 createBulkInsert
 ^^^^^^^^^^^^^^^^
 
@@ -86,9 +104,27 @@ getVersion
 .. java:method:: public String getVersion() throws com.mariadb.columnstore.api.ColumnStoreException
    :outertype: ColumnStoreDriver
 
+isTableLocked
+^^^^^^^^^^^^^
+
+.. java:method:: public boolean isTableLocked(String db, String table, TableLockInfo rtn) throws com.mariadb.columnstore.api.ColumnStoreException
+   :outertype: ColumnStoreDriver
+
+isTableLocked
+^^^^^^^^^^^^^
+
+.. java:method:: public boolean isTableLocked(String db, String table) throws com.mariadb.columnstore.api.ColumnStoreException
+   :outertype: ColumnStoreDriver
+
+listTableLocks
+^^^^^^^^^^^^^^
+
+.. java:method:: public TableLockInfoVector listTableLocks() throws com.mariadb.columnstore.api.ColumnStoreException
+   :outertype: ColumnStoreDriver
+
 setDebug
 ^^^^^^^^
 
-.. java:method:: public void setDebug(boolean enabled) throws com.mariadb.columnstore.api.ColumnStoreException
+.. java:method:: public void setDebug(short level) throws com.mariadb.columnstore.api.ColumnStoreException
    :outertype: ColumnStoreDriver
 
