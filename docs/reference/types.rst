@@ -128,6 +128,14 @@ columnstore_data_types_t Type
 
    TEXT data type
 
+columnstore_lock_types_t Type
+=============================
+
+   These are constants for the table locks as returned by :cpp:func:`TableLockInfo::state`
+   
+.. cpp:type:: LOCK_TYPE_CLEANUP
+
+.. cpp:type:: LOCK_TYPE_LOADING
 
 TableLockInfo Struct
 ====================
@@ -582,3 +590,4 @@ compressionType()
    Retrieves the compression type for the column. ``0`` means no compression and ``2`` means Snappy compression
 
    :returns: The compression type for the column
+
