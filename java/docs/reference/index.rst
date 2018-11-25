@@ -15,6 +15,7 @@ javamcsapi API Reference
    ColumnStoreSystemCatalog
    ColumnStoreSystemCatalogColumn
    ColumnStoreSystemCatalogTable
+   ColumnStoreTime
    TableLockInfo
    TableLockInfoVector
    columnstore_data_convert_status_t
