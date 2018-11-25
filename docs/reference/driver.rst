@@ -204,3 +204,187 @@ Example
        return 0;
    }
 
+
+listTableLocks()
+----------------
+
+.. cpp:function:: std::vector<mcsapi::TableLockInfo> ColumnStoreDriver::listTableLocks()
+
+   Returns a vector of TableLockInfo objects that contains information about the current table locks in the ColumnStore system.
+
+   :returns: A vector of mcsapi::TableLockInfo objects
+
+Example
+^^^^^^^
+.. code-block:: cpp
+   :linenos:
+
+   #include <iostream>
+   #include <libmcsapi/mcsapi.h>
+
+   int main(void)
+   {
+       try{
+           mcsapi::ColumnStoreDriver* driver = new mcsapi::ColumnStoreDriver();
+           std::vector<mcsapi::TableLockInfo> tliv = driver.listTableLocks();
+       } catch (mcsapi::ColumnStoreError &e) {
+           std::cout << "Error caught: " << e.what() << std::endl;
+       }
+       return 0;
+   }
+
+
+isTableLocked()
+---------------
+
+.. cpp:function:: bool ColumnStoreDriver::isTableLocked(const std::string& db, const std::string& table)
+
+   Returns ``true`` if the specified table is locked and ``false`` if it is not locked.
+
+   :param db: The database name for the table to check
+   :param table: The tabe name to check
+   :returns: ``true`` if the specified table is locked, otherwise ``false``
+   :raises ColumnStoreServerError: If the specified table is not existent
+
+.. note::
+   Only locks of tables that have been existent when ColumnStoreDriver was created can be detected.
+
+Example
+^^^^^^^
+.. code-block:: cpp
+   :linenos:
+
+   #include <iostream>
+   #include <libmcsapi/mcsapi.h>
+
+   int main(void)
+   {
+       try{
+           mcsapi::ColumnStoreDriver* driver = new mcsapi::ColumnStoreDriver();
+           bool locked = driver.isTableLocked("test","tmp1");
+       } catch (mcsapi::ColumnStoreError &e) {
+           std::cout << "Error caught: " << e.what() << std::endl;
+       }
+       return 0;
+   }
+
+
+.. cpp:function:: bool ColumnStoreDriver::isTableLocked(const std::string& db, const std::string& table, TableLockInfo& rtn)
+
+   Returns ``true`` if the specified table is locked and ``false`` if it is not locked. Further information about the table lock can be accessed through the referrenced TableLockInfo.
+
+   :param db: The database name for the table to check
+   :param table: The tabe name to check
+   :param rtn: The TableLockInfo object reference to store further information about the table lock into.
+   :returns: ``true`` if the specified table is locked, otherwise ``false``
+   :raises ColumnStoreServerError: If the specified table is not existent
+
+.. note::
+   Only locks of tables that have been existent when ColumnStoreDriver was created can be detected.
+
+Example
+^^^^^^^
+.. code-block:: cpp
+   :linenos:
+
+   #include <iostream>
+   #include <libmcsapi/mcsapi.h>
+
+   int main(void)
+   {
+       try{
+           mcsapi::ColumnStoreDriver* driver = new mcsapi::ColumnStoreDriver();
+           mcsapi::TableLockInfo tli;
+           bool locked = driver.isTableLocked("test","tmp1",tli);
+       } catch (mcsapi::ColumnStoreError &e) {
+           std::cout << "Error caught: " << e.what() << std::endl;
+       }
+       return 0;
+   }
+
+
+clearTableLock()
+----------------
+
+.. cpp:function:: void ColumnStoreDriver::clearTableLock(uint64_t lockId)
+
+   Clears a table lock with given id
+
+   :param lockId: The id of the table lock to clear
+
+Example
+^^^^^^^
+.. code-block:: cpp
+   :linenos:
+
+   #include <iostream>
+   int main(void)
+   {
+       try{
+           mcsapi::ColumnStoreDriver* driver = new mcsapi::ColumnStoreDriver();
+           std::vector<mcsapi::TableLockInfo> tliv = driver.listTableLocks();
+           for( auto& tli : tliv ){
+               driver.clearTableLock(tli.id);
+           }
+       } catch (mcsapi::ColumnStoreError &e) {
+           std::cout << "Error caught: " << e.what() << std::endl;
+       }
+       return 0;
+   }
+
+
+.. cpp:function:: void ColumnStoreDriver::clearTableLock(mcsapi::TableLockInfo tli)
+
+   Clears a table lock with given TableLockInfo element using its lock id
+
+   :param tli: The TableLockInfo object whose id will be used to clear the lock
+
+Example
+^^^^^^^
+.. code-block:: cpp
+   :linenos:
+
+   #include <iostream>
+   #include <libmcsapi/mcsapi.h>
+
+   int main(void)
+   {
+       try{
+           mcsapi::ColumnStoreDriver* driver = new mcsapi::ColumnStoreDriver();
+           std::vector<mcsapi::TableLockInfo> tliv = driver.listTableLocks();
+           for( auto& tli : tliv ){
+               driver.clearTableLock(tli);
+           }
+       } catch (mcsapi::ColumnStoreError &e) {
+           std::cout << "Error caught: " << e.what() << std::endl;
+       }
+       return 0;
+   }
+
+
+.. cpp:function:: void ColumnStoreDriver::clearTableLock(const std::string & db, const std::string & table)
+
+   Clears a table lock of given database table combinationd
+
+   :param db: The database name for the table to clear
+   :param table: The tabe name to clear
+
+Example
+^^^^^^^
+.. code-block:: cpp
+   :linenos:
+
+   #include <iostream>
+   #include <libmcsapi/mcsapi.h>
+
+   int main(void)
+   {
+       try{
+           mcsapi::ColumnStoreDriver* driver = new mcsapi::ColumnStoreDriver();
+           driver.clearTableLock("test","tmp1");
+       } catch (mcsapi::ColumnStoreError &e) {
+           std::cout << "Error caught: " << e.what() << std::endl;
+       }
+       return 0;
+   }
+

@@ -129,6 +129,46 @@ columnstore_data_types_t Type
    TEXT data type
 
 
+TableLockInfo Struct
+====================
+
+.. cpp:type:: TalbeLockInfo
+
+   A struct containing table lock information
+
+.. cpp:type:: TableLockInfo::id
+
+   UNSIGNED int64 lock id
+
+.. cpp:type:: TableLockInfo::ownerName
+
+   std::string name of the owner of the table lock
+
+.. cpp:type:: TableLockInfo::ownerPID
+
+   UNSINGNED int32 process id of the lock owner
+
+.. cpp:type:: TableLockInfo::ownerSessionID
+
+   UNSIGNED int32 session id of the lock owner
+
+.. cpp:type:: TableLockInfo::ownerTxnID
+
+   UNSIGNED int32 transaction id of the lock owner
+
+.. cpp:type:: TableLockInfo::state
+
+   columnstore_lock_types_t state of the lock
+
+.. cpp:type:: TableLockInfo::creationTime
+
+   time_t creation time of the lock
+
+.. cpp:type:: TableLockInfo::dbrootList
+
+   std::vector<uint32_t> list of PMs involved in this lock
+
+
 ColumnStoreDateTime Class
 =========================
 
