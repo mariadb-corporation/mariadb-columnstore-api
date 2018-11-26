@@ -1,6 +1,6 @@
 # MariaDB ColumnStore API
 
-The API requires MariaDB ColumnStore 1.2 (current develop branch) to operate.
+The API requires MariaDB ColumnStore 1.2 to operate.
 
 This C++, Python and Java API currently provides access to bulk write to ColumnStore in a similar way to the cpimport using.
 
