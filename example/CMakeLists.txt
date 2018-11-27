@@ -8,13 +8,13 @@ target_link_libraries(basic_bulk_insert mcsapi ${LIBUV_LIBRARY} ${LIBXML2_LIBRAR
 
 INSTALL(TARGETS basic_bulk_insert
     RUNTIME DESTINATION "${CMAKE_INSTALL_DOCDIR}/example"
-    COMPONENT cpp_devel
+    COMPONENT cpp-devel
 )
 
 INSTALL(FILES "basic_bulk_insert.cpp"
     "basic_bulk_insert.sql"
     DESTINATION "${CMAKE_INSTALL_DOCDIR}/example"
-    COMPONENT cpp_devel
+    COMPONENT cpp-devel
 )
 
 
@@ -28,19 +28,19 @@ target_link_libraries(advanced_bulk_insert mcsapi ${LIBUV_LIBRARY} ${LIBXML2_LIB
 
 INSTALL(TARGETS advanced_bulk_insert
     RUNTIME DESTINATION "${CMAKE_INSTALL_DOCDIR}/example"
-    COMPONENT cpp_devel
+    COMPONENT cpp-devel
 )
 INSTALL(FILES "advanced_bulk_insert.cpp"
     "advanced_bulk_insert.sql"
     DESTINATION "${CMAKE_INSTALL_DOCDIR}/example"
-    COMPONENT cpp_devel
+    COMPONENT cpp-devel
 )
 
 # On Windows install in addition the dependent shared libraries (libuv, libxml and libiconv) used during building to get the examples executable
 IF(WIN32)
-    INSTALL(FILES ${LIBXML2_RUNTIME_LIBRARY} DESTINATION "${CMAKE_INSTALL_DOCDIR}/example" COMPONENT cpp_devel)
-    INSTALL(FILES ${LIBICONV_RUNTIME_LIBRARY} DESTINATION "${CMAKE_INSTALL_DOCDIR}/example" COMPONENT cpp_devel)
-    INSTALL(FILES ${LIBUV_RUNTIME_LIBRARY} DESTINATION "${CMAKE_INSTALL_DOCDIR}/example" COMPONENT cpp_devel)
+    INSTALL(FILES ${LIBXML2_RUNTIME_LIBRARY} DESTINATION "${CMAKE_INSTALL_DOCDIR}/example" COMPONENT cpp-devel)
+    INSTALL(FILES ${LIBICONV_RUNTIME_LIBRARY} DESTINATION "${CMAKE_INSTALL_DOCDIR}/example" COMPONENT cpp-devel)
+    INSTALL(FILES ${LIBUV_RUNTIME_LIBRARY} DESTINATION "${CMAKE_INSTALL_DOCDIR}/example" COMPONENT cpp-devel)
 ENDIF(WIN32)
 
 IF(RUN_CPPCHECK)
