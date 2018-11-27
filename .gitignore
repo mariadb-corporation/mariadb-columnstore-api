@@ -83,6 +83,7 @@ python/pybind11/
 build/
 java/libjavamcsapi.so*
 docs/example
+build-win/
 
 # QtCreator files
 *.config
