@@ -47,8 +47,6 @@ if [ ! -d "$SUPPLEMENTAL_LIB_DIR" ]; then
     exit 1
 fi
 
-SWIG_DIR="/c/opt/swigwin-3.0.12"
-
 if [ "$SWIG_DIR" = "" ]; then
     echo "ERROR: Please set the environment variable SWIG_DIR to"
     echo "  the directory containing the unzipped swig install."
