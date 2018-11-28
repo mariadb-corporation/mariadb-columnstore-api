@@ -60,3 +60,4 @@ IF(WIN32)
     # also place mcsapi.dll into the examples directory to get basic_bulk_insert.exe and advanced_bulk_insert.exe executable
     INSTALL(TARGETS mcsapi RUNTIME DESTINATION "${CMAKE_INSTALL_DOCDIR}/example" COMPONENT cpp_devel)
 ENDIF(WIN32)
+

@@ -82,10 +82,17 @@ if(GENERATE_DOC)
   add_dependencies(doc_html
     doc_sources
   )
+  IF(WIN32)
+  install(DIRECTORY "${SPHINX_HTML_DIR}"
+    DESTINATION "${CMAKE_INSTALL_DOCDIR}/html"
+    COMPONENT cpp-devel
+  )
+  ELSE(WIN32)
   install(DIRECTORY "${SPHINX_HTML_DIR}"
     DESTINATION "${CMAKE_INSTALL_DOCDIR}/html"
     COMPONENT cpp_devel
   )
+  ENDIF(WIN32)
 
   # This target builds PDF documentation using Sphinx and LaTeX.
   #if(PDFLATEX_COMPILER)
@@ -115,10 +122,17 @@ if(GENERATE_DOC)
     #    add_dependencies(doc_pdf
     #  doc_html
     #)
+	IF(WIN32)
+	install(FILES "${SPHINX_PDF_DIR}/libmcsapi_usage.pdf"
+      DESTINATION "${CMAKE_INSTALL_DOCDIR}"
+      COMPONENT cpp-devel
+    )
+	ELSE(WIN32)
     install(FILES "${SPHINX_PDF_DIR}/libmcsapi_usage.pdf"
       DESTINATION "${CMAKE_INSTALL_DOCDIR}"
       COMPONENT cpp_devel
     )
+	ENDIF(WIN32)
 #endif(PDFLATEX_COMPILER)
 
   # Add output directories to clean target.
@@ -129,3 +143,4 @@ if(GENERATE_DOC)
 else(GENERATE_DOC)
   message(WARNING "Missing python-sphinx documentation tools, docs will not be built")
 endif(GENERATE_DOC)
+

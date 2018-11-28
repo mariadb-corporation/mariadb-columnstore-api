@@ -245,8 +245,13 @@ if (NOT PKG_CONFIG_FOUND)
     MESSAGE(FATAL_ERROR "Could not find a usable pkg-config development environment!")
 endif()
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/libmcsapi.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/libmcsapi.pc" @ONLY)
+IF(WIN32)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libmcsapi.pc"
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig" COMPONENT cpp_devel)
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig" COMPONENT cpp_devel) #Windows requires underscore
+ELSE(WIN32)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libmcsapi.pc"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig" COMPONENT cpp-devel) #Debian requires dash
+ENDIF(WIN32)
 
 install(FILES "README.md"
     "LICENSE.txt"
@@ -269,7 +274,7 @@ if (RPM)
     SET(CPACK_PACKAGE_FILE_NAME "${CPACK_RPM_PACKAGE_NAME}-${CPACK_RPM_PACKAGE_VERSION}-${CPACK_RPM_PACKAGE_RELEASE}-${ENGINE_ARCH}-${RPM}")
     SET(CPACK_RPM_COMPONENT_INSTALL ON)
     SET(CPACK_RPM_cpp_PACKAGE_REQUIRES "libuv, libxml2, snappy")
-    SET(CPACK_RPM_cpp_devel_PACKAGE_REQUIRES "mariadb-columnstore-api-cpp == ${CPACK_RPM_PACKAGE_VERSION}")
+    SET(CPACK_RPM_cpp-devel_PACKAGE_REQUIRES "mariadb-columnstore-api-cpp == ${CPACK_RPM_PACKAGE_VERSION}")
     SET(CPACK_RPM_java_PACKAGE_REQUIRES "mariadb-columnstore-api-cpp == ${CPACK_RPM_PACKAGE_VERSION}")
     SET(CPACK_RPM_python_PACKAGE_REQUIRES "mariadb-columnstore-api-cpp == ${CPACK_RPM_PACKAGE_VERSION}")
     SET(CPACK_RPM_python3_PACKAGE_REQUIRES "mariadb-columnstore-api-cpp == ${CPACK_RPM_PACKAGE_VERSION}")
@@ -293,7 +298,7 @@ if (DEB)
     SET(CPACK_DEBIAN_PACKAGE_LICENSE "GPLv2")
     SET(CPACK_PACKAGE_FILE_NAME "${CPACK_DEBIAN_PACKAGE_NAME}-${CPACK_DEBIAN_PACKAGE_VERSION}-${CPACK_DEBIAN_PACKAGE_RELEASE}-${DEB}.${ENGINE_ARCH}")
     SET(CPACK_DEB_COMPONENT_INSTALL ON)
-    SET(CPACK_DEBIAN_CPP_DEVEL_PACKAGE_DEPENDS "mariadb-columnstore-api-cpp (= ${VERSION_SHORT})")
+    SET(CPACK_DEBIAN_CPP-DEVEL_PACKAGE_DEPENDS "mariadb-columnstore-api-cpp (= ${VERSION_SHORT})")
     SET(CPACK_DEBIAN_JAVA_PACKAGE_DEPENDS "mariadb-columnstore-api-cpp (= ${VERSION_SHORT})")
     SET(CPACK_DEBIAN_PYTHON_PACKAGE_DEPENDS "mariadb-columnstore-api-cpp (= ${VERSION_SHORT})")
     SET(CPACK_DEBIAN_PYTHON3_PACKAGE_DEPENDS "mariadb-columnstore-api-cpp (= ${VERSION_SHORT})")
@@ -424,4 +429,5 @@ MESSAGE(STATUS "DEB = ${DEB}")
 MESSAGE(STATUS "Change a values with: cmake -D<Variable>=<Value>")
 MESSAGE(STATUS "------------------------------------------------")
 MESSAGE(STATUS)
+
 
