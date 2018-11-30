@@ -18,8 +18,35 @@
 
 #pragma once
 
-void mcsdebug_set(bool enabled);
+#include <stdarg.h>
 
-void mcsdebug(const char* MSG, ...);
+void mcsdebug_set(uint8_t level);
 
-void mcsdebug_hex(const char* DATA, size_t LEN);
+uint8_t mcsdebug_get();
+
+void mcsdebug_impl(const char* MSG, const char* file, size_t line, va_list argptr);
+
+inline void mcsdebug(const char* MSG, ...)
+{
+    va_list argptr;
+    va_start(argptr, MSG);
+#ifdef _WIN32
+    mcsdebug_impl(MSG, __FILE__, __LINE__, argptr);
+#endif
+#ifdef __linux__
+    mcsdebug_impl(MSG, __FILENAME__, __LINE__, argptr);
+#endif
+    va_end(argptr);
+}
+
+void mcsdebug_hex_impl(const char* DATA, size_t LEN, const char* file, size_t line);
+
+inline void mcsdebug_hex(const char* DATA, size_t LEN)
+{
+#ifdef _WIN32
+    mcsdebug_hex_impl(DATA, LEN, __FILE__, __LINE__);
+#endif
+#ifdef __linux__
+    mcsdebug_hex_impl(DATA, LEN, __FILENAME__, __LINE__);
+#endif
+}

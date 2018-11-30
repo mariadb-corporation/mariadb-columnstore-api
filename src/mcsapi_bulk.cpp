@@ -71,24 +71,22 @@ void ColumnStoreBulkInsertImpl::runChecks(uint16_t columnNumber)
 
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, const std::string& value, columnstore_data_convert_status_t* status)
 {
-    mImpl->runChecks(columnNumber);
-    columnstore_data_convert_status_t convert_status;
-    ColumnStoreSystemCatalogColumn column = mImpl->tbl->getColumn(columnNumber);
-    ColumnStoreDataContainer* cont = &(*mImpl->row)[columnNumber];
-    convert_status = ColumnStoreDataConvert::convert(&column, cont, value);
-    if (status)
-    {
-        *status = convert_status;
-    }
-    ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
-    summaryImpl->setStatus(convert_status);
+    boost::string_ref str_ref(value);
+    mImpl->setCharColumn(columnNumber, str_ref, status);
+    return this;
+}
 
-    if (mImpl->truncateIsError && convert_status == CONVERT_STATUS_TRUNCATED)
-    {
-        std::string errmsg = "Column " + std::to_string(columnNumber) + " truncated";
-        throw ColumnStoreDataError(errmsg);
-    }
+ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, const char* value, columnstore_data_convert_status_t* status)
+{
+    boost::string_ref str_ref(value);
+    mImpl->setCharColumn(columnNumber, str_ref, status);
+    return this;
+}
 
+ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, const char* value, size_t length, columnstore_data_convert_status_t* status)
+{
+    boost::string_ref str_ref(value, length);
+    mImpl->setCharColumn(columnNumber, str_ref, status);
     return this;
 }
 
@@ -162,6 +160,29 @@ ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, d
 }
 
 ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, ColumnStoreDateTime& value, columnstore_data_convert_status_t* status)
+{
+    mImpl->runChecks(columnNumber);
+    columnstore_data_convert_status_t convert_status;
+    ColumnStoreSystemCatalogColumn column = mImpl->tbl->getColumn(columnNumber);
+    ColumnStoreDataContainer* cont = &(*mImpl->row)[columnNumber];
+    convert_status = ColumnStoreDataConvert::convert(&column, cont, value);
+    if (status)
+    {
+        *status = convert_status;
+    }
+    ColumnStoreSummaryImpl* summaryImpl = mImpl->summary->mImpl;
+    summaryImpl->setStatus(convert_status);
+
+    if (mImpl->truncateIsError && convert_status == CONVERT_STATUS_TRUNCATED)
+    {
+        std::string errmsg = "Column " + std::to_string(columnNumber) + " truncated";
+        throw ColumnStoreDataError(errmsg);
+    }
+
+    return this;
+}
+
+ColumnStoreBulkInsert* ColumnStoreBulkInsert::setColumn(uint16_t columnNumber, ColumnStoreTime& value, columnstore_data_convert_status_t* status)
 {
     mImpl->runChecks(columnNumber);
     columnstore_data_convert_status_t convert_status;
@@ -451,4 +472,24 @@ void ColumnStoreBulkInsertImpl::connect()
     row = tableData.getRow();
 }
 
+void ColumnStoreBulkInsertImpl::setCharColumn(uint16_t columnNumber, const boost::string_ref& value, columnstore_data_convert_status_t* status)
+{
+    runChecks(columnNumber);
+    columnstore_data_convert_status_t convert_status;
+    ColumnStoreSystemCatalogColumn column = tbl->getColumn(columnNumber);
+    ColumnStoreDataContainer* cont = &(*row)[columnNumber];
+    convert_status = ColumnStoreDataConvert::convert(&column, cont, value);
+    if (status)
+    {
+        *status = convert_status;
+    }
+    ColumnStoreSummaryImpl* summaryImpl = summary->mImpl;
+    summaryImpl->setStatus(convert_status);
+
+    if (truncateIsError && convert_status == CONVERT_STATUS_TRUNCATED)
+    {
+        std::string errmsg = "Column " + std::to_string(columnNumber) + " truncated";
+        throw ColumnStoreDataError(errmsg);
+    }
+}
 }

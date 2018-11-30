@@ -1,12 +1,14 @@
 # MariaDB ColumnStore API Scala Spark Connector
 This provides a connector between the MariaDB ColumnStore API Java Wrapper and Spark.
 
-Currently there are two functions.
+Currently there are three functions.
 ```scala
 ColumnStoreExporter.export("database", "table", DataFrame, [path to Columnstore.xml])
+ColumnStoreExporter.exportFromWorkers("database", "table", RDD, [partitions], [path to Columnstore.xml])
 ColumnStoreExporter.generateTableStatement(DataFrame, ["database", "table", determineTypeLength])
 ```
-export() exports a DataFrame to an existing table, and 
+export() exports a DataFrame from the Spark Driver in one transaction to an existing table,  
+exportFromWorkers() exports a RDD into an existing ColumnStore table by writing each partition as one transaction from the Spark Workers into ColumnStore, and 
 generateTableStatement() generates a CREATE TABLE SQL statement based on the schema of the DataFrame to export.
 
 ## Benchmarking

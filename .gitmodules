@@ -10,3 +10,6 @@
 [submodule "boost/lexical_cast"]
 	path = boost/lexical_cast
 	url = https://github.com/boostorg/lexical_cast
+[submodule "boost/utility"]
+	path = boost/utility
+	url = https://github.com/boostorg/utility

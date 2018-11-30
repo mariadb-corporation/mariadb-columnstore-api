@@ -92,6 +92,12 @@ DATA_TYPE_TEXT
 .. java:field:: public static final columnstore_data_types_t DATA_TYPE_TEXT
    :outertype: columnstore_data_types_t
 
+DATA_TYPE_TIME
+^^^^^^^^^^^^^^
+
+.. java:field:: public static final columnstore_data_types_t DATA_TYPE_TIME
+   :outertype: columnstore_data_types_t
+
 DATA_TYPE_TINYINT
 ^^^^^^^^^^^^^^^^^
 

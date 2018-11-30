@@ -31,6 +31,10 @@ columnstore_data_type constants
 .. py:data:: pymcsapi.DATA_TYPE_TINYINT
 
    TINYINT data type
+   
+.. py:data:: pymcsapi.DATA_TYPE_TIME
+
+   TIME data type
 
 .. py:data:: pymcsapi.DATA_TYPE_CHAR
 
@@ -124,7 +128,38 @@ columnstore_data_type constants
 
    TEXT data type
 
+columnstore_lock_type constants
+===============================
 
+   These are constants for the table locks as returned by :py:attr:`TableLockInfo.state`
+   
+.. py:data:: pymcsapi.LOCK_TYPE_CLEANUP
+
+.. py:data:: pymcsapi.LOCK_TYPE_LOADING
+   
+TableLockInfo Class
+====================
+.. py:class:: TableLockInfo
+
+   A struct containing table lock information
+   
+.. py:data:: TableLockInfo::id
+
+.. py:data:: TableLockInfo::ownerName
+
+.. py:data:: TableLockInfo::ownerPID
+
+.. py:data:: TableLockInfo::ownerSessionID
+
+.. py:data:: TableLockInfo::ownerTxnID
+
+.. py:data:: TableLockInfo::state
+
+.. py:data:: TableLockInfo::creationTime
+
+.. py:data:: TableLockInfo::dbrootList
+
+   
 ColumnStoreDateTime Class
 =========================
 
@@ -188,6 +223,62 @@ set()
    :param format: The format specifier for the date/time string. This uses the `strptime format <http://pubs.opengroup.org/onlinepubs/9699919799/functions/strptime.html>`_.
    :returns: ``True`` if the date/time is valid, ``False`` if it is not
 
+ColumnStoreTime Class
+=====================
+
+   A class which is used to contain a time used to set ``TIME`` columns using :py:meth:`ColumnStoreBulkInsert.setColumn`
+
+.. py:method:: pymcsapi.ColumnStoreTime()
+
+   Sets the time to ``00:00:00``.
+
+.. py:method:: pymcsapi.ColumnStoreTime(time)
+
+   Sets the time the value of the input string.
+
+   :param time: The time to set
+   :raises RuntimeError: When an invalid time is supplied
+
+.. py:method:: pymcsapi.ColumnStoreTime(time, format)
+
+   Sets the time based on a given string and format.
+
+   :param time: A string containing the time to set
+   :param format: The format specifier for the time string. This uses the `strptime format <http://pubs.opengroup.org/onlinepubs/9699919799/functions/strptime.html>`_.
+   :raises RuntimeError: When an invalid time is supplied
+
+.. py:method:: pymcsapi.ColumnStoreTime(hour, minute, second, microsecond, is_negative)
+
+   Sets the time based on a given set of intergers
+
+   .. note::
+      If the the time is a negative and the hours are zero then ``is_negative`` should be set. Otherwise the driver will automatically set this for you.
+
+   :param hour: The hour
+   :param minute: The minute
+   :param second: The second
+   :param microsecond: The microseconds
+   :param is_negative: A zero hour time that is negative
+   :raises RuntimeError: When an invalid time is supplied
+
+set()
+-----
+
+.. py:method:: ColumnStoreTime.set(time)
+
+   Sets the time using the value of the input string.
+
+   :param time: The time to set
+   :returns: ``True`` if the time is valid, ``False`` if it is not
+
+.. py:method:: ColumnStoreTime.set(time, format)
+
+   Sets the time based on a given string and format.
+
+   :param time: A string containing the time to set
+   :param format: The format specifier for the time string. This uses the `strptime format <http://pubs.opengroup.org/onlinepubs/9699919799/functions/strptime.html>`_.
+   :returns: ``True`` if the time is valid, ``False`` if it is not
+   
 ColumnStoreDecimal Class
 ========================
 
@@ -476,3 +567,4 @@ compressionType()
    Retrieves the compression type for the column. ``0`` means no compression and ``2`` means Snappy compression
 
    :returns: The compression type for the column
+

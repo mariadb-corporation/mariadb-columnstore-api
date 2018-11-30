@@ -81,7 +81,10 @@ void ColumnStoreNetwork::onResolved(uv_getaddrinfo_t* resolver,
 {
     // Fake a 'this' for a callback
     ColumnStoreNetwork* This = (ColumnStoreNetwork*)resolver->data;
-    mcsdebug("Class %p resolver callback", (void*)This);
+    if (mcsdebug_get() > 1)
+    {
+        mcsdebug("Class %p resolver callback", (void*)This);
+    }
     if (status < 0)
     {
         mcsdebug("Class %p failed resolving: %s", (void*)This, uv_err_name(status));
@@ -92,7 +95,10 @@ void ColumnStoreNetwork::onResolved(uv_getaddrinfo_t* resolver,
     }
     char addr[17] = {'\0'};
 
-    mcsdebug("Class %p resolving success", (void*)This);
+    if (mcsdebug_get() > 1)
+    {
+        mcsdebug("Class %p resolving success", (void*)This);
+    }
     uv_ip4_name((struct sockaddr_in*) res->ai_addr, addr, 16);
     uv_tcp_init(This->uv_loop, &This->uv_tcp);
     This->uv_tcp.data = This;
@@ -108,7 +114,10 @@ void ColumnStoreNetwork::onConnect(uv_connect_t* req, int status)
 {
     // Fake a 'this' for a callback
     ColumnStoreNetwork* This = (ColumnStoreNetwork*)req->handle->data;
-    mcsdebug("Class %p connect callback", (void*)This);
+    if (mcsdebug_get() > 1)
+    {
+        mcsdebug("Class %p connect callback", (void*)This);
+    }
     if (status < 0)
     {
         mcsdebug("Class %p connection failure: %s", (void*)This, uv_err_name(status));
@@ -264,7 +273,10 @@ void ColumnStoreNetwork::onWriteData(uv_write_t* req, int status)
 {
     // Fake a 'this' for a callback
     ColumnStoreNetwork* This = (ColumnStoreNetwork*)req->data;
-    mcsdebug("Class %p write callback", (void*)This);
+    if (mcsdebug_get() > 1)
+    {
+        mcsdebug("Class %p write callback", (void*)This);
+    }
     delete req;
     delete[] This->buf;
     This->buf = nullptr;
@@ -381,7 +393,10 @@ void ColumnStoreNetwork::readDataStart()
     this->con_status = CON_STATUS_BUSY;
     dataInBuffer = 0;
     this->messageOut = new ColumnStoreMessaging();
-    mcsdebug("Class %p starting read", this);
+    if (mcsdebug_get() > 1)
+    {
+        mcsdebug("Class %p starting read", this);
+    }
 
     ret = uv_read_start(this->uv_stream, ColumnStoreNetwork::onAlloc, ColumnStoreNetwork::onReadData);
     if (ret < 0)
@@ -402,9 +417,15 @@ void ColumnStoreNetwork::readDataStop()
 void ColumnStoreNetwork::onAlloc(uv_handle_t *client, size_t suggested_size, uv_buf_t *buf)
 {
     ColumnStoreNetwork* This = (ColumnStoreNetwork*)client->data;
-    mcsdebug("Class %p request to increase read buffer to %zu bytes", (void*)This, suggested_size);
+    if (mcsdebug_get() > 1)
+    {
+        mcsdebug("Class %p request to increase read buffer to %zu bytes", (void*)This, suggested_size);
+    }
     This->messageOut->allocateDataSize(suggested_size);
-    mcsdebug("Class %p read buffer is now %zu bytes", (void*)This, This->messageOut->getBufferFreeSize());
+    if (mcsdebug_get() > 1)
+    {
+        mcsdebug("Class %p read buffer is now %zu bytes", (void*)This, This->messageOut->getBufferFreeSize());
+    }
     buf->base = reinterpret_cast<char*>(This->messageOut->getBufferEmptyPos());
     buf->len = This->messageOut->getBufferFreeSize();
 }

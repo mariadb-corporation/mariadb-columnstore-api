@@ -21,12 +21,6 @@
 namespace mcsapi
 {
 
-enum columnstore_lock_types_t
-{
-    LOCK_TYPE_LOADING,
-    LOCK_TYPE_CLEANUP
-};
-
 class ColumnStoreTxnID
 {
 public:
@@ -74,9 +68,9 @@ public:
         datatype = OCTBYTE;
         isNull = false;
     }
-    void setData(const std::string& val)
+    void setData(const boost::string_ref& val)
     {
-        varbyte = val;
+        varbyte.assign(val.data(), val.length());
         datatype = VARBYTE;
         isNull = false;
     }

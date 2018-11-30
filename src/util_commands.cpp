@@ -1150,4 +1150,111 @@ void ColumnStoreCommands::brmReleaseTableLock(uint64_t lockId)
     connection->deleteReadMessage();
 }
 
+TableLockInfo ColumnStoreCommands::brmGetTableLockInfo(uint64_t lockId) {
+    ColumnStoreMessaging messageIn;
+    ColumnStoreMessaging* messageOut;
+    ColumnStoreNetwork *connection = getBrmConnection();
+    runSoloLoop(connection);
+
+    uint8_t command = COMMAND_DBRM_GET_TABLE_LOCK_INFO;
+    messageIn << command;
+    messageIn << lockId;
+    connection->sendData(messageIn);
+    runSoloLoop(connection);
+
+    connection->readDataStart();
+    messageOut = connection->getReadMessage();
+    runSoloLoop(connection);
+
+    uint8_t response;
+    *messageOut >> response;
+    if (response != 0)
+    {
+        std::string errmsg("Error getting table lock information");
+        connection->deleteReadMessage();
+        throw ColumnStoreServerError(errmsg);
+    }
+    // deserialize the package data into TableLockInfo
+    TableLockInfo tableLock;
+    uint64_t tmp64;
+    uint32_t tmp32;
+    uint8_t tmp8;
+    *messageOut >> tmp8;
+    if (tmp8 == 0) {
+        std::string errmsg("Error, no lock found for lockId: " + std::to_string(lockId));
+        connection->deleteReadMessage();
+        throw ColumnStoreServerError(errmsg);
+    }
+    *messageOut >> tableLock.id;
+    *messageOut >> tableLock.tableOID;
+    *messageOut >> tableLock.ownerName;
+    *messageOut >> tableLock.ownerPID;
+    *messageOut >> tableLock.ownerSessionID;
+    *messageOut >> tableLock.ownerTxnID;
+    *messageOut >> tmp8;
+    tableLock.state = (columnstore_lock_types_t)tmp8;
+    *messageOut >> tmp64;
+    tableLock.creationTime = tmp64;
+    *messageOut >> tmp64;
+    for (uint64_t i = 0; i < tmp64; i++) {
+        *messageOut >> tmp32;
+        tableLock.dbrootList.push_back(tmp32);
+    }
+    connection->deleteReadMessage();
+    return tableLock;
+}
+
+void ColumnStoreCommands::brmGetAllTableLocks(std::vector<TableLockInfo>& tableLocks)
+{
+    ColumnStoreMessaging messageIn;
+    ColumnStoreMessaging* messageOut;
+    ColumnStoreNetwork *connection = getBrmConnection();
+    runSoloLoop(connection);
+
+    uint8_t command = COMMAND_DBRM_GET_ALL_TABLE_LOCKS;
+    messageIn << command;
+    connection->sendData(messageIn);
+    runSoloLoop(connection);
+
+    connection->readDataStart();
+    messageOut = connection->getReadMessage();
+    runSoloLoop(connection);
+
+    uint8_t response;
+    *messageOut >> response;
+    if (response != 0)
+    {
+        std::string errmsg("Error getting all table lock information");
+        connection->deleteReadMessage();
+        throw ColumnStoreServerError(errmsg);
+    }
+    // deserialize the package data into TableLockInfo elements
+    uint64_t numberOfEntries;
+    *messageOut >> numberOfEntries;
+    TableLockInfo tableLock;
+    uint64_t tmp64;
+    uint32_t tmp32;
+    uint8_t tmp8;
+    for (uint64_t j = 0; j < numberOfEntries; j++) {
+        tableLock.dbrootList.clear();
+        *messageOut >> tableLock.id;
+        *messageOut >> tableLock.tableOID;
+        *messageOut >> tableLock.ownerName;
+        *messageOut >> tableLock.ownerPID;
+        *messageOut >> tableLock.ownerSessionID;
+        *messageOut >> tableLock.ownerTxnID;
+        *messageOut >> tmp8;
+        tableLock.state = (columnstore_lock_types_t)tmp8;
+        *messageOut >> tmp64;
+        tableLock.creationTime = tmp64;
+        *messageOut >> tmp64;
+        for (uint64_t i = 0; i < tmp64; i++) {
+            *messageOut >> tmp32;
+            tableLock.dbrootList.push_back(tmp32);
+        }
+        tableLocks.push_back(tableLock);
+    }
+    connection->deleteReadMessage();
+}
+
 }

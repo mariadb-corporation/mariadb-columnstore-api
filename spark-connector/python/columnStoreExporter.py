@@ -26,7 +26,6 @@ def export(database, table, df, configuration=None):
         long = int
         python2 = False
 
-    rows = df.collect()
     if configuration == None:
         driver = pymcsapi.ColumnStoreDriver()
     else:
@@ -40,7 +39,7 @@ def export(database, table, df, configuration=None):
     
     # insert row by row into table
     try:
-        for row in rows:
+        for row in df.rdd.toLocalIterator():
             for columnId in range(0, len(row)):
                 if columnId < dbTableColumnCount:
                     if row[columnId] is None:

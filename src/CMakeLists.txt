@@ -1,5 +1,5 @@
 if (Boost_VERSION VERSION_LESS 105800)
-    include_directories(${LIBXML2_INCLUDE_DIR} ../boost/multiprecision/include ../boost/type_traits/include ../boost/config/include ../boost/lexical_cast/include)
+    include_directories(${LIBXML2_INCLUDE_DIR} ../boost/multiprecision/include ../boost/type_traits/include ../boost/config/include ../boost/lexical_cast/include ../boost/utility/include)
 else()
     include_directories(${LIBXML2_INCLUDE_DIR})
 endif()
@@ -13,10 +13,6 @@ IF(WIN32)
 ENDIF(WIN32)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBUILDING_MCSAPI")
-
-if (HAVE_GET_TIME)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAVE_GET_TIME=1")
-endif(HAVE_GET_TIME)
 
 set(SOURCE_FILES
     mcsapi_driver.cpp
@@ -53,15 +49,15 @@ IF(RUN_CPPCHECK)
   add_cppcheck(mcsapi FORCE)
 ENDIF(RUN_CPPCHECK)
 
-
-INSTALL(TARGETS mcsapi DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libs)
-INSTALL(TARGETS mcsapi_static DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libs)
+INSTALL(TARGETS mcsapi DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT cpp)
+INSTALL(TARGETS mcsapi_static DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT cpp)
 
 # On Windows install in addition the dependent shared libraries (libuv, libxml and libiconv) used during building
 IF(WIN32)
-    INSTALL(FILES ${LIBXML2_RUNTIME_LIBRARY} DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libs)
-    INSTALL(FILES ${LIBICONV_RUNTIME_LIBRARY} DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libs)
-    INSTALL(FILES ${LIBUV_RUNTIME_LIBRARY} DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libs)
+    INSTALL(FILES ${LIBXML2_RUNTIME_LIBRARY} DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT cpp)
+    INSTALL(FILES ${LIBICONV_RUNTIME_LIBRARY} DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT cpp)
+    INSTALL(FILES ${LIBUV_RUNTIME_LIBRARY} DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT cpp)
     # also place mcsapi.dll into the examples directory to get basic_bulk_insert.exe and advanced_bulk_insert.exe executable
-    INSTALL(TARGETS mcsapi RUNTIME DESTINATION "${CMAKE_INSTALL_DOCDIR}/example" COMPONENT devel)
+    INSTALL(TARGETS mcsapi RUNTIME DESTINATION "${CMAKE_INSTALL_DOCDIR}/example" COMPONENT cpp_devel)
 ENDIF(WIN32)
+

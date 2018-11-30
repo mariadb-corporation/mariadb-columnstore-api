@@ -8,7 +8,7 @@ IF(WIN32)
     
     find_library(
         LIBMYSQL_RUNTIME_LIBRARY
-        NAMES LIBMYSQL libmysql
+        NAMES LIBMYSQL libmysql libmariadb LIBMARIADB
         hintS $ENV{LIBMYSQL_RUNTIME_DIRECTORY}
     )
     if (${LIBMYSQL_RUNTIME_LIBRARY} STREQUAL "LIBMYSQL_RUNTIME_LIBRARY-NOTFOUND")
@@ -39,7 +39,9 @@ compile_test(chained)
 compile_test(dataconvert-int)
 compile_test(dataconvert-double)
 compile_test(dataconvert-string)
+compile_test(dataconvert-status)
 compile_test(dataconvert-datetime)
+compile_test(dataconvert-time)
 compile_test(dataconvert-decimal)
 compile_test(dataconvert-null)
 compile_test(bad-usage)
@@ -49,6 +51,8 @@ compile_test(system-catalog)
 compile_test(char4)
 compile_test(mcol1160)
 compile_test(mcol1408)
+compile_test(mcol1792)
+compile_test(tableLocks)
 
 # On Windows copy the required shared libraries to execute the tests into the test folder as well.
 IF(WIN32)

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <Property Id="PYTHON_2_INSTALL_LOCATION_X64" Secure="yes">
+        <RegistrySearch Id="PYTHON_2_USER_INSTALL_LOCATION_X64"
+            Root="HKCU"
+            Key="SOFTWARE\Python\PythonCore\@PYTHON2_VERSION@\InstallPath"
+            Type="raw" 
+            Win64="yes"/>
+        <RegistrySearch Id="PYTHON_2_GLOBAL_INSTALL_LOCATION_X64"
+            Root="HKLM"
+            Key="SOFTWARE\Python\PythonCore\@PYTHON2_VERSION@\InstallPath"
+            Type="raw" 
+            Win64="yes"/>
+    </Property>
+    
+    <DirectoryRef Id="TARGETDIR">
+      <Directory Id='PYTHON_2_INSTALL_LOCATION_X64' Name='Python2Dir'>
+        <Directory Id='python2DLLs' Name='DLLs'>
+            <Component Id='python2LibXml2' Guid='6eaae654-18e7-4209-aef7-c37964d17ce4'>
+              <File Id='python2LibXml2' Source='@LIBXML2_RUNTIME_LIBRARY@' KeyPath='yes'/>
+            </Component>
+            <Component Id='python2LibUv' Guid='5739e4a4-9f10-4246-8873-0758ee6bc866'>
+              <File Id='python2LibUv' Source='@LIBUV_RUNTIME_LIBRARY@' KeyPath='yes'/>
+            </Component>
+            <Component Id='python2LibIconv' Guid='52efa942-9873-4060-85cb-f50ba202ec59'>
+              <File Id='python2LibIconv' Source='@LIBICONV_RUNTIME_LIBRARY@' KeyPath='yes'/>
+            </Component>
+            <Component Id='python2mcsapi' Guid='13e29fae-a389-478a-a471-d3ff6cc141d0'>
+              <File Id='python2mcsapi' Source='$<TARGET_FILE:mcsapi>' KeyPath='yes'/>
+            </Component>
+            <Component Id='python2pymcsapiSo' Guid='7e4232f0-c1f5-4696-963e-809fc9d46f10'>
+              <File Id='python2pymcsapiSo' Source='$<TARGET_FILE:_pymcsapi>' KeyPath='yes'/>
+            </Component>
+        </Directory>
+        <Directory Id='python2Lib' Name='Lib'>
+            <Component Id='python2pymcsapi' Guid='1d3a06d9-6932-4dd0-99b6-aab5a0f22ca6'>
+              <File Id='python2pymcsapi' Source='@PYTHON2_PYMCSAPI_PY@' KeyPath='yes'/>
+              <RemoveFile Id='python2pymcsapiPyc' On='uninstall' Name='pymcsapi.pyc' />
+            </Component>
+            <Component Id='python2reservedWords' Guid='a3b8b378-a2a5-4aab-a265-d0a20122975e'>
+              <File Id='python2reservedWords' Source='@PYTHON2_RESERVED_WORDS@' KeyPath='yes'/>
+            </Component>
+            <Component Id='python2columnStoreExporter' Guid='a8f2464a-7586-4359-8f42-4899a469b714'>
+              <File Id='python2columnStoreExporter' Source='@PYTHON2_COLUMNSTORE_EXPORTER@' KeyPath='yes'/>
+              <RemoveFile Id='python2columnStoreExporterPyc' On='uninstall' Name='columnStoreExporter.pyc' />
+            </Component>
+        </Directory>
+      </Directory>
+    </DirectoryRef>
+    
+    <Feature Id="Python2DirectInstallation" Title="Install pymcsapi in Python @PYTHON2_VERSION@" Description="Integrate pymcsapi directly into your Python @PYTHON2_VERSION@ directory, ready to use" Display="expand" Level="0">
+        <ComponentRef Id='python2LibXml2' />
+        <ComponentRef Id='python2LibUv' />
+        <ComponentRef Id='python2LibIconv' />
+        <ComponentRef Id='python2mcsapi' />
+        <ComponentRef Id='python2pymcsapiSo' />
+        <ComponentRef Id='python2pymcsapi' />
+        <ComponentRef Id='python2reservedWords' />
+        <ComponentRef Id='python2columnStoreExporter' />
+        <Condition Level="1">PYTHON_2_INSTALL_LOCATION_X64</Condition>
+    </Feature>
+    
+  </Fragment>
+</Wix>

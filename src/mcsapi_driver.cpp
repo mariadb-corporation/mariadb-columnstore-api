@@ -71,10 +71,128 @@ const char* ColumnStoreDriver::getVersion()
     return version;
 }
 
-void ColumnStoreDriver::setDebug(bool enabled)
+void ColumnStoreDriver::setDebug(uint8_t level)
 {
-    mcsdebug_set(enabled);
-    mcsdebug("mcsapi debugging enabled, version %s", this->getVersion());
+    mcsdebug_set(level);
+    mcsdebug("mcsapi debugging set to level %d, version %s", level, this->getVersion());
+}
+
+std::vector<TableLockInfo> ColumnStoreDriver::listTableLocks()
+{
+    ColumnStoreCommands* commands = new ColumnStoreCommands(this->mImpl);
+    std::vector<TableLockInfo> tableLocks;
+    commands->brmGetAllTableLocks(tableLocks);
+    delete commands;
+    return tableLocks;
+}
+
+bool ColumnStoreDriver::isTableLocked(const std::string& db, const std::string& table, TableLockInfo& rtn)
+{
+    uint32_t oid = this->getSystemCatalog().getTable(db,table).getOID();
+    std::vector<TableLockInfo> tableLocks = this->listTableLocks();
+    for (auto& tableLock : tableLocks){
+        if (tableLock.tableOID == oid) {
+            rtn = tableLock;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool ColumnStoreDriver::isTableLocked(const std::string& db, const std::string& table) {
+    mcsapi::TableLockInfo tbi;
+    return(this->isTableLocked(db, table, tbi));
+}
+
+void ColumnStoreDriver::clearTableLock(uint64_t lockId) {
+    ColumnStoreCommands* commands = new ColumnStoreCommands(this->mImpl);
+
+    // grab the lock to clear and delete it
+    TableLockInfo tli = commands->brmGetTableLockInfo(lockId);
+    clearTableLock(tli);
+
+    delete commands;
+}
+
+void ColumnStoreDriver::clearTableLock(TableLockInfo tbi) 
+{
+    ColumnStoreCommands* commands = new ColumnStoreCommands(this->mImpl);
+
+    // get the list of PMs to restore this transaction 
+    // (all PMs not only the ones assisiated to the mentioned dbroots just in case a dbroot has been moved to a different PM)
+    std::vector<uint16_t> pmList;
+    std::vector<uint32_t> dbRoots;
+    if (pmList.size() == 0)
+    {
+        uint32_t pmCount = this->mImpl->getPMCount();
+        for (uint32_t pmit = 1; pmit <= pmCount; pmit++)
+        {
+            pmList.push_back(pmit);
+            this->mImpl->getDBRootsForPM(pmit, dbRoots);
+        }
+    }
+
+    if (pmList.size() == 0)
+    {
+        std::string err("No PMs found in configuration");
+        throw ColumnStoreConfigError(err);
+    }
+    if (dbRoots.size() == 0)
+    {
+        std::string err("No DBRoots found in configuration");
+        throw ColumnStoreConfigError(err);
+    }
+
+    if (!commands->procMonCheckVersion())
+    {
+        std::string err("Incompatible ColumnStore version found");
+        throw ColumnStoreVersionError(err);
+    }
+
+    // get a connection
+    for (auto& pmit : pmList)
+    {
+        commands->weKeepAlive(pmit);
+    }
+
+    // send rollback msg to writeEngine server for every PM
+    uint64_t uniqueId = commands->brmGetUniqueId();
+    for (auto& pmit : pmList)
+    {
+        std::vector<uint64_t> lbids;
+        commands->weGetWrittenLbids(pmit, uniqueId, tbi.ownerTxnID, lbids);
+        commands->weRollbackBlocks(pmit, uniqueId, tbi.ownerSessionID, tbi.ownerTxnID);
+        commands->brmRollback(lbids, tbi.ownerTxnID);
+        commands->weBulkRollback(pmit, uniqueId, tbi.ownerSessionID, tbi.id, tbi.tableOID);
+    }
+
+    // change lock state to cleanup
+    commands->brmChangeState(tbi.id);
+
+    // delete metadata backup rollback files
+    for (auto& pmit : pmList)
+    {
+        commands->weRemoveMeta(pmit, uniqueId, tbi.tableOID);
+        commands->weClose(pmit);
+    }
+    commands->brmRolledback(tbi.ownerTxnID);
+
+    // release table lock
+    commands->brmReleaseTableLock(tbi.id);
+    
+    delete commands;
+}
+
+void ColumnStoreDriver::clearTableLock(const std::string& db, const std::string& table)
+{
+    uint32_t oid = this->getSystemCatalog().getTable(db, table).getOID();
+    std::vector<TableLockInfo> tableLocks = this->listTableLocks();
+    for (auto& tableLock : tableLocks) {
+        if (tableLock.tableOID == oid) {
+            clearTableLock(tableLock);
+        }
+    }
 }
 
 ColumnStoreBulkInsert* ColumnStoreDriver::createBulkInsert(const std::string& db,

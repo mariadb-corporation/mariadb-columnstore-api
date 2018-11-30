@@ -97,14 +97,18 @@ Example
 setDebug()
 ----------
 
-.. py:method:: ColumnStoreDriver.setDebug(enabled)
+.. py:method:: ColumnStoreDriver.setDebug(level)
 
-   Enables/disables verbose debugging output which is sent to stderr upon execution.
+   Enables/disables verbose debugging output which is sent to stderr upon execution. Levels are as follows:
+   
+   * ``0`` - Off
+   * ``1`` - Show messages and binary packets truncated at 1000 bytes
+   * ``2`` - Show full messages, full length binary packets and ASCII translations
 
    .. note::
       This is a global setting which will apply to all instances of all of the API's classes after it is set until it is turned off.
 
-   :param enabled: Set to ``True`` to enable and ``False`` to disable.
+   :param level: Set to the log level required, ``0`` = off.
 
 Example
 ^^^^^^^
@@ -141,6 +145,126 @@ Example
        sysCat = driver.getSystemCatalog()
        table = sysCat.getTable("test", "t1")
        print("t1 has %d columns" % (table.getColumnCount(),))
+   except RuntimeError as err:
+       print("Error caught: %s" % (err,))
+
+       
+listTableLocks()
+----------------
+
+.. py:method:: ColumnStoreDriver.listTableLocks()
+
+   Returns a tuple of TableLockInfo objects that contains information about the current table locks in the ColumnStore system.
+   
+   :returns: A tuple of TableLockInfo objects
+   
+Example
+^^^^^^^
+.. code-block:: python
+   :linenos:
+
+   import pymcsapi
+
+   try:
+       driver = pymcsapi.ColumnStoreDriver()
+       tliv = driver.listTableLocks()
+   except RuntimeError as err:
+       print("Error caught: %s" % (err,))
+    
+    
+isTableLocked()
+---------------
+
+.. py:method:: ColumnStoreDriver.isTableLocked(db, table)
+
+   Returns ``True`` if the specified table is locked and ``False`` if it is not locked.
+   
+   :param db: The database name for the table to check
+   :param table: The tabe name to check
+   :returns: ``True`` if the specified table is locked, otherwise ``False``
+   :raises RuntimeError: If the specified table is not existent
+   
+Example
+^^^^^^^
+.. code-block:: python
+   :linenos:
+
+   import pymcsapi
+
+   try:
+       driver = pymcsapi.ColumnStoreDriver()
+       locked = driver.isTableLocked("test","tmp1")
+   except RuntimeError as err:
+       print("Error caught: %s" % (err,))
+       
+.. note::
+   Only locks of tables that have been existent when ColumnStoreDriver was created can be detected.
+   
+   
+clearTableLock()
+----------------
+
+.. py:method:: ColumnStoreDriver.clearTableLock(lockId)
+
+   Clears a table lock with given id
+   
+   :param lockId: The id of the table lock to clear
+   
+Example
+^^^^^^^
+.. code-block:: python
+   :linenos:
+
+   import pymcsapi
+
+   try:
+       driver = pymcsapi.ColumnStoreDriver()
+       tliv = driver.listTableLocks()
+       for tli in tliv:
+           driver.clearTableLock(tli.id)
+   except RuntimeError as err:
+       print("Error caught: %s" % (err,))
+
+
+.. py:method:: ColumnStoreDriver.clearTableLock(tableLockInfo)
+
+   Clears a table lock with given TableLockInfo element using its lock id
+   
+   :param lockId: The TableLockInfo object whose id will be used to clear the lock
+   
+Example
+^^^^^^^
+.. code-block:: python
+   :linenos:
+
+   import pymcsapi
+
+   try:
+       driver = pymcsapi.ColumnStoreDriver()
+       tliv = driver.listTableLocks()
+       for tli in tliv:
+           driver.clearTableLock(tli)
+   except RuntimeError as err:
+       print("Error caught: %s" % (err,))
+       
+
+.. py:method:: ColumnStoreDriver.clearTableLock(db, table)
+
+   Clears a table lock of given database table combination
+   
+   :param db: The database name for the table to clear
+   :param table: The tabe name to clear
+   
+Example
+^^^^^^^
+.. code-block:: python
+   :linenos:
+
+   import pymcsapi
+
+   try:
+       driver = pymcsapi.ColumnStoreDriver()
+       driver.clearTableLock("test","tmp1")
    except RuntimeError as err:
        print("Error caught: %s" % (err,))
 

@@ -23,6 +23,7 @@ namespace mcsapi
 
 
 class ColumnStoreDateTimeImpl;
+class ColumnStoreTimeImpl;
 class ColumnStoreDecimalImpl;
 class ColumnStoreSummaryImpl;
 class ColumnStoreSystemCatalogImpl;
@@ -43,6 +44,22 @@ public:
     bool set(const std::string& dateTime, const std::string& format);
 private:
     ColumnStoreDateTimeImpl* mImpl;
+};
+
+class MCS_API ColumnStoreTime
+{
+    friend class ColumnStoreDataConvert;
+public:
+    ColumnStoreTime();
+    ColumnStoreTime(tm& time);
+    ColumnStoreTime(int32_t hour, uint32_t minute, uint32_t second, uint32_t microsecond = 0, bool is_negative = false);
+    ColumnStoreTime(const std::string& time, const std::string& format);
+
+    ~ColumnStoreTime();
+    bool set(tm& time);
+    bool set(const std::string& time, const std::string& format);
+private:
+    ColumnStoreTimeImpl* mImpl;
 };
 
 class MCS_API ColumnStoreDecimal
@@ -67,6 +84,7 @@ private:
 class MCS_API ColumnStoreSummary
 {
     friend class ColumnStoreBulkInsert;
+    friend class ColumnStoreBulkInsertImpl;
 public:
     ColumnStoreSummary();
     ColumnStoreSummary(const ColumnStoreSummary& summary);
@@ -107,7 +125,8 @@ enum MCS_API columnstore_data_types_t
     DATA_TYPE_UFLOAT,
     DATA_TYPE_UBIGINT,
     DATA_TYPE_UDOUBLE,
-    DATA_TYPE_TEXT
+    DATA_TYPE_TEXT,
+    DATA_TYPE_TIME
 };
 
 class MCS_API ColumnStoreSystemCatalogColumn
@@ -163,6 +182,25 @@ public:
     ColumnStoreSystemCatalogTable& getTable(const std::string& schemaName, const std::string& tableName);
 private:
     ColumnStoreSystemCatalogImpl* mImpl;
+};
+
+enum columnstore_lock_types_t
+{
+    LOCK_TYPE_LOADING,
+    LOCK_TYPE_CLEANUP
+};
+
+struct TableLockInfo
+{
+    uint64_t id;
+    uint32_t tableOID;
+    std::string ownerName;
+    uint32_t ownerPID;
+    uint32_t ownerSessionID;
+    uint32_t ownerTxnID;
+    columnstore_lock_types_t state;
+    time_t creationTime;
+    std::vector<uint32_t> dbrootList;
 };
 
 }
