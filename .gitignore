@@ -84,6 +84,25 @@ build/
 java/libjavamcsapi.so*
 docs/example
 
+#We need simutaneous builds for the dotnet NuGet package
+build-win-x64
+build-linux-x64
+
+#Just about everything in dotnet is created, esp. noteable
+#  are the src/*.cs files which come from swig.
+dotnet/dotnet_mcsapi_wrap.cxx
+dotnet/src/bin/
+dotnet/src/obj/
+dotnet/src/*.cs
+dotnet/test/bin
+dotnet/test/obj
+dotnet/example/bin
+dotnet/example/obj
+dotnet/lib-win-x64
+dotnet/lib-linux-x64
+dotnet/build-win-x64
+dotnet/build-linux-x64
+
 # QtCreator files
 *.config
 *.creator

@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>MariaDB.Data.ColumnStoreDriver</PackageId>
+    <PackageVersion>1.1.6.1</PackageVersion>
+    <Authors>Bill Adams</Authors>
+    <PackageProjectUrl>https://github.com/mariadb-corporation/mariadb-columnstore-api</PackageProjectUrl>
+    <Description>MariaDB ColumnStore API for .Net Core (by wrapping the c++ API).
+
+    This NuGet pacakage currently supports linux-x64 and win-x64.
+
+    The NuGet major.minor.patch version reflects the c++ version number and then
+    a build number is added to that.
+    </Description>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageReleaseNotes>
+      1.1.6.1
+        - First release.
+    </PackageReleaseNotes>
+    <Copyright>Copyright 2018</Copyright>
+    <PackageTags>Client MariaDB ColumnStore</PackageTags>
+							       
+  </PropertyGroup>
+
+    <Target Name="SharedLibTarget" AfterTargets="Build">
+      <Copy SourceFiles="@(MyPackageFiles)" DestinationFolder="$(OutputPath)" ContinueOnError="false" />
+    </Target>
+
+      <ItemGroup>
+        <None Include="..\lib-win-x64\*.dll" Pack="true" PackagePath="runtimes\win-x64\native" />
+        <None Include="..\lib-linux-x64\*.so" Pack="true" PackagePath="runtimes\linux-x64\native" />
+      </ItemGroup>
+
+</Project>
+
