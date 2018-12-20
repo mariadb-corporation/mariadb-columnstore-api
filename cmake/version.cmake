@@ -21,3 +21,6 @@ set(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}-${GIT_VERSION}")
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/version.h.in
                 ${CMAKE_CURRENT_BINARY_DIR}/version.h)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/gitversionAPI.in
+                ${CMAKE_CURRENT_BINARY_DIR}/gitversionAPI)
