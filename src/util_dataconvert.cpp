@@ -238,7 +238,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
             if (fromValue > UINT16_MAX - 2)
             {
                 status = CONVERT_STATUS_SATURATED;
-                val16 = UINT16_MAX;
+                val16 = UINT16_MAX - 2;
             }
             else
             {
@@ -559,7 +559,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
             if (fromValue > UINT16_MAX - 2)
             {
                 status = CONVERT_STATUS_SATURATED;
-                uval16 = UINT16_MAX;
+                uval16 = UINT16_MAX - 2;
             }
             else if (fromValue < 0)
             {
@@ -968,7 +968,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
             if (fromValue > UINT16_MAX - 2)
             {
                 status = CONVERT_STATUS_SATURATED;
-                uval16 = UINT16_MAX;
+                uval16 = UINT16_MAX - 2;
             }
             else if (fromValue < 0)
             {
@@ -1518,7 +1518,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
             if (uval64 > UINT16_MAX - 2)
             {
                 status = CONVERT_STATUS_SATURATED;
-                uval16 = UINT16_MAX;
+                uval16 = UINT16_MAX - 2;
             }
             else
             {
@@ -2110,7 +2110,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
             if (val64 > UINT16_MAX - 2)
             {
                 status = CONVERT_STATUS_SATURATED;
-                uval16 = UINT16_MAX;
+                uval16 = UINT16_MAX - 2;
             }
             else if (val64 < 0)
             {
@@ -2152,7 +2152,7 @@ columnstore_data_convert_status_t ColumnStoreDataConvert::convert(ColumnStoreSys
             if (val64 > UINT32_MAX - 2)
             {
                 status = CONVERT_STATUS_SATURATED;
-                uval32 = UINT32_MAX;
+                uval32 = UINT32_MAX - 2;
             }
             else if (val64 < 0)
             {
