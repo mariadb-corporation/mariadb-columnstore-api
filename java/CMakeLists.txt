@@ -79,9 +79,11 @@ set_target_properties(javamcsapi PROPERTIES VERSION ${MCSAPI_VERSION_STRING}
 )
 
 IF(UNIX)
-    set_target_properties(javamcsapi PROPERTIES 
-        SUFFIX ".so.${MCSAPI_VERSION_STRING}"
-    )
+    IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.0)
+        set_target_properties(javamcsapi PROPERTIES 
+            SUFFIX ".so.${MCSAPI_VERSION_STRING}"
+        )
+    ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.0)
 
     ADD_CUSTOM_COMMAND(TARGET javamcsapi POST_BUILD
         COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/gradlew" -p ${CMAKE_CURRENT_SOURCE_DIR} -Pversion=${MCSAPI_VERSION_STRING} jar
