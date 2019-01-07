@@ -28,6 +28,7 @@ namespace mcsapi
 {
 ColumnStoreDriver::ColumnStoreDriver(const std::string& path)
 {
+    mcsdebug("ColumnStoreDriver %p constructor called", (void*)this);
     mcsdebug("mcsapi version %s", this->getVersion());
     mImpl = new ColumnStoreDriverImpl();
     mImpl->path = path;
@@ -40,6 +41,7 @@ ColumnStoreDriver::ColumnStoreDriver(const std::string& path)
 
 ColumnStoreDriver::ColumnStoreDriver()
 {
+    mcsdebug("ColumnStoreDriver %p constructor called", (void*)this);
     mcsdebug("mcsapi version %s", this->getVersion());
     mImpl = new ColumnStoreDriverImpl();
     char* envpath = std::getenv("COLUMNSTORE_INSTALL_DIR");
@@ -62,6 +64,7 @@ ColumnStoreDriver::ColumnStoreDriver()
 
 ColumnStoreDriver::~ColumnStoreDriver()
 {
+    mcsdebug("ColumnStoreDriver %p deconstructor called", (void*)this);
     delete mImpl;
 }
 
