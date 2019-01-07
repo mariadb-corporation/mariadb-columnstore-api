@@ -59,6 +59,7 @@ test/dataconvert-string
 test/dataconvert-datetime
 test/dataconvert-decimal
 test/dataconvert-null
+test/dataconvert-status
 test/bad-usage
 test/truncation
 test/summary
@@ -66,6 +67,7 @@ test/system-catalog
 test/char4
 test/mcol1160
 test/mcol1408
+test/mcol1662
 version.h
 docs/conf.py
 docs/sources.cmake
