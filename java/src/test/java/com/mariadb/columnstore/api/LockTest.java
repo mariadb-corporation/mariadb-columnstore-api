@@ -106,15 +106,19 @@ public class LockTest extends Common {
             
             // compare both objects
             assertEquals(tli1.getTableOID(), tli2.getTableOID());
-            //assertEquals(tli1.getCreationTime(), tli2.getCreationTime()); //TODO in javamcsapi.i
+            assertEquals(tli1.getCreationTime(), tli2.getCreationTime());
             assertEquals(tli1.getId(), tli2.getId());
             assertEquals(tli1.getOwnerName(), tli2.getOwnerName());
             assertEquals(tli1.getOwnerPID(), tli2.getOwnerPID());
             assertEquals(tli1.getOwnerSessionID(), tli2.getOwnerSessionID());
             assertEquals(tli1.getOwnerTxnID(), tli2.getOwnerTxnID());
             assertEquals(tli1.getState(), tli2.getState());
-            
-            // TODO compare the dbrootlist once fixed in javamcsapi.i
+            dbRootListVector dbr1 = tli1.getDbrootList();
+            dbRootListVector dbr2 = tli2.getDbrootList();
+            assertEquals(dbr1.size(), dbr2.size());
+            for(int i=0; i<dbr1.size(); i++){
+                assertEquals(dbr1.get(i),dbr2.get(i));
+            }
             
             // rollback the bulk injection and clear the lock
             b.rollback();
