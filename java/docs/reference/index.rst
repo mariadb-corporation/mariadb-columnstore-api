@@ -18,6 +18,7 @@ javamcsapi API Reference
    ColumnStoreTime
    TableLockInfo
    TableLockInfoVector
+   dbRootListVector
    columnstore_data_convert_status_t
    columnstore_data_types_t
    columnstore_lock_types_t
