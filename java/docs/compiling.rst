@@ -48,9 +48,10 @@ Windows 10 (x64)
 
 .. code-block:: console
 
-   javac -classpath ".;%mcsapiInstallDir%\lib\java\javamcsapi-1.1.6.jar" Basic_bulk_insert.java
-   java -classpath ".;%mcsapiInstallDir%\lib\java\javamcsapi-1.1.6.jar" -Djava.library.path="%mcsapiInstallDir%\lib" Basic_bulk_insert
+   javac -classpath ".;%mcsapiInstallDir%\lib\java\javamcsapi-1.1.7.jar" Basic_bulk_insert.java
+   java -classpath ".;%mcsapiInstallDir%\lib\java\javamcsapi-1.1.7.jar" -Djava.library.path="%mcsapiInstallDir%\lib" Basic_bulk_insert
 
-The variable ``%mcsapiInstallDir%`` represents the base installation directory of the Bulk Write SDK. (e.g. C:\\Program Files\\MariaDB\\ColumnStore Bulk Write SDK)
+The variable ``%mcsapiInstallDir%`` represents the base installation directory of the Bulk Write SDK. (e.g. ``C:\Program Files\MariaDB\ColumnStore Bulk Write SDK``)
 
-If you don't want to change the ``java.library.path`` you can copy javamcapi's DLLs ``libiconv.dll``, ``libuv.dll``, ``libxml2.dll``, ``mcsapi.dll`` and ``javamcsapi.dll`` from ``%mcsapiInstallDir%\lib`` to the directory of the Java class to execute.
+If you don't want to change the ``java.library.path`` you can copy javamcapi's DLLs ``libiconv.dll``, ``libuv.dll``, ``libxml2.dll``, ``mcsapi.dll`` and ``javamcsapi.dll`` from ``%mcsapiInstallDir%\lib`` to the directory of the Java class to execute.  
+Another option is to just add ``%mcsapiInstallDir%\lib`` to your ``PATH`` environment variable, which is the default setting when you install the Bulk Write SDK.

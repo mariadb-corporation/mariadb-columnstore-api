@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <Property Id="PYTHON_3_INSTALL_LOCATION_X64" Secure="yes">
+        <RegistrySearch Id="PYTHON_3_USER_INSTALL_LOCATION_X64"
+            Root="HKCU"
+            Key="SOFTWARE\Python\PythonCore\@PYTHON3_VERSION@\InstallPath"
+            Type="raw" 
+            Win64="yes"/>
+        <RegistrySearch Id="PYTHON_3_GLOBAL_INSTALL_LOCATION_X64"
+            Root="HKLM"
+            Key="SOFTWARE\Python\PythonCore\@PYTHON3_VERSION@\InstallPath"
+            Type="raw" 
+            Win64="yes"/>
+    </Property>
+    
+    <DirectoryRef Id="TARGETDIR">
+      <Directory Id='PYTHON_3_INSTALL_LOCATION_X64' Name='Python3Dir'>
+        <Directory Id='python3DLLs' Name='DLLs'>
+            <Component Id='python3LibXml2' Guid='0696ad1f-098b-481c-bd27-b6e25e244eca'>
+              <File Id='python3LibXml2' Source='@LIBXML2_RUNTIME_LIBRARY@' KeyPath='yes'/>
+            </Component>
+            <Component Id='python3LibUv' Guid='02e18498-693d-40ae-ba97-fc599e862ad8'>
+              <File Id='python3LibUv' Source='@LIBUV_RUNTIME_LIBRARY@' KeyPath='yes'/>
+            </Component>
+            <Component Id='python3LibIconv' Guid='f3675061-08c5-40c6-9aa5-7f0487470601'>
+              <File Id='python3LibIconv' Source='@LIBICONV_RUNTIME_LIBRARY@' KeyPath='yes'/>
+            </Component>
+            <Component Id='python3mcsapi' Guid='1b9bbf1d-fe13-41df-b6b6-1519976232ca'>
+              <File Id='python3mcsapi' Source='$<TARGET_FILE:mcsapi>' KeyPath='yes'/>
+            </Component>
+            <Component Id='python3pymcsapiSo' Guid='e0f02da8-e52b-4715-a508-d024417751b7'>
+              <File Id='python3pymcsapiSo' Source='$<TARGET_FILE:_pymcsapi3>' KeyPath='yes'/>
+            </Component>
+        </Directory>
+        <Directory Id='python3Lib' Name='Lib'>
+            <Component Id='python3pymcsapi' Guid='1e9df390-9ae1-4292-a4aa-632b010dddcb'>
+              <File Id='python3pymcsapi' Source='@PYTHON3_PYMCSAPI_PY@' KeyPath='yes'/>
+            </Component>
+            <Component Id='python3reservedWords' Guid='21ef6bbf-6f93-41fc-8992-fe3fca56f108'>
+              <File Id='python3reservedWords' Source='@PYTHON3_RESERVED_WORDS@' KeyPath='yes'/>
+            </Component>
+            <Component Id='python3columnStoreExporter' Guid='9a13eaf1-467e-4e71-8afc-279f763e38df'>
+              <File Id='python3columnStoreExporter' Source='@PYTHON3_COLUMNSTORE_EXPORTER@' KeyPath='yes'/>
+            </Component>
+        </Directory>
+      </Directory>
+    </DirectoryRef>
+    
+    <Feature Id="Python3DirectInstallation" Title="Install pymcsapi in Python @PYTHON3_VERSION@" Description="Integrate pymcsapi directly into your Python @PYTHON3_VERSION@ directory, ready to use" Display="expand" Level="0">
+        <ComponentRef Id='python3LibXml2' />
+        <ComponentRef Id='python3LibUv' />
+        <ComponentRef Id='python3LibIconv' />
+        <ComponentRef Id='python3mcsapi' />
+        <ComponentRef Id='python3pymcsapiSo' />
+        <ComponentRef Id='python3pymcsapi' />
+        <ComponentRef Id='python3reservedWords' />
+        <ComponentRef Id='python3columnStoreExporter' />
+        <Condition Level="1">PYTHON_3_INSTALL_LOCATION_X64</Condition>
+    </Feature>
+    
+  </Fragment>
+</Wix>

@@ -71,14 +71,14 @@ def drop_table(conn, tablename):
     exec_stmt(conn, "DROP TABLE IF EXISTS %s" %(tablename,))
    
 def all_types_validate(conn, rowid, expected):
-    query_all_types = "select uint64, int64, uint32, int32, uint16, int16, uint8, `int8`, f, d, ch4, vch30, dt, dtm, dc, tx from pymcsapi_all_types where uint64 = %s"
+    query_all_types = "select uint64, int64, uint32, int32, uint16, int16, uint8, `int8`, f, d, ch4, vch30, dt, dtm, ti, ti6, dc, tx from pymcsapi_all_types where uint64 = %s"
     try:
         cursor = conn.cursor()
         cursor.execute(query_all_types, (rowid,))
         rowsInjected = False
-        for (uint64, int64, uint32, int32, uint16, int16, uint8, int8, f, d, ch4, vch30, dt, dtm, dc, tx) in cursor:
+        for (uint64, int64, uint32, int32, uint16, int16, uint8, int8, f, d, ch4, vch30, dt, dtm, ti, ti6, dc, tx) in cursor:
             rowsInjected = True
-            rowStr = "{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}".format(uint64, int64, uint32, int32, uint16, int16, uint8, int8, f,d, ch4, vch30, dt, dtm, dc, tx)
+            rowStr = "{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}".format(uint64, int64, uint32, int32, uint16, int16, uint8, int8, f, d, ch4, vch30, dt, dtm, ti, ti6, dc, tx)
             assert rowStr == expected
     except mariadb.Error as err:
         pytest.fail("Error executing query: %s, error: %s" %(query_all_types,err))
@@ -112,6 +112,8 @@ def test_all_types():
     vch30 varchar(30),
     dt date,
     dtm datetime,
+    ti time,
+    ti6 time(6),
     dc decimal(18),
     tx text
     ) engine=columnstore""" % (tablename,)
@@ -136,8 +138,10 @@ def test_all_types():
         b.setColumn(11, 'Hello World')
         b.setColumn(12, pymcsapi.ColumnStoreDateTime(2017, 9, 8))
         b.setColumn(13, pymcsapi.ColumnStoreDateTime(2017, 9, 8, 13, 58, 23))
-        b.setColumn(14, pymcsapi.ColumnStoreDecimal(123)) 
-        b.setColumn(15, 'Hello World Longer')
+        b.setColumn(14, pymcsapi.ColumnStoreTime())
+        b.setColumn(15, pymcsapi.ColumnStoreTime())
+        b.setColumn(16, pymcsapi.ColumnStoreDecimal(123)) 
+        b.setColumn(17, 'Hello World Longer')
         b.writeRow()
         
         # min values
@@ -155,8 +159,10 @@ def test_all_types():
         b.setColumn(11, 'B')
         b.setColumn(12, pymcsapi.ColumnStoreDateTime(1000, 1, 1))
         b.setColumn(13, pymcsapi.ColumnStoreDateTime(1000, 1, 1, 0, 0, 0))
-        b.setColumn(14, pymcsapi.ColumnStoreDecimal(-123))
-        b.setColumn(15, 'C')
+        b.setColumn(14, pymcsapi.ColumnStoreTime(-23,59,59))
+        b.setColumn(15, pymcsapi.ColumnStoreTime(-23,59,59,999999))
+        b.setColumn(16, pymcsapi.ColumnStoreDecimal(-123))
+        b.setColumn(17, 'C')
         b.writeRow()
 
         # max values
@@ -174,8 +180,10 @@ def test_all_types():
         b.setColumn(11, '012345678901234567890123456789')
         b.setColumn(12, pymcsapi.ColumnStoreDateTime(9999, 12, 31))
         b.setColumn(13, pymcsapi.ColumnStoreDateTime(9999, 12, 31, 23, 59, 59))
-        b.setColumn(14, pymcsapi.ColumnStoreDecimal(123))
-        b.setColumn(15, '012345678901234567890123456789')
+        b.setColumn(14, pymcsapi.ColumnStoreTime(23,59,59))
+        b.setColumn(15, pymcsapi.ColumnStoreTime(23,59,59,999999))
+        b.setColumn(16, pymcsapi.ColumnStoreDecimal(123))
+        b.setColumn(17, '012345678901234567890123456789')
         b.writeRow()
         
         b.commit()
@@ -184,16 +192,16 @@ def test_all_types():
         pytest.fail("Error executing bulk insert: %s" % (err,)) 
 
     # verify data
-    all_types_validate(conn, 1, "1, 2, 3, 4, 5, 6, 7, 8, 1.234, 2.34567, ABCD, Hello World, 2017-09-08, 2017-09-08 13:58:23, 123, Hello World Longer")
-    all_types_validate(conn, 0, "0, -9223372036854775806, 0, -2147483646, 0, -32766, 0, -126, 1.234, 2.34567, A, B, 1000-01-01, 1000-01-01 00:00:00, -123, C")
-    all_types_validate(conn, 9223372036854775807, "9223372036854775807, 9223372036854775807, 4294967293, 2147483647, 65533, 32767, 253, 127, 1.234, 2.34567, ZYXW, 012345678901234567890123456789, 9999-12-31, 9999-12-31 23:59:59, 123, 012345678901234567890123456789")
+    all_types_validate(conn, 1, "1, 2, 3, 4, 5, 6, 7, 8, 1.234, 2.34567, ABCD, Hello World, 2017-09-08, 2017-09-08 13:58:23, 0:00:00, 0:00:00, 123, Hello World Longer")
+    all_types_validate(conn, 0, "0, -9223372036854775806, 0, -2147483646, 0, -32766, 0, -126, 1.234, 2.34567, A, B, 1000-01-01, 1000-01-01 00:00:00, -1 day, 0:00:01, -1 day, 0:00:00.000001, -123, C")
+    all_types_validate(conn, 9223372036854775807, "9223372036854775807, 9223372036854775807, 4294967293, 2147483647, 65533, 32767, 253, 127, 1.234, 2.34567, ZYXW, 012345678901234567890123456789, 9999-12-31, 9999-12-31 23:59:59, 23:59:59, 23:59:59.999999, 123, 012345678901234567890123456789")
     
     drop_table(conn, tablename)
     conn.close()
 
  
 #
-# Test creation of date/datetime values from 2016-01-01 to 2016-12-31 for both date and datetime columnstore
+# Test creation of date/datetime values from 2016-01-01 to 2016-12-31 both date and datetime columnstore
 #
 def test_dates():
      # setup / create test table
@@ -320,3 +328,4 @@ def  test_i1_vch3():
     i1_common('varchar', 3)
 
 test_all_types()
+test_dates()

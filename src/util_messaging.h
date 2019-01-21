@@ -37,7 +37,7 @@ public:
     ColumnStoreMessaging& operator <<(const uint16_t data);
     ColumnStoreMessaging& operator <<(const uint32_t data);
     ColumnStoreMessaging& operator <<(const uint64_t data);
-    ColumnStoreMessaging& operator <<(const std::string& data);
+    ColumnStoreMessaging& operator <<(const boost::string_ref& data);
 
     ColumnStoreMessaging& operator >>(uint8_t& data);
     ColumnStoreMessaging& operator >>(uint16_t& data);

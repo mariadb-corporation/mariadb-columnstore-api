@@ -19,18 +19,21 @@
 #include "common.h"
 #include "util_debug.h"
 
-#include <stdarg.h>
+static uint8_t debugging_level = 0;
 
-static bool debugging_enabled = false;
-
-void mcsdebug_set(bool enabled)
+void mcsdebug_set(uint8_t level)
 {
-    debugging_enabled = enabled;
+    debugging_level = level;
 }
 
-void mcsdebug(const char* MSG, ...)
+uint8_t mcsdebug_get()
 {
-    if (!debugging_enabled)
+    return debugging_level;
+}
+
+void mcsdebug_impl(const char* MSG, const char* file, size_t line, va_list argptr)
+{
+    if (!debugging_level)
     {
         return;
     }
@@ -43,23 +46,15 @@ void mcsdebug(const char* MSG, ...)
     nowtm = localtime(&nowtime);
     strftime(tmpdbuf, sizeof tmpdbuf, "%H:%M:%S", nowtm);
     snprintf(dbuf, sizeof dbuf, "%s.%06ld", tmpdbuf, tv.tv_usec);
-    va_list argptr;
-    va_start(argptr, MSG);
-#ifdef _WIN32
-    fprintf(stderr, "[mcsapi][%s] %s:%d ", dbuf,  __FILE__, __LINE__);
-#endif
-#ifdef __linux__
-    fprintf(stderr, "[mcsapi][%s] %s:%d ", dbuf,  __FILENAME__, __LINE__);
-#endif
+    fprintf(stderr, "[mcsapi][%s] %s:%lu ", dbuf,  file, line);
     vfprintf(stderr, MSG, argptr);
     fprintf(stderr, "\n");
-    va_end(argptr);
 }
 
 
-void mcsdebug_hex(const char* DATA, size_t LEN)
+void mcsdebug_hex_impl(const char* DATA, size_t LEN, const char* file, size_t line)
 {
-    if (!debugging_enabled)
+    if (!debugging_level)
     {
         return;
     }
@@ -73,32 +68,30 @@ void mcsdebug_hex(const char* DATA, size_t LEN)
     strftime(tmpdbuf, sizeof tmpdbuf, "%H:%M:%S", nowtm);
     snprintf(dbuf, sizeof dbuf, "%s.%06ld", tmpdbuf, tv.tv_usec);
     size_t hex_it;
-#ifdef _WIN32
-    fprintf(stderr, "[mcsapi][%s] %s:%d packet hex: ", dbuf, __FILE__, __LINE__);
-#endif
-#ifdef __linux__
-    fprintf(stderr, "[mcsapi][%s] %s:%d packet hex: ", dbuf, __FILENAME__, __LINE__);
-#endif
+    fprintf(stderr, "[mcsapi][%s] %s:%lu packet hex: ", dbuf, file, line);
     for (hex_it = 0; hex_it < LEN ; hex_it++)
     {
+        if ((debugging_level == 1) && (hex_it > 512))
+        {
+            fprintf(stderr, "...");
+            break;
+        }
         fprintf(stderr, "%02X ", (unsigned char)DATA[hex_it]);
     }
     fprintf(stderr, "\n");
-#ifdef _WIN32
-    fprintf(stderr, "[mcsapi][%s] %s:%d printable packet data: ", dbuf, __FILE__, __LINE__);
-#endif
-#ifdef __linux__
-    fprintf(stderr, "[mcsapi][%s] %s:%d printable packet data: ", dbuf, __FILENAME__, __LINE__);
-#endif
-    for (hex_it = 0; hex_it < LEN ; hex_it++)
+    if (debugging_level == 2)
     {
-        if (((unsigned char)DATA[hex_it] < 0x21) || (((unsigned char)DATA[hex_it] > 0x7e)))
+        fprintf(stderr, "[mcsapi][%s] %s:%lu printable packet data: ", dbuf, file, line);
+        for (hex_it = 0; hex_it < LEN ; hex_it++)
         {
-            fprintf(stderr, ".");
-        }
-        else
-        {
-            fprintf(stderr, "%c", (unsigned char)DATA[hex_it]);
+            if (((unsigned char)DATA[hex_it] < 0x21) || (((unsigned char)DATA[hex_it] > 0x7e)))
+            {
+                fprintf(stderr, ".");
+            }
+            else
+            {
+                fprintf(stderr, "%c", (unsigned char)DATA[hex_it]);
+            }
         }
     }
     fprintf(stderr, "\n");

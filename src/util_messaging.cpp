@@ -68,14 +68,14 @@ ColumnStoreMessaging& ColumnStoreMessaging::operator <<(const uint64_t data)
 
     return *this;
 }
-ColumnStoreMessaging& ColumnStoreMessaging::operator <<(const std::string& data)
+ColumnStoreMessaging& ColumnStoreMessaging::operator <<(const boost::string_ref& data)
 {
     addHeader();
     // 4 bytes for length, then data
     uint32_t length = data.length();
     networkData.insert(networkData.end(), (unsigned char*)&length, (unsigned char*)&length + 4);
     lengths.push_back(4);
-    networkData.insert(networkData.end(), (unsigned char*)data.c_str(), (unsigned char*)data.c_str() + data.length());
+    networkData.insert(networkData.end(), (unsigned char*)data.data(), (unsigned char*)data.data() + data.length());
     lengths.push_back(data.length());
 
     return *this;

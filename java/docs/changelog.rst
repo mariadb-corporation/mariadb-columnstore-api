@@ -6,6 +6,12 @@ This is a version history of Java API interface changes. It does not include int
 +---------+---------------------------------------------------------------------------------------------------------------------------------------+
 | Version | Changes                                                                                                                               |
 +=========+=======================================================================================================================================+
+| 1.2.3   | - Added missing getter methods for :java:ref:`TableLockInfo`                                                                          |
++---------+---------------------------------------------------------------------------------------------------------------------------------------+
+| 1.2.2   | - Added :java:meth:`ColumnStoreDriver.clearTableLock`                                                                                 |
+|         | - Added :java:meth:`ColumnStoreDriver.isTableLocked`                                                                                  |
+|         | - Added :java:meth:`ColumnStoreDriver.listTableLocks`                                                                                 |
++---------+---------------------------------------------------------------------------------------------------------------------------------------+
 | 1.1.6   | - Java documentation added                                                                                                            |
 |         | - Added :java:meth:`ColumnStoreDriver.getJavaMcsapiVersion` to return version information about the java wrapper library              |
 |         |   javamcsapi.jar                                                                                                                      |

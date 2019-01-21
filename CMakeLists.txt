@@ -16,17 +16,6 @@ if(NOT COMPILER_SUPPORTS_CXX11)
     message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
 endif()
 
-CHECK_CXX_SOURCE_COMPILES("
-#include <time.h>
-#include <sstream>
-#include <iomanip>
-int main(int argc, char** argv){
-    tm time = {};
-    std::istringstream ss(\"01-01-01 00:00:00\");
-    ss >> std::get_time(&time, \"%Y\");
-    return 0;
-}" HAVE_GET_TIME)
-
 include(cmake/version.cmake)
 
 # use, i.e. don't skip the full RPATH for the build tree
@@ -66,11 +55,18 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wformat -Wformat-security -fstack-protector-all -fstack-check -Wno-format-truncation -Wno-unused-command-line-argument -Wno-unknown-warning-option -pie -fPIC")
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
-#Find the packages and libraries
+# Find the packages and libraries
 IF(WIN32)
     SET(FIND_LIBRARY_USE_LIB64_PATHS ON)
     SET(CMAKE_FIND_LIBRARY_PREFIXES_BAK "${CMAKE_FIND_LIBRARY_PREFIXES}")
     SET(CMAKE_FIND_LIBRARY_SUFFIXES_BAK "${CMAKE_FIND_LIBRARY_SUFFIXES}")
+    # Include external lib and include directory if environment variable MCSAPI_BUILD_DEPENDENCY_DIR is set
+    IF(DEFINED ENV{MCSAPI_BUILD_DEPENDENCY_DIR})
+        LIST(APPEND CMAKE_PREFIX_PATH $ENV{MCSAPI_BUILD_DEPENDENCY_DIR})
+        MESSAGE(STATUS "Added $ENV{MCSAPI_BUILD_DEPENDENCY_DIR} to CMAKE_PREFIX_PATH")
+    ELSE()
+        MESSAGE(STATUS "Notice: Set the environment variable MCSAPI_BUILD_DEPENDENCY_DIR to define an additional dependency directory to search for headers and libraries.")
+    ENDIF(DEFINED ENV{MCSAPI_BUILD_DEPENDENCY_DIR})
 ENDIF(WIN32)
 
 INCLUDE(FindLibXml2)
@@ -139,9 +135,54 @@ if (Boost_VERSION VERSION_LESS 105800)
 
     if ((NOT BOOST_SUB_DIR) OR (NOT EXISTS ${BOOST_SUB_DIR}))
         execute_process(COMMAND git submodule update --init
-                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     endif()
 endif()
+
+# On Windows find the Microsoft Visual Studio 2017 C++ Redistributable merge module (x64) that is packaged with mcsapi
+IF(WIN32)
+    # Macro to get the subdirectories of a given directory
+    MACRO(SUBDIRLIST result curdir)
+      FILE(GLOB children RELATIVE ${curdir} ${curdir}/*)
+      SET(dirlist "")
+      FOREACH(child ${children})
+        IF(IS_DIRECTORY ${curdir}/${child})
+          LIST(APPEND dirlist ${child})
+        ENDIF()
+      ENDFOREACH()
+      SET(${result} ${dirlist})
+    ENDMACRO()
+
+    # Build up potential merge module paths
+    SET(VISUAL_STUDIO_PATHS)
+    LIST(APPEND VISUAL_STUDIO_PATHS "$ENV{ProgramFiles}/Microsoft Visual Studio/2017/Community/VC/Redist/MSVC")
+    LIST(APPEND VISUAL_STUDIO_PATHS "$ENV{ProgramFiles} (x86)/Microsoft Visual Studio/2017/Community/VC/Redist/MSVC")
+    LIST(APPEND VISUAL_STUDIO_PATHS "$ENV{ProgramFiles}/Microsoft Visual Studio/2017/Enterprise/VC/Redist/MSVC")
+    LIST(APPEND VISUAL_STUDIO_PATHS "$ENV{ProgramFiles} (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Redist/MSVC")
+    LIST(APPEND VISUAL_STUDIO_PATHS "$ENV{ProgramFiles}/Microsoft Visual Studio/2017/Professional/VC/Redist/MSVC")
+    LIST(APPEND VISUAL_STUDIO_PATHS "$ENV{ProgramFiles} (x86)/Microsoft Visual Studio/2017/Professional/VC/Redist/MSVC")
+    
+    SET(MSM_PATHS)
+    FOREACH(VISUAL_STUDIO_PATH ${VISUAL_STUDIO_PATHS})
+        file(TO_CMAKE_PATH ${VISUAL_STUDIO_PATH} VISUAL_STUDIO_PATH_CONV)
+        SUBDIRLIST(SUB_DIRS ${VISUAL_STUDIO_PATH_CONV})
+        FOREACH(SUB_DIR ${SUB_DIRS})
+            LIST(APPEND MSM_PATHS "${VISUAL_STUDIO_PATH}/${SUB_DIR}/MergeModules")
+        ENDFOREACH()
+    ENDFOREACH()
+    
+    # Try to find the merge module
+    find_file(
+        VS_2017_REDIST_MSM
+        NAMES Microsoft_VC141_CRT_x64.msm Microsoft_VC140_CRT_x64.msm
+        HINTS $ENV{MSM_DIRECTORY}
+        PATHS ${MSM_PATHS}
+    )
+    if (${VS_2017_REDIST_MSM} STREQUAL "VS_2017_REDIST_MSM-NOTFOUND")
+        MESSAGE(FATAL_ERROR "Could not find a usable Visual Studio 2015/17 C++ Redistributable merge module Microsoft_VC141_CRT_x64.msm!\nYou can hint cmake by setting the environment variable MSM_DIRECTORY.")
+    ENDIF()
+    MESSAGE(STATUS "Found Visual Studio 2015/17 C++ Redistributable merge module: ${VS_2017_REDIST_MSM}")
+ENDIF(WIN32)
 
 include_directories(${CMAKE_SOURCE_DIR})
 include_directories(${CMAKE_BINARY_DIR})
@@ -192,8 +233,6 @@ IF(SPARK_CONNECTOR)
   ENDIF(PYTHON)
 ENDIF(SPARK_CONNECTOR)  
 
-OPTION(SIGNCODE "Sign the MSI installer" OFF)
-
 option(BUILD_DOCS "Build the documentation" OFF)
 #option(PDFLATEX_COMPILER "Build the pdf documentation (requires latex)" OFF)
 
@@ -206,33 +245,70 @@ if (NOT PKG_CONFIG_FOUND)
     MESSAGE(FATAL_ERROR "Could not find a usable pkg-config development environment!")
 endif()
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/libmcsapi.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/libmcsapi.pc" @ONLY)
+IF(WIN32)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libmcsapi.pc"
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig" COMPONENT devel)
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig" COMPONENT cpp_devel) #Windows requires underscore
+ELSE(WIN32)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libmcsapi.pc"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig" COMPONENT cpp-devel) #Debian requires dash
+ENDIF(WIN32)
 
 install(FILES "README.md"
     "LICENSE.txt"
-    DESTINATION "${CMAKE_INSTALL_DOCDIR}" COMPONENT libs
+    DESTINATION "${CMAKE_INSTALL_DOCDIR}" COMPONENT cpp
 )
+IF(WIN32)
+    install(FILES "resources/3rd party licenses.txt"
+        DESTINATION "${CMAKE_INSTALL_DOCDIR}" COMPONENT cpp
+    )
+ENDIF(WIN32)
 
 if (RPM)
     SET(CPACK_GENERATOR "RPM")
     SET(CPACK_RPM_PACKAGE_VERSION ${VERSION_SHORT})
     SET(CPACK_RPM_PACKAGE_RELEASE "1")
     SET(CPACK_RPM_PACKAGE_NAME "mariadb-columnstore-api")
+    SET(CPACK_RPM_PACKAGE_SUMMARY "MariaDB ColumnStore API: A SDK to rapidly ingest data into MariaDB ColumnStore")
+    SET(CPACK_RPM_PACKAGE_LICENSE "GPLv2")
     SET(ENGINE_ARCH "x86_64")
     SET(CPACK_PACKAGE_FILE_NAME "${CPACK_RPM_PACKAGE_NAME}-${CPACK_RPM_PACKAGE_VERSION}-${CPACK_RPM_PACKAGE_RELEASE}-${ENGINE_ARCH}-${RPM}")
+    SET(CPACK_RPM_COMPONENT_INSTALL ON)
+    SET(CPACK_RPM_cpp_PACKAGE_REQUIRES "libuv, libxml2, snappy")
+    SET(CPACK_RPM_cpp-devel_PACKAGE_REQUIRES "mariadb-columnstore-api-cpp == ${CPACK_RPM_PACKAGE_VERSION}")
+    SET(CPACK_RPM_java_PACKAGE_REQUIRES "mariadb-columnstore-api-cpp == ${CPACK_RPM_PACKAGE_VERSION}")
+    SET(CPACK_RPM_python_PACKAGE_REQUIRES "mariadb-columnstore-api-cpp == ${CPACK_RPM_PACKAGE_VERSION}")
+    SET(CPACK_RPM_python3_PACKAGE_REQUIRES "mariadb-columnstore-api-cpp == ${CPACK_RPM_PACKAGE_VERSION}")
+    SET(CPACK_RPM_spark_PACKAGE_REQUIRES "mariadb-columnstore-api-java == ${CPACK_RPM_PACKAGE_VERSION}")
+    SET(CPACK_RPM_pyspark_PACKAGE_REQUIRES "mariadb-columnstore-api-python == ${CPACK_RPM_PACKAGE_VERSION}")
+    SET(CPACK_RPM_pyspark3_PACKAGE_REQUIRES "mariadb-columnstore-api-python3 == ${CPACK_RPM_PACKAGE_VERSION}")
     include(CPack)
 endif()
 
 if (DEB)
+    SET(CPACK_DEBIAN_PACKAGE_DEBUG 1)
+    SET(CPACK_PACKAGE_VERSION_MAJOR ${MCSAPI_VERSION_MAJOR})
+    SET(CPACK_PACKAGE_VERSION_MINOR ${MCSAPI_VERSION_MINOR})
+    SET(CPACK_PACKAGE_VERSION_PATCH ${MCSAPI_VERSION_PATCH})
     SET(CPACK_GENERATOR "DEB")
     SET(CPACK_DEBIAN_PACKAGE_VERSION ${VERSION_SHORT})
-    SET(CPACK_DEBIAN_PACKAGE_RELEASE "1")
+    SET(PACKAGE_RELEASE "1") #need to change due to changed behaviour in CMake > 3.10
     SET(CPACK_DEBIAN_PACKAGE_NAME "mariadb-columnstore-api")
+    SET(CPACK_DEBIAN_PACKAGE_SUMMARY "MariaDB ColumnStore API: A SDK to rapidly ingest data into MariaDB ColumnStore")
     SET(CPACK_PACKAGE_CONTACT "MariaDB Corporation")
     SET(ENGINE_ARCH "amd64")
+    SET(CPACK_DEBIAN_PACKAGE_LICENSE "GPLv2")
+    SET(CPACK_PACKAGE_FILE_NAME "${CPACK_DEBIAN_PACKAGE_NAME}-${CPACK_DEBIAN_PACKAGE_VERSION}-${PACKAGE_RELEASE}-${DEB}.${ENGINE_ARCH}")
+    SET(CPACK_DEB_COMPONENT_INSTALL ON)
+    SET(CPACK_DEBIAN_CPP-DEVEL_PACKAGE_DEPENDS "mariadb-columnstore-api-cpp (= ${VERSION_SHORT})")
+    SET(CPACK_DEBIAN_JAVA_PACKAGE_DEPENDS "mariadb-columnstore-api-cpp (= ${VERSION_SHORT})")
+    SET(CPACK_DEBIAN_PYTHON_PACKAGE_DEPENDS "mariadb-columnstore-api-cpp (= ${VERSION_SHORT})")
+    SET(CPACK_DEBIAN_PYTHON3_PACKAGE_DEPENDS "mariadb-columnstore-api-cpp (= ${VERSION_SHORT})")
+    SET(CPACK_DEBIAN_SPARK_PACKAGE_DEPENDS "mariadb-columnstore-api-java (= ${VERSION_SHORT})")
+    SET(CPACK_DEBIAN_PYSPARK_PACKAGE_DEPENDS "mariadb-columnstore-api-python (= ${VERSION_SHORT})")
+    SET(CPACK_DEBIAN_PYSPARK3_PACKAGE_DEPENDS "mariadb-columnstore-api-python3 (= ${VERSION_SHORT})")
     SET(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
-    SET(CPACK_PACKAGE_FILE_NAME "${CPACK_DEBIAN_PACKAGE_NAME}-${CPACK_DEBIAN_PACKAGE_VERSION}-${CPACK_DEBIAN_PACKAGE_RELEASE}-${DEB}.${ENGINE_ARCH}")
+    SET(CPACK_DEBIAN_PACKAGE_GENERATE_SHLIBS ON)
+    SET(CPACK_DEBIAN_PACKAGE_GENERATE_SHLIBS_POLICY ">=")
     include(CPack)
 endif()
 
@@ -242,6 +318,52 @@ if (WIN32)
     SET(CPACK_WIX_UI_BANNER "${CMAKE_CURRENT_SOURCE_DIR}/resources/WixUIBannerBmp.jpg")
     SET(CPACK_WIX_UI_DIALOG "${CMAKE_CURRENT_SOURCE_DIR}/resources/WixUIDialogBmp.jpg")
     SET(CPACK_WIX_PRODUCT_ICON "${CMAKE_CURRENT_SOURCE_DIR}/resources/mariadb.ico")
+    SET(WIX_ADDITIONAL_FILES)
+    IF(PYTHON2_AVAILABLE)
+        # First variable substitution of @VARIABLE@ during configure time
+        configure_file(
+            "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python2.wxs.in"
+            "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python2.wxs.cf"
+            IMMEDIATE @ONLY)
+        # Second variable substitution of generate_expressions during generate time
+        file(GENERATE
+            OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python2.wxs"
+            INPUT "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python2.wxs.cf"
+            CONDITION $<CONFIG:${CMAKE_BUILD_TYPE}>
+        )
+        LIST(APPEND WIX_ADDITIONAL_FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python2.wxs")
+        # Set the variable to include defined feature to be substitued later
+        SET(PYTHON_2_FEATRUE_REF "<FeatureRef Id='Python2DirectInstallation'/>")
+    ENDIF(PYTHON2_AVAILABLE)
+    IF(PYTHON3_AVAILABLE)
+        # First variable substitution of @VARIABLE@ during configure time
+        configure_file(
+            "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python3.wxs.in"
+            "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python3.wxs.cf"
+            IMMEDIATE @ONLY)
+        # Second variable substitution of generate_expressions during generate time
+        file(GENERATE
+            OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python3.wxs"
+            INPUT "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python3.wxs.cf"
+            CONDITION $<CONFIG:${CMAKE_BUILD_TYPE}>
+        )
+        LIST(APPEND WIX_ADDITIONAL_FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/python3.wxs")
+        # Set the variable to include defined feature to be substitued later
+        SET(PYTHON_3_FEATRUE_REF "<FeatureRef Id='Python3DirectInstallation'/>")
+    ENDIF(PYTHON3_AVAILABLE)
+    SET(CPACK_WIX_EXTRA_SOURCES ${WIX_ADDITIONAL_FILES})
+    SET(WIX_PATCH_FILES)
+    configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/product_fragment.patch.in"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/product_fragment.patch"
+        IMMEDIATE @ONLY)
+    LIST(APPEND WIX_PATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/product_fragment.patch")
+    configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/features.patch.in"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/features.patch"
+        IMMEDIATE @ONLY)
+    LIST(APPEND WIX_PATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/features.patch")
+    SET(CPACK_WIX_PATCH_FILE ${WIX_PATCH_FILES})
     SET(CPACK_PACKAGE_NAME "MariaDB ColumnStore Bulk Write SDK")
     set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "MariaDB ColumnStore Bulk Write SDK")
     set(CPACK_PACKAGE_VENDOR "MariaDB Corporation Ab")
@@ -257,54 +379,31 @@ if (WIN32)
     set(CPACK_WIX_UPGRADE_GUID "CDE3BE0F-EAFE-417C-A8CF-4A5F14451845")
     set(CPACK_WIX_CMAKE_PACKAGE_REGISTRY ON)
     set(CPACK_PACKAGE_INSTALL_DIRECTORY "MariaDB/ColumnStore Bulk Write SDK")
-    set(CPACK_COMPONENT_LIBS_DISPLAY_NAME "libraries")
-    set(CPACK_COMPONENT_LIBS_DESCRIPTION "Installs the C++, Python, Java, and Spark connector libraries")
-    set(CPACK_COMPONENT_DEVEL_DISPLAY_NAME "development")
-    set(CPACK_COMPONENT_DEVEL_DESCRIPTION "Installs the C++ header files and examples")
-    if(SIGNCODE)
-        SET( CPACK_OUTPUT_CONFIG_FILE "${CMAKE_BINARY_DIR}/WinPackageConfig.cmake" )
-        include(CPack)
-        ADD_CUSTOM_TARGET ( package
-            COMMAND "${CMAKE_CPACK_COMMAND}" 
-                "-C" "$<CONFIGURATION>"
-                "--config" "${CMAKE_BINARY_DIR}/WinPackageConfig.cmake"
-            COMMENT "-- Running CPack..."
-        )
-        add_dependencies(package mcsapi mcsapi_static basic_bulk_insert advanced_bulk_insert)
-        IF(JAVA)
-            add_dependencies(package javamcsapi)
-        ENDIF()
-        IF(PYTHON)
-            IF(${PYTHON2_AVAILABLE})
-                add_dependencies(package _pymcsapi)
-            ENDIF()
-            IF(${PYTHON3_AVAILABLE})
-                add_dependencies(package _pymcsapi3)
-            ENDIF()
-        ENDIF()
-        IF(SPARK_CONNECTOR)
-            IF(JAVA)
-                add_dependencies(package spark-scala-mcsapi-connector)
-            ENDIF()
-            IF(PYTHON)
-                #nothing to do as this are static files only
-            ENDIF()
-        ENDIF()
-        # sign the msi installer
-        # https://www.digicert.com/code-signing/signcode-signtool-command-line.htm
-        add_custom_command(
-            TARGET package
-            POST_BUILD
-            COMMAND signtool.exe sign 
-            /tr http://timestamp.digicert.com 
-            /td sha256 
-            /fd sha256 
-            /a "${CPACK_PACKAGE_FILE_NAME_COPY}.msi" 
-            COMMENT "-- Signing package..."
-        )
-    else(SIGNCODE)
-        include(CPack)
-    endif(SIGNCODE)
+	set(CPACK_COMPONENT_CPP_REQUIRED 1)
+	set(CPACK_COMPONENT_CPP_DEVEL_DEPENDS cpp)
+	set(CPACK_COMPONENT_JAVA_DEPENDS cpp)
+	set(CPACK_COMPONENT_PYTHON_DEPENDS cpp)
+	set(CPACK_COMPONENT_PYTHON3_DEPENDS cpp)
+	set(CPACK_COMPONENT_SPARK_DEPENDS java)
+	set(CPACK_COMPONENT_PYSPARK_DEPENDS python)
+	set(CPACK_COMPONENT_PYSPARK3_DEPENDS python3)
+    set(CPACK_COMPONENT_CPP_DISPLAY_NAME "C++ libraries")
+    set(CPACK_COMPONENT_CPP_DESCRIPTION "Installs the C++ shared libraries")
+    set(CPACK_COMPONENT_CPP_DEVEL_DISPLAY_NAME "C++ development")
+    set(CPACK_COMPONENT_CPP_DEVEL_DESCRIPTION "Installs the C++ header files for development and examples")
+	set(CPACK_COMPONENT_JAVA_DISPLAY_NAME "Java libraries")
+    set(CPACK_COMPONENT_JAVA_DESCRIPTION "Installs the Java libraries for usage and development")
+	set(CPACK_COMPONENT_PYTHON_DISPLAY_NAME "Python libraries")
+    set(CPACK_COMPONENT_PYTHON_DESCRIPTION "Installs Python libraries for usage and development")
+	set(CPACK_COMPONENT_PYTHON3_DISPLAY_NAME "Python3 libraries")
+    set(CPACK_COMPONENT_PYTHON3_DESCRIPTION "Installs the Python3 libraries for usage and libraries")
+	set(CPACK_COMPONENT_SPARK_DISPLAY_NAME "Spark ColumnStore Exporter")
+    set(CPACK_COMPONENT_SPARK_DESCRIPTION "Installs the ColumnStoreExporter for usage with Spark and Scala")
+	set(CPACK_COMPONENT_PYSPARK_DISPLAY_NAME "PySpark ColumnStore Exporter")
+    set(CPACK_COMPONENT_PYSPARK_DESCRIPTION "Installs the ColumnStoreExporter for usage with PySpark and Python 2.7")
+	set(CPACK_COMPONENT_PYSPARK3_DISPLAY_NAME "PySpark3 ColumnStore Exporter")
+    set(CPACK_COMPONENT_PYSPARK3_DESCRIPTION "Installs the ColumnStoreExporter for usage with PySpark and Python 3")
+    include(CPack)
 endif(WIN32)
 
 # uninstall target
@@ -331,3 +430,5 @@ MESSAGE(STATUS "DEB = ${DEB}")
 MESSAGE(STATUS "Change a values with: cmake -D<Variable>=<Value>")
 MESSAGE(STATUS "------------------------------------------------")
 MESSAGE(STATUS)
+
+

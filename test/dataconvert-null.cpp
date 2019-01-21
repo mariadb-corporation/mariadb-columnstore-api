@@ -54,12 +54,20 @@ class TestEnvironment : public ::testing::Environment {
         FAIL() << "Could not drop existing table: " << mysql_error(my_con);
     if (mysql_query(my_con, "CREATE TABLE IF NOT EXISTS dataconvertnull (a int, b varchar(50), c date, d datetime, e char(2)) engine=columnstore"))
         FAIL() << "Could not create table: " << mysql_error(my_con);
+    if (mysql_query(my_con, "DROP TABLE IF EXISTS dataconvertnull2"))
+        FAIL() << "Could not drop existing table: " << mysql_error(my_con);
+    if (mysql_query(my_con, "CREATE TABLE IF NOT EXISTS dataconvertnull2 (a varchar(50), b decimal(8,6), c decimal(9,6), d tinyint) engine=columnstore"))
+        FAIL() << "Could not create table: " << mysql_error(my_con);
   }
   // Override this to define how to tear down the environment.
   virtual void TearDown()
   {
     if (my_con)
     {
+        if (mysql_query(my_con, "DROP TABLE dataconvertnull"))
+            FAIL() << "Could not drop table: " << mysql_error(my_con);
+        if (mysql_query(my_con, "DROP TABLE dataconvertnull2"))
+            FAIL() << "Could not drop table: " << mysql_error(my_con);
         mysql_close(my_con);
     }
   }
@@ -99,8 +107,42 @@ TEST(DataConvertNull, DataConvertNull)
     ASSERT_STREQ(row[3], NULL);
     ASSERT_STREQ(row[4], NULL);
     mysql_free_result(result);
-    if (mysql_query(my_con, "DROP TABLE dataconvertnull"))
-        FAIL() << "Could not drop table: " << mysql_error(my_con);
+    delete bulk;
+    delete driver;
+}
+
+/* Test that NULL insertion works for decimals */
+TEST(DataConvertNull, MCOL1322)
+{
+    std::string table("dataconvertnull2");
+    std::string db("mcsapi");
+    mcsapi::ColumnStoreDriver* driver;
+    mcsapi::ColumnStoreBulkInsert* bulk;
+    try {
+        driver = new mcsapi::ColumnStoreDriver();
+        bulk = driver->createBulkInsert(db, table, 0, 0);
+        mcsapi::ColumnStoreDecimal dData;
+        bulk->setColumn(0, "text");
+        bulk->setNull(1);
+        bulk->setNull(2);
+        bulk->setColumn(3, 4);
+        bulk->writeRow();
+        bulk->commit();
+    } catch (mcsapi::ColumnStoreError &e) {
+        FAIL() << "Error caught: " << e.what() << std::endl;
+    }
+    if (mysql_query(my_con, "SELECT * FROM dataconvertnull2"))
+        FAIL() << "Could not run test query: " << mysql_error(my_con);
+    MYSQL_RES* result = mysql_store_result(my_con);
+    if (!result)
+        FAIL() << "Could not get result data: " << mysql_error(my_con);
+    ASSERT_EQ(mysql_num_rows(result), 1);
+    MYSQL_ROW row = mysql_fetch_row(result);
+    ASSERT_STREQ(row[0], "text");
+    ASSERT_EQ(row[1], nullptr);
+    ASSERT_EQ(row[2], nullptr);
+    ASSERT_STREQ(row[3], "4");
+    mysql_free_result(result);
     delete bulk;
     delete driver;
 }

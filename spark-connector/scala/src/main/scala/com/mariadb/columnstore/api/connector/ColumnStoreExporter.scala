@@ -16,7 +16,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 MA 02110-1301  USA
 */
 
-import com.mariadb.columnstore.api.{ColumnStoreDriver,ColumnStoreDecimal,columnstore_data_types_t}
+import com.mariadb.columnstore.api._
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.{max,length,udf}
 import org.apache.spark.sql.types
@@ -24,6 +24,8 @@ import java.math.BigInteger
 import java.math.BigDecimal
 import java.util.regex.Pattern
 import java.io.{InputStream,BufferedReader,IOException,InputStreamReader}
+import org.apache.spark.SparkContext
+import org.apache.spark.rdd.RDD
 
 object ColumnStoreExporter {
 
@@ -218,8 +220,57 @@ object ColumnStoreExporter {
       return output.toString();
   }
 
+  /**
+  / Writes a row into ColumnStore
+  */
+  @throws(classOf[Exception])
+  def writeRow (row: org.apache.spark.sql.Row, dbTableColumnCount: Integer, dbTable: ColumnStoreSystemCatalogTable, bulkInsert: ColumnStoreBulkInsert) : Unit = {
+  for (columnId <- 0 until row.size){
+    if (columnId < dbTableColumnCount){
+      if (row.get(columnId) == null){
+        if(dbTable.getColumn(columnId).isNullable){
+          bulkInsert.setNull(columnId)
+        } else{
+          System.err.println("warning: column " + columnId + " is not nullable. Using default value instead.")
+          bulkInsert.setColumn(columnId, dbTable.getColumn(columnId).getDefaultValue())
+        }
+      } else{
+          row.get(columnId) match {
+            case input:Boolean => bulkInsert.setColumn(columnId, input)
+            case input:Byte => bulkInsert.setColumn(columnId, input)
+            case input:java.sql.Date => bulkInsert.setColumn(columnId, input.toString)
+            case input:java.math.BigDecimal =>
+              val dbColumn = dbTable.getColumn(columnId)
+              if (dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_DECIMAL) ||
+                  dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_UDECIMAL) ||
+                  dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_FLOAT) ||
+                  dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_UFLOAT) ||
+                  dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_DOUBLE) ||
+                  dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_UDOUBLE)){
+                    bulkInsert.setColumn(columnId, new ColumnStoreDecimal(input.toPlainString))
+              }
+              else {
+                bulkInsert.setColumn(columnId, input.toBigInteger)
+              }
+            case input:Double => bulkInsert.setColumn(columnId, input)
+            case input:Float => bulkInsert.setColumn(columnId, input)
+            case input:Integer => bulkInsert.setColumn(columnId, input)
+            case input:Long => bulkInsert.setColumn(columnId, input)
+            case input:Short => bulkInsert.setColumn(columnId, input)
+            case input:String => bulkInsert.setColumn(columnId, input)
+            case input:java.sql.Timestamp => bulkInsert.setColumn(columnId, input.toString)
+            case _ => throw new Exception("Parsing error, can't convert " +  row.get(columnId).getClass + ".")
+          }
+        }
+      }
+    }
+    bulkInsert.writeRow()
+  }
+  
+  /**
+  * Export function to export a DataFrame into an existing ColumnStore table by writing everything in one transaction from the Spark Driver.
+  */
   def export( database: String, table: String, df: DataFrame, configuration: String = "") : Unit = {
-    val rows = df.collect()
     var driver: ColumnStoreDriver = null
     if (configuration == ""){
       driver = new ColumnStoreDriver()
@@ -236,52 +287,8 @@ object ColumnStoreExporter {
     
     // insert row by row into table
     try {
-      for (row <- rows){
-        for (columnId <- 0 until row.size){
-          if (columnId < dbTableColumnCount){
-            if (row.get(columnId) == null){
-              if(dbTable.getColumn(columnId).isNullable){
-                  bulkInsert.setNull(columnId)
-              } else{
-                  System.err.println("warning: column " + columnId + " is not nullable. Using default value instead.")
-                  bulkInsert.setColumn(columnId, dbTable.getColumn(columnId).getDefaultValue())
-              }
-            } else{
-              row.get(columnId) match {
-                case input:Boolean => 
-                if (input){
-                  bulkInsert.setColumn(columnId, 1)
-                } else{
-                  bulkInsert.setColumn(columnId, 0)
-                }
-                case input:Byte => bulkInsert.setColumn(columnId, input)
-                case input:java.sql.Date => bulkInsert.setColumn(columnId, input.toString)
-                case input:java.math.BigDecimal =>
-                  val dbColumn = dbTable.getColumn(columnId)
-                  if (dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_DECIMAL) ||
-                    dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_UDECIMAL) ||
-                    dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_FLOAT) ||
-                    dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_UFLOAT) ||
-                    dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_DOUBLE) ||
-                    dbColumn.getType.equals(columnstore_data_types_t.DATA_TYPE_UDOUBLE)){
-                      bulkInsert.setColumn(columnId, new ColumnStoreDecimal(input.toPlainString))
-                  }
-                  else {
-                    bulkInsert.setColumn(columnId, input.toBigInteger)
-                  }
-                case input:Double => bulkInsert.setColumn(columnId, input)
-                case input:Float => bulkInsert.setColumn(columnId, input)
-                case input:Integer => bulkInsert.setColumn(columnId, input)
-                case input:Long => bulkInsert.setColumn(columnId, input)
-                case input:Short => bulkInsert.setColumn(columnId, input)
-                case input:String => bulkInsert.setColumn(columnId, input)
-                case input:java.sql.Timestamp => bulkInsert.setColumn(columnId, input.toString)
-                case _ => throw new Exception("Parsing error, can't convert " +  row.get(columnId).getClass + ".")
-              }
-            }
-          }
-        }
-        bulkInsert.writeRow()
+      for (row <- df.rdd.toLocalIterator){
+        writeRow(row, dbTableColumnCount, dbTable, bulkInsert)
       }
       bulkInsert.commit()
     }
@@ -297,5 +304,57 @@ object ColumnStoreExporter {
       println("Invalid count: " + summary.getInvalidCount)
     }
   }
-}
+  
+  /**
+  * Export function to export a RDD into an existing ColumnStore table by writing each partition as one transaction from the Spark Workers into ColumnStore.
+  */
+  def exportFromWorkers[Row] (database: String, table: String, rdd: RDD[Row], partitions: List[Int] = List(), configuration: String = "") : Unit = {
+    var parts = partitions
+    if(partitions.isEmpty){
+        parts = List.range(0,rdd.getNumPartitions)
+    }
+    println("Partitions to export: " + parts)
+    for(p <- parts){
+        println("Exporting partition " + p)
+        rdd.sparkContext.runJob(rdd,(iter: Iterator[Row]) => {
+             // initialize the ColumnStore Driver on the Worker 
+            var driver: ColumnStoreDriver = null
+            if (configuration == ""){
+              driver = new ColumnStoreDriver()
+            }
+            else{
+              driver = new ColumnStoreDriver(configuration)
+            }
+            val bulkInsert = driver.createBulkInsert(database, table, 0, 0)
 
+            // get the column count of the CS table
+            val dbCatalog = driver.getSystemCatalog
+            val dbTable = dbCatalog.getTable(database, table)
+            val dbTableColumnCount = dbTable.getColumnCount
+            
+            // insert row by row into table
+            try{
+              while(iter.hasNext){
+                var row = iter.next()
+                row match {
+                    case row: org.apache.spark.sql.Row => writeRow(row, dbTableColumnCount, dbTable, bulkInsert)
+                    case _ => println("Wasn't able to inject row: " + row + "\nThe row type doesn't match.")
+                }
+              }
+              bulkInsert.commit()
+            }
+            catch {
+              case e: Exception => bulkInsert.rollback(); e.printStackTrace();
+            }
+            finally{ // print a short summary of the insertion process
+              val summary = bulkInsert.getSummary
+              println("Execution time: " + summary.getExecutionTime)
+              println("Rows inserted: " + summary.getRowsInsertedCount)
+              println("Truncation count: " + summary.getTruncationCount)
+              println("Saturated count: " + summary.getSaturatedCount)
+              println("Invalid count: " + summary.getInvalidCount)
+            }
+        }, List(p))
+    }
+  }
+}

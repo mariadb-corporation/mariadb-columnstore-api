@@ -51,5 +51,6 @@ public:
     void connect();
     static void onCloseWalk(uv_handle_t* handle, void *arg);
     void runChecks(uint16_t columnNumber);
+    void setCharColumn(uint16_t columnNumber, const boost::string_ref& value, columnstore_data_convert_status_t* status);
 };
 }

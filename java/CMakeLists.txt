@@ -74,10 +74,16 @@ swig_add_module_java(javamcsapi java javamcsapi.i)
 ENDIF ()
 swig_link_libraries(javamcsapi mcsapi)
 
+set_target_properties(javamcsapi PROPERTIES VERSION ${MCSAPI_VERSION_STRING}
+    SOVERSION ${MCSAPI_VERSION_MAJOR}
+)
+
 IF(UNIX)
-    set_target_properties(javamcsapi PROPERTIES 
-        SUFFIX ".so.${MCSAPI_VERSION_STRING}"
-    )
+    IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.0)
+        set_target_properties(javamcsapi PROPERTIES 
+            SUFFIX ".so.${MCSAPI_VERSION_STRING}"
+        )
+    ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.0)
 
     ADD_CUSTOM_COMMAND(TARGET javamcsapi POST_BUILD
         COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/gradlew" -p ${CMAKE_CURRENT_SOURCE_DIR} -Pversion=${MCSAPI_VERSION_STRING} jar
@@ -92,14 +98,14 @@ IF(WIN32)
 ENDIF(WIN32)
 
 IF(UNIX)
-    INSTALL(TARGETS javamcsapi DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libs)
-    INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/libjavamcsapi.so" DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libs)
-    INSTALL(FILES build/libs/javamcsapi-${MCSAPI_VERSION_STRING}.jar DESTINATION  ${CMAKE_INSTALL_LIBDIR} COMPONENT libs)
-    INSTALL(FILES build/libs/javamcsapi.jar DESTINATION  ${CMAKE_INSTALL_LIBDIR} COMPONENT libs)
+    INSTALL(TARGETS javamcsapi DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT java)
+    INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/libjavamcsapi.so" DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT java)
+    INSTALL(FILES build/libs/javamcsapi-${MCSAPI_VERSION_STRING}.jar DESTINATION  ${CMAKE_INSTALL_LIBDIR} COMPONENT java)
+    INSTALL(FILES build/libs/javamcsapi.jar DESTINATION  ${CMAKE_INSTALL_LIBDIR} COMPONENT java)
 ENDIF(UNIX)
 IF(WIN32)
-    INSTALL(TARGETS javamcsapi DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT libs)
-    INSTALL(FILES build/libs/javamcsapi-${MCSAPI_VERSION_STRING}.jar DESTINATION  "${CMAKE_INSTALL_LIBDIR}/java" COMPONENT libs)
+    INSTALL(TARGETS javamcsapi DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT java)
+    INSTALL(FILES build/libs/javamcsapi-${MCSAPI_VERSION_STRING}.jar DESTINATION  "${CMAKE_INSTALL_LIBDIR}/java" COMPONENT java)
 ENDIF(WIN32)
 
 if (BUILD_DOCS)
@@ -110,12 +116,14 @@ IF(TEST_RUNNER)
     option(JAVA_COMPATIBILITY_TEST "Run the Java mcsapi compatibility test" ON)
     IF(UNIX)
         add_test(NAME Java_BasicTest COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/gradlew" -p ${CMAKE_CURRENT_SOURCE_DIR} -Pversion=${MCSAPI_VERSION_STRING} -Pjava.library.path=${CMAKE_CURRENT_BINARY_DIR} test)
+        add_test(NAME Java_ClearLockTest COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/test/clearTableLockTest/gradlew" -p ${CMAKE_CURRENT_SOURCE_DIR}/test/clearTableLockTest -Pversion=${MCSAPI_VERSION_STRING} -Pjava.library.path=${CMAKE_CURRENT_BINARY_DIR} test)
         IF(JAVA_COMPATIBILITY_TEST)
-            add_test(NAME JavaMcsapi_mcsapi_compatibility_test COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/test/compatibility_test.sh" ${VERSION_MAJOR} ${VERSION_MINOR} ${VERSION_PATCH} ${CMAKE_CURRENT_BINARY_DIR})
+            add_test(NAME JavaMcsapi_mcsapi_compatibility_test COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/test/compatibility_test/compatibility_test.sh" ${VERSION_MAJOR} ${VERSION_MINOR} ${VERSION_PATCH} ${CMAKE_CURRENT_BINARY_DIR})
         ENDIF(JAVA_COMPATIBILITY_TEST)
     ENDIF(UNIX)
     IF(WIN32)
         add_test(NAME Java_BasicTest COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/gradlew.bat" -p ${CMAKE_CURRENT_SOURCE_DIR} -Pversion=${MCSAPI_VERSION_STRING} -Pjava.library.path=${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION> test)
+        add_test(NAME Java_ClearTableLockTest COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/test/clearTableLockTest/gradlew.bat" -p ${CMAKE_CURRENT_SOURCE_DIR}/test/clearTableLockTest -Pversion=${MCSAPI_VERSION_STRING} -Pjava.library.path=${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION> test)
         IF(JAVA_COMPATIBILITY_TEST)
             #TODO transform compatibility_test.sh into a batch or PowerShell script
         ENDIF(JAVA_COMPATIBILITY_TEST)

@@ -105,6 +105,18 @@ setColumn
 setColumn
 ^^^^^^^^^
 
+.. java:method:: public ColumnStoreBulkInsert setColumn(int columnNumber, String value, long length, int[] status) throws com.mariadb.columnstore.api.ColumnStoreException
+   :outertype: ColumnStoreBulkInsert
+
+setColumn
+^^^^^^^^^
+
+.. java:method:: public ColumnStoreBulkInsert setColumn(int columnNumber, String value, long length) throws com.mariadb.columnstore.api.ColumnStoreException
+   :outertype: ColumnStoreBulkInsert
+
+setColumn
+^^^^^^^^^
+
 .. java:method:: public ColumnStoreBulkInsert setColumn(int columnNumber, java.math.BigInteger value, int[] status) throws com.mariadb.columnstore.api.ColumnStoreException
    :outertype: ColumnStoreBulkInsert
 
@@ -165,6 +177,18 @@ setColumn
 setColumn
 ^^^^^^^^^
 
+.. java:method:: public ColumnStoreBulkInsert setColumn(int columnNumber, boolean value, int[] status) throws com.mariadb.columnstore.api.ColumnStoreException
+   :outertype: ColumnStoreBulkInsert
+
+setColumn
+^^^^^^^^^
+
+.. java:method:: public ColumnStoreBulkInsert setColumn(int columnNumber, boolean value) throws com.mariadb.columnstore.api.ColumnStoreException
+   :outertype: ColumnStoreBulkInsert
+
+setColumn
+^^^^^^^^^
+
 .. java:method:: public ColumnStoreBulkInsert setColumn(int columnNumber, double value, int[] status) throws com.mariadb.columnstore.api.ColumnStoreException
    :outertype: ColumnStoreBulkInsert
 
@@ -184,6 +208,18 @@ setColumn
 ^^^^^^^^^
 
 .. java:method:: public ColumnStoreBulkInsert setColumn(int columnNumber, ColumnStoreDateTime value) throws com.mariadb.columnstore.api.ColumnStoreException
+   :outertype: ColumnStoreBulkInsert
+
+setColumn
+^^^^^^^^^
+
+.. java:method:: public ColumnStoreBulkInsert setColumn(int columnNumber, ColumnStoreTime value, int[] status) throws com.mariadb.columnstore.api.ColumnStoreException
+   :outertype: ColumnStoreBulkInsert
+
+setColumn
+^^^^^^^^^
+
+.. java:method:: public ColumnStoreBulkInsert setColumn(int columnNumber, ColumnStoreTime value) throws com.mariadb.columnstore.api.ColumnStoreException
    :outertype: ColumnStoreBulkInsert
 
 setColumn
