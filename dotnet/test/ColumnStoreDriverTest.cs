@@ -106,7 +106,7 @@ namespace test
                 {
                     throw new ArgumentException(
                         "Did not find all of the needed DLLs in your PATH."
-                        + " SOURCE_DIR/dotnet/lib-win64 needs to be in the PATH"
+                        + " SOURCE_DIR/dotnet/lib-win-x64 needs to be in the PATH"
                         + " and contain:"
                         + " dotnet_mcsapi.dll mcsapi.dll libiconv.dll libuv.dll libxml2.dll"
                     );
@@ -132,7 +132,7 @@ namespace test
             var currentPaths = Environment.GetEnvironmentVariable("PATH").Split(Path.PathSeparator);
             for (int i = 0; i < currentPaths.Length; i++)
             {
-                if (currentPaths[i].EndsWith(@"\dotnet\lib-win64") || currentPaths[i].EndsWith("/dotnet/lib-win64-x64"))
+                if (currentPaths[i].EndsWith(@"\dotnet\lib-win-x64") || currentPaths[i].EndsWith("/dotnet/lib-win-x64"))
                 {
 
                     foreach (string filePath in Directory.EnumerateFiles(currentPaths[i], "*.dll"))
