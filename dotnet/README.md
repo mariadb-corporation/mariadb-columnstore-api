@@ -9,7 +9,7 @@ Riffing off of [MariaDB ColumnStore Bulk Write SDK](https://mariadb.com/kb/en/li
 First a simple table is created with the mcsmysql client:
 
 ```sql
-MariaDB [test]> create table t1(i int, c char(3)) engine=columnstore;
+MariaDB [mcsapi]> create table t1(i int, c char(3)) engine=columnstore;
 ```
 
 Next, create a new console project
@@ -188,7 +188,8 @@ need to install mcsapi.so and the support libraries separately.
 Currently the tests are very basic and rely on the t1 table existing in the mcsapi database.
 The easiest way to perform the tests is to run the MariaDB ColumnStore in the WSL instance, make
 the mcsapi database and t1 table, and then run ```dotnet test```. If you copy over the
-WSL Columnstore.xml file to e.g. /c/opt/mariadb/etc, then you can also run the tests from windows.
+WSL Columnstore.xml file to e.g. /c/opt/mariadb/etc, then you can also run the tests from Windows.
+You also have to ensure that libmcsapi.so and dotnet_mcsapi.so have a valid PATH entry.
 
 ### Testing on Windows
 
