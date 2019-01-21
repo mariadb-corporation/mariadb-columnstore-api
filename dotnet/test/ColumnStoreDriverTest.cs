@@ -132,7 +132,7 @@ namespace test
             var currentPaths = Environment.GetEnvironmentVariable("PATH").Split(Path.PathSeparator);
             for (int i = 0; i < currentPaths.Length; i++)
             {
-                if (currentPaths[i].EndsWith(@"\dotnet\lib-win64") || currentPaths[i].EndsWith("/dotnet/lib-win64"))
+                if (currentPaths[i].EndsWith(@"\dotnet\lib-win64") || currentPaths[i].EndsWith("/dotnet/lib-win64-x64"))
                 {
 
                     foreach (string filePath in Directory.EnumerateFiles(currentPaths[i], "*.dll"))

@@ -14,7 +14,7 @@
   </ItemGroup>
   
   <Target Name="TestTarget" AfterTargets="Build">
-	  <Copy SourceFiles="..\lib-linux\dotnet_mcsapi.so" DestinationFolder="$(OutputPath)" ContinueOnError="false" Condition=" '$(OS)' == 'Unix' " />
+	  <Copy SourceFiles="..\lib-linux-x64\dotnet_mcsapi.so" DestinationFolder="$(OutputPath)" ContinueOnError="false" Condition=" '$(OS)' == 'Unix' " />
   </Target>
 
 </Project>

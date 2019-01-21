@@ -1,6 +1,6 @@
-# MariaDB.Data.ColumnStore.ColumnStoreDriver
+# MariaDB ColumnStore API .NET Wrapper - Alpha
 
-.NET Core wrapper on the ColumnStore c++ API for Linux (x64) and Windows (x64).
+.NET Core wrapper on the ColumnStore C++ API for Linux (x64) and Windows (x64).
 
 ## Getting Started
 
@@ -164,6 +164,7 @@ cd build-linux-x64
 cmake ..
 make
 cp src/libmcsapi.* ../dotnet/lib-linux-x64
+dotnet/build.sh
 ```
 
 ### Build the NuGet Package
