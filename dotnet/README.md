@@ -161,10 +161,12 @@ cd  /mnt/c/Users/USER/Code/external/mariadb-columnstore-api
 mkdir dotnet/lib-linux-x64
 mkdir build-linux-x64
 cd build-linux-x64
-cmake ..
+cmake -DJAVA=OFF -DPYTHON=OFF ..
 make
+sudo make install
 cp src/libmcsapi.* ../dotnet/lib-linux-x64
-dotnet/build.sh
+cd ..
+./dotnet/build.sh
 ```
 
 ### Build the NuGet Package
