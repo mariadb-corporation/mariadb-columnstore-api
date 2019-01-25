@@ -49,7 +49,7 @@ object DataFrameExportExample {
 			statement.executeQuery("CREATE DATABASE IF NOT EXISTS test")
 			statement.executeQuery(createTableStatement)
 		}catch {
-			case e: Exception => System.err.println("error during create table statement: " + e)
+			case e: Exception => System.err.println("error during create table statement execution: " + e)
 		} finally {
 			connection.close()
 		}

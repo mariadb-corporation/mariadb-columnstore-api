@@ -1,0 +1,94 @@
+Installation and Configuration
+==============================
+
+This document describes the installation and configuration of MariaDB ColumnStore @VERSION_MAJOR@.@VERSION_MINOR@, Apache Spark 2.4.0, and mcsapi for PySpark in a dockerized lab environment. Production system installations need to follow the same steps. Installation and configuration commands and paths might change depending on your operating systems, software versions, and network setup.
+
+
+Lab environmnet setup
+---------------------
+The lab environment consists of:
+
+* A multi node MariaDB ColumnStore @VERSION_MAJOR@.@VERSION_MINOR@ installation with 1 user module (UM) and 2 performance modules (PMs)
+* A multi node Apache Spark 2.4 installation with 1 Spark driver and 2 Spark workers
+
+It is defined through following `docker-compose.yml`_ configuration.
+
+To start the lab environment download it and go to the folder containing the docker-compose.yml file. Then execute:
+
+.. code-block:: bash
+
+   docker-compose up -d
+
+This will spin up the environment with six container.
+ 
+
+Installation of mcsapi for PySpark
+----------------------------------
+
+To utilize mcsapi for PySpark's functions you have to install it on the Spark master. Therefore, you first have to set up the regarding software repository via:
+
+.. code-block:: bash
+
+   docker exec -it SPARK_MASTER bash #to get a shell in the docker container instance
+   apt-get update
+   apt-get install -y apt-transport-https dirmngr wget
+   echo "deb https://downloads.mariadb.com/MariaDB/mariadb-columnstore-api/latest/repo/debian9 stretch main" > /etc/apt/sources.list.d/mariadb-columnstore-api.list
+   
+Then add the repository key and refresh the repositories via:
+
+.. code-block:: bash
+
+   wget -qO - https://downloads.mariadb.com/MariaDB/mariadb-columnstore/MariaDB-ColumnStore.gpg.key | apt-key add -
+   apt-get update
+
+And finally install mcsapi for PySpark and its dependencies:
+
+.. code-block:: bash
+
+   #apt-get install -y mariadb-columnstore-api-pyspark  # PySpark for Python 2.7
+   apt-get install -y mariadb-columnstore-api-pyspark3  # PySpark for Python 3
+   
+It is further advised to install the MySQL Python package on the Spark driver to be able to execute DDL.
+
+.. code-block:: bash
+
+   #apt-get install -y python-pip            # For Python 2.7
+   #pip2 install mysql-connector==2.1.6      # For Python 2.7
+   apt-get install -y python3-pip            # For Python 3
+   pip3 install mysql-connector==2.1.6       # For Python 3
+
+For other operating systems, please follow the dedicated `installation document`_ in our Knowledge Base.
+
+
+Spark configuration
+-------------------
+
+To configure Spark to use mcsapi for PySpark one more actions needs to be executed.
+
+mcsapi for PySpark needs information about the ColumnStore cluster to write data to. This information needs to be provided in form of a Columnstore.xml configuration file. This needs to be copied from ColumnStore's um1 node to the Spark master.
+
+.. code-block:: bash
+
+   docker cp COLUMNSTORE_UM_1:/usr/local/mariadb/columnstore/etc/Columnstore.xml .
+   docker exec -it SPARK_MASTER mkdir -p /usr/local/mariadb/columnstore/etc
+   docker cp Columnstore.xml SPARK_MASTER:/usr/local/mariadb/columnstore/etc
+
+More information about `creating appropriate Columnstore.xml configuration files`_ and `Spark configuration changes`_ can be found in our Knowledge Base.   
+
+
+Firewall setup
+--------------
+
+In production environments with installed firewalls you have to ensure that the Spark master and worker nodes can reach TCP port 3306 on the ColumnStore user modules, and TCP ports 8616, 8630, and 8800 on the ColumnStore performance modules. The lab environment is already fully configured, therefore there is nothing to do in this case.
+
+
+Finishing note
+--------------
+
+Note that the configured Spark container aren't persistent. Once the container are stopped you have to install and configure mcsapi for PySpark again. You could use ``docker commit`` to save your changes. Feel free to check out our :ref:`lab-environments` if you want to tinker around further with mcsapi for PySpark. 
+
+
+.. _`docker-compose.yml`: https://github.com/mariadb-corporation/mariadb-columnstore-api/tree/@GIT_VERSION@/spark-connector/python/docs/install-environment/docker-compose.yml
+.. _`installation document`: https://mariadb.com/kb/en/library/installing-mariadb-ax-mariadb-columnstore-from-the-package-repositories-12x/#mariadb-columnstore-api-bulk-write-sdk-package
+.. _`creating appropriate Columnstore.xml configuration files`: https://mariadb.com/kb/en/library/columnstore-bulk-write-sdk/#environment-configuration
+.. _`Spark configuration changes`: https://mariadb.com/kb/en/library/mariadb-columnstore-with-spark/#configuration

@@ -22,7 +22,8 @@ generateTableStatement
    :param dataFrame: The DataFrame from whom the structure for the generated table statement will be inferred.
    :param database: The database name used in the generated table statement.
    
-   *NOTE*: The submitted database name will automatically be parsed into the `ColumnStore naming convention`_, if not already compatible.
+   .. note:: 
+      The submitted database name will automatically be parsed into the `ColumnStore naming convention`_, if not already compatible.
    
 .. java:method:: public String generateTableStatement(DataFrame dataFrame, String database, String table) throws IllegalArgumentException
 
@@ -32,7 +33,8 @@ generateTableStatement
    :param database: The database name used in the generated table statement.
    :param table: The table name used in the generated table statement.
    
-   *NOTE*: The submitted database and table names will automatically be parsed into the `ColumnStore naming convention`_, if not already compatible.
+   .. note:: 
+      The submitted database and table names will automatically be parsed into the `ColumnStore naming convention`_, if not already compatible.
 
 .. java:method:: public String generateTableStatement(DataFrame dataFrame, String database, String table, bool determineTypeLength) throws IllegalArgumentException
 
@@ -43,7 +45,8 @@ generateTableStatement
    :param table: The table name used in the generated table statement.
    :param determineTypeLength: If set to true the content DataFrame will be analysed to determine the best SQL datatype for each column. Otherwise reasonable default types will be used.
    
-   *NOTE*: The submitted database and table names will automatically be parsed into the `ColumnStore naming convention`_, if not already compatible.
+   .. note:: 
+      The submitted database and table names will automatically be parsed into the `ColumnStore naming convention`_, if not already compatible.
    
 export
 ^^^^^^
@@ -56,7 +59,11 @@ export
    :param table: The target table the DataFrame is exported into.
    :param df: The DataFrame to export.
 
-   *Note*: To guarantee that the DataFrame import into ColumnStore is a single transaction, that is rollbacked in case of error, the DataFrame is first collected at the Spark master and from there written to the ColumnStore system. Therefore, it needs to fit into the memory of the Spark master.
+   .. note::
+      To guarantee that the DataFrame import into ColumnStore is a single transaction, that is rollbacked in case of error, the DataFrame is first collected at the Spark master and from there written to the ColumnStore system. Therefore, it needs to fit into the memory of the Spark master.
+
+   .. note::
+       The schema of the DataFrame to export and the ColumnStore table to import have to match. Otherwise, the import will fail.
    
 .. java:method:: public void export(String database, String table, DataFrame df, String configuration) throws Exception
 
@@ -67,7 +74,11 @@ export
    :param df: The DataFrame to export.
    :param configuration: Path to the Columnstore.xml configuration to use for the export.
 
-   *Note*: To guarantee that the DataFrame import into ColumnStore is a single transaction, that is rollbacked in case of error, the DataFrame is first collected at the Spark master and from there written to the ColumnStore system. Therefore, it needs to fit into the memory of the Spark master.
+   .. note:: 
+      To guarantee that the DataFrame import into ColumnStore is a single transaction, that is rollbacked in case of error, the DataFrame is first collected at the Spark master and from there written to the ColumnStore system. Therefore, it needs to fit into the memory of the Spark master.
+
+   .. note::
+       The schema of the DataFrame to export and the ColumnStore table to import have to match. Otherwise, the import will fail.
    
 exportFromWorkers
 ^^^^^^^^^^^^^^^^^
@@ -76,33 +87,54 @@ exportFromWorkers
 
    Exports the given RDD into an existing ColumnStore database.table from the worker nodes using the default Columnstore.xml configuration.
    
-   :param database: The target database the DataFrame is exported into.
-   :param table: The target table the DataFrame is exported into.
+   :param database: The target database the RDD is exported into.
+   :param table: The target table the RDD is exported into.
    :param rdd: The RDD to export.
    
-   *Note*: Each partition of the RDD is imported as single transaction into ColumnStore. In case of an error only partitions in which the error occurred are rolled back. Already commited partitions will remain in the database.
+   .. note:: 
+      Each partition of the RDD is imported as single transaction into ColumnStore. In case of an error only partitions in which the error occurred are rolled back. Already commited partitions will remain in the database.
+
+   .. note::
+      The schema of the RDD to export and the ColumnStore table to import have to match. Otherwise, the import will fail.
    
 .. java:method:: public void exportFromWorkers(String database, String table, RDD rdd, List<Int> partitions) throws Exception
 
    Exports the given partitions of the RDD into an existing ColumnStore database.table from the worker nodes using the default Columnstore.xml configuration.
    
-   :param database: The target database the DataFrame is exported into.
-   :param table: The target table the DataFrame is exported into.
+   :param database: The target database the RDD is exported into.
+   :param table: The target table the RDD is exported into.
    :param rdd: The RDD to export.
    :param partitions: List of partitions identified by their integer to be exported. If an empty List is submitted all partitions are exported.
 
-   *Note*: Each partition of the RDD is imported as single transaction into ColumnStore. In case of an error only partitions in which the error occurred are rolled back. Already commited partitions will remain in the database.
+   .. note::
+      Each partition of the RDD is imported as single transaction into ColumnStore. In case of an error only partitions in which the error occurred are rolled back. Already commited partitions will remain in the database.
+
+   .. note::
+      The schema of the RDD to export and the ColumnStore table to import have to match. Otherwise, the import will fail.
    
 .. java:method:: public void exportFromWorkers(String database, String table, RDD rdd, List<Int> partitions, String configuration) throws Exception
 
    Exports the given partitions of the RDD into an existing ColumnStore database.table from the worker nodes using a specific Columnstore.xml configuration.
    
-   :param database: The target database the DataFrame is exported into.
-   :param table: The target table the DataFrame is exported into.
+   :param database: The target database the RDD is exported into.
+   :param table: The target table the RDD is exported into.
    :param rdd: The RDD to export.
    :param partitions: List of partitions identified by their integer to be exported. If an empty List is submitted all partitions are exported.
    :param configuration: Path to the Columnstore.xml configuration to use for the export.
 
-   *Note*: Each partition of the RDD is imported as single transaction into ColumnStore. In case of an error only partitions in which the error occurred are rolled back. Already commited partitions will remain in the database. 
+   .. note::
+      Each partition of the RDD is imported as single transaction into ColumnStore. In case of an error only partitions in which the error occurred are rolled back. Already commited partitions will remain in the database.
+
+   .. note::
+      The schema of the RDD to export and the ColumnStore table to import have to match. Otherwise, the import will fail.
+
+parseTableColumnNameToCSConvention
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. java:method:: public String parseTableColumnNameToCSConvention(String input)
+
+   Parses the input String according to the `ColumnStore naming convention`_ and returns it.
+   
+   :param input: The String that is going to be parsed.
   
 .. _`ColumnStore naming convention`: https://mariadb.com/kb/en/library/columnstore-naming-conventions/
