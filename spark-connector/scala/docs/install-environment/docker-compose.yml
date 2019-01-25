@@ -1,0 +1,122 @@
+version: "2.2"
+services:
+  master:
+    image: gettyimages/spark
+    command: bin/spark-class org.apache.spark.deploy.master.Master -h master
+    hostname: master
+    container_name: SPARK_MASTER
+    environment:
+      MASTER: spark://master:7077
+      SPARK_PUBLIC_DNS: localhost
+    expose:
+      - 7001
+      - 7002
+      - 7003
+      - 7004
+      - 7005
+      - 7077
+      - 6066
+    ports:
+      - 4040:4040
+      - 6066:6066
+      - 7077:7077
+      - 8080:8080
+
+  worker1:
+    image: gettyimages/spark
+    command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://master:7077
+    hostname: worker1
+    container_name: SPARK_WORKER_1
+    environment:
+      SPARK_WORKER_CORES: 2
+      SPARK_WORKER_MEMORY: 1g
+      SPARK_WORKER_PORT: 8881
+      SPARK_WORKER_WEBUI_PORT: 8081
+      SPARK_PUBLIC_DNS: localhost
+    links:
+      - master
+    expose:
+      - 7012
+      - 7013
+      - 7014
+      - 7015
+      - 8881
+    ports:
+      - 8081:8081
+
+  worker2:
+    image: gettyimages/spark
+    command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://master:7077
+    hostname: worker2
+    container_name: SPARK_WORKER_2
+    environment:
+      SPARK_WORKER_CORES: 2
+      SPARK_WORKER_MEMORY: 1g
+      SPARK_WORKER_PORT: 8882
+      SPARK_WORKER_WEBUI_PORT: 8082
+      SPARK_PUBLIC_DNS: localhost
+    links:
+      - master
+    expose:
+      - 7022
+      - 7023
+      - 7024
+      - 7025
+      - 8882
+    ports:
+      - 8082:8082
+
+  um1:
+    image: mariadb/columnstore:1.2-dev
+    container_name: COLUMNSTORE_UM_1
+    environment:
+      - MARIADB_CS_POSTCFG_INPUT=
+      - MARIADB_ALLOW_EMPTY_PASSWORD=1
+    volumes:
+      - um1_etc:/usr/local/mariadb/columnstore/etc
+      - um1_mysql:/usr/local/mariadb/columnstore/mysql/db
+      - um1_local:/usr/local/mariadb/columnstore/local
+    expose:
+      - 3306
+    ports:
+      - "3306:3306"
+      
+  pm2:
+    image: mariadb/columnstore:1.2-dev
+    container_name: COLUMNSTORE_PM_2
+    environment:
+      - MARIADB_CS_POSTCFG_INPUT=
+    volumes:
+      - dbroot2:/usr/local/mariadb/columnstore/data2
+      - pm2_etc:/usr/local/mariadb/columnstore/etc
+    expose:
+      - 8616
+      - 8630
+      - 8800
+
+  pm1:
+    image: mariadb/columnstore:1.2-dev
+    container_name: COLUMNSTORE_PM_1
+    environment:
+      - MARIADB_CS_POSTCFG_INPUT=2\n1\nn\ny\ncolumnstore-1\n1\n1\num1\n\n\n2\npm1\n\n\n1\npm2\n\n\n2\n
+      - MARIADB_CS_NUM_BLOCKS_PCT=756M
+      - MARIADB_CS_TOTAL_UM_MEMORY=256M
+    depends_on:
+      - um1
+      - pm2
+    volumes:
+      - dbroot1:/usr/local/mariadb/columnstore/data1
+      - pm1_etc:/usr/local/mariadb/columnstore/etc
+    expose:
+      - 8616
+      - 8630
+      - 8800
+
+volumes:
+  dbroot1:
+  dbroot2:
+  um1_mysql:
+  um1_etc:
+  pm1_etc:
+  pm2_etc:
+  um1_local:
