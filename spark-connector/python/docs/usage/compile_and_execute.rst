@@ -1,7 +1,7 @@
 Application execution
 =====================
 
-To submit last section's sample application to Spark setup you simply have to copy it to the Spark master and execute it though `spark-submit`.
+To submit last section's sample application to your Spark setup you simply have to copy it to the Spark master and execute it though `spark-submit`.
 
 .. code-block:: bash
    

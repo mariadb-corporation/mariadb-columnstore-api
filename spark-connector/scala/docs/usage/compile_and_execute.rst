@@ -1,7 +1,7 @@
 Application compilation and execution
 =====================================
 
-To submit last section's sample application to Spark setup you first have to compile it into a Java archive.
+To submit last section's sample application to your Spark setup you first have to compile it into a Java archive.
 We'll use `sbt`_ for this purpose, but other build tools like Maven would work as well.
 
 Install sbt on the system which you want to use for compiling. Then create a sbt build project with following file structure:

@@ -67,7 +67,7 @@ services:
       - 8082:8082
 
   um1:
-    image: mariadb/columnstore:1.2-dev
+    image: mariadb/columnstore:1.2
     container_name: COLUMNSTORE_UM_1
     environment:
       - MARIADB_CS_POSTCFG_INPUT=
@@ -82,7 +82,7 @@ services:
       - "3306:3306"
       
   pm2:
-    image: mariadb/columnstore:1.2-dev
+    image: mariadb/columnstore:1.2
     container_name: COLUMNSTORE_PM_2
     environment:
       - MARIADB_CS_POSTCFG_INPUT=
@@ -95,7 +95,7 @@ services:
       - 8800
 
   pm1:
-    image: mariadb/columnstore:1.2-dev
+    image: mariadb/columnstore:1.2
     container_name: COLUMNSTORE_PM_1
     environment:
       - MARIADB_CS_POSTCFG_INPUT=2\n1\nn\ny\ncolumnstore-1\n1\n1\num1\n\n\n2\npm1\n\n\n1\npm2\n\n\n2\n

@@ -4,7 +4,7 @@ Installation and Configuration
 This document describes the installation and configuration of MariaDB ColumnStore @VERSION_MAJOR@.@VERSION_MINOR@, Apache Spark 2.4.0, and mcsapi for Spark in a dockerized lab environment. Production system installations need to follow the same steps. Installation and configuration commands and paths might change depending on your operating systems, software versions, and network setup.
 
 
-Lab environmnet setup
+Lab environment setup
 ---------------------
 The lab environment consists of:
 
@@ -19,7 +19,7 @@ To start the lab environment download it and go to the folder containing the doc
 
    docker-compose up -d
 
-This will spin up the environment with six container.
+This will spin up the environment with six containers.
  
 
 Installation of mcsapi for Spark

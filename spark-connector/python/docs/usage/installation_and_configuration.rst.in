@@ -4,7 +4,7 @@ Installation and Configuration
 This document describes the installation and configuration of MariaDB ColumnStore @VERSION_MAJOR@.@VERSION_MINOR@, Apache Spark 2.4.0, and mcsapi for PySpark in a dockerized lab environment. Production system installations need to follow the same steps. Installation and configuration commands and paths might change depending on your operating systems, software versions, and network setup.
 
 
-Lab environmnet setup
+Lab environment setup
 ---------------------
 The lab environment consists of:
 
@@ -63,9 +63,9 @@ For other operating systems, please follow the dedicated `installation document`
 Spark configuration
 -------------------
 
-To configure Spark to use mcsapi for PySpark one more actions needs to be executed.
+To configure Spark to use mcsapi for PySpark one more action needs to be executed.
 
-mcsapi for PySpark needs information about the ColumnStore cluster to write data to. This information needs to be provided in form of a Columnstore.xml configuration file. This needs to be copied from ColumnStore's um1 node to the Spark master.
+mcsapi for PySpark needs information about the ColumnStore cluster to write data into. This information needs to be provided in form of a Columnstore.xml configuration file. This needs to be copied from ColumnStore's um1 node to the Spark master.
 
 .. code-block:: bash
 

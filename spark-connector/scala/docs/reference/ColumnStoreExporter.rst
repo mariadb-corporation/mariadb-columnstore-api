@@ -43,7 +43,7 @@ generateTableStatement
    :param dataFrame: The DataFrame from whom the structure for the generated table statement will be inferred.
    :param database: The database name used in the generated table statement.
    :param table: The table name used in the generated table statement.
-   :param determineTypeLength: If set to true the content DataFrame will be analysed to determine the best SQL datatype for each column. Otherwise reasonable default types will be used.
+   :param determineTypeLength: If set to true the content of the DataFrame will be analysed to determine the best SQL datatype for each column. Otherwise reasonable default types will be used.
    
    .. note:: 
       The submitted database and table names will automatically be parsed into the `ColumnStore naming convention`_, if not already compatible.
@@ -92,7 +92,7 @@ exportFromWorkers
    :param rdd: The RDD to export.
    
    .. note:: 
-      Each partition of the RDD is imported as single transaction into ColumnStore. In case of an error only partitions in which the error occurred are rolled back. Already commited partitions will remain in the database.
+      Each partition of the RDD is imported as single transaction into ColumnStore. In case of an error only partitions in which the error occurred are rolled back. Already committed partitions will remain in the database.
 
    .. note::
       The schema of the RDD to export and the ColumnStore table to import have to match. Otherwise, the import will fail.
@@ -107,7 +107,7 @@ exportFromWorkers
    :param partitions: List of partitions identified by their integer to be exported. If an empty List is submitted all partitions are exported.
 
    .. note::
-      Each partition of the RDD is imported as single transaction into ColumnStore. In case of an error only partitions in which the error occurred are rolled back. Already commited partitions will remain in the database.
+      Each partition of the RDD is imported as single transaction into ColumnStore. In case of an error only partitions in which the error occurred are rolled back. Already committed partitions will remain in the database.
 
    .. note::
       The schema of the RDD to export and the ColumnStore table to import have to match. Otherwise, the import will fail.
@@ -123,7 +123,7 @@ exportFromWorkers
    :param configuration: Path to the Columnstore.xml configuration to use for the export.
 
    .. note::
-      Each partition of the RDD is imported as single transaction into ColumnStore. In case of an error only partitions in which the error occurred are rolled back. Already commited partitions will remain in the database.
+      Each partition of the RDD is imported as single transaction into ColumnStore. In case of an error only partitions in which the error occurred are rolled back. Already committed partitions will remain in the database.
 
    .. note::
       The schema of the RDD to export and the ColumnStore table to import have to match. Otherwise, the import will fail.

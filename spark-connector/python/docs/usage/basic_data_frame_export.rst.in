@@ -32,7 +32,7 @@ Third, the JDBC connection necessary to execute DML statements to create the tar
    :caption: ExportDataFrame.py
    
 Fourth, the target table "pyspark_export" is created in the database "test". 
-Note that ``ColumnStoreExporter.generateTableStatement`` infers a suitable DML statement based on the DataFrames structure.
+Note that ``ColumnStoreExporter.generateTableStatement`` infers a suitable DML statement based on the DataFrame's structure.
 
 .. literalinclude:: ../../example/ExportDataFrame.py
    :linenos:
@@ -41,7 +41,7 @@ Note that ``ColumnStoreExporter.generateTableStatement`` infers a suitable DML s
    :lineno-start: 33
    :caption: ExportDataFrame.py
    
-Finally, the DataFrame gets imported into MariaDB ColumnStore by bypassing the SQL layer and injecting the data direclty through MariaDB's Bulk Write SDK.
+Finally, the DataFrame gets imported into MariaDB ColumnStore by bypassing the SQL layer and injecting the data directly through MariaDB's Bulk Write SDK.
 
 .. literalinclude:: ../../example/ExportDataFrame.py
    :linenos:
