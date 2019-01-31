@@ -1,0 +1,54 @@
+A simple DataFrame export application
+=====================================
+
+In this example we will export a synthetic DataFrame out of Spark into a non existing table in MariaDB ColumnStore. The full code for this can be found in the `ExportDataFrame.py`_ file in the `mcsapi codebase`_.
+
+First, all needed libraries are imported and the SparkContext is created.
+
+.. literalinclude:: ../../example/ExportDataFrame.py
+   :linenos:
+   :language: python
+   :lines: 18-23
+   :lineno-start: 18
+   :caption: ExportDataFrame.py
+
+Second, an example DataFrame that is going to be exported into ColumnStore is created. 
+The DataFrame consists of two columns. One containing numbers from 0-127 and the other containing its ASCII character representation.
+
+.. literalinclude:: ../../example/ExportDataFrame.py
+   :linenos:
+   :language: python
+   :lines: 25-26
+   :lineno-start: 25
+   :caption: ExportDataFrame.py
+
+Third, the JDBC connection necessary to execute DML statements to create the target table is set up.
+
+.. literalinclude:: ../../example/ExportDataFrame.py
+   :linenos:
+   :language: python
+   :lines: 28-31
+   :lineno-start: 28
+   :caption: ExportDataFrame.py
+   
+Fourth, the target table "pyspark_export" is created in the database "test". 
+Note that ``ColumnStoreExporter.generateTableStatement`` infers a suitable DML statement based on the DataFrame's structure.
+
+.. literalinclude:: ../../example/ExportDataFrame.py
+   :linenos:
+   :language: python
+   :lines: 33-45
+   :lineno-start: 33
+   :caption: ExportDataFrame.py
+   
+Finally, the DataFrame gets imported into MariaDB ColumnStore by bypassing the SQL layer and injecting the data directly through MariaDB's Bulk Write SDK.
+
+.. literalinclude:: ../../example/ExportDataFrame.py
+   :linenos:
+   :language: python
+   :lines: 47-49
+   :lineno-start: 47
+   :caption: ExportDataFrame.py
+   
+.. _`mcsapi codebase`: https://github.com/mariadb-corporation/mariadb-columnstore-api
+.. _ExportDataFrame.py: https://github.com/mariadb-corporation/mariadb-columnstore-api/tree/@GIT_VERSION@/example/ExportDataFrame.py

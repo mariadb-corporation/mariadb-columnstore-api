@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# mcsapi documentation build configuration file
+# spark_mcsapi documentation build configuration file
 #
 # This file is execfile()d with the current directory set to its containing dir.
 #
@@ -24,7 +24,7 @@ import sys, os
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.todo']
+extensions = ['sphinx.ext.todo','javasphinx']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['@CMAKE_CURRENT_SOURCE_DIR@/_templates']
@@ -39,7 +39,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'@PROJECT_NAME@'
+project = u'spark_@PROJECT_NAME@'
 copyright = u'2019, MariaDB Corporation'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -163,7 +163,7 @@ html_show_sourcelink = False
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'libmcsapidoc'
+htmlhelp_basename = 'sparkmcsapidoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -176,7 +176,7 @@ htmlhelp_basename = 'libmcsapidoc'
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
-latex_documents = [ ('latex_usage', 'libmcsapi_usage.tex', "MariaDB ColumnStore C++ API Usage Documentation", 'MariaDB Corporation', 'manual') ]
+latex_documents = [ ('latex_usage', 'spark_mcsapi_usage.tex', "MariaDB ColumnStore Spark API Usage Documentation", 'MariaDB Corporation', 'manual') ]
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.

@@ -91,6 +91,9 @@ python/pybind11/
 build/
 java/libjavamcsapi.so*
 docs/example
+example/ExportDataFrame/lib
+example/ExportDataFrame/project
+example/ExportDataFrame/target
 
 #We need simutaneous builds for the dotnet NuGet package
 build-win-x64
