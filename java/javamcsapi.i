@@ -1,4 +1,4 @@
-/* Copyright (c) 2017, MariaDB Corporation. All rights reserved.
+/* Copyright (c) 2019, MariaDB Corporation. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -132,9 +132,11 @@
 #include "libmcsapi/mcsapi.h"
 %}
 
-/* MCOL-1094 */
+/* MCOL-1094 && MCOL-1961*/
 %include "std_vector.i"
 %template(TableLockInfoVector) std::vector<mcsapi::TableLockInfo>;
+%template(dbRootListVector) std::vector<std::uint32_t>;
+typedef long long time_t;
 
 /* include each of the mcsapi.h files and dependencies directly for swig to process */
 %include "libmcsapi/visibility.h"

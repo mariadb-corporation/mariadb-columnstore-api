@@ -1,0 +1,54 @@
+A simple DataFrame export application
+=====================================
+
+In this example we will export a synthetic DataFrame out of Spark into a non existing table in MariaDB ColumnStore. The full code for this can be found in the `ExportDataFrame.scala`_ file in the `mcsapi codebase`_.
+
+First, all needed libraries are imported and the SparkContext is created.
+
+.. literalinclude:: ../../example/ExportDataFrame/src/main/scala/ExportDataFrame.scala
+   :linenos:
+   :language: java
+   :lines: 17-25
+   :lineno-start: 17
+   :caption: ExportDataFrame.scala
+
+Second, an example DataFrame that is going to be exported into ColumnStore is created. 
+The DataFrame consists of two columns. One containing numbers from 0-127 and the other containing its ASCII character representation.
+
+.. literalinclude:: ../../example/ExportDataFrame/src/main/scala/ExportDataFrame.scala
+   :linenos:
+   :language: java
+   :lines: 27-29
+   :lineno-start: 27
+   :caption: ExportDataFrame.scala
+
+Third, the JDBC connection necessary to execute DML statements to create the target table is set up.
+
+.. literalinclude:: ../../example/ExportDataFrame/src/main/scala/ExportDataFrame.scala
+   :linenos:
+   :language: java
+   :lines: 31-40
+   :lineno-start: 31
+   :caption: ExportDataFrame.scala
+   
+Fourth, the target table "spark_export" is created in the database "test". 
+Note that ``ColumnStoreExporter.generateTableStatement`` infers a suitable DML statement based on the DataFrame's structure.
+
+.. literalinclude:: ../../example/ExportDataFrame/src/main/scala/ExportDataFrame.scala
+   :linenos:
+   :language: java
+   :lines: 42-55
+   :lineno-start: 42
+   :caption: ExportDataFrame.scala
+   
+Finally, the DataFrame gets imported into MariaDB ColumnStore by bypassing the SQL layer and injecting the data directly through MariaDB's Bulk Write SDK.
+
+.. literalinclude:: ../../example/ExportDataFrame/src/main/scala/ExportDataFrame.scala
+   :linenos:
+   :language: java
+   :lines: 57-61
+   :lineno-start: 57
+   :caption: ExportDataFrame.scala
+   
+.. _`mcsapi codebase`: https://github.com/mariadb-corporation/mariadb-columnstore-api
+.. _ExportDataFrame.scala: https://github.com/mariadb-corporation/mariadb-columnstore-api/tree/@GIT_VERSION@/example/ExportDataFrame/src/main/scala/ExportDataFrame.scala

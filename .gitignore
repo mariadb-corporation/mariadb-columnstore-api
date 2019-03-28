@@ -60,6 +60,7 @@ test/dataconvert-string
 test/dataconvert-datetime
 test/dataconvert-decimal
 test/dataconvert-null
+test/dataconvert-status
 test/bad-usage
 test/truncation
 test/summary
@@ -67,6 +68,7 @@ test/system-catalog
 test/char4
 test/mcol1160
 test/mcol1408
+test/mcol1662
 version.h
 docs/conf.py
 docs/sources.cmake
@@ -91,6 +93,28 @@ python/pybind11/
 build/
 java/libjavamcsapi.so*
 docs/example
+example/ExportDataFrame/lib
+example/ExportDataFrame/project
+example/ExportDataFrame/target
+
+#We need simutaneous builds for the dotnet NuGet package
+build-win-x64
+build-linux-x64
+
+#Just about everything in dotnet is created, esp. noteable
+#  are the src/*.cs files which come from swig.
+dotnet/dotnet_mcsapi_wrap.cxx
+dotnet/src/bin/
+dotnet/src/obj/
+dotnet/src/*.cs
+dotnet/test/bin
+dotnet/test/obj
+dotnet/example/bin
+dotnet/example/obj
+dotnet/lib-win-x64
+dotnet/lib-linux-x64
+dotnet/build-win-x64
+dotnet/build-linux-x64
 
 # QtCreator files
 *.config

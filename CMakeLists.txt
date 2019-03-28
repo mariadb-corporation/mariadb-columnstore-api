@@ -231,7 +231,7 @@ IF(SPARK_CONNECTOR)
   IF(PYTHON)
     add_subdirectory(spark-connector/python)
   ENDIF(PYTHON)
-ENDIF(SPARK_CONNECTOR)  
+ENDIF(SPARK_CONNECTOR)
 
 option(BUILD_DOCS "Build the documentation" OFF)
 #option(PDFLATEX_COMPILER "Build the pdf documentation (requires latex)" OFF)

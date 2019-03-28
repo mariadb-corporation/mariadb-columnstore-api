@@ -1,4 +1,4 @@
-/* Copyright (c) 2017, MariaDB Corporation. All rights reserved.
+/* Copyright (c) 2019, MariaDB Corporation. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -38,15 +38,35 @@
 %include "typemaps.i"
 %apply int *OUTPUT { mcsapi::columnstore_data_convert_status_t* status };
 /* MCOL-1321 */
-/* MCOL-1094 */
-%include "std_vector.i"
-%template(TableLockInfoVector) std::vector<mcsapi::TableLockInfo>; 
-/* MCOL-1094 */
 
 /* swig includes for standard types / exceptions */
 %include <std_except.i>
 %include <std_string.i>
 %include <stdint.i>
+
+/* MCOL-1094 && MCOL-1961 begin */
+%include "std_vector.i"
+%template(TableLockInfoVector) std::vector<mcsapi::TableLockInfo>;
+%template(dbRootListVector) std::vector<std::uint32_t>;
+%typemap(in) time_t
+{
+    if (PyLong_Check($input))
+        $1 = (time_t) PyLong_AsLong($input);
+    else if (PyInt_Check($input))
+        $1 = (time_t) PyInt_AsLong($input);
+    else if (PyFloat_Check($input))
+        $1 = (time_t) PyFloat_AsDouble($input);
+    else {
+        PyErr_SetString(PyExc_TypeError,"Expected a number for time_t");
+        return NULL;
+    }
+}
+
+%typemap(out) time_t
+{
+    $result = PyLong_FromLong((long)$1);
+}
+/* MCOL-1094 && MCOL-1961 end */
 
 /* include each of the mcsapi.h files and dependencies directly for swig to process */
 %include "libmcsapi/visibility.h"

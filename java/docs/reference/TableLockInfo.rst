@@ -51,13 +51,13 @@ getCPtr
 getCreationTime
 ^^^^^^^^^^^^^^^
 
-.. java:method:: public SWIGTYPE_p_time_t getCreationTime() throws com.mariadb.columnstore.api.ColumnStoreException
+.. java:method:: public long getCreationTime() throws com.mariadb.columnstore.api.ColumnStoreException
    :outertype: TableLockInfo
 
 getDbrootList
 ^^^^^^^^^^^^^
 
-.. java:method:: public SWIGTYPE_p_std__vectorT_unsigned_int_t getDbrootList() throws com.mariadb.columnstore.api.ColumnStoreException
+.. java:method:: public dbRootListVector getDbrootList() throws com.mariadb.columnstore.api.ColumnStoreException
    :outertype: TableLockInfo
 
 getId
@@ -105,13 +105,13 @@ getTableOID
 setCreationTime
 ^^^^^^^^^^^^^^^
 
-.. java:method:: public void setCreationTime(SWIGTYPE_p_time_t value) throws com.mariadb.columnstore.api.ColumnStoreException
+.. java:method:: public void setCreationTime(long value) throws com.mariadb.columnstore.api.ColumnStoreException
    :outertype: TableLockInfo
 
 setDbrootList
 ^^^^^^^^^^^^^
 
-.. java:method:: public void setDbrootList(SWIGTYPE_p_std__vectorT_unsigned_int_t value) throws com.mariadb.columnstore.api.ColumnStoreException
+.. java:method:: public void setDbrootList(dbRootListVector value) throws com.mariadb.columnstore.api.ColumnStoreException
    :outertype: TableLockInfo
 
 setId
