@@ -53,6 +53,8 @@ compile_test(mcol1160)
 compile_test(mcol1408)
 compile_test(mcol1792)
 compile_test(tableLocks)
+compile_test(mcol1563)
+compile_test(mcol1662)
 
 # On Windows copy the required shared libraries to execute the tests into the test folder as well.
 IF(WIN32)
