@@ -106,15 +106,19 @@ public class LockTest extends Common {
             
             // compare both objects
             assertEquals(tli1.getTableOID(), tli2.getTableOID());
-            //assertEquals(tli1.getCreationTime(), tli2.getCreationTime()); //TODO in javamcsapi.i
+            assertEquals(tli1.getCreationTime(), tli2.getCreationTime());
             assertEquals(tli1.getId(), tli2.getId());
             assertEquals(tli1.getOwnerName(), tli2.getOwnerName());
             assertEquals(tli1.getOwnerPID(), tli2.getOwnerPID());
             assertEquals(tli1.getOwnerSessionID(), tli2.getOwnerSessionID());
             assertEquals(tli1.getOwnerTxnID(), tli2.getOwnerTxnID());
             assertEquals(tli1.getState(), tli2.getState());
-            
-            // TODO compare the dbrootlist once fixed in javamcsapi.i
+            dbRootListVector dbr1 = tli1.getDbrootList();
+            dbRootListVector dbr2 = tli2.getDbrootList();
+            assertEquals(dbr1.size(), dbr2.size());
+            for(int i=0; i<dbr1.size(); i++){
+                assertEquals(dbr1.get(i),dbr2.get(i));
+            }
             
             // rollback the bulk injection and clear the lock
             b.rollback();
@@ -123,57 +127,6 @@ public class LockTest extends Common {
             e.printStackTrace();
             fail("Error during ListTableLocksIsTableLocked test: " + e);
         }
-        executeStmt(conn, "DROP TABLE IF EXISTS " + TABLE_NAME );
-        close(conn);
-    }
-    
-    @Test public void testClearTableLock() {
-        Connection conn = getConnection();
-        String TABLE_NAME = "javalock5";
-        executeStmt(conn, "DROP TABLE IF EXISTS " + TABLE_NAME );
-        executeStmt(conn, "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "(a int, b int) ENGINE=columnstore");
-        
-        ColumnStoreDriver d = new ColumnStoreDriver();
-        try{
-            ColumnStoreBulkInsert b1 = d.createBulkInsert(DB_NAME, TABLE_NAME, (short)0, 0);
-            for (int i=0; i<=100001; i++){
-                b1.setColumn(0, 0);
-                b1.setColumn(1, 1);
-                b1.writeRow();
-            }
-            assertTrue(d.isTableLocked(DB_NAME,TABLE_NAME));
-            d.clearTableLock(DB_NAME,TABLE_NAME);
-            assertFalse(d.isTableLocked(DB_NAME,TABLE_NAME));
-            ColumnStoreBulkInsert b2 = d.createBulkInsert(DB_NAME, TABLE_NAME, (short)0, 0);
-            b2.setColumn(0, 23);
-            b2.setColumn(1, 42);
-            b2.writeRow();
-            b2.commit();
-            assertFalse(d.isTableLocked(DB_NAME,TABLE_NAME));
-        } catch (Exception e){
-            fail("Error during clearTableLock test: " + e);
-        }
-        
-        // verify that only b2's ingestions were written
-        Statement stmt = null;
-        ResultSet rs = null;
-        try {
-            stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT COUNT(*) cnt FROM " + TABLE_NAME);
-            assertTrue(rs.next());
-            assertEquals(1,rs.getInt(1));
-            rs = stmt.executeQuery("SELECT b FROM " + TABLE_NAME + " WHERE a = 23");
-            assertTrue(rs.next());
-            assertEquals(42,rs.getInt(1));
-        }
-        catch (SQLException e) {
-            fail("Error while validating results: " + e);
-        }
-        finally {
-            close(rs);
-            close(stmt);
-        }
-        
         executeStmt(conn, "DROP TABLE IF EXISTS " + TABLE_NAME );
         close(conn);
     }

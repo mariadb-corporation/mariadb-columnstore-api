@@ -1,0 +1,46 @@
+# This script recursively copies all ReST documents from the source directory to
+# the binary directory. CMAKE_CURRENT_SOURCE_DIR and SOURCES_DIR are substituted
+# upon the cmake stage. The script is executed upon the make stage to ensure
+# that the binary sources directory is always up to date.
+
+file(GLOB SOURCES
+  RELATIVE "@CMAKE_CURRENT_SOURCE_DIR@"
+  "@CMAKE_CURRENT_SOURCE_DIR@/*.rst"
+  "@CMAKE_CURRENT_SOURCE_DIR@/reference/*.rst"
+  "@CMAKE_CURRENT_SOURCE_DIR@/usage/*.rst"
+  "@CMAKE_CURRENT_SOURCE_DIR@/_static/*.png"
+  "@CMAKE_CURRENT_SOURCE_DIR@/setup/*.yml"
+)
+foreach(source ${SOURCES})
+  configure_file(
+    "@CMAKE_CURRENT_SOURCE_DIR@/${source}"
+    "@SOURCES_DIR@/${source}"
+    COPYONLY
+    )
+endforeach(source)
+file(GLOB SOURCES_2
+  RELATIVE "@CMAKE_SOURCE_DIR@/example"
+  "@CMAKE_SOURCE_DIR@/example/ExportDataFrame.py"
+)
+foreach(source ${SOURCES_2})
+  configure_file(
+    "@CMAKE_SOURCE_DIR@/example/${source}"
+    "@SOURCES_DIR@/../example/${source}"
+    COPYONLY
+  )
+endforeach(source)
+file(GLOB PDF_SOURCES
+  RELATIVE "@CMAKE_CURRENT_SOURCE_DIR@"
+  "@CMAKE_CURRENT_SOURCE_DIR@/*.rst"
+  "@CMAKE_CURRENT_SOURCE_DIR@/reference/*.rst"
+  "@CMAKE_CURRENT_SOURCE_DIR@/usage/*.rst"
+  "@CMAKE_CURRENT_SOURCE_DIR@/_static/*.png"
+  "@CMAKE_CURRENT_SOURCE_DIR@/setup/*.yml"
+)
+foreach(source ${PDF_SOURCES})
+  configure_file(
+    "@CMAKE_CURRENT_SOURCE_DIR@/${source}"
+    "@PDF_SOURCES_DIR@/${source}"
+    COPYONLY
+    )
+endforeach(source)

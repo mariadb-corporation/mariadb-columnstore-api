@@ -6,6 +6,8 @@ This is a version history of Python API interface changes. It does not include i
 +---------+---------------------------------------------------------------------------------------------------------------------------------------+
 | Version | Changes                                                                                                                               |
 +=========+=======================================================================================================================================+
+| 1.2.3   | - Added missing getter methods for :py:class:`TableLockInfo`                                                                          |
++---------+---------------------------------------------------------------------------------------------------------------------------------------+
 | 1.2.2   | - Added :py:meth:`ColumnStoreDriver.listTableLocks`                                                                                   |
 |         | - Added :py:meth:`ColumnStoreDriver.isTableLocked`                                                                                    |
 |         | - Added :py:meth:`ColumnStoreDriver.clearTableLock`                                                                                   |

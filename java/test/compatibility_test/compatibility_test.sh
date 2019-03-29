@@ -34,7 +34,7 @@ for tag in $( git tag -l columnstore-$MAJOR_VERSION.$MINOR_VERSION.* ); do
         # prepare the backward compatibility test
         cp -r $tag{,.backward}
         rm -f $DIR/$tag.backward/java/build/libs/javamcsapi*.jar
-        cp $DIR/../build/libs/javamcsapi*.jar $DIR/$tag.backward/java/build/libs
+        cp $DIR/../../build/libs/javamcsapi*.jar $DIR/$tag.backward/java/build/libs
         sed -i -e "s/$tag/$tag.backward/g" $DIR/$tag.backward/java/CTestTestfile.cmake
 
         # prepare the forward compatibility test

@@ -30,6 +30,7 @@ namespace mcsapi
 ColumnStoreBulkInsert::ColumnStoreBulkInsert(ColumnStoreDriverImpl* driverInstance,
     const std::string& db, const std::string& table, uint8_t mode, uint16_t pm)
 {
+    mcsdebug("ColumnStoreBulkInsert %p constructor called", (void*)this);
     mImpl = new ColumnStoreBulkInsertImpl(db, table, mode, pm);
     mImpl->driver = driverInstance;
     mImpl->connect();
@@ -39,6 +40,7 @@ ColumnStoreBulkInsert::ColumnStoreBulkInsert(ColumnStoreDriverImpl* driverInstan
 
 ColumnStoreBulkInsert::~ColumnStoreBulkInsert()
 {
+    mcsdebug("ColumnStoreBulkInsert %p deconstructor called", (void*)this);
     if (mImpl->autoRollback)
         rollback();
     delete mImpl;
