@@ -26,10 +26,10 @@ ADD_CUSTOM_TARGET(spark-scala-mcsapi-connector ALL DEPENDS ${SPARK_SCALA_MCSAPI_
 
 IF(TEST_RUNNER)
   IF(UNIX)
-    add_test(NAME SparkScalaConnector_BasicTest COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/gradlew" -p ${CMAKE_CURRENT_SOURCE_DIR} -Pjava.library.path=${CMAKE_CURRENT_BINARY_DIR}/../../java -Pversion=${MCSAPI_VERSION_STRING} test)
+    add_test(NAME SparkScalaConnector_BasicTest COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/gradlew" -p ${CMAKE_CURRENT_SOURCE_DIR} -Pjava.library.path=${CMAKE_CURRENT_BINARY_DIR}/../../java -Pversion=${MCSAPI_VERSION_STRING} test --rerun-tasks)
   ENDIF(UNIX)
   IF(WIN32)
-    add_test(NAME SparkScalaConnector_BasicTest COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/gradlew.bat" -p ${CMAKE_CURRENT_SOURCE_DIR} -Pjava.library.path=${CMAKE_CURRENT_BINARY_DIR}/../../java/$<CONFIGURATION> -Pversion=${MCSAPI_VERSION_STRING} test)
+    add_test(NAME SparkScalaConnector_BasicTest COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/gradlew.bat" -p ${CMAKE_CURRENT_SOURCE_DIR} -Pjava.library.path=${CMAKE_CURRENT_BINARY_DIR}/../../java/$<CONFIGURATION> -Pversion=${MCSAPI_VERSION_STRING} test --rerun-tasks)
   ENDIF(WIN32)
 ENDIF(TEST_RUNNER)
 
