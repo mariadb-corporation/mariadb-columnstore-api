@@ -4,7 +4,7 @@ cmake/cpack_windows/*.wxs
 cmake/cpack_windows/*.wxs.cf
 cmake/cpack_windows/product_fragment.patch
 cmake/cpack_windows/features.patch
-java/test/columnstore-*
+java/test/compatibility_test/columnstore-*
 .pytest_cache
 test/dataconvert-time
 .gradle
