@@ -108,7 +108,7 @@ For the main build you need the following:
 ```shell
 sudo yum install epel-release
 sudo yum install cmake libuv-devel libxml2-devel snappy-devel gcc-c++
-sudo yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel python-devel python34-devel boost-devel pcre-devel
+sudo yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel python-devel python36-devel boost-devel pcre-devel
 # As CentOS'es swig is too old and causes errors we need to install swig from source
 curl -O https://iweb.dl.sourceforge.net/project/swig/swig/swig-3.0.12/swig-3.0.12.tar.gz
 tar -xf swig-3.0.12.tar.gz
@@ -125,9 +125,9 @@ sudo make install
 For the documentation:
 
 ```shell
-sudo yum install python python-pip python34 python34-pip perl perl-Digest-MD5
-sudo pip3 install -U Sphinx
-sudo pip3 install javasphinx
+sudo yum install python python-pip python36 python36-pip perl perl-Digest-MD5
+sudo /usr/local/bin/pip3 install -U Sphinx
+sudo /usr/local/bin/pip3 install javasphinx
 # As CentOS'es LaTeX is broken we need to install texlive from ctan
 curl -L -O http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
 tar -xf install-tl-unx.tar.gz
@@ -149,11 +149,11 @@ For the test suite:
 sudo yum install gtest-devel cppcheck mariadb-devel
 # from the cloned mariadb-columnstore-api directory
 sudo pip2 install --upgrade pip
-sudo pip3 install --upgrade pip
+sudo /usr/local/bin/pip3 install --upgrade pip
 sudo pip2 install --upgrade wheel
-sudo pip3 install --upgrade wheel
+sudo /usr/local/bin/pip3 install --upgrade wheel
 sudo pip2 install --no-cache-dir -r spark-connector/python/test/requirements.txt
-sudo pip3 install --no-cache-dir -r spark-connector/python/test/requirements.txt
+sudo /usr/local/bin/pip3 install --no-cache-dir -r spark-connector/python/test/requirements.txt
 ```
 
 ### SUSE Enterprise Linux 12
