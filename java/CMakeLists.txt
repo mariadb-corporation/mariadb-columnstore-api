@@ -23,7 +23,9 @@ include_directories(${JNI_INCLUDE_DIRS})
 set(CMAKE_SWIG_FLAGS -package com.mariadb.columnstore.api)
 set(CMAKE_SWIG_OUTDIR "${CMAKE_CURRENT_SOURCE_DIR}/src/main/java/com/mariadb/columnstore/api")
 set_source_files_properties( javamcsapi.i PROPERTIES CPLUSPLUS ON)
-IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.0)
+IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} VERSION_GREATER 3.7)
+  swig_add_library(javamcsapi TYPE SHARED LANGUAGE java SOURCES javamcsapi.i)
+ELSEIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} VERSION_GREATER 3.0)
   swig_add_module(javamcsapi java javamcsapi.i)
 ELSE ()
 
@@ -79,16 +81,18 @@ set_target_properties(javamcsapi PROPERTIES VERSION ${MCSAPI_VERSION_STRING}
 )
 
 IF(UNIX)
-    IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.0)
+    IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} VERSION_GREATER 3.0 AND ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} VERSION_LESS 3.8)
         set_target_properties(javamcsapi PROPERTIES 
             SUFFIX ".so.${MCSAPI_VERSION_STRING}"
         )
-    ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 3.0)
+        ADD_CUSTOM_COMMAND(TARGET javamcsapi POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E create_symlink libjavamcsapi.so.${MCSAPI_VERSION_STRING} "${CMAKE_CURRENT_BINARY_DIR}/libjavamcsapi.so"
+        )
+    ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} VERSION_GREATER 3.0 AND ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} VERSION_LESS 3.8)
 
     ADD_CUSTOM_COMMAND(TARGET javamcsapi POST_BUILD
         COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/gradlew" -p ${CMAKE_CURRENT_SOURCE_DIR} -Pversion=${MCSAPI_VERSION_STRING} jar
         COMMAND ${CMAKE_COMMAND} -E create_symlink javamcsapi-${MCSAPI_VERSION_STRING}.jar "${CMAKE_CURRENT_SOURCE_DIR}/build/libs/javamcsapi.jar"
-        COMMAND ${CMAKE_COMMAND} -E create_symlink libjavamcsapi.so.${MCSAPI_VERSION_STRING} "${CMAKE_CURRENT_BINARY_DIR}/libjavamcsapi.so"
     )
 ENDIF(UNIX)
 IF(WIN32)
