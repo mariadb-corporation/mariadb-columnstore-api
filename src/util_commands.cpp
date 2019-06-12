@@ -416,6 +416,7 @@ void ColumnStoreCommands::weBulkCommit(uint32_t pm, uint64_t uniqueId, uint32_t 
         *messageOut >> oid;
         *messageOut >> partNum;
         *messageOut >> segNum;
+        segNum &= 0x0000ffff; // Top 4 bytes can be junk due to byte alignment
         *messageOut >> hwm;
 
         // De-duplication if there are two extents for a segment in this commit
