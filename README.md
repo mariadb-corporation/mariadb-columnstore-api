@@ -342,7 +342,7 @@ signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /a "Ma
 1) Create a Columnstore.xml file according to our [Knowledge Base](https://mariadb.com/kb/en/library/columnstore-bulk-write-sdk/#environment-configuration) pointing to the ColumnStore instance you want to use for testing and place it into an ``etc`` directory
 2) Set the environment variable ``COLUMNSTORE_INSTALL_DIR`` to the folder holding the ``etc`` directory
 3) Create a remote user and grant him access to the mcsapi and infinidb_vtable databases on the ColumnStore instance you want to use for testing
-4) Set the environment variable ``MCSAPI_CS_TEST_IP`` to the IP address of the ColumnStore instance you want to use for testing (on the Windows machine)
+4) Set the environment variable ``MCSAPI_CS_TEST_IP`` to the IP address of the ColumnStore instance you want to use for testing. Alternatively set ``MCSAPI_CS_TEST_SOCKET`` to point to the MariaDB socket file.
 5) Set the environment variables ``MCSAPI_CS_TEST_USER`` and ``MCSAPI_CS_TEST_PASSWORD`` to hold the credentials of the newly created remote user (on the Windows machine)
 6) Compile mcsapi as described below with the additional ``TEST_RUNNER`` option and invoke the tests with ``ctest``. If you would like to test pymcsapi, you have to install it in your python environment(s) before the test execution.
 ```

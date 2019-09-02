@@ -19,7 +19,7 @@
 #include <libmcsapi/mcsapi.h>
 #include <iostream>
 #include <gtest/gtest.h>
-#include <mysql.h>
+#include "common.h"
 
 MYSQL* my_con;
 
@@ -29,27 +29,9 @@ class TestEnvironment : public ::testing::Environment {
   // Override this to define how to set up the environment.
   virtual void SetUp()
   {
-    std::string cs_ip = "127.0.0.1";
-    std::string cs_user = "root";
-    std::string cs_password = "";
-    if(std::getenv("MCSAPI_CS_TEST_IP")){
-        cs_ip = std::getenv("MCSAPI_CS_TEST_IP");
-    }
-    if(std::getenv("MCSAPI_CS_TEST_USER")){
-        cs_user = std::getenv("MCSAPI_CS_TEST_USER");
-    }
-    if(std::getenv("MCSAPI_CS_TEST_PASSWORD")){
-        cs_password = std::getenv("MCSAPI_CS_TEST_PASSWORD");
-    }
-    my_con = mysql_init(NULL);
+    my_con = get_mariadb();
     if (!my_con)
-        FAIL() << "Could not init MariaDB connection";
-    if (!mysql_real_connect(my_con, cs_ip.c_str(), cs_user.c_str(), cs_password.c_str(), NULL, 3306, NULL, 0))
-        FAIL() << "Could not connect to MariaDB: " << mysql_error(my_con);
-    if (mysql_query(my_con, "CREATE DATABASE IF NOT EXISTS mcsapi"))
-        FAIL() << "Error creating database: " << mysql_error(my_con);
-    if (mysql_select_db(my_con, "mcsapi"))
-        FAIL() << "Could not select DB: " << mysql_error(my_con);
+        FAIL() << "MariaDB connection setup failed";
     if (mysql_query(my_con, "DROP TABLE IF EXISTS mcol1563"))
         FAIL() << "Could not drop existing table: " << mysql_error(my_con);
     if (mysql_query(my_con, "CREATE TABLE IF NOT EXISTS mcol1563 (a smallint, b smallint unsigned) engine=columnstore comment='compression=0'"))

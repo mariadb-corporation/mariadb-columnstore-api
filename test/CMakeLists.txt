@@ -25,9 +25,11 @@ find_package(Threads)
 
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure)
 
+set(COMMON_TEST_FILES common.cpp)
+
 ENABLE_TESTING()
 macro(compile_test arg)
-  add_executable(${arg} ${arg}.cpp)
+    add_executable(${arg} ${arg}.cpp ${COMMON_TEST_FILES})
   target_link_libraries(${arg} mcsapi ${LIBUV_LIBRARY} ${LIBXML2_LIBRARIES} ${GTEST_BOTH_LIBRARIES} ${MYSQL_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
   add_test(${arg} ${arg})
 endmacro(compile_test)
