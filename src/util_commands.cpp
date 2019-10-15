@@ -317,7 +317,8 @@ ColumnStoreNetwork* ColumnStoreCommands::getBrmConnection()
 
     const char* hostname = driver->getXMLNode("DBRM_Controller", "IPAddr");
     std::string host = hostname;
-    brmConnection = new ColumnStoreNetwork(uv_loop, host, PORT_DBRMCONTROLLER);
+    uint32_t portDbrmcontroller = driver->getXMLNodeUint("DBRM_Controller", "Port");
+    brmConnection = new ColumnStoreNetwork(uv_loop, host, portDbrmcontroller);
     return brmConnection;
 }
 
@@ -335,7 +336,8 @@ ColumnStoreNetwork* ColumnStoreCommands::getWeConnection(uint32_t pm)
         snprintf(node_type, 32, "pm%u_WriteEngineServer", pm);
         const char* hostname = driver->getXMLNode(node_type, "IPAddr");
         std::string host = hostname;
-        connection = new ColumnStoreNetwork(uv_loop, host, PORT_WRITEENGINE);
+        uint32_t portWriteEngine = driver->getXMLNodeUint(node_type, "Port");
+        connection = new ColumnStoreNetwork(uv_loop, host, portWriteEngine);
         weConnections[pm] = connection;
     }
     return connection;
@@ -747,11 +749,13 @@ uint64_t ColumnStoreCommands::brmGetUniqueId()
 
 bool ColumnStoreCommands::procMonCheckVersion()
 {
+    // TODO, add a flag in Columnstore.xml that skips procMonCheckVersion for SkySQL
     ColumnStoreMessaging messageIn;
     ColumnStoreMessaging* messageOut;
     const char* hostname = driver->getXMLNode("pm1_ProcessMonitor", "IPAddr");
     std::string host = hostname;
-    ColumnStoreNetwork* connection = new ColumnStoreNetwork(uv_loop, host, PORT_PROCMON);
+    int32_t procMonPort = driver->getXMLNodeUint("pm1_ProcessMonitor", "Port");
+    ColumnStoreNetwork* connection = new ColumnStoreNetwork(uv_loop, host, procMonPort);
     miscConnections.push_back(connection);
     // Connect
     runSoloLoop(connection);
