@@ -749,7 +749,14 @@ uint64_t ColumnStoreCommands::brmGetUniqueId()
 
 bool ColumnStoreCommands::procMonCheckVersion()
 {
-    // TODO, add a flag in Columnstore.xml that skips procMonCheckVersion for SkySQL
+    // Skip the version check on SkySQL clients that have the SkipVersionCheck flag set to "Y" or "1"
+    const char* skipVersionCheck = driver->getXMLNode("SkySQL", "SkipVersionCheck");
+    if (skipVersionCheck != NULL){
+        std::string skipParameter = skipVersionCheck;
+        if (skipParameter.compare("Y") || skipParameter.compare("1")){
+            return true;
+        }
+    }
     ColumnStoreMessaging messageIn;
     ColumnStoreMessaging* messageOut;
     const char* hostname = driver->getXMLNode("pm1_ProcessMonitor", "IPAddr");
