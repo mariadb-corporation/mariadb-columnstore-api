@@ -282,6 +282,17 @@ const char* ColumnStoreDriverImpl::getXMLNode(const char* parent, const char* no
     return NULL;
 }
 
+uint32_t ColumnStoreDriverImpl::getXMLNodeUint(const char* parent, const char* node)
+{
+    const char* xmlRtnString = getXMLNode(parent, node);
+    if (xmlRtnString == NULL){
+        return 0;
+    }
+    uint32_t rtn = strtoul(xmlRtnString, NULL, 10);
+
+    return rtn;
+}
+
 uint32_t ColumnStoreDriverImpl::getPMCount()
 {
     const char* pmStringCount = getXMLNode("PrimitiveServers", "Count");

@@ -33,7 +33,7 @@
 namespace mcsapi
 {
 ColumnStoreNetwork::ColumnStoreNetwork(uv_loop_t* loop,
-        std::string& host, columnstore_ports_t port):
+        std::string& host, uint32_t port):
             uv_loop(loop),
             buf(nullptr),
             con_status(CON_STATUS_NONE),

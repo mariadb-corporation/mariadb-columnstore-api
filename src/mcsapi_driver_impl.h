@@ -37,6 +37,7 @@ public:
 
     void loadXML();
     const char* getXMLNode(const char* parent, const char* node);
+    uint32_t getXMLNodeUint(const char* parent, const char* node);
     uint32_t getDBRootCount();
     uint32_t getPMCount();
     void getDBRootsForPM(uint32_t pm, std::vector<uint32_t>& dbRoots);

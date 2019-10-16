@@ -21,16 +21,6 @@
 namespace mcsapi
 {
 
-enum columnstore_ports_t
-{
-    PORT_EXEMGR = 8601,
-    PORT_PRIMPROC = 8620,
-    PORT_WRITEENGINE = 8630,
-    PORT_DBRMCONTROLLER = 8616,
-    PORT_DBRMWORKER = 8700,
-    PORT_PROCMON = 8800
-};
-
 enum columnstore_con_status_t
 {
     CON_STATUS_NONE,
@@ -46,7 +36,7 @@ enum columnstore_con_status_t
 class ColumnStoreNetwork
 {
 public:
-    ColumnStoreNetwork(uv_loop_t* loop, std::string& host, columnstore_ports_t port);
+    ColumnStoreNetwork(uv_loop_t* loop, std::string& host, uint32_t port);
 
     columnstore_con_status_t getStatus() { return con_status; };
     void sendData(ColumnStoreMessaging& message);
