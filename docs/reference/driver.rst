@@ -14,7 +14,7 @@ ColumnStoreDriver()
 
 .. cpp:function:: ColumnStoreDriver::ColumnStoreDriver()
 
-   Creates an instance of the ColumnStoreDriver. This will search for the environment variable :envvar:`COLUMNSTORE_INSTALL_DIR`, if this isn't found then the default path of ``/usr/local/mariadb/columnstore/`` is used.
+   Creates an instance of the ColumnStoreDriver. The default path of ``/etc/columnstore/`` is used to find the configuration file.
 
    :raises ColumnStoreConfigError: When the Columnstore.xml file cannot be found or cannot be parsed
 
@@ -57,7 +57,7 @@ Example
    {
        mcsapi::ColumnStoreDriver* driver = nullptr;
        try {
-           driver = new mcsapi::ColumnStoreDriver("/usr/local/mariadb/columnstore/etc/Columnstore.xml");
+           driver = new mcsapi::ColumnStoreDriver("/etc/columnstore/Columnstore.xml");
        } catch (mcsapi::ColumnStoreError &e) {
            std::cout << "Error caught " << e.what() << std::endl;
        }

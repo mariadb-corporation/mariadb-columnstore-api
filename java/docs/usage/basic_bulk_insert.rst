@@ -26,7 +26,7 @@ We need to import all classes from the package :java:package:`com.mariadb.column
    :lineno-start: 25
    :caption: example/Basic_bulk_insert.java
 
-A new instance of :java:type:`ColumnStoreDriver` is created which will attempt to find the ``Columnstore.xml`` configuration file by first searching for the environment variable :envvar:`COLUMNSTORE_INSTALL_DIR` and then the default path of ``/usr/local/mariadb/columnstore/etc/Columnstore.xml``. Alternatively we could provide a path as a parameter to :java:type:`ColumnStoreDriver`.
+A new instance of :java:type:`ColumnStoreDriver` is created which will attempt to find the ``Columnstore.xml`` configuration file in the default path of ``/etc/columnstore/Columnstore.xml``. Alternatively we could provide a path as a parameter to :java:type:`ColumnStoreDriver`.
 
 .. literalinclude:: ../../example/Basic_bulk_insert.java
    :linenos:

@@ -14,13 +14,12 @@ FIND_PATH(MYSQL_INCLUDE_DIR mysql.h
   /usr/local/include/mysql
   /usr/include/mysql
   /usr/include/mariadb/
-  /usr/local/mariadb/columnstore/mysql/include/mysql
 )
 
 SET(MYSQL_NAMES mysqlclient mysqlclient_r mariadb libmariadb mariadbclient)
 FIND_LIBRARY(MYSQL_LIBRARY
   NAMES ${MYSQL_NAMES}
-  PATHS /usr/lib /usr/local/lib /usr/local/mariadb/columnstore/mysql/lib /usr/lib64/mariadb /usr/lib/mariadb
+  PATHS /usr/lib /usr/local/lib /usr/lib64/mariadb /usr/lib/mariadb /usr/lib64/mysql /usr/lib/mysql
   PATH_SUFFIXES mysql
 )
 

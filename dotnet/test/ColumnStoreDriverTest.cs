@@ -25,7 +25,7 @@ namespace test
             new string[]
             {
                 "/etc",
-                "/usr/local/mariadb/columnstore/etc",
+                "/etc/columnstore",
             };
 
         public static string TestDb = "mcsapi";

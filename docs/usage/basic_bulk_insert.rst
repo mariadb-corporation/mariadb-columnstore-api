@@ -33,7 +33,7 @@ A pointer is needed to :cpp:class:`ColumnStoreDriver` to get the configuration i
    :caption: example/basic_bulk_insert.cpp
 
 
-A new instance of :cpp:class:`ColumnStoreDriver` is created which will attempt to find the ``Columnstore.xml`` configuration file by first searching for the environment variable :envvar:`COLUMNSTORE_INSTALL_DIR` and then the default path of ``/usr/local/mariadb/columnstore/etc/Columnstore.xml``. Alternatively we could provide a path as a parameter to :cpp:class:`ColumnStoreDriver`.
+A new instance of :cpp:class:`ColumnStoreDriver` is created which will attempt to find the ``Columnstore.xml`` configuration file in the default path of ``/etc/columnstore/Columnstore.xml``. Alternatively we could provide a path as a parameter to :cpp:class:`ColumnStoreDriver`.
 
 Once we have the ColumnStore installation's configuration in the driver we use this to initiate a bulk insert using :cpp:func:`ColumnStoreDriver::createBulkInsert`. We are using the ``test`` database and the ``t1`` table. The remaining two parameters are unused for now and set to ``0``.
 

@@ -26,7 +26,7 @@ We need to import :py:mod:`pymcsapi` which is the main module to use mcsapi.
    :lineno-start: 28
    :caption: example/basic_bulk_insert.py
 
-A new instance of :py:class:`ColumnStoreDriver` is created which will attempt to find the ``Columnstore.xml`` configuration file by first searching for the environment variable :envvar:`COLUMNSTORE_INSTALL_DIR` and then the default path of ``/usr/local/mariadb/columnstore/etc/Columnstore.xml``. Alternatively we could provide a path as a parameter to :py:class:`ColumnStoreDriver`.
+A new instance of :py:class:`ColumnStoreDriver` is created which will attempt to find the ``Columnstore.xml`` configuration file in the default path of ``/etc/columnstore/Columnstore.xml``. Alternatively we could provide a path as a parameter to :py:class:`ColumnStoreDriver`.
 
 .. literalinclude:: ../../example/basic_bulk_insert.py
    :linenos:

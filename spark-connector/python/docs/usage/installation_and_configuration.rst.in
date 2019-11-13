@@ -69,9 +69,9 @@ mcsapi for PySpark needs information about the ColumnStore cluster to write data
 
 .. code-block:: bash
 
-   docker cp COLUMNSTORE_UM_1:/usr/local/mariadb/columnstore/etc/Columnstore.xml .
-   docker exec -it SPARK_MASTER mkdir -p /usr/local/mariadb/columnstore/etc
-   docker cp Columnstore.xml SPARK_MASTER:/usr/local/mariadb/columnstore/etc
+   docker cp COLUMNSTORE_UM_1:/etc/columnstore/Columnstore.xml .
+   docker exec -it SPARK_MASTER mkdir -p /etc/columnstore
+   docker cp Columnstore.xml SPARK_MASTER:/etc/columnstore
 
 More information about `creating appropriate Columnstore.xml configuration files`_ and `Spark configuration changes`_ can be found in our Knowledge Base.   
 
