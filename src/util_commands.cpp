@@ -747,6 +747,38 @@ uint64_t ColumnStoreCommands::brmGetUniqueId()
     return uniqueId;
 }
 
+bool ColumnStoreCommands::brmGetSystemSuspended()
+{
+    // return true if suspended
+    ColumnStoreMessaging messageIn;
+    ColumnStoreMessaging* messageOut;
+    ColumnStoreNetwork *connection = getBrmConnection();
+    runSoloLoop(connection);
+
+    uint8_t command = COMMAND_DBRM_GET_SYSTEM_STATE;
+    messageIn << command;
+    connection->sendData(messageIn);
+    runSoloLoop(connection);
+
+    connection->readDataStart();
+    messageOut = connection->getReadMessage();
+    runSoloLoop(connection);
+
+    uint8_t response;
+    *messageOut >> response;
+    if (response != 0)
+    {
+        std::string errmsg("Error getting a unique ID");
+        connection->deleteReadMessage();
+        throw ColumnStoreServerError(errmsg);
+    }
+    uint32_t systemState;
+    *messageOut >> systemState;
+
+    connection->deleteReadMessage();
+    return systemState & 2;
+}
+
 bool ColumnStoreCommands::procMonCheckVersion()
 {
     // Skip the version check on SkySQL clients that have the SkipVersionCheck flag set to "Y" or "1"

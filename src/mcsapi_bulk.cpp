@@ -445,6 +445,12 @@ void ColumnStoreBulkInsertImpl::connect()
         throw ColumnStoreVersionError(err);
     }
 
+    if (commands->brmGetSystemSuspended())
+    {
+        std::string err("ColumnStore is write suspended");
+        throw ColumnStoreServerError(err);
+    }
+
     tbl = &driver->getSystemCatalog()->getTable(db, table);
     tableData.tableName = tbl->getTableName();
     tableData.tableSchema = tbl->getSchemaName();
