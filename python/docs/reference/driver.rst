@@ -10,7 +10,7 @@ ColumnStoreDriver()
 
 .. py:method:: pymcsapi.ColumnStoreDriver()
 
-   Creates an instance of the ColumnStoreDriver. This will search for the environment variable :envvar:`COLUMNSTORE_INSTALL_DIR`, if this isn't found then the default path of ``/usr/local/mariadb/columnstore/`` is used.
+   Creates an instance of the ColumnStoreDriver. The default path of ``/etc/columnstore/`` is used to find the configuration file.
 
    :raises RuntimeError: When the Columnstore.xml file cannot be found or cannot be parsed
 
@@ -41,7 +41,7 @@ Example
    import pymcsapi
 
    try:
-       driver = pymcsapi.ColumnStoreDriver('/usr/local/mariadb/columnstore/etc/Columnstore.xml')
+       driver = pymcsapi.ColumnStoreDriver('/etc/columnstore/Columnstore.xml')
    except RuntimeError as err:
        print("Error caught: %s" % (err,))
 

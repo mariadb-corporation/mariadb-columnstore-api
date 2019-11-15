@@ -44,16 +44,7 @@ ColumnStoreDriver::ColumnStoreDriver()
     mcsdebug("ColumnStoreDriver %p constructor called", (void*)this);
     mcsdebug("mcsapi version %s", this->getVersion());
     mImpl = new ColumnStoreDriverImpl();
-    char* envpath = std::getenv("COLUMNSTORE_INSTALL_DIR");
-    if (envpath && (strlen(envpath) > 0))
-    {
-        mImpl->path = envpath;
-        mImpl->path.append("/etc/Columnstore.xml");
-    }
-    else
-    {
-        mImpl->path = "/usr/local/mariadb/columnstore/etc/Columnstore.xml";
-    }
+    mImpl->path = "/etc/columnstore/Columnstore.xml";
 
     mImpl->loadXML();
     mcsdebug("loaded config: %s", mImpl->path.c_str());

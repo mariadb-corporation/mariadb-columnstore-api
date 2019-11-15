@@ -67,35 +67,35 @@ services:
       - 8082:8082
 
   um1:
-    image: mariadb/columnstore:1.2
+    image: mariadb/columnstore:1.4
     container_name: COLUMNSTORE_UM_1
     environment:
       - MARIADB_CS_POSTCFG_INPUT=
       - MARIADB_ALLOW_EMPTY_PASSWORD=1
     volumes:
-      - um1_etc:/usr/local/mariadb/columnstore/etc
-      - um1_mysql:/usr/local/mariadb/columnstore/mysql/db
-      - um1_local:/usr/local/mariadb/columnstore/local
+      - um1_etc:/etc/columnstore
+      - um1_mysql:/var/lib/columnstore
+      - um1_local:/var/lib/columnstore/local
     expose:
       - 3306
     ports:
       - "3306:3306"
       
   pm2:
-    image: mariadb/columnstore:1.2
+    image: mariadb/columnstore:1.4
     container_name: COLUMNSTORE_PM_2
     environment:
       - MARIADB_CS_POSTCFG_INPUT=
     volumes:
-      - dbroot2:/usr/local/mariadb/columnstore/data2
-      - pm2_etc:/usr/local/mariadb/columnstore/etc
+      - dbroot2:/var/lib/columnstore/data2
+      - pm2_etc:/etc/columnstore
     expose:
       - 8616
       - 8630
       - 8800
 
   pm1:
-    image: mariadb/columnstore:1.2
+    image: mariadb/columnstore:1.4
     container_name: COLUMNSTORE_PM_1
     environment:
       - MARIADB_CS_POSTCFG_INPUT=2\n1\nn\ny\ncolumnstore-1\n1\n1\num1\n\n\n2\npm1\n\n\n1\npm2\n\n\n2\n
@@ -105,8 +105,8 @@ services:
       - um1
       - pm2
     volumes:
-      - dbroot1:/usr/local/mariadb/columnstore/data1
-      - pm1_etc:/usr/local/mariadb/columnstore/etc
+      - dbroot1:/var/lib/columnstore/data1
+      - pm1_etc:/etc/columnstore
     expose:
       - 8616
       - 8630

@@ -135,7 +135,7 @@ def test_all_types():
     if os.environ.get("COLUMNSTORE_INSTALL_DIR") is not None:
         columnStoreExporter.export("test","pythontest2",testDF,os.environ.get("COLUMNSTORE_INSTALL_DIR")+"/etc/Columnstore.xml")
     else:
-        columnStoreExporter.export("test","pythontest2",testDF,"/usr/local/mariadb/columnstore/etc/Columnstore.xml")
+        columnStoreExporter.export("test","pythontest2",testDF,"/etc/columnstore/Columnstore.xml")
     
     #verify that the dataframe was stored correctly
     tables = ['pythontest', 'pythontest2']
