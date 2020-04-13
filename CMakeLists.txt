@@ -233,6 +233,12 @@ IF(SPARK_CONNECTOR)
   ENDIF(PYTHON)
 ENDIF(SPARK_CONNECTOR)
 
+
+option(REMOTE_CPIMPORT "Build the mcsimport tool" ON)
+IF(REMOTE_CPIMPORT)
+    add_subdirectory(mcsimport)
+ENDIF(REMOTE_CPIMPORT)
+
 option(BUILD_DOCS "Build the documentation" OFF)
 #option(PDFLATEX_COMPILER "Build the pdf documentation (requires latex)" OFF)
 
@@ -281,6 +287,7 @@ if (RPM)
     SET(CPACK_RPM_spark_PACKAGE_REQUIRES "mariadb-columnstore-api-java == ${CPACK_RPM_PACKAGE_VERSION}")
     SET(CPACK_RPM_pyspark_PACKAGE_REQUIRES "mariadb-columnstore-api-python == ${CPACK_RPM_PACKAGE_VERSION}")
     SET(CPACK_RPM_pyspark3_PACKAGE_REQUIRES "mariadb-columnstore-api-python3 == ${CPACK_RPM_PACKAGE_VERSION}")
+    SET(CPACK_RPM_mcsimport_PACKAGE_REQUIRES "mariadb-columnstore-api-cpp == ${CPACK_RPM_PACKAGE_VERSION}")
     include(CPack)
 endif()
 
@@ -306,6 +313,7 @@ if (DEB)
     SET(CPACK_DEBIAN_SPARK_PACKAGE_DEPENDS "mariadb-columnstore-api-java (= ${VERSION_SHORT})")
     SET(CPACK_DEBIAN_PYSPARK_PACKAGE_DEPENDS "mariadb-columnstore-api-python (= ${VERSION_SHORT})")
     SET(CPACK_DEBIAN_PYSPARK3_PACKAGE_DEPENDS "mariadb-columnstore-api-python3 (= ${VERSION_SHORT})")
+    SET(CPACK_DEBIAN_MCSIMPORT_PACKAGE_REQUIRES "mariadb-columnstore-api-cpp == ${VERSION_SHORT}")
     SET(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
     SET(CPACK_DEBIAN_PACKAGE_GENERATE_SHLIBS ON)
     SET(CPACK_DEBIAN_PACKAGE_GENERATE_SHLIBS_POLICY ">=")
@@ -364,8 +372,8 @@ if (WIN32)
         IMMEDIATE @ONLY)
     LIST(APPEND WIX_PATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/features.patch")
     SET(CPACK_WIX_PATCH_FILE ${WIX_PATCH_FILES})
-    SET(CPACK_PACKAGE_NAME "MariaDB ColumnStore Bulk Write SDK")
-    set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "MariaDB ColumnStore Bulk Write SDK")
+    SET(CPACK_PACKAGE_NAME "MariaDB ColumnStore Bulk Write SDK and Remote Import Tool")
+    set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "MariaDB ColumnStore Bulk Write SDK and Remote Import Tool")
     set(CPACK_PACKAGE_VENDOR "MariaDB Corporation Ab")
     SET(CPACK_PACKAGE_CONTACT "MariaDB Corporation Ab")
     SET(ENGINE_ARCH "x64")
@@ -403,6 +411,63 @@ if (WIN32)
     set(CPACK_COMPONENT_PYSPARK_DESCRIPTION "Installs the ColumnStoreExporter for usage with PySpark and Python 2.7")
 	set(CPACK_COMPONENT_PYSPARK3_DISPLAY_NAME "PySpark3 ColumnStore Exporter")
     set(CPACK_COMPONENT_PYSPARK3_DESCRIPTION "Installs the ColumnStoreExporter for usage with PySpark and Python 3")
+
+    IF(REMOTE_CPIMPORT)
+        # On Windows find the Microsoft Visual Studio 2017 C++ Redistributable merge module (x64) that is packaged with mcsapi
+
+        # Macro to get the subdirectories of a given directory
+        MACRO(SUBDIRLIST result curdir)
+            FILE(GLOB children RELATIVE ${curdir} ${curdir}/*)
+            SET(dirlist "")
+            FOREACH(child ${children})
+              IF(IS_DIRECTORY ${curdir}/${child})
+                LIST(APPEND dirlist ${child})
+              ENDIF()
+            ENDFOREACH()
+           SET(${result} ${dirlist})
+        ENDMACRO()
+
+        # Build up potential merge module paths
+        SET(VISUAL_STUDIO_PATHS)
+        LIST(APPEND VISUAL_STUDIO_PATHS "$ENV{ProgramFiles}/Microsoft Visual Studio/2017/Community/VC/Redist/MSVC")
+        LIST(APPEND VISUAL_STUDIO_PATHS "$ENV{ProgramFiles} (x86)/Microsoft Visual Studio/2017/Community/VC/Redist/MSVC")
+        LIST(APPEND VISUAL_STUDIO_PATHS "$ENV{ProgramFiles}/Microsoft Visual Studio/2017/Enterprise/VC/Redist/MSVC")
+        LIST(APPEND VISUAL_STUDIO_PATHS "$ENV{ProgramFiles} (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Redist/MSVC")
+        LIST(APPEND VISUAL_STUDIO_PATHS "$ENV{ProgramFiles}/Microsoft Visual Studio/2017/Professional/VC/Redist/MSVC")
+        LIST(APPEND VISUAL_STUDIO_PATHS "$ENV{ProgramFiles} (x86)/Microsoft Visual Studio/2017/Professional/VC/Redist/MSVC")
+
+        SET(MSM_PATHS)
+        FOREACH(VISUAL_STUDIO_PATH ${VISUAL_STUDIO_PATHS})
+          file(TO_CMAKE_PATH ${VISUAL_STUDIO_PATH} VISUAL_STUDIO_PATH_CONV)
+          SUBDIRLIST(SUB_DIRS ${VISUAL_STUDIO_PATH_CONV})
+          FOREACH(SUB_DIR ${SUB_DIRS})
+              LIST(APPEND MSM_PATHS "${VISUAL_STUDIO_PATH}/${SUB_DIR}/MergeModules")
+          ENDFOREACH()
+        ENDFOREACH()
+
+        # Try to find the merge module
+        find_file(
+          VS_2017_REDIST_MSM
+          NAMES Microsoft_VC141_CRT_x64.msm Microsoft_VC140_CRT_x64.msm
+          HINTS $ENV{MSM_DIRECTORY}
+          PATHS ${MSM_PATHS}
+        )
+        if (${VS_2017_REDIST_MSM} STREQUAL "VS_2017_REDIST_MSM-NOTFOUND")
+          MESSAGE(FATAL_ERROR "Could not find a usable Visual Studio 2015/17 C++ Redistributable merge module Microsoft_VC141_CRT_x64.msm!\nYou can hint cmake by setting the environment variable MSM_DIRECTORY.")
+        ENDIF()
+        MESSAGE(STATUS "Found Visual Studio 2015/17 C++ Redistributable merge module: ${VS_2017_REDIST_MSM}")
+
+        configure_file(
+            "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/redist.patch.in"
+            "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/redist.patch"
+            IMMEDIATE @ONLY)
+        LIST(APPEND WIX_PATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/redist.patch")
+        SET(CPACK_WIX_PATCH_FILE ${WIX_PATCH_FILES})
+        SET(CPACK_COMPONENT_MCSIMPORT_DISPLAY_NAME "MariaDB ColumnStore mcsimport")
+        set(CPACK_COMPONENT_MCSIMPORT_DESCRIPTION "MariaDB ColumnStore mcsimport")
+        set(CPACK_COMPONENT_MCSIMPORT_INSTALL_DIRECTORY "MariaDB/ColumnStore Remote Import")
+        set(CPACK_COMPONENT_MCSIMPORT_DEPENDS cpp)
+    ENDIF(REMOTE_CPIMPORT)
     include(CPack)
 endif(WIN32)
 
