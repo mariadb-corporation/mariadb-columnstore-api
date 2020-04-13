@@ -1,0 +1,10 @@
+- column: 
+  target: id
+- column:
+  - ignore
+- column: 
+  target: 3
+- column:
+  target: a
+- column:
+  target: b

@@ -1,0 +1,19 @@
+## required test parameter
+name: "1,000,000 row load"
+expected_exit_value: 0
+
+## required mcsimport command line paramter
+table: mcsimport_test_load
+# database is defined by test.py
+# input file input.csv will be used if present in test directory
+
+## optional mcsimport command line parameter
+delimiter: 
+date_format: 
+default_non_mapped: #True, default False
+# mapping file mapping.yaml will be used if present in test directory
+
+## optional test parameter
+
+# test validation coverage in % of total rows in expected.csv (~20,000 rows are checked)
+validation_coverage: 2

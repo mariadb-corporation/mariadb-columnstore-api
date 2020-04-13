@@ -1,0 +1,14 @@
+# required test parameter
+name: special combination implicit inject
+expected_exit_value: 0
+
+# required mcsimport command line paramter
+table: mcsimport_test_special_1
+# database is defined by test.py
+# input file input.csv will be used if present in test directory
+
+# optional mcsimport command line parameter
+delimiter: '['
+date_format: "%d.%m.%Y %H:%M:%S"
+default_non_mapped: True
+# mapping file mapping.yaml will be used if present in test directory

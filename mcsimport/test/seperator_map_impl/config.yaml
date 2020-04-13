@@ -1,0 +1,14 @@
+# required test parameter
+name: seperator mapping implicit
+expected_exit_value: 0
+
+# required mcsimport command line paramter
+table: mcsimport_test_seperator_map_impl
+# database is defined by test.py
+# input file input.csv will be used if present in test directory
+
+# optional mcsimport command line parameter
+delimiter: ;
+date_format: 
+default_non_mapped:
+# mapping file mapping.yaml will be used if present in test directory
