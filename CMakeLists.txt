@@ -272,7 +272,7 @@ ENDIF(WIN32)
 
 install(FILES "README.md"
     "LICENSE.txt"
-    DESTINATION "${CMAKE_INSTALL_DOCDIR}" COMPONENT cpp
+    DESTINATION "${SUPPORTDIR}/mcsapi" COMPONENT cpp
 )
 IF(WIN32)
     install(FILES "resources/3rd party licenses.txt"

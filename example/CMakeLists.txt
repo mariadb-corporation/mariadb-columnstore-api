@@ -1,3 +1,5 @@
+set(SUPPORTDIR ${SUPPORTDIR}/mcsapi)
+
 set(BASIC_BULK_INSERT_FILES
     basic_bulk_insert.cpp
 )
@@ -19,13 +21,13 @@ INSTALL(FILES "basic_bulk_insert.cpp"
 )
 ELSE(WIN32)
 INSTALL(TARGETS basic_bulk_insert
-    RUNTIME DESTINATION "${CMAKE_INSTALL_DOCDIR}/example"
+    RUNTIME DESTINATION "${SUPPORTDIR}/example"
     COMPONENT cpp-devel
 )
 
 INSTALL(FILES "basic_bulk_insert.cpp"
     "basic_bulk_insert.sql"
-    DESTINATION "${CMAKE_INSTALL_DOCDIR}/example"
+    DESTINATION "${SUPPORTDIR}/example"
     COMPONENT cpp-devel
 )
 ENDIF(WIN32)
@@ -51,12 +53,12 @@ INSTALL(FILES "advanced_bulk_insert.cpp"
 )
 ELSE(WIN32)
 INSTALL(TARGETS advanced_bulk_insert
-    RUNTIME DESTINATION "${CMAKE_INSTALL_DOCDIR}/example"
+    RUNTIME DESTINATION "${SUPPORTDIR}/example"
     COMPONENT cpp-devel
 )
 INSTALL(FILES "advanced_bulk_insert.cpp"
     "advanced_bulk_insert.sql"
-    DESTINATION "${CMAKE_INSTALL_DOCDIR}/example"
+    DESTINATION "${SUPPORTDIR}/example"
     COMPONENT cpp-devel
 )
 ENDIF(WIN32)
