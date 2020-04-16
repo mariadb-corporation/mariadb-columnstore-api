@@ -27,7 +27,7 @@ endif()
 #    ENDIF(WIN32)
 #endif()
 #include_directories(${MCSAPI_INCLUDE_DIRS})
-include_directories(${CMAKE_SOURCE_DIR}/src)
+include_directories(${CMAKE_SOURCE_DIR}/libmcsapi)
 
 IF(UNIX)
   INCLUDE(FindYamlCpp)
