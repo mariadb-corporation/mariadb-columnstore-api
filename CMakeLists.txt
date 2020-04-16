@@ -17,6 +17,7 @@ if(NOT COMPILER_SUPPORTS_CXX11)
 endif()
 
 include(cmake/version.cmake)
+include(cmake/parentdirlist.cmake)
 
 # use, i.e. don't skip the full RPATH for the build tree
 # SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
@@ -263,11 +264,15 @@ if (NOT PKG_CONFIG_FOUND)
 endif()
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/libmcsapi.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/libmcsapi.pc" @ONLY)
 IF(WIN32)
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libmcsapi.pc"
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libmcsapi.pc"
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig" COMPONENT cpp_devel) #Windows requires underscore
 ELSE(WIN32)
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libmcsapi.pc"
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig" COMPONENT cpp-devel) #Debian requires dash
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libmcsapi.pc"
+       DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig" COMPONENT cpp-devel) #Debian requires dash
+    
+    # for some reason on centos 7, this gets packaged under /usr/lib64/pkgconfig, but 
+    # ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR} is /usr/local/lib64/.  Hardcoding it for now.
+    list(APPEND CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION /usr/lib64/pkgconfig)
 ENDIF(WIN32)
 
 install(FILES "README.md"
