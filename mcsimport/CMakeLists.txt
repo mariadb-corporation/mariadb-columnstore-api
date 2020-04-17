@@ -11,22 +11,6 @@ if(NOT COMPILER_SUPPORTS_CXX11)
     message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no GNU++11 support. Please use a different C++ compiler.")
 endif()
 
-#IF(UNIX)
-#  INCLUDE(Findmcsapi)
-#ENDIF(UNIX)
-#IF(WIN32)
-#  INCLUDE(Findmcsapi_windows)
-#ENDIF(WIN32)
-
-#if (NOT MCSAPI_FOUND)
-#    IF(UNIX)
-#        MESSAGE(FATAL_ERROR "Could not find mcsapi")
-#    ENDIF(UNIX)
-#    IF(WIN32)
-#        MESSAGE(FATAL_ERROR "Could not find mcsapi.\nYou can hint cmake by setting the environment variable MCSAPI_INSTALL_DIR")
-#    ENDIF(WIN32)
-#endif()
-#include_directories(${MCSAPI_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/libmcsapi)
 
 IF(UNIX)
@@ -56,7 +40,6 @@ SET(MCSIMPORT_FILES
 
 add_executable(mcsimport ${MCSIMPORT_FILES})
 
-#target_link_libraries(mcsimport ${MCSAPI_LIBRARIES} ${YAML_LIBRARIES})
 target_link_libraries(mcsimport mcsapi ${YAML_LIBRARIES})
 
 IF(WIN32)
@@ -98,6 +81,5 @@ IF(WIN32)
     INSTALL(FILES ${MCSAPI_LIBXML2_RUNTIME_LIBRARY} DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT mcsimport)
     INSTALL(FILES ${MCSAPI_LIBICONV_RUNTIME_LIBRARY} DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT mcsimport)
     INSTALL(FILES ${MCSAPI_LIBUV_RUNTIME_LIBRARY} DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT mcsimport)
-    #install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/3rd party licenses.txt" DESTINATION "${CMAKE_INSTALL_DOCDIR}" COMPONENT mcsimport)
 ENDIF(WIN32)
 
