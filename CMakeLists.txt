@@ -191,6 +191,9 @@ IF (RPM)
 ELSEIF (DEB)
     SET (BINDIR     "/usr/bin")
     SET (SUPPORTDIR "/usr/share/columnstore")
+ELSEIF (WIN32)
+    SET (BINDIR     ${CMAKE_INSTALL_BINDIR})
+    SET (SUPPORTDIR ${CMAKE_INSTALL_DOCDIR})
 ELSE()
     SET (BINDIR     "/usr/local/bin")
     SET (SUPPORTDIR "/usr/local/share/columnstore")
@@ -474,12 +477,12 @@ if (WIN32)
 #        ENDIF()
 #        MESSAGE(STATUS "Found Visual Studio 2015/17 C++ Redistributable merge module: ${VS_2017_REDIST_MSM}")
 
-        configure_file(
-            "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/redist.patch.in"
-            "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/redist.patch"
-            IMMEDIATE @ONLY)
-        LIST(APPEND WIX_PATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/redist.patch")
-        SET(CPACK_WIX_PATCH_FILE ${WIX_PATCH_FILES})
+#        configure_file(
+#            "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/redist.patch.in"
+#            "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/redist.patch"
+#            IMMEDIATE @ONLY)
+#        LIST(APPEND WIX_PATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/redist.patch")
+#        SET(CPACK_WIX_PATCH_FILE ${WIX_PATCH_FILES})
         SET(CPACK_COMPONENT_MCSIMPORT_DISPLAY_NAME "MariaDB ColumnStore mcsimport")
         set(CPACK_COMPONENT_MCSIMPORT_DESCRIPTION "MariaDB ColumnStore mcsimport")
         set(CPACK_COMPONENT_MCSIMPORT_INSTALL_DIRECTORY "MariaDB/ColumnStore Remote Import")
