@@ -6,7 +6,6 @@ This tool imports data from a csv file into a remote ColumnStore instance utiliz
 
 The adapter depends on following libraries.
 
-* [mcsapi] (a DEB/RPM/MSI is provided by MariaDB, please install prior build)
 * [yaml-cpp]
 
 ### Linux
@@ -24,16 +23,15 @@ sudo make install
 
 #### Build and install mcsimport
 ```shell
-git clone https://github.com/mariadb-corporation/mariadb-columnstore-tools
+git clone https://github.com/mariadb-corporation/mariadb-columnstore-api
 mkdir build && cd build
-cmake ../mariadb-columnstore-tools -DBACKUPRESTORE=OFF -DMONITORING=OFF -DREMOTE_CPIMPORT=ON -DTEST_RUNNER=ON
+cmake .. -DREMOTE_CPIMPORT=ON 
 make
-ctest -V
 sudo make install
 ```
 
 ### Windows
-On Windows you need to set the environment variable `MCSAPI_INSTALL_DIR` to point to the installation directory of mcsapi. You further need to install Visual Studio with the "Visual Studio 2015 (v140)" platform toolset.
+On Windows you need to install Visual Studio with the "Visual Studio 2015 (v140)" platform toolset or greater.
 
 #### Install the yaml-cpp dependency
 ```shell
@@ -49,11 +47,10 @@ Afterwards set the environment variable `YAML_CPP_INSTALL_DIR` to the cloned yam
 
 #### Build and package mcsimport
 ```shell
-git clone https://github.com/mariadb-corporation/mariadb-columnstore-tools
+git clone https://github.com/mariadb-corporation/mariadb-columnstore-api
 mkdir build && cd build
-cmake ../mariadb-columnstore-data-adapters -DBACKUPRESTORE=OFF -DMONITORING=OFF -DREMOTE_CPIMPORT=ON -G "Visual Studio 14 2015 Win64" -DTEST_RUNNER=ON
+cmake .. -DREMOTE_CPIMPORT=ON -G "Visual Studio 15 2017 Win64" 
 cmake --build . --config RelWithDebInfo --target package
-ctest -C RelWithDebInfo -V
 signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /a "MariaDB ColumnStore mcsimport-*-x64.msi"
 ```
 
@@ -130,7 +127,6 @@ By default mcsimport rolls back the entire bulk import if a malformed csv entry 
 ### -err_log
 With this option an optional error log file is written which states truncated, saturated, and invalid values during the injection. If the command line parameter -ignore_malformed_csv is chosen, it also states which lines were ignored.
 
-[mcsapi]: https://github.com/mariadb-corporation/mariadb-columnstore-api
 [yaml-cpp]: https://github.com/jbeder/yaml-cpp
 [strptime]: http://pubs.opengroup.org/onlinepubs/9699919799/functions/strptime.html
 [Knowledge Base]: https://mariadb.com/kb/en/library/columnstore-bulk-write-sdk/#environment-configuration

@@ -441,7 +441,7 @@ MESSAGE(STATUS "RPM = ${RPM}")
 MESSAGE(STATUS "DEB = ${DEB}")
 MESSAGE(STATUS "REMOTE_CPIMPORT = ${REMOTE_CPIMPORT}")
 #MESSAGE(STATUS "PDFLATEX_COMPILER = ${PDFLATEX_COMPILER}")
-MESSAGE(STATUS "Change a values with: cmake -D<Variable>=<Value>")
+MESSAGE(STATUS "Change a value with: cmake -D<Variable>=<Value>")
 MESSAGE(STATUS "------------------------------------------------")
 MESSAGE(STATUS)
 

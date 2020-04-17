@@ -1,10 +1,10 @@
-# MariaDB ColumnStore API
+# MariaDB ColumnStore bulk write API
 
 
-The API requires MariaDB ColumnStore 1.2 to operate.
+This API requires MariaDB ColumnStore 1.4 to operate.
 
 
-This C++, Python and Java API currently provides access to bulk write to ColumnStore in a similar way to the cpimport using.
+This C++, Python and Java API currently provides access to the bulk write functionality in ColumnStore.
 
 ## Bugs
 
@@ -33,7 +33,7 @@ sudo pip3 install -U Sphinx
 sudo pip3 install javasphinx
 ```
 
-For test test suite:
+For test suite:
 
 ```shell
 sudo apt-get install libgtest-dev cppcheck default-libmysqlclient-dev
@@ -216,8 +216,9 @@ The options are as follows:
 | ``DEB`` | ``OFF`` | Build a DEB (and the OS name for the package) |
 | ``PYTHON`` | ``ON`` | Build the Python library |
 | ``JAVA`` | ``ON`` | Build the Java library |
-| ``SPRK_CONNECTOR`` | ``ON`` | Build the spark-connector library for Python and Scala |
+| ``SPARK_CONNECTOR`` | ``ON`` | Build the spark-connector library for Python and Scala |
 | ``RUN_CPPCHECK`` | ``OFF`` | Run cppcheck during ``make test`` or ``make all_cppcheck``|
+| ``REMOTE_CPIMPORT`` | ``ON`` | Build the remote import tool 'mcsimport' |
 
 ### Compiling
 
@@ -259,7 +260,7 @@ sudo make package
 
 ## Windows 10 (x64)
 
-Currently only the documentation can't be built on Windows.
+Currently only the documentation cannot be built on Windows.
 
 mcsapi requires the [Visual C++ Redistributable for Visual Studio 2015](https://www.microsoft.com/en-us/download/details.aspx?id=48145) (x64) to be executable.
 
@@ -307,7 +308,7 @@ To compile mcsapi enter following commands in x64 Native Tools Command Prompt fo
 ```
 git clone https://github.com/mariadb-corporation/mariadb-columnstore-api.git
 cd mariadb-columnstore-api
-git checkout develop-1.1
+git checkout develop-1.4
 mkdir build && cd build
 cmake -G "Visual Studio 15 2017 Win64" ..
 cmake --build . --config RelWithDebInfo
@@ -319,7 +320,7 @@ To create a msi install package use following commands:
 ```
 git clone https://github.com/mariadb-corporation/mariadb-columnstore-api.git
 cd mariadb-columnstore-api
-git checkout develop-1.1
+git checkout develop-1.4
 mkdir build && cd build
 cmake -G "Visual Studio 15 2017 Win64" ..
 cmake --build . --config RelWithDebInfo --target package
@@ -331,7 +332,7 @@ To create a signed msi install package you first need to import MariaDB private 
 ```
 git clone https://github.com/mariadb-corporation/mariadb-columnstore-api.git
 cd mariadb-columnstore-api
-git checkout develop-1.1
+git checkout develop-1.4
 mkdir build && cd build
 cmake -G "Visual Studio 15 2017 Win64" ..
 cmake --build . --config RelWithDebInfo --target package
@@ -348,7 +349,7 @@ signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /a "Ma
 ```
 git clone https://github.com/mariadb-corporation/mariadb-columnstore-api.git
 cd mariadb-columnstore-api
-git checkout develop-1.1
+git checkout develop-1.4
 mkdir build && cd build
 cmake -DTEST_RUNNER=ON -G "Visual Studio 15 2017 Win64" ..
 cmake --build . --config RelWithDebInfo
