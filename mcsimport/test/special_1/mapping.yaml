@@ -1,0 +1,17 @@
+- column:
+  - ignore
+- column:
+  target: 1
+- column:
+  target: t
+- column:
+  target: v
+- column: 
+  target: 5
+  format: "%b %d %Y"
+- column:
+  target: i
+- column:
+  target: 0
+- target: dt2
+  value: 1999-09-09

@@ -1,0 +1,8 @@
+- column: 0
+  target: id
+- column: 2
+  target: dtm
+  format: "%d.%m.%Y %S:%M:%H"
+- column: 1
+  target: 1
+  format: "%d %b %Y %S:%M:%H"

@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS mcsimport_test_null_option_1 (id int, v varchar(16), i2 int) engine=columnstore

@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS mcsimport_test_date_format_5 (id bigint unsigned, dt date, dtm datetime) engine=columnstore

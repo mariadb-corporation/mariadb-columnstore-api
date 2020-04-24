@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS mcsimport_test_malformed_csv_2 (id int, v varchar(16), i2 int) engine=columnstore
