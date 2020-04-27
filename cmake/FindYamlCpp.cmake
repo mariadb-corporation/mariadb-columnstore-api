@@ -8,7 +8,7 @@ IF(UNIX)
 FIND_PATH(YAML_INCLUDE_DIR NAMES yaml.h PATH_SUFFIXES yaml-cpp)
 
 # Try to find the library
-FIND_LIBRARY(YAML_LIBRARY NAMES yaml-cpp)
+FIND_LIBRARY(YAML_LIBRARY NAMES libyaml-cpp.a yaml-cpp)
 ENDIF(UNIX)
 
 IF(WIN32)

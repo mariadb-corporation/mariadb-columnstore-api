@@ -31,7 +31,9 @@ ENDIF()
 include_directories(${YAML_INCLUDE_DIRS})
 
 IF(UNIX)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -O3")
+  # The flags inherited from the top-level cmakelists currently break
+  # linking to static libs.  Need to revisit that at some point.
+  set(CMAKE_CXX_FLAGS "-std=gnu++11 -O3")
 ENDIF(UNIX)
 
 SET(MCSIMPORT_FILES
