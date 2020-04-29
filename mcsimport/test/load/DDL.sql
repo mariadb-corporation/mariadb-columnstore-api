@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS mcsimport_test_load (id bigint unsigned, c1 bigint, c2 bigint, t1 varchar(8), t2 varchar(8)) engine=columnstore

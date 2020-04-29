@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS mcsimport_test_implicit_df_non_mp (id bigint unsigned, a int, b int, c int) engine=columnstore

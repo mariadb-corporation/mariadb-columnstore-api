@@ -17,25 +17,7 @@ if(NOT COMPILER_SUPPORTS_CXX11)
 endif()
 
 include(cmake/version.cmake)
-
-# use, i.e. don't skip the full RPATH for the build tree
-SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
-
-# when building, don't use the install RPATH already
-# (but later on when installing)
-SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-
-SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
-
-# add the automatically determined parts of the RPATH
-# which point to directories outside the build tree to the install RPATH
-SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-# the RPATH to be used when installing, but only if it's not a system directory
-LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}" isSystemDir)
-IF("${isSystemDir}" STREQUAL "-1")
-    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
-ENDIF("${isSystemDir}" STREQUAL "-1")
+include(cmake/parentdirlist.cmake)
 
 # Disable no-deprecated-declarations
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
@@ -184,6 +166,20 @@ IF(WIN32)
     MESSAGE(STATUS "Found Visual Studio 2015/17 C++ Redistributable merge module: ${VS_2017_REDIST_MSM}")
 ENDIF(WIN32)
 
+IF (RPM)
+    SET (BINDIR     "/usr/bin")
+    SET (SUPPORTDIR "/usr/share/columnstore")
+ELSEIF (DEB)
+    SET (BINDIR     "/usr/bin")
+    SET (SUPPORTDIR "/usr/share/columnstore")
+ELSEIF (WIN32)
+    SET (BINDIR     ${CMAKE_INSTALL_BINDIR})
+    SET (SUPPORTDIR ${CMAKE_INSTALL_DOCDIR})
+ELSE()
+    SET (BINDIR     "/usr/local/bin")
+    SET (SUPPORTDIR "/usr/local/share/columnstore")
+ENDIF()
+
 include_directories(${CMAKE_SOURCE_DIR})
 include_directories(${CMAKE_BINARY_DIR})
 
@@ -233,6 +229,12 @@ IF(SPARK_CONNECTOR)
   ENDIF(PYTHON)
 ENDIF(SPARK_CONNECTOR)
 
+
+option(REMOTE_CPIMPORT "Build the mcsimport tool" ON)
+IF(REMOTE_CPIMPORT)
+    add_subdirectory(mcsimport)
+ENDIF(REMOTE_CPIMPORT)
+
 option(BUILD_DOCS "Build the documentation" OFF)
 #option(PDFLATEX_COMPILER "Build the pdf documentation (requires latex)" OFF)
 
@@ -246,16 +248,20 @@ if (NOT PKG_CONFIG_FOUND)
 endif()
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/libmcsapi.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/libmcsapi.pc" @ONLY)
 IF(WIN32)
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libmcsapi.pc"
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libmcsapi.pc"
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig" COMPONENT cpp_devel) #Windows requires underscore
 ELSE(WIN32)
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libmcsapi.pc"
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig" COMPONENT cpp-devel) #Debian requires dash
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libmcsapi.pc"
+       DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig" COMPONENT cpp-devel) #Debian requires dash
+    
+    # for some reason on centos 7, this gets packaged under /usr/lib64/pkgconfig, but 
+    # ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR} is /usr/local/lib64/.  Hardcoding it for now.
+    list(APPEND CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION /usr/lib64/pkgconfig)
 ENDIF(WIN32)
 
 install(FILES "README.md"
     "LICENSE.txt"
-    DESTINATION "${CMAKE_INSTALL_DOCDIR}" COMPONENT cpp
+    DESTINATION "${SUPPORTDIR}/mcsapi" COMPONENT cpp
 )
 IF(WIN32)
     install(FILES "resources/3rd party licenses.txt"
@@ -267,20 +273,21 @@ if (RPM)
     SET(CPACK_GENERATOR "RPM")
     SET(CPACK_RPM_PACKAGE_VERSION ${VERSION_SHORT})
     SET(CPACK_RPM_PACKAGE_RELEASE "1")
-    SET(CPACK_RPM_PACKAGE_NAME "mariadb-columnstore-api")
+    SET(CPACK_RPM_PACKAGE_NAME "MariaDB-columnstore-api")
     SET(CPACK_RPM_PACKAGE_SUMMARY "MariaDB ColumnStore API: A SDK to rapidly ingest data into MariaDB ColumnStore")
     SET(CPACK_RPM_PACKAGE_LICENSE "GPLv2")
     SET(ENGINE_ARCH "x86_64")
     SET(CPACK_PACKAGE_FILE_NAME "${CPACK_RPM_PACKAGE_NAME}-${CPACK_RPM_PACKAGE_VERSION}-${CPACK_RPM_PACKAGE_RELEASE}-${ENGINE_ARCH}-${RPM}")
     SET(CPACK_RPM_COMPONENT_INSTALL ON)
     SET(CPACK_RPM_cpp_PACKAGE_REQUIRES "libuv, libxml2, snappy")
-    SET(CPACK_RPM_cpp-devel_PACKAGE_REQUIRES "mariadb-columnstore-api-cpp == ${CPACK_RPM_PACKAGE_VERSION}")
-    SET(CPACK_RPM_java_PACKAGE_REQUIRES "mariadb-columnstore-api-cpp == ${CPACK_RPM_PACKAGE_VERSION}")
-    SET(CPACK_RPM_python_PACKAGE_REQUIRES "mariadb-columnstore-api-cpp == ${CPACK_RPM_PACKAGE_VERSION}")
-    SET(CPACK_RPM_python3_PACKAGE_REQUIRES "mariadb-columnstore-api-cpp == ${CPACK_RPM_PACKAGE_VERSION}")
-    SET(CPACK_RPM_spark_PACKAGE_REQUIRES "mariadb-columnstore-api-java == ${CPACK_RPM_PACKAGE_VERSION}")
-    SET(CPACK_RPM_pyspark_PACKAGE_REQUIRES "mariadb-columnstore-api-python == ${CPACK_RPM_PACKAGE_VERSION}")
-    SET(CPACK_RPM_pyspark3_PACKAGE_REQUIRES "mariadb-columnstore-api-python3 == ${CPACK_RPM_PACKAGE_VERSION}")
+    SET(CPACK_RPM_cpp-devel_PACKAGE_REQUIRES "MariaDB-columnstore-api-cpp == ${CPACK_RPM_PACKAGE_VERSION}")
+    SET(CPACK_RPM_java_PACKAGE_REQUIRES "MariaDB-columnstore-api-cpp == ${CPACK_RPM_PACKAGE_VERSION}")
+    SET(CPACK_RPM_python_PACKAGE_REQUIRES "MariaDB-columnstore-api-cpp == ${CPACK_RPM_PACKAGE_VERSION}")
+    SET(CPACK_RPM_python3_PACKAGE_REQUIRES "MariaDB-columnstore-api-cpp == ${CPACK_RPM_PACKAGE_VERSION}")
+    SET(CPACK_RPM_spark_PACKAGE_REQUIRES "MariaDB-columnstore-api-java == ${CPACK_RPM_PACKAGE_VERSION}")
+    SET(CPACK_RPM_pyspark_PACKAGE_REQUIRES "MariaDB-columnstore-api-python == ${CPACK_RPM_PACKAGE_VERSION}")
+    SET(CPACK_RPM_pyspark3_PACKAGE_REQUIRES "MariaDB-columnstore-api-python3 == ${CPACK_RPM_PACKAGE_VERSION}")
+    SET(CPACK_RPM_mcsimport_PACKAGE_REQUIRES "MariaDB-columnstore-api-cpp == ${CPACK_RPM_PACKAGE_VERSION}")
     include(CPack)
 endif()
 
@@ -292,13 +299,14 @@ if (DEB)
     SET(CPACK_GENERATOR "DEB")
     SET(CPACK_DEBIAN_PACKAGE_VERSION ${VERSION_SHORT})
     SET(PACKAGE_RELEASE "1") #need to change due to changed behaviour in CMake > 3.10
-    SET(CPACK_DEBIAN_PACKAGE_NAME "mariadb-columnstore-api")
+    SET(CPACK_DEBIAN_PACKAGE_NAME "MariaDB-columnstore-api")
     SET(CPACK_DEBIAN_PACKAGE_SUMMARY "MariaDB ColumnStore API: A SDK to rapidly ingest data into MariaDB ColumnStore")
     SET(CPACK_PACKAGE_CONTACT "MariaDB Corporation")
     SET(ENGINE_ARCH "amd64")
     SET(CPACK_DEBIAN_PACKAGE_LICENSE "GPLv2")
     SET(CPACK_PACKAGE_FILE_NAME "${CPACK_DEBIAN_PACKAGE_NAME}-${CPACK_DEBIAN_PACKAGE_VERSION}-${PACKAGE_RELEASE}-${DEB}.${ENGINE_ARCH}")
     SET(CPACK_DEB_COMPONENT_INSTALL ON)
+    SET(CPACK_DEBIAN_ENABLE_COMPONENT_DEPENDS ON)
     SET(CPACK_DEBIAN_CPP-DEVEL_PACKAGE_DEPENDS "mariadb-columnstore-api-cpp (= ${VERSION_SHORT})")
     SET(CPACK_DEBIAN_JAVA_PACKAGE_DEPENDS "mariadb-columnstore-api-cpp (= ${VERSION_SHORT})")
     SET(CPACK_DEBIAN_PYTHON_PACKAGE_DEPENDS "mariadb-columnstore-api-cpp (= ${VERSION_SHORT})")
@@ -306,9 +314,7 @@ if (DEB)
     SET(CPACK_DEBIAN_SPARK_PACKAGE_DEPENDS "mariadb-columnstore-api-java (= ${VERSION_SHORT})")
     SET(CPACK_DEBIAN_PYSPARK_PACKAGE_DEPENDS "mariadb-columnstore-api-python (= ${VERSION_SHORT})")
     SET(CPACK_DEBIAN_PYSPARK3_PACKAGE_DEPENDS "mariadb-columnstore-api-python3 (= ${VERSION_SHORT})")
-    SET(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
-    SET(CPACK_DEBIAN_PACKAGE_GENERATE_SHLIBS ON)
-    SET(CPACK_DEBIAN_PACKAGE_GENERATE_SHLIBS_POLICY ">=")
+    SET(CPACK_DEBIAN_MCSIMPORT_PACKAGE_DEPENDS "mariadb-columnstore-api-cpp (= ${VERSION_SHORT})")
     include(CPack)
 endif()
 
@@ -364,8 +370,8 @@ if (WIN32)
         IMMEDIATE @ONLY)
     LIST(APPEND WIX_PATCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpack_windows/features.patch")
     SET(CPACK_WIX_PATCH_FILE ${WIX_PATCH_FILES})
-    SET(CPACK_PACKAGE_NAME "MariaDB ColumnStore Bulk Write SDK")
-    set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "MariaDB ColumnStore Bulk Write SDK")
+    SET(CPACK_PACKAGE_NAME "MariaDB ColumnStore Bulk Write SDK and Remote Import Tool")
+    set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "MariaDB ColumnStore Bulk Write SDK and Remote Import Tool")
     set(CPACK_PACKAGE_VENDOR "MariaDB Corporation Ab")
     SET(CPACK_PACKAGE_CONTACT "MariaDB Corporation Ab")
     SET(ENGINE_ARCH "x64")
@@ -397,12 +403,19 @@ if (WIN32)
     set(CPACK_COMPONENT_PYTHON_DESCRIPTION "Installs Python libraries for usage and development")
 	set(CPACK_COMPONENT_PYTHON3_DISPLAY_NAME "Python3 libraries")
     set(CPACK_COMPONENT_PYTHON3_DESCRIPTION "Installs the Python3 libraries for usage and libraries")
-	set(CPACK_COMPONENT_SPARK_DISPLAY_NAME "Spark ColumnStore Exporter")
+	set(CPACK_COMPONENT_SPARK_DISPLAY_NAME "Spark exporter")
     set(CPACK_COMPONENT_SPARK_DESCRIPTION "Installs the ColumnStoreExporter for usage with Spark and Scala")
-	set(CPACK_COMPONENT_PYSPARK_DISPLAY_NAME "PySpark ColumnStore Exporter")
+	set(CPACK_COMPONENT_PYSPARK_DISPLAY_NAME "PySpark exporter")
     set(CPACK_COMPONENT_PYSPARK_DESCRIPTION "Installs the ColumnStoreExporter for usage with PySpark and Python 2.7")
-	set(CPACK_COMPONENT_PYSPARK3_DISPLAY_NAME "PySpark3 ColumnStore Exporter")
+	set(CPACK_COMPONENT_PYSPARK3_DISPLAY_NAME "PySpark3 exporter")
     set(CPACK_COMPONENT_PYSPARK3_DESCRIPTION "Installs the ColumnStoreExporter for usage with PySpark and Python 3")
+
+    IF(REMOTE_CPIMPORT)
+        SET(CPACK_COMPONENT_MCSIMPORT_DISPLAY_NAME "MCS Import")
+        set(CPACK_COMPONENT_MCSIMPORT_DESCRIPTION "MariaDB ColumnStore Remote Import Tool")
+        set(CPACK_COMPONENT_MCSIMPORT_INSTALL_DIRECTORY "MariaDB/ColumnStore Remote Import")
+        set(CPACK_COMPONENT_MCSIMPORT_DEPENDS cpp)
+    ENDIF(REMOTE_CPIMPORT)
     include(CPack)
 endif(WIN32)
 
@@ -426,8 +439,9 @@ MESSAGE(STATUS "JAVA = ${JAVA}")
 MESSAGE(STATUS "SPARK_CONNECTOR = ${SPARK_CONNECTOR}")
 MESSAGE(STATUS "RPM = ${RPM}")
 MESSAGE(STATUS "DEB = ${DEB}")
+MESSAGE(STATUS "REMOTE_CPIMPORT = ${REMOTE_CPIMPORT}")
 #MESSAGE(STATUS "PDFLATEX_COMPILER = ${PDFLATEX_COMPILER}")
-MESSAGE(STATUS "Change a values with: cmake -D<Variable>=<Value>")
+MESSAGE(STATUS "Change a value with: cmake -D<Variable>=<Value>")
 MESSAGE(STATUS "------------------------------------------------")
 MESSAGE(STATUS)
 

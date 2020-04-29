@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS mcsimport_test_windows_line_ends (id bigint unsigned, a int, b int, c int) engine=columnstore

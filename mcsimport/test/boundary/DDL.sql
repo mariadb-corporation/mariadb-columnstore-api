@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS mcsimport_test_boundary (id bigint unsigned, int64 bigint, uint32 int unsigned, int32 int, uint16 smallint unsigned, int16 smallint, uint8 tinyint unsigned, `int8` tinyint, f float, d double, ch4 char(5), vch30 varchar(30), dt date, dtm datetime, ti time, ti6 time(6), dc decimal(18), tx text) engine=columnstore

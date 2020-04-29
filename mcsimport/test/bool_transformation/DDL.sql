@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS mcsimport_test_bool_transformation (id bigint unsigned, a int, b varchar(8), c boolean, d date, e double) engine=columnstore
