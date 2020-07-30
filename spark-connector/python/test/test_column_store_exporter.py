@@ -132,8 +132,8 @@ def test_all_types():
     
     #write the test dataframe into columnstore
     columnStoreExporter.export("test","pythontest",testDF)
-    if os.environ.get("COLUMNSTORE_INSTALL_DIR") is not None:
-        columnStoreExporter.export("test","pythontest2",testDF,os.environ.get("COLUMNSTORE_INSTALL_DIR")+"/Columnstore.xml")
+    if os.environ.get("COLUMNSTORE_XML_DIR") is not None:
+        columnStoreExporter.export("test","pythontest2",testDF,os.environ.get("COLUMNSTORE_XML_DIR")+"/Columnstore.xml")
     else:
         columnStoreExporter.export("test","pythontest2",testDF,"/etc/columnstore/Columnstore.xml")
     

@@ -117,8 +117,8 @@ class ColumnStoreExporterTestFromWorker {
 
       //write the test dataframe into columnstore
       ColumnStoreExporter.exportFromWorkers("test", "scalatest_w_", testDF.rdd)
-      if (sys.env.get("COLUMNSTORE_INSTALL_DIR") != None){
-        ColumnStoreExporter.exportFromWorkers("test", "scalatest_w_2", testDF.rdd, List.range(0,testDF.rdd.getNumPartitions), sys.env.get("COLUMNSTORE_INSTALL_DIR").get+"/Columnstore.xml")
+      if (sys.env.get("COLUMNSTORE_XML_DIR") != None){
+        ColumnStoreExporter.exportFromWorkers("test", "scalatest_w_2", testDF.rdd, List.range(0,testDF.rdd.getNumPartitions), sys.env.get("COLUMNSTORE_XML_DIR").get+"/Columnstore.xml")
       }else{
         ColumnStoreExporter.exportFromWorkers("test", "scalatest_w_2", testDF.rdd, List.range(0,testDF.rdd.getNumPartitions), "/etc/columnstore/Columnstore.xml")
       }

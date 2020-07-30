@@ -196,7 +196,7 @@ You also have to ensure that libmcsapi.so and dotnet_mcsapi.so have a valid PATH
 To run the tests in dotnet/test in windows, one will need to set some environment variables, which are
 mostly the same as outlined in the main README for windows testing:
 
-* ```COLUMNSTORE_INSTALL_DIR``` -- Required for windows, points to the folder holding the etc/Columnstore.xml file.
+* ```COLUMNSTORE_XML_DIR``` -- Required for windows, points to the folder holding the etc/Columnstore.xml file.
 * ```PATH``` -- This environment variable must also contain the dotnet/lib-win-x64 directory (as an absolute path).
   Windows uses this to find the DLLs to use for testing.
 

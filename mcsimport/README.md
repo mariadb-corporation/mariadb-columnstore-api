@@ -95,7 +95,7 @@ Explicit mapping is also possible.
 Using this variant the first (#0) csv source column is mapped to the target columnstore column with the name `id`, and the fifth source csv column (#4) is mapped to the target columnstore column with the name `salary`. It further defines that the target columnstore column `timestamp` uses a default value of `2018-09-13 12:00:00` for the injection.
 
 ### -c Columnstore.xml
-By default mcsimport uses the standard configuration file `/etc/columnstore/Columnstore.xml` or if set the one defined through the environment variable `COLUMNSTORE_INSTALL_DIR` to connect to the remote Columnstore instance. Individual configurations can be defined through the command line parameter -c. Information on how to create individual Columnstore.xml files can be found in our [Knowledge Base]. 
+By default mcsimport uses the standard configuration file `/etc/columnstore/Columnstore.xml` or if set the one defined through the environment variable `COLUMNSTORE_XML_DIR` to connect to the remote Columnstore instance. Individual configurations can be defined through the command line parameter -c. Information on how to create individual Columnstore.xml files can be found in our [Knowledge Base]. 
 
 ### -d delimiter
 The default delimiter of the CSV input file is a comma `,` and can be changed through the command line parameter -d. Only one character delimiters are currently supported.

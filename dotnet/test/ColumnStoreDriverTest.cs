@@ -32,7 +32,7 @@ namespace test
         public static string TestTable = "t1";
 
         public static string ColumnStoreXmlFilename = "Columnstore.xml";
-        public static string ColumnStoreInstallEnvVariable = "COLUMNSTORE_INSTALL_DIR";
+        public static string ColumnStoreInstallEnvVariable = "COLUMNSTORE_XML_DIR";
 
         /// <summary>
         /// The path and filename found for the Columnstore.xml config.

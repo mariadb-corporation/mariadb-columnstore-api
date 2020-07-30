@@ -117,8 +117,8 @@ class ColumnStoreExporterTest {
 
       //write the test dataframe into columnstore
       ColumnStoreExporter.export("test", "scalatest", testDF)
-      if (sys.env.get("COLUMNSTORE_INSTALL_DIR") != None){
-        ColumnStoreExporter.export("test", "scalatest2", testDF, sys.env.get("COLUMNSTORE_INSTALL_DIR").get+"/Columnstore.xml")
+      if (sys.env.get("COLUMNSTORE_XML_DIR") != None){
+        ColumnStoreExporter.export("test", "scalatest2", testDF, sys.env.get("COLUMNSTORE_XML_DIR").get+"/Columnstore.xml")
       }else{
         ColumnStoreExporter.export("test", "scalatest2", testDF, "/etc/columnstore/Columnstore.xml")
       }

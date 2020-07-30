@@ -3,8 +3,8 @@ def prepare_test(test_directory):
     from shutil import copyfile
 
     cs_xml = "/etc/columnstore/Columnstore.xml"
-    if os.environ.get("COLUMNSTORE_INSTALL_DIR") is not None:
-        cs_xml=os.path.join(os.environ.get("COLUMNSTORE_INSTALL_DIR"),'/Columnstore.xml')
+    if os.environ.get("COLUMNSTORE_XML_DIR") is not None:
+        cs_xml=os.path.join(os.environ.get("COLUMNSTORE_XML_DIR"),'/Columnstore.xml')
     
     if os.path.exists(cs_xml):
        copyfile(cs_xml,os.path.join(test_directory,'/Columnstore.xml'))
