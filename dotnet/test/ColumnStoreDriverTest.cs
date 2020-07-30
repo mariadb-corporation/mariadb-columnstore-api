@@ -211,7 +211,7 @@ namespace test
                 }
                 else if (ex.Message.Contains("Table already locked"))
                 {
-                    Console.WriteLine("Try: sudo /usr/local/mariadb/columnstore/bin/dbrmctl resume");
+                    Console.WriteLine("Try: sudo dbrmctl resume");
                 }
                 Assert.True(false, "Could not connect/create a bulk insert instance.");
             }

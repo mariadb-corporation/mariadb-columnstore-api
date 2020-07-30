@@ -137,13 +137,13 @@ void ColumnStoreDriver::clearTableLock(TableLockInfo tbi)
         std::string err("No DBRoots found in configuration");
         throw ColumnStoreConfigError(err);
     }
-
+/*
     if (!commands->procMonCheckVersion())
     {
         std::string err("Incompatible ColumnStore version found");
         throw ColumnStoreVersionError(err);
     }
-
+*/
     // get a connection
     for (auto& pmit : pmList)
     {

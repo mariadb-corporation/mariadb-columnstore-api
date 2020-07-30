@@ -19,6 +19,7 @@ def prepare_test(test_directory):
         from shutil import copyfile
         copyfile(os.path.join(test_directory,'input.csv'),os.path.join(test_directory,'expected.csv'))
     else:
+        print("symlink file %s" %(os.path.join(test_directory,'input.csv'),))
         os.symlink(os.path.join(test_directory,'input.csv'),os.path.join(test_directory,'expected.csv'))
     
     return

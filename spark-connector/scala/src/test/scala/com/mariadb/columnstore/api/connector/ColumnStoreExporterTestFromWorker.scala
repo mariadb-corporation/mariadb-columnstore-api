@@ -118,19 +118,19 @@ class ColumnStoreExporterTestFromWorker {
       //write the test dataframe into columnstore
       ColumnStoreExporter.exportFromWorkers("test", "scalatest_w_", testDF.rdd)
       if (sys.env.get("COLUMNSTORE_INSTALL_DIR") != None){
-        ColumnStoreExporter.exportFromWorkers("test", "scalatest_w_2", testDF.rdd, List.range(0,testDF.rdd.getNumPartitions), sys.env.get("COLUMNSTORE_INSTALL_DIR").get+"/etc/Columnstore.xml")
+        ColumnStoreExporter.exportFromWorkers("test", "scalatest_w_2", testDF.rdd, List.range(0,testDF.rdd.getNumPartitions), sys.env.get("COLUMNSTORE_INSTALL_DIR").get+"/Columnstore.xml")
       }else{
-        ColumnStoreExporter.exportFromWorkers("test", "scalatest_w_2", testDF.rdd, List.range(0,testDF.rdd.getNumPartitions), "/usr/local/mariadb/columnstore/etc/Columnstore.xml")
+        ColumnStoreExporter.exportFromWorkers("test", "scalatest_w_2", testDF.rdd, List.range(0,testDF.rdd.getNumPartitions), "/etc/columnstore/Columnstore.xml")
       }
       
-      verifyAllTypes(connection, 1L, "1, 2, 3, 4, 5, 6, 7, 8, 1.234, 2.345669984817505, ABCD, Hello World, 2017-09-08, 2017-09-08 13:58:23.0, 123, Hello World Longer, true, 9223372036854775807, -1E-9")
-      verifyAllTypes(connection, 0L, "0, -9223372036854775806, 0, -2147483646, 0, -32766, 0, -126, 1.234, 2.345669984817505, A, B, 1000-01-01, 1000-01-01 00:00:00.0, -123, C, false, 18446744073709551613, 100000000.999999999")
-      verifyAllTypes(connection, 9223372036854775807L, "9223372036854775807, 9223372036854775807, 4294967293, 2147483647, 65533, 32767, 253, 127, 1.234, 2.345669984817505, ZYXW, 012345678901234567890123456789, 9999-12-31, 9999-12-31 23:59:59.0, 123, 012345678901234567890123456789, true, 2342, 23.420000000")
-      verifyAllTypes(connection, 42L, "42, 43, 44, null, null, null, null, null, 3.45, 556.2999877929688, null, null, null, null, null, null, false, null, null")
-      verifyAllTypes2(connection, 1L, "1, 2, 3, 4, 5, 6, 7, 8, 1.234, 2.345669984817505, ABCD, Hello World, 2017-09-08, 2017-09-08 13:58:23.0, 123, Hello World Longer, true, 9223372036854775807, -1E-9")
-      verifyAllTypes2(connection, 0L, "0, -9223372036854775806, 0, -2147483646, 0, -32766, 0, -126, 1.234, 2.345669984817505, A, B, 1000-01-01, 1000-01-01 00:00:00.0, -123, C, false, 18446744073709551613, 100000000.999999999")
-      verifyAllTypes2(connection, 9223372036854775807L, "9223372036854775807, 9223372036854775807, 4294967293, 2147483647, 65533, 32767, 253, 127, 1.234, 2.345669984817505, ZYXW, 012345678901234567890123456789, 9999-12-31, 9999-12-31 23:59:59.0, 123, 012345678901234567890123456789, true, 2342, 23.420000000")
-      verifyAllTypes(connection, 42L, "42, 43, 44, null, null, null, null, null, 3.45, 556.2999877929688, null, null, null, null, null, null, false, null, null")
+      verifyAllTypes(connection, 1L, "1, 2, 3, 4, 5, 6, 7, 8, 1.234, 2.345669984817505, ABCD, Hello World, 2017-09-08, 2017-09-08 13:58:23.0, 123, Hello World Longer, 1, 9223372036854775807, -1E-9")
+      verifyAllTypes(connection, 0L, "0, -9223372036854775806, 0, -2147483646, 0, -32766, 0, -126, 1.234, 2.345669984817505, A, B, 1000-01-01, 1000-01-01 00:00:00.0, -123, C, 0, 18446744073709551613, 100000000.999999999")
+      verifyAllTypes(connection, 9223372036854775807L, "9223372036854775807, 9223372036854775807, 4294967293, 2147483647, 65533, 32767, 253, 127, 1.234, 2.345669984817505, ZYXW, 012345678901234567890123456789, 9999-12-31, 9999-12-31 23:59:59.0, 123, 012345678901234567890123456789, 1, 2342, 23.420000000")
+      verifyAllTypes(connection, 42L, "42, 43, 44, null, null, null, null, null, 3.45, 556.2999877929688, null, null, null, null, null, null, 0, null, null")
+      verifyAllTypes2(connection, 1L, "1, 2, 3, 4, 5, 6, 7, 8, 1.234, 2.345669984817505, ABCD, Hello World, 2017-09-08, 2017-09-08 13:58:23.0, 123, Hello World Longer, 1, 9223372036854775807, -1E-9")
+      verifyAllTypes2(connection, 0L, "0, -9223372036854775806, 0, -2147483646, 0, -32766, 0, -126, 1.234, 2.345669984817505, A, B, 1000-01-01, 1000-01-01 00:00:00.0, -123, C, 0, 18446744073709551613, 100000000.999999999")
+      verifyAllTypes2(connection, 9223372036854775807L, "9223372036854775807, 9223372036854775807, 4294967293, 2147483647, 65533, 32767, 253, 127, 1.234, 2.345669984817505, ZYXW, 012345678901234567890123456789, 9999-12-31, 9999-12-31 23:59:59.0, 123, 012345678901234567890123456789, 1, 2342, 23.420000000")
+      verifyAllTypes(connection, 42L, "42, 43, 44, null, null, null, null, null, 3.45, 556.2999877929688, null, null, null, null, null, null, 0, null, null")
  
       //drop the test table
       statement.executeQuery("""DROP TABLE IF EXISTS scalatest_w_""")
