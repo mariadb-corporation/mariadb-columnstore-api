@@ -1,9 +1,9 @@
 ColumnStoreDriver Class
 =======================
 
-.. envvar:: COLUMNSTORE_INSTALL_DIR
+.. envvar:: COLUMNSTORE_XML_DIR
 
-   The optional environment variable containing the path to the ColumnStore installation. Used by :cpp:class:`ColumnStoreDriver`
+   The optional environment variable containing the path to the Columnstore.xml file. Used by :cpp:class:`ColumnStoreDriver`
 
 .. cpp:class:: ColumnStoreDriver
 

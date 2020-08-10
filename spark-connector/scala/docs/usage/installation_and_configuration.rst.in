@@ -74,9 +74,9 @@ On the other hand, mcsapi for Spark needs information about the ColumnStore clus
 
 .. code-block:: bash
 
-   docker cp COLUMNSTORE_UM_1:/usr/local/mariadb/columnstore/etc/Columnstore.xml .
-   docker exec -it {SPARK_MASTER | SPARK_WORKER_1 | SPARK_WORKER_2} mkdir -p /usr/local/mariadb/columnstore/etc
-   docker cp Columnstore.xml {SPARK_MASTER | SPARK_WORKER_1 | SPARK_WORKER_2}:/usr/local/mariadb/columnstore/etc
+   docker cp COLUMNSTORE_UM_1:/etc/columnstore/Columnstore.xml .
+   docker exec -it {SPARK_MASTER | SPARK_WORKER_1 | SPARK_WORKER_2} mkdir -p /etc/columnstore/
+   docker cp Columnstore.xml {SPARK_MASTER | SPARK_WORKER_1 | SPARK_WORKER_2}:/etc/columnstore/
 
 More information about `creating appropriate Columnstore.xml configuration files`_ and `Spark configuration changes`_ can be found in our Knowledge Base.   
 

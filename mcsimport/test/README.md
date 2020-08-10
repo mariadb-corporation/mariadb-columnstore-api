@@ -17,7 +17,7 @@ pip2 install -r requirements.txt
 ```
 
 By default the test suite uses the default Columnstore.xml residing in `/etc/columnstore/Columnstore.xml` for the bulk injection and a JDBC connection with user `root` on `127.0.0.1` without password to execute DDL.  
-This is fine for local ColumnStore installations on Linux. On Windows and for remote tests these parameters need to be overwritten through the environment variables `COLUMNSTORE_INSTALL_DIR`, `MCSAPI_CS_TEST_IP`, `MCSAPI_CS_TEST_USER`, and `MCSAPI_CS_TEST_PASSWORD`.
+This is fine for local ColumnStore installations on Linux. On Windows and for remote tests these parameters need to be overwritten through the environment variables `COLUMNSTORE_XML_DIR`, `MCSAPI_CS_TEST_IP`, `MCSAPI_CS_TEST_USER`, and `MCSAPI_CS_TEST_PASSWORD`.
 
 ## Test definition
 Here a short summary how a test can be designed.

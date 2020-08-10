@@ -439,11 +439,13 @@ void ColumnStoreBulkInsertImpl::connect()
         throw ColumnStoreConfigError(err);
     }
 
+/*
     if (!commands->procMonCheckVersion())
     {
         std::string err("Incompatible ColumnStore version found");
         throw ColumnStoreVersionError(err);
     }
+*/
 
     if (commands->brmGetSystemSuspended())
     {
